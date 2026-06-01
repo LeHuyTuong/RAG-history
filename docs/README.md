@@ -37,6 +37,11 @@ Nguyên tắc xuyên suốt:
 | `17-deployment-docker-compose.md` | Thiết kế Docker Compose cho môi trường demo/deploy nhỏ. |
 | `18-evaluation.md` | Cách đánh giá retrieval, answer, citation, graph và hallucination. |
 | `19-demo-script.md` | Kịch bản demo đồ án. |
+| `20-logical-erd.md` | ⚠️ *(Cũ — đã thay bằng `22`)* Logical ERD Design B. |
+| `21-db-rag-connection.md` | Hợp đồng kết nối DB ↔ RAG: pipeline ingest/query, payload Qdrant, sync Neo4j, vòng đời. |
+| `22-logical-erd-v2.md` | **Logical ERD v2** (dựng từ conceptual ERD mới): ánh xạ conceptual→logical, 4 điểm chạm RAG, chi tiết bảng cầu, index. Thay cho `20`. |
+| `23-physical-data-model.md` | **Physical data model** (17 bảng): quy ước MySQL 8/InnoDB/utf8mb4, ánh xạ kiểu dữ liệu, chiến lược FK ON DELETE, polymorphic `rag_chunk`. DDL chạy được ở `V1__init.sql`. |
+| `24-coding-standards.md` | **Coding standards** cheat-sheet: Java/Spring Boot naming (class/method/biến/layer/package) + REST API design (URL, method, status code, JSON, lỗi). Kèm ví dụ DO/DON'T. |
 
 ## Ghi chú triển khai
 
