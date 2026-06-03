@@ -4,79 +4,9 @@
 
 Backend Spring Boot nên chia theo module/domain để codebase dễ đọc và dễ mở rộng:
 
-- Không dồn toàn bộ controller/service/repository vào một package chung.
 - Mỗi domain tự quản lý entity, repository, service, controller và dto của mình.
 - Module khác cần dữ liệu thì gọi public function của service, không gọi repository trực tiếp.
 - Controller mỏng, không chứa business logic.
-
-## Cấu trúc đề xuất
-
-```text
-backend/
-├── src/main/java/com/example/historyrag/
-│   ├── HistoryRagApplication.java
-│   ├── common/
-│   │   ├── config/
-│   │   ├── exception/
-│   │   ├── response/
-│   │   ├── security/
-│   │   └── util/
-│   ├── module/
-│   │   ├── auth/
-│   │   │   ├── controller/
-│   │   │   ├── service/
-│   │   │   ├── dto/
-│   │   │   ├── entity/
-│   │   │   └── repository/
-│   │   ├── user/
-│   │   ├── article/
-│   │   ├── category/
-│   │   ├── document/
-│   │   ├── datasource/
-│   │   ├── chat/
-│   │   ├── rag/
-│   │   ├── graph/
-│   │   └── admin/
-│   └── infrastructure/
-│       ├── storage/
-│       ├── file/
-│       ├── webclient/
-│       └── scheduler/
-```
-
-Mỗi module domain nên có cấu trúc tương tự:
-
-```text
-module/article/
-├── controller/
-├── service/
-├── dto/
-├── entity/
-└── repository/
-```
-
-## Common package
-
-`common/` chứa phần dùng chung:
-
-- `config/`: cấu hình Spring Security, WebClient, CORS, upload, pagination.
-- `exception/`: custom exception, global exception handler.
-- `response/`: response wrapper, error response, pagination response.
-- `security/`: JWT filter, principal, password encoder.
-- `util/`: slug util, date util, file name util.
-
-Không đặt business logic domain trong `common/`.
-
-## Infrastructure package
-
-`infrastructure/` chứa adapter kỹ thuật:
-
-- `storage/`: lưu file local hoặc cloud storage.
-- `file/`: validate file, detect MIME type.
-- `webclient/`: cấu hình HTTP client gọi FastAPI.
-- `scheduler/`: job định kỳ nếu cần re-ingest hoặc cleanup.
-
-Không đặt controller domain trong `infrastructure/`.
 
 ## Module auth
 
@@ -211,15 +141,6 @@ Trách nhiệm:
 - Gọi service của các module khác.
 
 Admin module không nên chứa business logic trực tiếp quá nhiều. Nếu cần thao tác article thì gọi `ArticleService`; cần document thì gọi `DocumentService`.
-
-## DTO naming gợi ý
-
-| Loại DTO | Ví dụ | Vai trò |
-|---|---|---|
-| Request | `CreateArticleRequest` | Dữ liệu client gửi lên. |
-| Response | `ArticleResponse` | Dữ liệu trả về client. |
-| Summary | `ArticleSummaryResponse` | Dữ liệu rút gọn cho list. |
-| Internal | `RagChatRequest` | Dữ liệu gọi service nội bộ hoặc external API. |
 
 ## Kết luận
 
