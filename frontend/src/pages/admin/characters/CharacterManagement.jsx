@@ -18,7 +18,7 @@ const CharacterManagement = () => {
       {/* PAGE TITLE & SUBTITLE */}
       <div className="flex flex-col md:flex-row justify-between items-start gap-4 border-b border-outline-variant/30 pb-8">
         <div>
-          <h2 className="font-headline text-4xl text-primary font-bold">Quản lý Nhân vật Lịch sử</h2>
+          <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">Quản lý Nhân vật Lịch sử</h2>
           <p className="font-body text-sm text-on-surface-variant italic mt-2">Quản lý hồ sơ, tiểu sử và các mối liên kết thực thể trong hệ thống Sử Việt.</p>
         </div>
         <button 

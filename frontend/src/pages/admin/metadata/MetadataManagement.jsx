@@ -27,7 +27,7 @@ const MetadataManagement = () => {
   return (
     <div className="flex-grow min-h-screen bg-surface font-body pb-20">
       <header className="h-16 sticky top-0 z-40 bg-surface-low/90 backdrop-blur border-b border-outline-variant px-8 flex items-center justify-between">
-        <h2 className="font-headline text-2xl text-primary font-bold italic tracking-tighter uppercase">Quản lý Siêu dữ liệu</h2>
+        <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">Quản lý Siêu dữ liệu</h2>
         <div className="flex gap-3">
            <button onClick={() => navigate('/admin/metadata/categories/new')} className="text-[10px] font-bold uppercase border border-primary text-primary px-4 py-2 rounded hover:bg-primary/5 transition-all"> + Danh mục</button>
            <button onClick={() => navigate('/admin/metadata/tags/new')} className="text-[10px] font-bold uppercase border border-primary text-primary px-4 py-2 rounded hover:bg-primary/5 transition-all"> + Thẻ Tags</button>

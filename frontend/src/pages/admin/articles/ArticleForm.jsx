@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 const ArticleForm = () => {
   const { id } = useParams();
@@ -175,53 +177,28 @@ const handleEditorImageInsert = (e) => {
             <textarea rows="3" value={form.excerpt} onChange={e => setForm({...form, excerpt: e.target.value})} className="w-full bg-transparent border-none focus:ring-0 font-body text-sm italic leading-relaxed resize-none outline-none" placeholder="Mô tả ngắn gọn nội dung..." />
           </section>
 
-          {/* TRÌNH SOẠN THẢO VĂN BẢN */}
-<section className="bg-white border border-outline-variant shadow-sm min-h-[600px] flex flex-col rounded-sm">
-            {/* Toolbar */}
-            <div className="flex items-center gap-1 p-2 border-b border-outline-variant bg-surface-low/30 sticky top-0 z-10">
-              <EditorBtn onClick={() => runCommand('bold')} label="B" />
-              <EditorBtn onClick={() => runCommand('italic')} label="I" />
-              <EditorBtn onClick={() => runCommand('underline')} label="U" />
-              
-              <div className="w-px h-6 bg-outline-variant mx-2"></div>
-              
-              <button onClick={() => runCommand('formatBlock', 'H1')} className="px-2 font-bold text-xs hover:text-primary transition-all">H1</button>
-              <button onClick={() => runCommand('formatBlock', 'H2')} className="px-2 font-bold text-xs hover:text-primary transition-all">H2</button>
-              
-              <div className="w-px h-6 bg-outline-variant mx-2"></div>
-              
-              <EditorBtn onClick={() => runCommand('insertUnorderedList')} icon="format_list_bulleted" />
-              <EditorBtn onClick={() => runCommand('formatBlock', 'blockquote')} icon="format_quote" />
-              <EditorBtn onClick={() => {
-                const url = prompt("Nhập liên kết:");
-                if(url) runCommand('createLink', url);
-              }} icon="add_link" />
-              
-              {/* Nút chèn ảnh */}
-              <EditorBtn onClick={() => editorImageInputRef.current.click()} icon="image" />
-
-              <div className="w-px h-6 bg-outline-variant mx-2"></div>
-              
-              <EditorBtn icon="history_edu" />
-              
-              {/* Input file ẩn phục vụ chèn ảnh vào editor */}
-              <input 
-                type="file" 
-                ref={editorImageInputRef} 
-                className="hidden" 
-                accept="image/*" 
-                onChange={handleEditorImageInsert} 
-              />
-            </div>
-
-            {/* Editable Area */}
-            <div
-              ref={editorRef}
-              contentEditable
-              onInput={updateContent}
-              className="flex-1 p-10 font-body text-lg leading-loose outline-none min-h-[500px] bg-[#fcf9ee]/10 prose max-w-none focus:bg-white transition-all"
+          {/* TRÌNH SOẠN THẢO VĂN BẢN (QUILL) */}
+          <section className="bg-white border border-outline-variant shadow-sm rounded-sm">
+            <ReactQuill 
+              theme="snow"
+              value={form.content}
+              onChange={(content) => setForm({...form, content})}
+              modules={{
+                toolbar: [
+                  [{ 'header': [1, 2, 3, false] }],
+                  ['bold', 'italic', 'underline', 'strike'],
+                  [{ 'align': [] }],
+                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                  [{ 'indent': '-1'}, { 'indent': '+1' }],
+                  [{ 'script': 'sub'}, { 'script': 'super' }],
+                  ['clean'],
+                  [{ 'color': [] }, { 'background': [] }],
+                  ['link', 'image']
+                ]
+              }}
+              className="min-h-[500px] font-body text-lg"
               placeholder="Bắt đầu soạn thảo nội dung..."
-            ></div>
+            />
           </section>
        
           </div>
@@ -313,15 +290,5 @@ const handleEditorImageInsert = (e) => {
     </div>
   );
 };
-// Component con cho các nút trên Toolbar
-const EditorBtn = ({ onClick, icon, label }) => (
-  <button 
-    type="button" 
-    onClick={onClick} 
-    className="w-9 h-9 flex items-center justify-center rounded hover:bg-white hover:shadow-sm text-on-surface-variant hover:text-primary transition-all"
-  >
-    {label ? <span className="font-bold text-sm">{label}</span> : <span className="material-symbols-outlined text-lg">{icon}</span>}
-  </button>
-);
 
 export default ArticleForm;

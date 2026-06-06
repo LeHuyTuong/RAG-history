@@ -47,7 +47,7 @@ const handleImageChange = (e) => {
       <main className="p-8 max-w-7xl mx-auto space-y-8 font-body">
 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-outline-variant/30 pb-6">
   <div>
-    <h2 className="font-headline text-3xl text-primary font-bold tracking-tight">
+    <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">
       Hồ sơ Nhân vật Lịch sử
     </h2>
 

@@ -31,7 +31,7 @@ const MemberForm = () => {
 
   {/* LEFT TITLE */}
   <div>
-    <h2 className="font-headline text-3xl text-primary font-bold tracking-tight">
+    <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">
       {isEdit ? 'Chỉnh sửa Hồ sơ Thành viên' : 'Thiết lập Tài khoản Mới'}
     </h2>
 

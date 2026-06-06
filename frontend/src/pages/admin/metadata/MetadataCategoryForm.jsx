@@ -65,7 +65,7 @@ const handleImageChange = (e) => {
   
   {/* LEFT: TITLE */}
   <div className="flex flex-col gap-1">
-    <h2 className="font-headline text-3xl text-primary font-bold tracking-tight">
+    <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">
       {isEdit ? 'Hiệu đính Phân cấp Danh mục' : 'Kiến tạo Danh mục mới'}
     </h2>
     <p className="text-on-surface-variant text-sm italic">

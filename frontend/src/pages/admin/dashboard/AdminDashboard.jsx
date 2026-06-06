@@ -19,7 +19,7 @@ const AdminDashboard = () => {
         {/* --- PAGE HEADER --- */}
         <div className="mb-10 border-b border-outline-variant/30 pb-8">
           {/* Tiêu đề lớn: Playfair Display */}
-          <h2 className="font-headline text-4xl text-primary font-bold tracking-tight">
+          <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">
             Bảng điều khiển Quản trị
           </h2>
           {/* Lời dẫn: Manrope */}

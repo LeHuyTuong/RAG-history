@@ -19,7 +19,7 @@ const EventManagement = () => {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-end gap-4">
           <div>
-            <h2 className="font-headline text-3xl text-primary font-bold">Quản lý Sự kiện Lịch sử</h2>
+            <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">Quản lý Sự kiện Lịch sử</h2>
             <p className="font-body text-sm text-on-surface-variant mt-1 italic">Lưu trữ và hiệu đính các cột mốc quan trọng trong tiến trình lịch sử dân tộc.</p>
           </div>
           <button onClick={() => navigate('/admin/events/new')} className="bg-primary text-white px-6 py-3 rounded-lg flex items-center gap-2 hover:opacity-90 active:scale-95 shadow-md font-headline font-bold uppercase text-sm">

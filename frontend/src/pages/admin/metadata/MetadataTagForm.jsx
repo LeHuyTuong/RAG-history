@@ -23,7 +23,7 @@ return (
       <div className="col-span-12 flex justify-between items-start border-b border-outline-variant pb-6 mb-6">
         
         <div className="space-y-1">
-          <h2 className="font-headline text-3xl text-primary font-bold">
+          <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">
             {id ? 'Chỉnh sửa Thẻ Metadata' : 'Tạo Thẻ'}
           </h2>
           <p className="text-on-surface-variant text-sm italic">

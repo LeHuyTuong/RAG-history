@@ -60,7 +60,7 @@ const removeImage = (e) => {
       <main className="p-8 max-w-6xl mx-auto space-y-8 font-body">
 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-outline-variant/30 pb-6">
   <div>
-    <h2 className="font-headline text-3xl text-primary font-bold tracking-tight">
+    <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">
       {isEdit ? 'Chỉnh sửa Địa danh' : 'Thêm Địa danh Mới'}
     </h2>
 

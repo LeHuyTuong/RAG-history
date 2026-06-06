@@ -44,7 +44,7 @@ const MetadataPeriodForm = () => {
 
   {/* LEFT TITLE */}
   <div>
-    <h2 className="font-headline text-3xl text-primary font-bold tracking-tight">
+    <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">
       Ghi chép Kỷ nguyên mới
     </h2>
     <p className="text-on-surface-variant text-sm mt-1 italic font-body">

@@ -44,7 +44,10 @@ const AdminLayout = () => {
 
       <aside className="w-64 h-screen sticky top-0 left-0 bg-[#6B1515] text-white flex flex-col py-6 shrink-0 z-50 border-r border-white/10">
         <div className="px-8 mb-8 cursor-pointer" onClick={() => navigate('/admin')}>
-          <h1 className="font-headline text-2xl text-[#FFFF00] font-bold italic tracking-tighter">Sử Việt</h1>
+          <h1 className="font-headline text-3xl text-[#f7d78a] font-bold tracking-wider hover:opacity-80 transition drop-shadow-md flex items-center gap-2">
+            <span className="material-symbols-outlined text-[28px] text-[#f7d78a]">account_balance</span>
+            Sử Việt
+          </h1>
         </div>
         
         <nav className="flex-1 flex flex-col gap-0.5 overflow-y-auto custom-scrollbar px-3">

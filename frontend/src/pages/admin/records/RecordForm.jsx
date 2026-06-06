@@ -59,7 +59,7 @@ const RecordForm = () => {
         {/* HEADER SECTION */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-outline-variant/30 pb-6">
           <div>
-            <h2 className="font-headline text-3xl text-primary font-bold italic tracking-tight">
+            <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">
               {isEdit ? 'Chỉnh sửa Sử liệu' : 'Thêm Sử liệu Mới'}
             </h2>
             <p className="text-on-surface-variant text-sm italic mt-1">

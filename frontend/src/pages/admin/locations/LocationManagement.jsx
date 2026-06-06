@@ -19,7 +19,7 @@ const LocationManagement = () => {
       <main className="p-8 max-w-[1600px] mx-auto w-full space-y-8 font-body">
         <div className="flex flex-col md:flex-row justify-between items-end gap-4">
   <div>
-    <h2 className="font-headline text-3xl text-primary font-bold">
+    <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">
       Quản lý Địa danh Lịch sử
     </h2>
 

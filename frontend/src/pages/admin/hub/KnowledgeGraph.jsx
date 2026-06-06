@@ -18,7 +18,7 @@ const KnowledgeGraph = () => {
       {/* 1. TOP ACTION BAR */}
       <header className="h-16 border-b border-outline-variant px-8 flex items-center justify-between bg-white/80 backdrop-blur z-20">
         <div>
-           <h2 className="font-headline text-xl text-primary font-bold uppercase tracking-tighter">Mạng lưới Tri thức</h2>
+           <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">Mạng lưới Tri thức</h2>
            <p className="text-[10px] text-on-surface-variant italic leading-none">Minh họa các mối quan hệ đa chiều trong sử liệu Việt Nam</p>
         </div>
         <div className="flex items-center bg-surface-low border border-outline-variant p-1 rounded-lg">

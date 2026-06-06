@@ -19,7 +19,7 @@ const AiManagement = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-end border-b border-outline-variant/30 pb-8 gap-4">
         <div>
-          <h2 className="font-headline text-4xl text-primary font-bold tracking-tight">Quản trị Trí tuệ Nhân tạo</h2>
+          <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">Quản trị Trí tuệ Nhân tạo</h2>
           <p className="text-on-surface-variant text-sm mt-2 italic">Cấu hình mô hình RAG (Retrieval-Augmented Generation) và nạp tri thức sử liệu.</p>
         </div>
         <button 

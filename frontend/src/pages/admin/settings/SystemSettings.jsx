@@ -67,7 +67,7 @@ const SystemSettings = () => {
       <main className="p-8 max-w-[1200px] mx-auto w-full space-y-10 font-body">
         {/* 2. HEADER */}
         <div className="border-l-4 border-primary pl-6">
-          <h2 className="font-headline text-3xl text-primary font-bold italic tracking-tight">Cài đặt Hệ thống</h2>
+          <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">Cài đặt Hệ thống</h2>
           <p className="text-on-surface-variant text-sm mt-1 max-w-2xl">Quản lý tham số vận hành lõi. Đảm bảo tính nhất quán của cơ sở dữ liệu và hiệu năng tìm kiếm sử liệu.</p>
         </div>
 
