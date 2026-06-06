@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Màu sắc Admin Sử Việt */
+  --color-primary: #4b0004;
+  --color-admin-red: #6B1515;
+  --color-admin-yellow: #ffff00;
+  --color-surface: #fff8ef;
+  --color-surface-low: #fcf3dd;
+  --color-surface-variant: #ebe2cd;
+  --color-outline-variant: #ddc0bd;
+
+  /* Font chữ chuẩn hóa */
+  --font-headline: "Cormorant Garamond", serif;
+  --font-body: "Inter", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-surface font-body text-[#1f1b0e] min-h-screen;
+    background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+  }
+}
+
+@keyframes kenburns {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.15) translate(-1%, -1%);
+  }
+}
+
+.animate-ken-burns {
+  animation: kenburns 25s ease-in-out infinite alternate;
+}
+
+@layer components {
+  .grain-overlay {
+    @apply fixed inset-0 pointer-events-none z-50 opacity-[0.03];
+    background-image: url("https://www.transparenttextures.com/patterns/stardust.png");
+  }
+  
+  /* Zebra striping cho bảng */
+  .data-table-row:nth-child(even) { @apply bg-surface-low; }
+  .data-table-row:hover { @apply bg-[#f1e7d2]; }
+
+.dong-son-pattern {
+    background-image: radial-gradient(circle at 2px 2px, rgba(125, 93, 58, 0.15) 1px, transparent 0);
+    background-size: 32px 32px;
+}
+
+.parchment-texture {
+    background-image: url("https://www.transparenttextures.com/patterns/p6.png");
+    background-repeat: repeat;
+    background-color: #fcf9ee;
+}
+
+.dong-son-border {
+    border-image: linear-gradient(to right, transparent, #7d5d3a 50%, transparent) 1;
+    border-bottom: 1px solid;
+}
+}
