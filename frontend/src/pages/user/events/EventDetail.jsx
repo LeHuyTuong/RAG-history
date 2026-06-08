@@ -4,28 +4,32 @@ import { useParams, Link } from 'react-router-dom';
 const EventDetail = () => {
   const { id } = useParams();
 
+  const [eventData, setEventData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   // Cuộn lên đầu trang khi vào trang mới
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  // Giả lập dữ liệu fetch từ API dựa trên ID
-  // Hiện tại đang hiển thị mặc định Trận Bạch Đằng 1288
-  const eventData = {
-    title: "Đại Thắng Bạch Đằng Giang (1288)",
-    subtitle: "Trận chiến vĩ đại nhất trong lịch sử chống ngoại xâm, nơi trí tuệ Đại Việt đánh bại gót ngựa bạo tàn của đế quốc Nguyên Mông trên dòng sông lịch sử.",
-    time: "09/04/1288",
-    location: "Sông Bạch Đằng",
-    forces: "Trần vs Nguyên",
-    result: "Toàn thắng",
-    heroImg: "https://lh3.googleusercontent.com/aida-public/AB6AXuA4fTrgf9I1tIhiNA3vcLwZ3WIECExoznhUuCKpoMB8ZyryoQDGgp9vepvx-c5mlCPKPN67vQKnu6WrqSTtkr7y4TGimCJ52wClGnEoVbOMJ8fQ9vlGlsTSMsaJTJDuUdvdjZSHPCfGhPz9xXcZCzCvNbWzxsEb4la90GnDBwyJ9YWo41G3q_j_EoZ1MkRMPa5RQxPGFzHfdEk0-dFR3iNY2nPcjqY5i1pccRq2bhQbra830cd4PUZQRIT_hzxNcEtJNyCRzJwPqudP",
-    mapImg: "https://lh3.googleusercontent.com/aida-public/AB6AXuB7BdxYtdPrztVU_5iGWrtkm73OzIP1jvJ2yQ3EcraekuneY8I26x67sBev0SG95y45jIbG4xrKbtg8qhn6k7ZEJmRLDxLfUGRJuy5yrENr4_C9iR0aZlNxzqQV26U3chMs5fR1CnhzmNBd735FbdLyIXcPATyBpze7WiFn3ayZlA24DIgI3TIWrpo7dZmcnhXhEXKPU_ELD2O9bHUvPIdtTvCQyesXYe6ExZHPBRH0Ph2ewFWWCFOIEvDgqR7r2HHMCe6fxLk0eblN",
-    figures: [
-      { name: "Trần Hưng Đạo", role: "Tổng tư lệnh", color: "border-[#6b0f0d]" },
-      { name: "Phạm Ngũ Lão", role: "Thống lĩnh cánh quân", color: "border-[#d99b4a]" },
-      { name: "Ô Mã Nhi", role: "Tướng quân Nguyên", color: "border-[#2b0504]/30" }
-    ]
-  };
+  useEffect(() => {
+    const fetchEventData = async () => {
+      try {
+        const response = await fetch('/api/user_event_detail.json');
+        if (!response.ok) throw new Error('Network error');
+        const data = await response.json();
+        setEventData(data);
+      } catch (error) {
+        console.error('Error fetching event data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEventData();
+  }, [id]);
+
+  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải sự kiện...</div>;
+  if (!eventData) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Không tìm thấy sự kiện.</div>;
 
   return (
     <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20">
@@ -93,10 +97,10 @@ const EventDetail = () => {
             <h2 className="font-headline text-3xl text-[#6b0f0d] border-b border-[#d99b4a]/30 pb-4 font-semibold">Phục dựng bối cảnh</h2>
             <div className="grid grid-cols-2 gap-6">
               <div className="aspect-square overflow-hidden border border-[#d99b4a]/40 shadow-sm p-1 bg-[#fffdf8] group">
-                <img className="w-full h-full object-cover grayscale-[0.6] sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUQlOELDr7vSKNHv6m5TicXO7_V6o-EaflMl3MRoVmoT-RFVT6fBwM7GXM3Ew2TdxDKy4qIeaPg7ibKQ_T1O5YrjPwU3LZMwgTlwRtlfEKFTeV5---VXwVs-9E0BscqNHtPpy6VLVsIhL7CaDcnxxw-d9y7LZNrtKyd7gm8sO3SnyK-YNxPk-zHVmY7yjUhjHg1uckgiFlDsAJ742RzLBc9RsPSRLxMKH2x3e7Wp-x8EBSZp0i8_ONHh-TADtYRof7Ftdc7f7d2ixq" alt="visual 1" />
+                <img className="w-full h-full object-cover grayscale-[0.6] sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500" src={eventData.gallery[0]} alt="visual 1" />
               </div>
               <div className="aspect-square overflow-hidden border border-[#d99b4a]/40 shadow-sm p-1 bg-[#fffdf8] group">
-                <img className="w-full h-full object-cover grayscale-[0.6] sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjpTjLt1c13xJWZUaqui7KtxppQO_wgFyALo0Csb3tZFrR17PevceMl6WfjzYAMPkSZvkZJZJOUp4m6CmSsA4euFfB7HqQ20QAbkbZIUYedFhujtpIxrZJ6CfEadvHPHsJWZmfrV7WUi-mUlMFXYTIboMu9FjxPt56yvw_WfEQ3iZSdKaB2fgHR2YsGalnyZSr_E7CkP03pUkeRFVtWV-OalghRu033epfcsJtT32qvXAEZnyQLU71rVbQSHhMlYVSW5b78vz2i5Nq" alt="visual 2" />
+                <img className="w-full h-full object-cover grayscale-[0.6] sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500" src={eventData.gallery[1]} alt="visual 2" />
               </div>
             </div>
             <button className="w-full py-4 border border-[#d99b4a]/60 bg-[#fffdf8] text-[#6b0f0d] font-body text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#d99b4a]/10 transition-all shadow-sm">
@@ -130,10 +134,10 @@ const EventDetail = () => {
               <div className="absolute inset-0 bg-[#fcf9ee] opacity-40 dong-son-pattern pointer-events-none"></div>
               <span className="material-symbols-outlined text-[#d99b4a] opacity-20 text-7xl absolute top-4 right-4">format_quote</span>
               <p className="font-body text-[16px] text-[#2b1a16]/90 leading-loose relative z-10 font-medium">
-                "Giặc tan, xác phơi đầy sông, bắt được tướng giặc Ô Mã Nhi cùng hơn 400 chiến thuyền... non sông từ đây thái bình."
+                "{eventData.quote}"
               </p>
               <div className="mt-8 pt-6 border-t border-[#d99b4a]/30 font-body text-[10px] font-bold text-[#6b0f0d] uppercase tracking-widest relative z-10">
-                — Đại Việt Sử Ký Toàn Thư
+                — {eventData.quoteSource}
               </div>
             </div>
           </div>

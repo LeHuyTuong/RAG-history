@@ -1,17 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const RecordManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, itemName: '', id: null });
+  const [data, setData] = useState({ stats: { total: { value: '...', sub: '...' }, pending: { value: '...', sub: '...' } }, records: [] });
+  const [loading, setLoading] = useState(true);
 
-  // Dữ liệu mẫu (Data)
-  const records = [
-    { id: 'SL-001', name: 'Đại Việt Sử Ký Toàn Thư', type: 'Bộ chính sử', dynasty: 'Hậu Lê', author: 'Ngô Sĩ Liên', icon: 'menu_book' },
-    { id: 'SL-002', name: 'Khâm Định Việt Sử Thông Giám Cương Mục', type: 'Bộ chính sử', dynasty: 'Nhà Nguyễn', author: 'Quốc sử quán', icon: 'auto_stories' },
-    { id: 'SL-045', name: 'Chiếu Dời Đô (Thuận Thiên)', type: 'Văn bản cổ', dynasty: 'Nhà Lý', author: 'Lý Công Uẩn', icon: 'description' },
-    { id: 'SL-112', name: 'Bản đồ Hoàng triều trực tỉnh', type: 'Tài liệu số', dynasty: 'Nhà Nguyễn', author: 'N/A', icon: 'folder_zip' },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/admin_records.json');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const result = await response.json();
+        setData(result);
+      } catch (error) {
+        console.error('Error fetching records data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="flex-grow flex flex-col min-h-screen bg-surface">
@@ -43,13 +53,13 @@ const RecordManagement = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-surface-variant/20 border border-outline-variant p-6 rounded-xl group transition-all hover:bg-surface-low">
             <p className="text-on-surface-variant font-body text-[10px] uppercase tracking-widest mb-1">Tổng số sử liệu</p>
-            <h3 className="text-4xl font-headline text-primary font-bold">1,248</h3>
-            <p className="text-[10px] text-green-700 mt-2 flex items-center gap-1 font-bold"><span className="material-symbols-outlined text-xs">trending_up</span> +12 trong tháng này</p>
+            <h3 className="text-4xl font-headline text-primary font-bold">{loading ? '...' : data.stats.total.value}</h3>
+            <p className="text-[10px] text-green-700 mt-2 flex items-center gap-1 font-bold"><span className="material-symbols-outlined text-xs">trending_up</span> {loading ? '...' : data.stats.total.sub}</p>
           </div>
           <div className="bg-surface-variant/20 border border-outline-variant p-6 rounded-xl">
             <p className="text-on-surface-variant font-body text-[10px] uppercase tracking-widest mb-1">Đang chờ duyệt</p>
-            <h3 className="text-4xl font-headline text-on-surface font-bold">266</h3>
-            <p className="text-[10px] text-on-surface-variant mt-2 font-body uppercase">Cần xử lý trong 48h tới</p>
+            <h3 className="text-4xl font-headline text-on-surface font-bold">{loading ? '...' : data.stats.pending.value}</h3>
+            <p className="text-[10px] text-on-surface-variant mt-2 font-body uppercase">{loading ? '...' : data.stats.pending.sub}</p>
           </div>
         </div>
 
@@ -66,32 +76,36 @@ const RecordManagement = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant text-sm">
-              {records.map((item, idx) => (
-                <tr key={item.id} className={`${idx % 2 !== 0 ? 'bg-surface-low/30' : ''} hover:bg-surface-variant/20 transition-all group`}>
-                  <td className="p-4 font-body text-xs text-primary">{item.id}</td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-surface-low border border-outline-variant flex items-center justify-center text-primary rounded group-hover:bg-primary group-hover:text-white transition-all">
-                        <span className="material-symbols-outlined">{item.icon}</span>
+              {loading ? (
+                <tr><td colSpan="5" className="text-center py-8 font-body text-sm text-on-surface-variant">Đang tải sử liệu...</td></tr>
+              ) : (
+                data.records.map((item, idx) => (
+                  <tr key={item.id} className={`${idx % 2 !== 0 ? 'bg-surface-low/30' : ''} hover:bg-surface-variant/20 transition-all group`}>
+                    <td className="p-4 font-body text-xs text-primary">{item.id}</td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-surface-low border border-outline-variant flex items-center justify-center text-primary rounded group-hover:bg-primary group-hover:text-white transition-all">
+                          <span className="material-symbols-outlined">{item.icon}</span>
+                        </div>
+                        <div>
+                          <p className="font-headline font-bold text-base text-on-surface group-hover:text-primary transition-colors">{item.name}</p>
+                          <p className="text-[10px] text-on-surface-variant italic">Chủ biên: {item.author}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-headline font-bold text-base text-on-surface group-hover:text-primary transition-colors">{item.name}</p>
-                        <p className="text-[10px] text-on-surface-variant italic">Chủ biên: {item.author}</p>
+                    </td>
+                    <td className="p-4">
+                      <span className="px-2 py-0.5 bg-primary/5 text-primary border border-primary/20 rounded-full text-[10px] font-bold uppercase">{item.type}</span>
+                    </td>
+                    <td className="p-4 font-medium">{item.dynasty}</td>
+                    <td className="p-4 text-right">
+                      <div className="flex justify-end gap-1">
+                        <button onClick={() => navigate(`/admin/records/edit/${item.id}`)} className="p-2 hover:text-primary"><span className="material-symbols-outlined text-sm">edit</span></button>
+                        <button onClick={() => setDeleteModal({ open: true, itemName: item.name, id: item.id })} className="p-2 hover:text-red-600"><span className="material-symbols-outlined text-sm">delete</span></button>
                       </div>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <span className="px-2 py-0.5 bg-primary/5 text-primary border border-primary/20 rounded-full text-[10px] font-bold uppercase">{item.type}</span>
-                  </td>
-                  <td className="p-4 font-medium">{item.dynasty}</td>
-                  <td className="p-4 text-right">
-                    <div className="flex justify-end gap-1">
-                      <button onClick={() => navigate(`/admin/records/edit/${item.id}`)} className="p-2 hover:text-primary"><span className="material-symbols-outlined text-sm">edit</span></button>
-                      <button onClick={() => setDeleteModal({ open: true, itemName: item.name, id: item.id })} className="p-2 hover:text-red-600"><span className="material-symbols-outlined text-sm">delete</span></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

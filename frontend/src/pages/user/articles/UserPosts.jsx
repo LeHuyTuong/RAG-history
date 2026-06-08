@@ -1,62 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const UserPosts = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDynasty, setFilterDynasty] = useState('Tất cả Triều đại');
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Dữ liệu bài viết
-  const articles = [
-    {
-      id: 1,
-      tag: "Kiến trúc",
-      dynasty: "Hậu Lê (1428–1527)",
-      title: "Kiến trúc Cung điện Thăng Long: Biểu tượng Quyền lực và Văn hóa",
-      slug: "kien-truc-thang-long", // Khớp với ArticleDetail
-      excerpt: "Phân tích sự giao thoa kiến trúc giữa các triều đại và ảnh hưởng của Nho giáo trong quy hoạch cung đình thời Lê Sơ.",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDiaBD8cV4iBRP9zjbZQw4_Vj_gsiyTIWMdR0dlYOaEfq1Tf9vcfZhm8SOPhu08iK2P2g79gUtu3PEuojk3AOkK43P4MqTIm6kTwhOA0QhjPAbFDNXw72IDZPOD5qNp6ECqBwYv9FKtMsXJtePf5TCDDTBGSTJXGWiWrCnD-jpiLs5Tqq_GV4D-YSJ8CdBc1wnXnteLTUzZ7KMqdXAGAHN3W8srpGGpNjPxygJXs3VUub5dW0qljkAR0wd_lTzL--nkhQRPukBdw208",
-      likes: "1.2k",
-      comments: 42,
-      readTime: "15 phút đọc",
-      featured: true // Đánh dấu là bài tiêu biểu
-    },
-    {
-      id: 2,
-      tag: "Quân sự",
-      dynasty: "Nhà Trần (1225–1400)",
-      title: "Chiến thuật quân sự thời Trần: Nghệ thuật lấy yếu thắng mạnh",
-      slug: "chien-thuat-quan-su-tran",
-      excerpt: "Phân tích chuyên sâu về kế sách 'Vườn không nhà trống' và cách thức huy động sức mạnh toàn dân trong ba lần kháng chiến chống Nguyên Mông...",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuD3a77zZzYMUsdTOHvAF9_PiEOkVKvj0_uWPBw0XOjIvwzLpkJ1bUAXzyWp8_UF2OoVT8k932oFMseFCy-5WElGsQZUPqSjs4cz-sryMw2jgxC2j81tklVq5cl9HbymrSqz16aPc5EeYXQFV2w2wyIRd-LUU3opyR7oP7QiQxI88NqZe49bjFSLhEh0FHPNxXaLoc_9r9aYOGlE559Q0AW8TXozYq5w3xDE-ufs8aR2yX7oj3hoMwzNjXOzMJwUJX2PVVtTK7PLam7Q",
-      likes: "1.2k",
-      comments: 84,
-      readTime: "12 phút đọc"
-    },
-    {
-      id: 3,
-      tag: "Ngoại giao",
-      dynasty: "Nhà Lê Sơ (1428–1527)",
-      title: "Ngoại giao thời Lê Sơ: Bản lĩnh cương nhu của một quốc gia độc lập",
-      slug: "ngoai-giao-le-so",
-      excerpt: "Nghiên cứu về các văn bản bang giao giữa Đại Việt và nhà Minh, khẳng định chủ quyền lãnh thổ thông qua luận điểm chính nghĩa...",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBOs5npR0CdWtGFo-0OPI7dJyYo42tKGWhiEl5t2xrEoV-z84zKAZhyz3WqtGk7m8XfCsCgePy_TMtk0tGl9vZjcNBGWiTlwmqbLQv2ufC937Dd5W2WT7OZmi1m4gGyHBvqTK__w2AKvJKcCUm8jzGK4eEwRlnXk4u2xMrlnryCfvnFmDtiUYGIodWC6GKcmmuMmZMgZI1YTvMVXIwb-ezJJBXztHaAnLp_Du1F2cGDnJr9KVi3Muv_Cbvoua1gw_cp2UnhYIw9Zy01",
-      likes: "856",
-      comments: 42,
-      readTime: "18 phút đọc"
-    },
-    {
-      id: 4,
-      tag: "Văn hóa",
-      dynasty: "Nhà Nguyễn (1802–1945)",
-      title: "Lễ nhạc cung đình Huế: Di sản tinh thần của vương triều cuối cùng",
-      slug: "le-nhac-cung-dinh-hue",
-      excerpt: "Tìm hiểu về Nhã nhạc cung đình Huế - kiệt tác truyền khẩu và phi vật thể của nhân loại, biểu trưng cho sự hài hòa giữa con người...",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAfz81rCs9YqMYEFHI-wcQUH5rmc9bQpaGpVvfTGlSANJRXJi_GeiPpYGWIj4iIAGMp34nxm-8L4HFl03NFvuRNYTuk7yOwMTwHz2fmpSlhl1P5dJpJWAxZsejXAAlxjlKptb52C8Iyl8RgrjGlw3mAMcL210xSm6AjYBShvpuv9-wcLnDYvFE9oHyKNSFn3EzgDDc2CnF_hPgs0vLkmQLeVzutLzT4YVI3NhEnaP5U-ZzLINNVzLIipX6j1EIG2ajvWNigBvp1O5L7",
-      likes: "2.1k",
-      comments: 156,
-      readTime: "25 phút đọc"
-    }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/user_articles.json');
+        if (!response.ok) throw new Error('Network error');
+        const data = await response.json();
+        setArticles(data);
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   // Lấy bài viết tiêu biểu (bài đầu tiên có featured: true)
   const featuredArt = articles.find(a => a.featured);

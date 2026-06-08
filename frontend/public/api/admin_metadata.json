@@ -1,0 +1,20 @@
+{
+  "stats": [
+    { "label": "Danh mục chính", "value": "18", "icon": "category" },
+    { "label": "Tổng thẻ (Tags)", "value": "1,482", "icon": "sell" },
+    { "label": "Thời kỳ lịch sử", "value": "12", "icon": "timeline" }
+  ],
+  "categories": [
+    { "id": 1, "name": "Lịch sử Chính trị", "sub": "Nghiên cứu văn bia, chiếu chỉ" },
+    { "id": 2, "name": "Di sản Văn hóa", "sub": "Kiến trúc, nghệ thuật" }
+  ],
+  "tags": [
+    { "id": 1, "name": "Nhà Trần", "slug": "nha-tran", "count": 1240, "usage": 85 },
+    { "id": 2, "name": "Nhà Lý", "slug": "nha-ly", "count": 892, "usage": 62 }
+  ],
+  "periods": [
+    { "id": 1, "name": "Hồng Bàng", "range": "2879 TCN - 258 TCN", "desc": "Kinh Dương Vương khởi đầu." },
+    { "id": 2, "name": "Nhà Lý", "range": "1009 - 1225", "desc": "Dời đô về Thăng Long." },
+    { "id": 3, "name": "Nhà Trần", "range": "1225 - 1400", "desc": "Đại thắng Nguyên Mông.", "active": true }
+  ]
+}

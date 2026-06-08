@@ -1,0 +1,13 @@
+{
+  "stats": [
+    { "label": "Danh mục chính", "value": "18", "icon": "category" },
+    { "label": "Thẻ hệ thống", "value": "1,482", "icon": "sell" },
+    { "label": "Thời kỳ lịch sử", "value": "12", "icon": "timeline" }
+  ],
+  "parameters": [
+    { "key": "site_name", "value": "Sử Việt", "desc": "Tên hiển thị chính của hệ thống" },
+    { "key": "rag_threshold", "value": "0.75", "desc": "Ngưỡng tương đồng vector cho AI" },
+    { "key": "max_upload_size", "value": "50MB", "desc": "Giới hạn dung lượng tài liệu số" },
+    { "key": "embedding_model", "value": "text-embedding-3-small", "desc": "Mô hình ngôn ngữ tạo vector" }
+  ]
+}

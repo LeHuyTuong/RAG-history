@@ -9,27 +9,27 @@ const RecordDetail = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  // Dữ liệu mẫu (Thực tế fetch từ API theo id)
-  const record = {
-    archiveId: "1479-DV",
-    title: "Đại Việt Sử Ký Toàn Thư - Bản in Nội các quan bản",
-    description: "Bộ chính sử lớn nhất Việt Nam thời trung đại, được biên soạn dựa trên cơ sở kế thừa các bộ sử cũ như Đại Việt Sử ký của Lê Văn Hưu và Phan Phu Tiên, tạo nên một hệ thống biên niên sử hoàn chỉnh và đồ sộ nhất.",
-    metadata: [
-      { label: "Tác giả chính", value: "Ngô Sĩ Liên" },
-      { label: "Hoàn thành", value: "1479 (Hồng Đức)" },
-      { label: "Thể loại", value: "Biên niên kỷ" },
-      { label: "Bản in nổi bật", value: "Chính Hòa (1697)" }
-    ],
-    coverImg: "https://lh3.googleusercontent.com/aida-public/AB6AXuDDa-iYa8ONYxLBuvVkq6BoTjrT_IUXe4ow4Lsi6cHfwJXeWV5FWXvPO0Fs_uMBUra6CORueXqhIoWwP_EZgFmmhOjJgylZaENGN4CKrYz-lfMLx5N_qDmHaFCpi2sH3EOsDDxmavVYHh6MRTBmSsNt9CHIpc1H2TgIqYWOkdo7psAIUx9W4-H2h-QIELCJAXibNsCuUhlClnEyENl1is6L8mrtwdNWY2tjY1NNp9CtZdlhYC9JkgO10_w8UwME5kP2Ct3Xz8cnLMV3",
-    importance: "Đại Việt Sử Ký Toàn Thư không chỉ là một công trình lịch sử mà còn là văn bản định hình quốc gia. Nó thiết lập một dòng chảy lịch sử liên tục từ thời Hồng Bàng đến thời Lê Sơ, khẳng định chủ quyền văn hóa và độc lập chính trị của Đại Việt.",
-    structure: [
-      { title: "Ngoại kỷ", desc: "Từ thời Hồng Bàng đến hết thời 12 sứ quân (967).", icon: "history_toggle_off" },
-      { title: "Bản kỷ", desc: "Từ triều Đinh (968) đến triều Lê Sơ (năm 1433).", icon: "workspace_premium" },
-      { title: "Bản kỷ tục biên", desc: "Các phần được bổ sung sau này về nhà Mạc và Lê Trung Hưng.", icon: "edit_note" }
-    ],
-    originalText: "大越史記全書",
-    translatedText: "Xưa nay, nước nào có sử nước nấy. Nước Đại Việt ta từ khi dựng nước đến nay, đời nào cũng có ghi chép. Song vì binh hỏa của giặc Ngô (nhà Minh) đốt phá, nên sử cũ đã mất mát nhiều..."
-  };
+  const [record, setRecord] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRecord = async () => {
+      try {
+        const response = await fetch('/api/user_record_detail.json');
+        if (!response.ok) throw new Error('Network error');
+        const data = await response.json();
+        setRecord(data);
+      } catch (error) {
+        console.error('Error fetching record detail:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRecord();
+  }, [id]);
+
+  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải thư tịch...</div>;
+  if (!record) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Không tìm thấy thư tịch.</div>;
 
   return (
     <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20">

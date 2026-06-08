@@ -1,0 +1,12 @@
+{
+  "stats": [
+    { "label": "Tổng bài viết", "value": "1,284", "sub": "+12% tháng này", "icon": "description", "colorClass": "text-primary" },
+    { "label": "Đang soạn thảo", "value": "42", "icon": "hourglass_empty", "colorClass": "text-accent" },
+    { "label": "Nhân vật liên kết", "value": "318", "icon": "person", "colorClass": "text-on-surface" }
+  ],
+  "articles": [
+    { "id": 1, "title": "Bình Ngô Đại Cáo - Tuyên ngôn độc lập", "slug": "binh-ngo-dai-cao", "period": "Nhà Hậu Lê (1428)", "author": "Ngô Sĩ Liên", "status": "published" },
+    { "id": 2, "title": "Chiến thắng Chương Dương - Hàm Tử", "slug": "chuong-duong-ham-tu", "period": "Nhà Trần (1285)", "author": "Lê Văn Hưu", "status": "review" },
+    { "id": 3, "title": "Sự biến Canh Tý - Lý Chiêu Hoàng", "slug": "su-bien-canh-ty", "period": "Chuyển giao Lý-Trần", "author": "Lê Văn Hưu", "status": "draft" }
+  ]
+}

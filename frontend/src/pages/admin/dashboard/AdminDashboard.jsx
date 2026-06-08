@@ -3,10 +3,28 @@ import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const [opacity, setOpacity] = useState(0);
+  const [dashboardData, setDashboardData] = useState({ stats: [], activities: [] });
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     setOpacity(1);
+
+    // Giả lập gọi API bằng cách fetch file JSON từ thư mục public
+    const fetchDashboardData = async () => {
+      try {
+        const response = await fetch('/api/dashboard.json');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        setDashboardData(data);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
   }, []);
 
   return (
@@ -30,10 +48,13 @@ const AdminDashboard = () => {
 
         {/* 1. THỐNG KÊ TỔNG QUAN */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard icon="menu_book" title="Tổng Bài viết" value="12.4K" iconBg="bg-primary/10" />
-          <StatCard icon="history_edu" title="Sự kiện Lịch sử" value="4.2K" iconBg="bg-accent/10" />
-          <StatCard icon="person_pin_circle" title="Nhân vật" value="3.1K" iconBg="bg-surface-variant" />
-          <StatCard icon="group" title="Thành viên" value="4.0K" iconBg="bg-primary/5" />
+          {loading ? (
+            <div className="col-span-full text-center text-on-surface-variant py-4 font-body">Đang tải dữ liệu...</div>
+          ) : (
+            dashboardData.stats.map(stat => (
+              <StatCard key={stat.id} icon={stat.icon} title={stat.title} value={stat.value} iconBg={stat.iconBg} />
+            ))
+          )}
         </section>
 
         {/* 2. HỆ THỐNG HOẠT ĐỘNG & THAO TÁC NHANH */}
@@ -51,27 +72,20 @@ const AdminDashboard = () => {
               </button>
             </div>
             <div className="divide-y divide-outline-variant/10">
-              <ActivityItem
-                icon="verified"
-                color="text-primary"
-                bg="bg-primary/10"
-                text={<><strong>Admin</strong> đã duyệt bài: <span className="font-headline text-primary font-bold text-lg ml-1">Trận Bạch Đằng 1288</span></>}
-                time="2 phút trước"
-              />
-              <ActivityItem
-                icon="person_add"
-                color="text-on-surface"
-                bg="bg-accent/10"
-                text={<>Thành viên mới: <span className="font-headline text-primary font-bold text-lg ml-1">Lê Văn Hùng</span></>}
-                time="15 phút trước"
-              />
-              <ActivityItem
-                icon="memory"
-                color="text-primary"
-                bg="bg-surface-variant"
-                text={<>AI vừa hoàn thành nạp liệu từ <span className="font-headline text-primary font-bold text-lg ml-1">Đại Việt Sử Ký</span></>}
-                time="1 giờ trước"
-              />
+              {loading ? (
+                <div className="text-center text-on-surface-variant py-8 font-body">Đang tải hoạt động...</div>
+              ) : (
+                dashboardData.activities.map(act => (
+                  <ActivityItem
+                    key={act.id}
+                    icon={act.icon}
+                    color={act.color}
+                    bg={act.bg}
+                    textHtml={act.textHtml}
+                    time={act.time}
+                  />
+                ))
+              )}
             </div>
           </div>
 
@@ -112,13 +126,13 @@ const StatCard = ({ icon, title, value, iconBg }) => (
   </div>
 );
 
-const ActivityItem = ({ icon, color, bg, text, time }) => (
+const ActivityItem = ({ icon, color, bg, textHtml, time }) => (
   <div className="px-8 py-4 flex items-center gap-4 hover:bg-white/50 transition-all cursor-default">
     <div className={`w-10 h-10 rounded-full ${bg} flex items-center justify-center shrink-0`}>
       <span className={`material-symbols-outlined ${color} text-[20px]`}>{icon}</span>
     </div>
-    {/* Phần text chứa đối tượng đã được xử lý font-headline trong props 'text' */}
-    <div className="flex-1 text-on-surface font-body text-sm">{text}</div>
+    {/* Phần text hiển thị từ HTML */}
+    <div className="flex-1 text-on-surface font-body text-sm" dangerouslySetInnerHTML={{ __html: textHtml }} />
     {/* Thời gian: Inter */}
     <p className="font-body text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">
       {time}

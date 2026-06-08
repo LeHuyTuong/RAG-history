@@ -1,16 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const CharacterManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, name: '', id: null });
+  const [data, setData] = useState({ stats: [], characters: [] });
+  const [loading, setLoading] = useState(true);
 
-  const characters = [
-    { id: 'PER-1001', name: 'Trần Hưng Đạo', title: 'Hưng Đạo Đại Vương', years: '1228 - 1300', dynasty: 'Nhà Trần' },
-    { id: 'PER-1285', name: 'Lý Thường Kiệt', title: 'Phụ Quốc Thái Phó', years: '1019 - 1105', dynasty: 'Nhà Lý' },
-    { id: 'PER-1418', name: 'Lê Lợi', title: 'Bình Định Vương', years: '1385 - 1433', dynasty: 'Nhà Lê' },
-    { id: 'PER-1789', name: 'Nguyễn Huệ', title: 'Quang Trung Hoàng Đế', years: '1753 - 1792', dynasty: 'Nhà Tây Sơn' },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/admin_characters.json');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const result = await response.json();
+        setData(result);
+      } catch (error) {
+        console.error('Error fetching character data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="p-8 max-w-[1600px] mx-auto w-full space-y-10 animate-in fade-in duration-500">
@@ -31,8 +42,13 @@ const CharacterManagement = () => {
 
       {/* STATS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <StatCard label="TỔNG NHÂN VẬT" value="3,100" icon="group" />
-        <StatCard label="CHỜ DUYỆT HỒ SƠ" value="250" icon="pending_actions" colorClass="text-red-700" />
+        {loading ? (
+          <div className="col-span-full text-center py-4 font-body text-sm text-on-surface-variant">Đang tải dữ liệu...</div>
+        ) : (
+          data.stats.map((stat, idx) => (
+            <StatCard key={idx} label={stat.label} value={stat.value} icon={stat.icon} colorClass={stat.colorClass} />
+          ))
+        )}
       </div>
 
       {/* MEMBER TABLE */}
@@ -48,20 +64,24 @@ const CharacterManagement = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant text-sm">
-            {characters.map((char, idx) => (
-              <tr key={char.id} className={`${idx % 2 !== 0 ? 'bg-surface-low/30' : ''} hover:bg-surface-variant/20 transition-all group`}>
-                <td className="p-4 font-body text-[11px] text-on-surface-variant">#{char.id}</td>
-                <td className="p-4 font-headline text-primary font-bold text-lg tracking-tight">{char.name}</td>
-                <td className="p-4 text-on-surface-variant font-body italic">{char.title}</td>
-                <td className="p-4 font-body text-center text-xs font-bold uppercase">{char.years}</td>
-                <td className="p-4 text-right">
-                  <div className="flex justify-end gap-1">
-                    <button onClick={() => navigate(`/admin/characters/edit/${char.id}`)} className="p-2 hover:text-primary transition-colors"><span className="material-symbols-outlined text-sm">edit</span></button>
-                    <button onClick={() => setDeleteModal({ open: true, name: char.name })} className="p-2 hover:text-red-600 transition-colors"><span className="material-symbols-outlined text-sm">delete</span></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {loading ? (
+              <tr><td colSpan="5" className="text-center py-8 font-body text-sm text-on-surface-variant">Đang tải nhân vật...</td></tr>
+            ) : (
+              data.characters.map((char, idx) => (
+                <tr key={char.id} className={`${idx % 2 !== 0 ? 'bg-surface-low/30' : ''} hover:bg-surface-variant/20 transition-all group`}>
+                  <td className="p-4 font-body text-[11px] text-on-surface-variant">#{char.id}</td>
+                  <td className="p-4 font-headline text-primary font-bold text-lg tracking-tight">{char.name}</td>
+                  <td className="p-4 text-on-surface-variant font-body italic">{char.title}</td>
+                  <td className="p-4 font-body text-center text-xs font-bold uppercase">{char.years}</td>
+                  <td className="p-4 text-right">
+                    <div className="flex justify-end gap-1">
+                      <button onClick={() => navigate(`/admin/characters/edit/${char.id}`)} className="p-2 hover:text-primary transition-colors"><span className="material-symbols-outlined text-sm">edit</span></button>
+                      <button onClick={() => setDeleteModal({ open: true, name: char.name })} className="p-2 hover:text-red-600 transition-colors"><span className="material-symbols-outlined text-sm">delete</span></button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

@@ -1,56 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
     const navigate = useNavigate();
+    const [data, setData] = useState({ featuredCharacters: [], recentPosts: [], periods: [], events: [] });
+    const [loading, setLoading] = useState(true);
 
-    // Mock data
-    const featuredCharacters = [
-        {
-            id: 1,
-            name: 'Lê Thái Tổ',
-            realName: 'Lê Lợi',
-            years: '1385 - 1433',
-            dynasty: 'Nhà Lê Sơ',
-            desc: 'Người khởi xướng khởi nghĩa Lam Sơn, đánh đuổi quân Minh và thành lập nhà Hậu Lê, mở ra thời kỳ độc lập tự chủ lâu dài cho dân tộc.',
-            image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDkXCL0ZlfPvy43z13A0y1bG_eAez20SasQjlbmMYN0ksU6u2mv7H7wD2kxlQgr5TVFjQXQIMB18PYpL0LebO68DVPdFgMGK1agh4KI4EyQ4Me3ooBfg3K1JiZq7cmSnu-1GzPq8ZGlH-VSmNdibOhBNI1pOIAdA-TqjbomhMxBCsnmpa0JmnR7PFbba9_7Bb2hR96-_FaIwMv6EGVpO58GxtObun-s6BQINyccTPHf67jr-DfzH_Qpx755igURlGi5zCpsjNp-WJmX'
-        },
-        {
-            id: 3,
-            name: 'Trần Hưng Đạo',
-            realName: 'Trần Quốc Tuấn',
-            years: '1228 - 1300',
-            dynasty: 'Nhà Trần',
-            desc: 'Vị tướng thiên tài ba lần lãnh đạo quân dân nhà Trần đánh bại quân xâm lược Nguyên Mông hùng mạnh nhất thế giới lúc bấy giờ.',
-            image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBKuKKuKjwQFwNQohxy16nvgPodBX9xYlr_xfJyAOLcN1j3ReQY_2BJIBSqRQtNXYZyclOHFwkPeYLBnlikMDpNgGR6cMx-daUsK6HcblyL3JgmceKk24uLN64Cfwy0NVVPHqpaRNc2ly-EJQCL2iinxOqCCI4hauJSNHNDnEmU16YR5iLpog0SXF2T9R7VNsaXlSQwNrxQLlQhE8SG5hIpLchfYvsEBVJJeX4Ez0p4Lm6E2u-PzMPRPc8CC7_NspWPQZhmSiLo2qBr_9H'
-        },
-        {
-            id: 5,
-            name: 'Hồ Xuân Hương',
-            realName: 'Bà chúa thơ Nôm',
-            years: '1772 - 1822',
-            dynasty: 'Tây Sơn / Nguyễn',
-            desc: '"Bà chúa thơ Nôm" với những tác phẩm độc đáo, táo bạo, mang đậm tinh thần nhân văn và đấu tranh cho nữ quyền.',
-            image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBEqU9ughoF8Lb1OyIIdd3TMKkvgBGcLAxEbaSsQ0yk_XWi3GKPZwQQ1zlkZb73LawSDjLW9iQCar6TFU7XAZE-nA1ykBJhawTohOTraQtXMRjqvh7xfJF7dyIjyId4Xvg8wean3yJ3KpLUg9SP2NqYS-FK9CLXTW5YCS8Ib9Dcgs2UXn25GQNlY8Ssp5rr255X5-r0tZDrr2Gli3VAHxvLjE3qFIR8xoiIsQsTLTto-9iYz9aMrVq4eOgy_XJ_n5qxBrHfX-3TZ8wa'
-        }
-    ];
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch('/api/user_home.json');
+                if (!response.ok) throw new Error('Network error');
+                const result = await response.json();
+                setData(result);
+            } catch (error) {
+                console.error('Error fetching home data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
 
-    const recentPosts = [
-        {
-            id: 1,
-            title: 'Bí ẩn kiến trúc tháp Chăm',
-            category: 'Nghiên cứu',
-            date: '12/10/2024',
-            desc: 'Khám phá kỹ thuật xây dựng độc đáo không cần mạch vữa của người Champa xưa.',
-        },
-        {
-            id: 2,
-            title: 'Hào khí Đông A',
-            category: 'Phân tích',
-            date: '05/09/2024',
-            desc: 'Tìm hiểu về tinh thần thượng võ và sức mạnh đoàn kết thời Trần.',
-        }
-    ];
+    const { featuredCharacters, recentPosts, periods, events } = data;
 
     return (
         <div className="animate-in fade-in duration-1000 font-body bg-[#fbf6e8] parchment-texture">
@@ -214,14 +186,7 @@ const Home = () => {
                     {/* Decorative line connecting periods */}
                     <div className="hidden lg:block absolute top-1/2 left-8 right-8 h-[2px] bg-gradient-to-r from-transparent via-[#d99b4a]/30 to-transparent -translate-y-1/2 z-0"></div>
 
-                    {[
-                        { name: 'Đinh', years: '968 - 980', icon: 'shield' },
-                        { name: 'Tiền Lê', years: '980 - 1009', icon: 'swords' },
-                        { name: 'Lý', years: '1009 - 1225', icon: 'temple_buddhist' },
-                        { name: 'Trần', years: '1225 - 1400', icon: 'military_tech' },
-                        { name: 'Hậu Lê', years: '1428 - 1789', icon: 'menu_book' },
-                        { name: 'Nguyễn', years: '1802 - 1945', icon: 'account_balance' }
-                    ].map((d, index) => (
+                    {periods.map((d, index) => (
                         <div
                             key={index}
                             onClick={() => navigate('/periods')}
@@ -266,28 +231,7 @@ const Home = () => {
                     </div>
 
                     <div className="flex gap-8 overflow-x-auto pb-12 custom-scrollbar">
-                        {[
-                            {
-                                date: 'Năm 938',
-                                title: 'Chiến thắng Bạch Đằng',
-                                desc: 'Ngô Quyền đánh bại quân Nam Hán, chấm dứt 1000 năm Bắc thuộc.',
-                            },
-                            {
-                                date: 'Năm 1010',
-                                title: 'Dời đô về Thăng Long',
-                                desc: 'Lý Thái Tổ ban Chiếu dời đô, chuyển kinh thành từ Hoa Lư về Đại La.',
-                            },
-                            {
-                                date: 'Năm 1288',
-                                title: 'Chiến thắng Bạch Đằng (lần 3)',
-                                desc: 'Hưng Đạo Vương Trần Quốc Tuấn đại phá quân Nguyên Mông.',
-                            },
-                            {
-                                date: 'Năm 1427',
-                                title: 'Hội thề Đông Quan',
-                                desc: 'Kết thúc thắng lợi cuộc khởi nghĩa Lam Sơn chống quân Minh.',
-                            }
-                        ].map((event, i) => (
+                        {events.map((event, i) => (
                             <div
                                 key={i}
                                 className="min-w-[320px] md:min-w-[380px] bg-[#fffdf8] border-l-4 border-l-[#d99b4a] border-y border-r border-[#d99b4a]/20 p-8 rounded-r-xl hover:translate-x-2 hover:shadow-lg transition-all duration-300 relative group cursor-pointer"

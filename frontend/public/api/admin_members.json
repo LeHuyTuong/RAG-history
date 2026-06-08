@@ -1,0 +1,12 @@
+{
+  "stats": [
+    { "label": "Tổng thành viên", "value": "12,482", "sub": "+5.2%", "icon": "group" },
+    { "label": "Đang hoạt động", "value": "1,894", "sub": "Trong 24h", "icon": "bolt" },
+    { "label": "Đăng ký mới", "value": "412", "sub": "Tháng này", "icon": "person_add_alt" }
+  ],
+  "members": [
+    { "id": "MB-2041", "name": "Trần Hoài", "email": "hoai.tran@suviet.vn", "role": "Học giả cao cấp", "status": "active", "joinDate": "12/10/2022" },
+    { "id": "MB-2042", "name": "Lê Minh", "email": "minh.le@suviet.vn", "role": "Độc giả", "status": "locked", "joinDate": "05/01/2023" },
+    { "id": "MB-2043", "name": "Phạm Lan", "email": "lan.pham@suviet.vn", "role": "Biên tập viên", "status": "active", "joinDate": "20/03/2023" }
+  ]
+}

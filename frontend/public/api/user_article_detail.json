@@ -1,0 +1,42 @@
+{
+  "title": "Kiến trúc Cung điện Thăng Long qua các triều đại Lý-Trần",
+  "author": "Học giả Trần Duy Hùng",
+  "authorRole": "Viện Nghiên cứu Kinh thành",
+  "authorImg": "https://lh3.googleusercontent.com/aida-public/AB6AXuCMHcdTOW_dxMtuwmxyW--OBFFCWbw1pKW6o872X-BC7wFqD-Aj2QfeGlztAlrOX6LWdwjTT3qIn-ieBA5v27gxwMY9PxkgRWcUWg3-PZSNcRwmQFJtnrt2XLelaJ-t0G8QB38Me2u3YcCyEowczw7cRzGYHPTpbEWpNN3lyEfrPrxyLX0mkEOCJT_be9zdImqCPMR-puG43GYWbpnqO15H5i6jecJLQ_FkJYy7KCRzb-57sQ7zfQnZ6ql98Ks24ceEcGRROhLPKDgY",
+  "publishedAt": "14 Tháng 10, 2023",
+  "readingTime": "15 phút đọc",
+  "heroImage": "https://lh3.googleusercontent.com/aida-public/AB6AXuAVaoTt7OmvfdX-z3YyqFqAX4Y1Ihkjvs5emJRmKGgOo_V6KXn2TDBUhtjxjWpdefmw2UYxcc_dGVKRTPpQx97q5bU8-ZHl88UUpDGcWY0yc0p91hGp4TLMwXj3Eo0X9m6jm4Ur6KjP6l6YR6Z-NPrix-C_2iLcQK89e0crl9yF_2yxjOETGgWJEiB_h6rEWBU-9uW1uLjoc5SpY7pGCmiyVL6pXDP1ZGb6DtJ2atbMIOtuGYVFZqRsdxH_-D9zlp5p05W4fuv1p9ft",
+  "imageCaption": "Phối cảnh 3D Điện Kính Thiên thời Lê Sơ dựa trên các hiện vật khảo cổ học tìm thấy tại khu di tích Hoàng thành Thăng Long.",
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "Thăng Long, kinh đô ngàn năm văn hiến, không chỉ là trung tâm chính trị mà còn là biểu tượng rực rỡ nhất của nền kiến trúc Đại Việt. Dưới thời Lý và Trần, việc xây dựng cung điện không chỉ đáp ứng nhu cầu nghi lễ mà còn thể hiện tư duy vũ trụ luận sâu sắc và niềm tự hào tự chủ của dân tộc sau nghìn năm Bắc thuộc."
+    },
+    {
+      "type": "heading",
+      "text": "Cấu trúc đa tầng và nghệ thuật chạm khắc"
+    },
+    {
+      "type": "paragraph",
+      "text": "Đặc điểm nổi bật của kiến trúc cung điện thời Lý chính là sự kết hợp nhuần nhuyễn giữa phong cách Phật giáo và tính chất cung đình. Các cột gỗ lim khổng lồ đặt trên chân tảng đá chạm khắc hoa sen, mây tản là minh chứng cho sự tinh xảo bậc nhất. Hệ thống đấu củng - một thành tựu kỹ thuật phức tạp - giúp nâng đỡ những bộ mái chồng diêm đồ sộ."
+    },
+    {
+      "type": "blockquote",
+      "text": "Kinh đô Thăng Long dưới thời Lý là một kiệt tác của sự hòa hợp giữa con người và thiên nhiên, giữa quyền uy đế chế và tinh thần từ bi của đạo Phật."
+    },
+    {
+      "type": "paragraph",
+      "text": "Bước sang thời Trần, mặc dù kế thừa những tinh hoa từ thời Lý, kiến trúc cung điện bắt đầu dịch chuyển sang vẻ đẹp khỏe khoắn, thực dụng hơn, phản ánh tinh thần thượng võ của một dân tộc vừa trải qua ba cuộc kháng chiến chống Nguyên - Mông oanh liệt."
+    }
+  ],
+  "relatedEntities": [
+    { "icon": "history_edu", "title": "Nhà Lý (1009–1225)", "type": "Triều đại" },
+    { "icon": "map", "title": "Kinh thành Thăng Long", "type": "Địa danh" },
+    { "icon": "person", "title": "Lý Thái Tổ", "type": "Nhân vật" }
+  ],
+  "citations": [
+    { "title": "Đại Việt Sử Ký Toàn Thư", "author": "Ngô Sĩ Liên, Thế kỷ XV" },
+    { "title": "Việt Sử Lược", "author": "Khuyết danh, Thế kỷ XIV" },
+    { "title": "Khảo cổ học 18 Hoàng Diệu", "author": "Viện Hàn lâm KHXH, 2004" }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "stats": [
+    { "label": "TỔNG NHÂN VẬT", "value": "3,100", "icon": "group", "colorClass": "text-primary" },
+    { "label": "CHỜ DUYỆT HỒ SƠ", "value": "250", "icon": "pending_actions", "colorClass": "text-red-700" }
+  ],
+  "characters": [
+    { "id": "PER-1001", "name": "Trần Hưng Đạo", "title": "Hưng Đạo Đại Vương", "years": "1228 - 1300", "dynasty": "Nhà Trần" },
+    { "id": "PER-1285", "name": "Lý Thường Kiệt", "title": "Phụ Quốc Thái Phó", "years": "1019 - 1105", "dynasty": "Nhà Lý" },
+    { "id": "PER-1418", "name": "Lê Lợi", "title": "Bình Định Vương", "years": "1385 - 1433", "dynasty": "Nhà Lê" },
+    { "id": "PER-1789", "name": "Nguyễn Huệ", "title": "Quang Trung Hoàng Đế", "years": "1753 - 1792", "dynasty": "Nhà Tây Sơn" }
+  ]
+}

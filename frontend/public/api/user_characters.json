@@ -1,0 +1,83 @@
+{
+  "periods": ["Tất cả thời kỳ", "Nhà Lý", "Nhà Trần", "Nhà Lê Sơ", "Tây Sơn / Nguyễn"],
+  "characters": [
+    {
+      "id": 1,
+      "name": "Lê Thái Tổ",
+      "realName": "Lê Lợi",
+      "years": "1385 - 1433",
+      "dynasty": "Nhà Lê Sơ",
+      "desc": "Người khởi xướng khởi nghĩa Lam Sơn, đánh đuổi quân Minh và thành lập nhà Hậu Lê, mở ra thời kỳ độc lập tự chủ lâu dài cho dân tộc.",
+      "achievements": [
+        "Lãnh đạo khởi nghĩa Lam Sơn thắng lợi",
+        "Sáng lập triều đại nhà Hậu Lê"
+      ],
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDkXCL0ZlfPvy43z13A0y1bG_eAez20SasQjlbmMYN0ksU6u2mv7H7wD2kxlQgr5TVFjQXQIMB18PYpL0LebO68DVPdFgMGK1agh4KI4EyQ4Me3ooBfg3K1JiZq7cmSnu-1GzPq8ZGlH-VSmNdibOhBNI1pOIAdA-TqjbomhMxBCsnmpa0JmnR7PFbba9_7Bb2hR96-_FaIwMv6EGVpO58GxtObun-s6BQINyccTPHf67jr-DfzH_Qpx755igURlGi5zCpsjNp-WJmX"
+    },
+    {
+      "id": 2,
+      "name": "Nguyễn Trãi",
+      "realName": "Ức Trai",
+      "years": "1380 - 1442",
+      "dynasty": "Nhà Lê Sơ",
+      "desc": "Anh hùng dân tộc, danh nhân văn hóa thế giới. Tác giả của Bình Ngô Đại Cáo - bản tuyên ngôn độc lập thứ hai của nước Việt.",
+      "achievements": [
+        "Tác giả Bình Ngô Đại Cáo",
+        "Khai quốc công thần nhà Hậu Lê"
+      ],
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDOm0BuewNGMMyw3hbNXvp09kmzgSCa95fsr7xfiUxlvICLTrjie4q-P_kpsq1-_73pO_mgOU8hLTaQrzHvDaMYqlFUG2FrBoUcyfMkpG1lANyWQeqePO2u_YemlnwWAk9gtUHZtsVY3LL9QnlDgOnPfZdnfUUHlpFLc07haID26fE6xWRx8K7M2WAXSwgPBtANe1iypQc0J8akbCG6qc8vr_9EkIWL9IXDozwxHl8aNks3TY7Qd2PuTV3mBCUIGSBl_7yT23XtHidO"
+    },
+    {
+      "id": 3,
+      "name": "Trần Hưng Đạo",
+      "realName": "Trần Quốc Tuấn",
+      "years": "1228 - 1300",
+      "dynasty": "Nhà Trần",
+      "desc": "Vị tướng thiên tài ba lần lãnh đạo quân dân nhà Trần đánh bại quân xâm lược Nguyên Mông hùng mạnh nhất thế giới lúc bấy giờ.",
+      "achievements": [
+        "Ba lần đánh bại quân Nguyên Mông",
+        "Tác giả Hịch tướng sĩ"
+      ],
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBKuKjwQFwNQohxy16nvgPodBX9xYlr_xfJyAOLcN1j3ReQY_2BJIBSqRQtNXYZyclOHFwkPeYLBnlikMDpNgGR6cMx-daUsK6HcblyL3JgmceKk24uLN64Cfwy0NVVPHqpaRNc2ly-EJQCL2iinxOqCCI4hauJSNHNDnEmU16YR5iLpog0SXF2T9R7VNsaXlSQwNrxQLlQhE8SG5hIpLchfYvsEBVJJeX4Ez0p4Lm6E2u-PzMPRPc8CC7_NspWPQZhmSiLo2qBr_9H"
+    },
+    {
+      "id": 4,
+      "name": "Lý Thường Kiệt",
+      "realName": "Ngô Tuấn",
+      "years": "1019 - 1105",
+      "dynasty": "Nhà Lý",
+      "desc": "Vị thái úy lỗi lạc, tác giả của bài thơ thần \"Nam Quốc Sơn Hà\" và chiến dịch phạt Tống lẫy lừng phương Bắc.",
+      "achievements": [
+        "Tác giả Nam Quốc Sơn Hà",
+        "Chỉ huy chiến dịch phạt Tống"
+      ],
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBxohlRm6oJEIxb7Q32dWdgEtmNJ9C8kOK_OYXlTGjF6mAzT-bhvf_qbDN0xjjcA-N-S-W0anAvRa0G_WIYCHgEhnKlfVsfkoA_AiLpgmjN04u1Dhfqn_NTprJiPaZmFQY1_3IWZOTdomizXHnxRcKDRNqQk0QuIfgFoFVO12OqOa13lb2t0fTb1f897BvKcYezckMsQro_aNJEdd-wRYU8EDxaXSz-Rwo15yRsuccDhBdgg1u4lq_KHVxzNkrGQFGIa4Pq09wyvCD0"
+    },
+    {
+      "id": 5,
+      "name": "Hồ Xuân Hương",
+      "realName": "Bà chúa thơ Nôm",
+      "years": "1772 - 1822",
+      "dynasty": "Tây Sơn / Nguyễn",
+      "desc": "\"Bà chúa thơ Nôm\" với những tác phẩm độc đáo, táo bạo, mang đậm tinh thần nhân văn và đấu tranh cho nữ quyền.",
+      "achievements": [
+        "Được mệnh danh \"Bà chúa thơ Nôm\"",
+        "Danh nhân văn hóa thế giới"
+      ],
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBEqU9ughoF8Lb1OyIIdd3TMKkvgBGcLAxEbaSsQ0yk_XWi3GKPZwQQ1zlkZb73LawSDjLW9iQCar6TFU7XAZE-nA1ykBJhawTohOTraQtXMRjqvh7xfJF7dyIjyId4Xvg8wean3yJ3KpLUg9SP2NqYS-FK9CLXTW5YCS8Ib9Dcgs2UXn25GQNlY8Ssp5rr255X5-r0tZDrr2Gli3VAHxvLjE3qFIR8xoiIsQsTLTto-9iYz9aMrVq4eOgy_XJ_n5qxBrHfX-3TZ8wa"
+    },
+    {
+      "id": 6,
+      "name": "Chu Văn An",
+      "realName": "Tuyết Giang Phu Tử",
+      "years": "1292 - 1370",
+      "dynasty": "Nhà Trần",
+      "desc": "\"Người thầy của muôn đời\", nổi tiếng với đạo đức trong sáng và tinh thần không khuất phục trước cường quyền.",
+      "achievements": [
+        "Người thầy của muôn đời",
+        "Dâng Thất trảm sớ"
+      ],
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuA2cNHZGKf1tEph8k3mfH5LBfN1X0x4eE-zzos4IYc58cNuYh8UawZwgBGApzvk4V3TIxBepyGKHyyS6jq_c93SaWAU4_2a9e2_ilbgZFR7SvCUjms2VpdjL0Z6o-04KinCJ-uRAXRaKNGSqipZdvYSwZn4tMMuuPn71SmGREiZm04HVjnJPP4bBMq6C_2NUD4dShAF_BkxRwUCfuEs0pVuSAXdzPFocwTPtzMtKVkqbPUWN-UltPHVc4VhR0J0nWe3BKUBBxj0zglW"
+    }
+  ]
+}

@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const MemberManagement = () => {
   const navigate = useNavigate();
   // State quản lý các loại Modal
   const [activeModal, setActiveModal] = useState({ type: null, data: null });
+  const [data, setData] = useState({ stats: [], members: [] });
+  const [loading, setLoading] = useState(true);
 
-  const members = [
-    { id: 'MB-2041', name: 'Trần Hoài', email: 'hoai.tran@suviet.vn', role: 'Học giả cao cấp', status: 'active', joinDate: '12/10/2022' },
-    { id: 'MB-2042', name: 'Lê Minh', email: 'minh.le@suviet.vn', role: 'Độc giả', status: 'locked', joinDate: '05/01/2023' },
-    { id: 'MB-2043', name: 'Phạm Lan', email: 'lan.pham@suviet.vn', role: 'Biên tập viên', status: 'active', joinDate: '20/03/2023' },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/admin_members.json');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const result = await response.json();
+        setData(result);
+      } catch (error) {
+        console.error('Error fetching members data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const closeModal = () => setActiveModal({ type: null, data: null });
 
@@ -35,9 +47,13 @@ const MemberManagement = () => {
 
         {/* 3. STATS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatBox label="Tổng thành viên" value="12,482" sub="+5.2%" icon="group" />
-          <StatBox label="Đang hoạt động" value="1,894" sub="Trong 24h" icon="bolt" />
-          <StatBox label="Đăng ký mới" value="412" sub="Tháng này" icon="person_add_alt" />
+          {loading ? (
+            <div className="col-span-full text-center py-4 font-body text-sm text-on-surface-variant">Đang tải dữ liệu...</div>
+          ) : (
+            data.stats.map((stat, idx) => (
+              <StatBox key={idx} label={stat.label} value={stat.value} sub={stat.sub} icon={stat.icon} />
+            ))
+          )}
         </div>
 
         {/* 4. MEMBER TABLE */}
@@ -52,33 +68,37 @@ const MemberManagement = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant text-sm">
-              {members.map((member) => (
-                <tr key={member.id} className="hover:bg-surface-low transition-colors group">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-surface-variant flex items-center justify-center font-bold text-primary font-headline shadow-inner">{member.name.charAt(0)}</div>
-                      <div>
-                        <p className="font-bold text-on-surface leading-none">{member.name}</p>
-                        <p className="text-[10px] text-primary italic mt-1">{member.role}</p>
+              {loading ? (
+                <tr><td colSpan="4" className="text-center py-8 font-body text-sm text-on-surface-variant">Đang tải thành viên...</td></tr>
+              ) : (
+                data.members.map((member) => (
+                  <tr key={member.id} className="hover:bg-surface-low transition-colors group">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-surface-variant flex items-center justify-center font-bold text-primary font-headline shadow-inner">{member.name.charAt(0)}</div>
+                        <div>
+                          <p className="font-bold text-on-surface leading-none">{member.name}</p>
+                          <p className="text-[10px] text-primary italic mt-1">{member.role}</p>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase ${member.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {member.status === 'active' ? 'Hoạt động' : 'Đã khóa'}
-                    </span>
-                  </td>
-                  <td className="p-4 font-body text-xs text-on-surface-variant">{member.joinDate}</td>
-                  <td className="p-4 text-right">
-                    <div className="flex justify-end gap-1">
-                      <button onClick={() => setActiveModal({ type: 'view', data: member })} className="p-2 hover:bg-primary/5 rounded" title="Xem nhanh"><span className="material-symbols-outlined text-sm">visibility</span></button>
-                      <button onClick={() => setActiveModal({ type: 'role', data: member })} className="p-2 hover:bg-primary/5 rounded" title="Phân quyền"><span className="material-symbols-outlined text-sm">manage_accounts</span></button>
-                      <button onClick={() => navigate(`/admin/members/edit/${member.id}`)} className="p-2 hover:bg-primary/5 rounded" title="Sửa"><span className="material-symbols-outlined text-sm">edit</span></button>
-                      <button onClick={() => setActiveModal({ type: 'lock', data: member })} className="p-2 hover:bg-red-50 text-red-600 rounded" title="Khóa"><span className="material-symbols-outlined text-sm">block</span></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="p-4">
+                      <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase ${member.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {member.status === 'active' ? 'Hoạt động' : 'Đã khóa'}
+                      </span>
+                    </td>
+                    <td className="p-4 font-body text-xs text-on-surface-variant">{member.joinDate}</td>
+                    <td className="p-4 text-right">
+                      <div className="flex justify-end gap-1">
+                        <button onClick={() => setActiveModal({ type: 'view', data: member })} className="p-2 hover:bg-primary/5 rounded" title="Xem nhanh"><span className="material-symbols-outlined text-sm">visibility</span></button>
+                        <button onClick={() => setActiveModal({ type: 'role', data: member })} className="p-2 hover:bg-primary/5 rounded" title="Phân quyền"><span className="material-symbols-outlined text-sm">manage_accounts</span></button>
+                        <button onClick={() => navigate(`/admin/members/edit/${member.id}`)} className="p-2 hover:bg-primary/5 rounded" title="Sửa"><span className="material-symbols-outlined text-sm">edit</span></button>
+                        <button onClick={() => setActiveModal({ type: 'lock', data: member })} className="p-2 hover:bg-red-50 text-red-600 rounded" title="Khóa"><span className="material-symbols-outlined text-sm">block</span></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const MetadataTagForm = () => {
@@ -6,13 +6,24 @@ const MetadataTagForm = () => {
   const { id } = useParams();
   const [tagName, setTagName] = useState(id ? 'Nhà Trần' : '');
   const [category, setCategory] = useState('dynasty');
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const categories = [
-    { id: 'dynasty', label: 'Triều đại', icon: 'castle', color: 'bg-primary' },
-    { id: 'topic', label: 'Chủ đề', icon: 'auto_stories', color: 'bg-secondary' },
-    { id: 'event', label: 'Sự kiện', icon: 'event_note', color: 'bg-red-600' },
-    { id: 'person', label: 'Nhân vật', icon: 'person', color: 'bg-accent' },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/admin_tag_categories.json');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error('Error fetching tag categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
 return (
   <div className="flex-grow bg-surface min-h-screen font-body">
@@ -95,32 +106,36 @@ return (
           </h3>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {categories.map(cat => (
-              <label key={cat.id} className="cursor-pointer group">
-                <input
-                  type="radio"
-                  name="cat"
-                  className="hidden"
-                  checked={category === cat.id}
-                  onChange={() => setCategory(cat.id)}
-                />
+            {loading ? (
+              <div className="col-span-full text-center py-4 font-body text-sm text-on-surface-variant">Đang tải phân loại...</div>
+            ) : (
+              categories.map(cat => (
+                <label key={cat.id} className="cursor-pointer group">
+                  <input
+                    type="radio"
+                    name="cat"
+                    className="hidden"
+                    checked={category === cat.id}
+                    onChange={() => setCategory(cat.id)}
+                  />
 
-                <div
-                  className={`p-4 border rounded-xl flex flex-col items-center gap-2 transition-all ${
-                    category === cat.id
-                      ? 'bg-primary text-white border-primary shadow-lg scale-105'
-                      : 'bg-surface-low border-outline-variant opacity-60'
-                  }`}
-                >
-                  <span className="material-symbols-outlined">
-                    {cat.icon}
-                  </span>
-                  <span className="font-body text-[9px] font-bold uppercase">
-                    {cat.label}
-                  </span>
-                </div>
-              </label>
-            ))}
+                  <div
+                    className={`p-4 border rounded-xl flex flex-col items-center gap-2 transition-all ${
+                      category === cat.id
+                        ? 'bg-primary text-white border-primary shadow-lg scale-105'
+                        : 'bg-surface-low border-outline-variant opacity-60'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined">
+                      {cat.icon}
+                    </span>
+                    <span className="font-body text-[9px] font-bold uppercase">
+                      {cat.label}
+                    </span>
+                  </div>
+                </label>
+              ))
+            )}
           </div>
         </section>
 

@@ -1,0 +1,58 @@
+{
+  "stats": [
+    {
+      "id": "stat-1",
+      "icon": "menu_book",
+      "title": "Tổng Bài viết",
+      "value": "12.4K",
+      "iconBg": "bg-primary/10"
+    },
+    {
+      "id": "stat-2",
+      "icon": "history_edu",
+      "title": "Sự kiện Lịch sử",
+      "value": "4.2K",
+      "iconBg": "bg-accent/10"
+    },
+    {
+      "id": "stat-3",
+      "icon": "person_pin_circle",
+      "title": "Nhân vật",
+      "value": "3.1K",
+      "iconBg": "bg-surface-variant"
+    },
+    {
+      "id": "stat-4",
+      "icon": "group",
+      "title": "Thành viên",
+      "value": "4.0K",
+      "iconBg": "bg-primary/5"
+    }
+  ],
+  "activities": [
+    {
+      "id": "act-1",
+      "icon": "verified",
+      "color": "text-primary",
+      "bg": "bg-primary/10",
+      "textHtml": "<strong>Admin</strong> đã duyệt bài: <span class=\"font-headline text-primary font-bold text-lg ml-1\">Trận Bạch Đằng 1288</span>",
+      "time": "2 phút trước"
+    },
+    {
+      "id": "act-2",
+      "icon": "person_add",
+      "color": "text-on-surface",
+      "bg": "bg-accent/10",
+      "textHtml": "Thành viên mới: <span class=\"font-headline text-primary font-bold text-lg ml-1\">Lê Văn Hùng</span>",
+      "time": "15 phút trước"
+    },
+    {
+      "id": "act-3",
+      "icon": "memory",
+      "color": "text-primary",
+      "bg": "bg-surface-variant",
+      "textHtml": "AI vừa hoàn thành nạp liệu từ <span class=\"font-headline text-primary font-bold text-lg ml-1\">Đại Việt Sử Ký</span>",
+      "time": "1 giờ trước"
+    }
+  ]
+}
