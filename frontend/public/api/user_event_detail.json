@@ -1,0 +1,21 @@
+{
+  "title": "Đại Thắng Bạch Đằng Giang (1288)",
+  "subtitle": "Trận chiến vĩ đại nhất trong lịch sử chống ngoại xâm, nơi trí tuệ Đại Việt đánh bại gót ngựa bạo tàn của đế quốc Nguyên Mông trên dòng sông lịch sử.",
+  "time": "09/04/1288",
+  "location": "Sông Bạch Đằng",
+  "forces": "Trần vs Nguyên",
+  "result": "Toàn thắng",
+  "heroImg": "https://lh3.googleusercontent.com/aida-public/AB6AXuA4fTrgf9I1tIhiNA3vcLwZ3WIECExoznhUuCKpoMB8ZyryoQDGgp9vepvx-c5mlCPKPN67vQKnu6WrqSTtkr7y4TGimCJ52wClGnEoVbOMJ8fQ9vlGlsTSMsaJTJDuUdvdjZSHPCfGhPz9xXcZCzCvNbWzxsEb4la90GnDBwyJ9YWo41G3q_j_EoZ1MkRMPa5RQxPGFzHfdEk0-dFR3iNY2nPcjqY5i1pccRq2bhQbra830cd4PUZQRIT_hzxNcEtJNyCRzJwPqudP",
+  "mapImg": "https://lh3.googleusercontent.com/aida-public/AB6AXuB7BdxYtdPrztVU_5iGWrtkm73OzIP1jvJ2yQ3EcraekuneY8I26x67sBev0SG95y45jIbG4xrKbtg8qhn6k7ZEJmRLDxLfUGRJuy5yrENr4_C9iR0aZlNxzqQV26U3chMs5fR1CnhzmNBd735FbdLyIXcPATyBpze7WiFn3ayZlA24DIgI3TIWrpo7dZmcnhXhEXKPU_ELD2O9bHUvPIdtTvCQyesXYe6ExZHPBRH0Ph2ewFWWCFOIEvDgqR7r2HHMCe6fxLk0eblN",
+  "figures": [
+    { "name": "Trần Hưng Đạo", "role": "Tổng tư lệnh", "color": "border-[#6b0f0d]" },
+    { "name": "Phạm Ngũ Lão", "role": "Thống lĩnh cánh quân", "color": "border-[#d99b4a]" },
+    { "name": "Ô Mã Nhi", "role": "Tướng quân Nguyên", "color": "border-[#2b0504]/30" }
+  ],
+  "gallery": [
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuBUQlOELDr7vSKNHv6m5TicXO7_V6o-EaflMl3MRoVmoT-RFVT6fBwM7GXM3Ew2TdxDKy4qIeaPg7ibKQ_T1O5YrjPwU3LZMwgTlwRtlfEKFTeV5---VXwVs-9E0BscqNHtPpy6VLVsIhL7CaDcnxxw-d9y7LZNrtKyd7gm8sO3SnyK-YNxPk-zHVmY7yjUhjHg1uckgiFlDsAJ742RzLBc9RsPSRLxMKH2x3e7Wp-x8EBSZp0i8_ONHh-TADtYRof7Ftdc7f7d2ixq",
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuDjpTjLt1c13xJWZUaqui7KtxppQO_wgFyALo0Csb3tZFrR17PevceMl6WfjzYAMPkSZvkZJZJOUp4m6CmSsA4euFfB7HqQ20QAbkbZIUYedFhujtpIxrZJ6CfEadvHPHsJWZmfrV7WUi-mUlMFXYTIboMu9FjxPt56yvw_WfEQ3iZSdKaB2fgHR2YsGalnyZSr_E7CkP03pUkeRFVtWV-OalghRu033epfcsJtT32qvXAEZnyQLU71rVbQSHhMlYVSW5b78vz2i5Nq"
+  ],
+  "quote": "Giặc tan, xác phơi đầy sông, bắt được tướng giặc Ô Mã Nhi cùng hơn 400 chiến thuyền... non sông từ đây thái bình.",
+  "quoteSource": "Đại Việt Sử Ký Toàn Thư"
+}

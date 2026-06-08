@@ -1,16 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const ArticleManagement = () => {
   const navigate = useNavigate();
   const [modal, setModal] = useState({ open: false, type: '', item: null });
+  const [data, setData] = useState({ stats: [], articles: [] });
+  const [loading, setLoading] = useState(true);
 
-  // Dữ liệu mẫu (Data)
-  const articles = [
-    { id: 1, title: 'Bình Ngô Đại Cáo - Tuyên ngôn độc lập', slug: 'binh-ngo-dai-cao', period: 'Nhà Hậu Lê (1428)', author: 'Ngô Sĩ Liên', status: 'published' },
-    { id: 2, title: 'Chiến thắng Chương Dương - Hàm Tử', slug: 'chuong-duong-ham-tu', period: 'Nhà Trần (1285)', author: 'Lê Văn Hưu', status: 'review' },
-    { id: 3, title: 'Sự biến Canh Tý - Lý Chiêu Hoàng', slug: 'su-bien-canh-ty', period: 'Chuyển giao Lý-Trần', author: 'Lê Văn Hưu', status: 'draft' }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/admin_articles.json');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const result = await response.json();
+        setData(result);
+      } catch (error) {
+        console.error('Error fetching articles data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const openModal = (type, item) => setModal({ open: true, type, item });
   const closeModal = () => setModal({ open: false, type: '', item: null });
@@ -34,9 +45,13 @@ const ArticleManagement = () => {
 
       {/* 2. THỐNG KÊ (STAT BOXES) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatBox label="Tổng bài viết" value="1,284" sub="+12% tháng này" icon="description" />
-        <StatBox label="Đang soạn thảo" value="42" icon="hourglass_empty" colorClass="text-accent" />
-        <StatBox label="Nhân vật liên kết" value="318" icon="person" colorClass="text-on-surface" />
+        {loading ? (
+          <div className="col-span-full text-center py-4 font-body text-sm text-on-surface-variant">Đang tải dữ liệu...</div>
+        ) : (
+          data.stats.map((stat, idx) => (
+            <StatBox key={idx} label={stat.label} value={stat.value} sub={stat.sub} icon={stat.icon} colorClass={stat.colorClass} />
+          ))
+        )}
       </div>
 
       {/* 3. BẢNG DANH SÁCH */}
@@ -51,36 +66,40 @@ const ArticleManagement = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant text-sm">
-            {articles.map((item, idx) => (
-              <tr key={item.id} className={`${idx % 2 !== 0 ? 'bg-surface-low/30' : ''} hover:bg-surface-variant/20 transition-all group`}>
-                <td className="p-4">
-                  <div className="flex flex-col">
-                    <span className="font-headline text-primary font-semibold text-lg hover:underline cursor-pointer">{item.title}</span>
-                    <code className="font-body text-[10px] text-on-surface-variant mt-1 italic opacity-60">slug: {item.slug}</code>
-                  </div>
-                </td>
-                <td className="p-4 text-on-surface-variant font-body">
-                  {item.period}
-                  <p className="text-[10px] opacity-50 font-body mt-0.5 uppercase tracking-tighter">Tác giả: {item.author}</p>
-                </td>
-                <td className="p-4 text-center">
-                  <StatusBadge status={item.status} />
-                </td>
-                <td className="p-4 text-right">
-                  <div className="flex justify-end gap-1">
-                    <button onClick={() => navigate(`/admin/articles/edit/${item.id}`)} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors" title="Chỉnh sửa">
-                      <span className="material-symbols-outlined text-lg">edit</span>
-                    </button>
-                    <button onClick={() => openModal('archive', item)} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors" title="Lưu trữ">
-                      <span className="material-symbols-outlined text-lg">archive</span>
-                    </button>
-                    <button onClick={() => openModal('delete', item)} className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors" title="Xóa bỏ">
-                      <span className="material-symbols-outlined text-lg">delete</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {loading ? (
+              <tr><td colSpan="4" className="text-center py-8 font-body text-sm text-on-surface-variant">Đang tải bài viết...</td></tr>
+            ) : (
+              data.articles.map((item, idx) => (
+                <tr key={item.id} className={`${idx % 2 !== 0 ? 'bg-surface-low/30' : ''} hover:bg-surface-variant/20 transition-all group`}>
+                  <td className="p-4">
+                    <div className="flex flex-col">
+                      <span className="font-headline text-primary font-semibold text-lg hover:underline cursor-pointer">{item.title}</span>
+                      <code className="font-body text-[10px] text-on-surface-variant mt-1 italic opacity-60">slug: {item.slug}</code>
+                    </div>
+                  </td>
+                  <td className="p-4 text-on-surface-variant font-body">
+                    {item.period}
+                    <p className="text-[10px] opacity-50 font-body mt-0.5 uppercase tracking-tighter">Tác giả: {item.author}</p>
+                  </td>
+                  <td className="p-4 text-center">
+                    <StatusBadge status={item.status} />
+                  </td>
+                  <td className="p-4 text-right">
+                    <div className="flex justify-end gap-1">
+                      <button onClick={() => navigate(`/admin/articles/edit/${item.id}`)} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors" title="Chỉnh sửa">
+                        <span className="material-symbols-outlined text-lg">edit</span>
+                      </button>
+                      <button onClick={() => openModal('archive', item)} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors" title="Lưu trữ">
+                        <span className="material-symbols-outlined text-lg">archive</span>
+                      </button>
+                      <button onClick={() => openModal('delete', item)} className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors" title="Xóa bỏ">
+                        <span className="material-symbols-outlined text-lg">delete</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

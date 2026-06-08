@@ -1,10 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const UserEvents = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriods, setSelectedPeriods] = useState([]);
   const [searchYear, setSearchYear] = useState('');
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch('/api/user_events.json');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        setEvents(data);
+      } catch (error) {
+        console.error('Error fetching events data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const togglePeriod = (period) => {
     setSelectedPeriods(prev => 
@@ -12,40 +31,7 @@ const UserEvents = () => {
     );
   };
 
-  const events = [
-    {
-      id: 'EVT-1288',
-      year: '1288',
-      title: 'Trận Bạch Đằng Lần Thứ Ba',
-      category: 'Quân sự • Triều Trần',
-      desc: 'Chiến thắng oanh liệt của quân dân nhà Trần đập tan ý đồ xâm lược của đế quốc Nguyên Mông trên dòng sông Bạch Đằng.',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBArlscw3wc_0llom4YXbNv7OUtmTW1u8adGJtB0r_R9ouLWRlOhBtwANhi8h-y-oKCXyjtcMAw-fv_DqJa8j9I0UYbf6VIaYfgHL50aCXOYoKCdQKYmjZdoMl1JYnzrRbkzkf79To66-2d-f1XfB1xrJTtxZoVqJiuNrqbgJSqttpHAF3wZGHnereJFQmlr7zvRv_OYZP3ifnXN8WYT8_1w8_n43OLOx1lJp01FpEjYuFGNSEqolT22CJMX1LelRwU2FVHe3Qq_fbP'
-    },
-    {
-      id: 'EVT-1427',
-      year: '1427',
-      title: 'Hội Thề Đông Quan',
-      category: 'Ngoại giao • Triều Lê Sơ',
-      desc: 'Đánh dấu sự kết thúc của khởi nghĩa Lam Sơn, mở ra kỷ nguyên độc lập lâu dài sau khi quân Minh rút về nước.',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDDTXt3tOmQLzCboBJbQ63U5COKxdxaq5GrOn1775TXtXg3zq28AuTTb3mfVjKs6uj5Nkhc7auEFnCrMuCs6G4YIcZmzBgEE4ZdY3awqlP12VklH3BWkRe6Q83fhxNWatx1MbYcLIq7RztTsqI3HQRxPVW7T-TPQdwD7HM2eOSpwVHwup9Hp3K7KuNRjtoiaNSNbwvYXV_yv4pvRx5WIpTl05zH0YYusegbAB7v9qKEqrHI9SzL2DI2Hb0snIW35b9H7yKKrRRXIf79'
-    },
-    {
-      id: 'EVT-1070',
-      year: '1070',
-      title: 'Khởi dựng Văn Miếu',
-      category: 'Văn hóa • Triều Lý',
-      desc: 'Vua Lý Thánh Tông cho xây dựng Văn Miếu tại Thăng Long, mở đầu cho nền giáo dục đại học chính thống đầu tiên của Việt Nam.',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB-vfyWu8AZJ8zXJcGYqxgtuwF8kgnNnxqHfqVCWu6IexNxd58MLyYryN2Pd4GPPIwQcgir92iGx39PPcocu5YwY0dKB88RM80ItVGkDs80nIlov0g4PRkKkWZqNqeAX2cgwfngoBoFqIt07Pir--2qzfNsUbTW8P_bXbYNjOL9IKt34YPVLuKa93Sk3GhQCaHLTecwGQGCZuSq0bnrOOq6oXKKmx5RiNGxRXHOQb6CiTjXlTeHajpZq_8iG4JClpUY9GWZsiRXvkTh'
-    },
-    {
-      id: 'EVT-1400',
-      year: '1400',
-      title: 'Hồ Quý Ly Lên Ngôi',
-      category: 'Chính trị • Triều Hồ',
-      desc: 'Cuộc chuyển giao quyền lực từ nhà Trần sang nhà Hồ, đi kèm với những cải cách táo bạo về kinh tế như phát hành tiền giấy.',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD4caq0Hz2eYlMe3uSRBnCVHc_v6ZE3OZuOiVIabi5YlcmijvCq4M8bX3IEg7SY59EKl0MwDo3JTUZ2_Ci3raC_sHQNmpXCc0RDmP9B6XKOuXkYhzMHScR0Qakd2h7JfSanG9LPOYmCUx-XBFxvtVokGaZJ2AuSeQFxh7i5KBZRJfutwlhArn9Kj1pF4cKakBCa9v-hKJpZoKHZurx_WXB54v4_aepQwcdwcXDWbZvDxCXTuc5UUhxb0BQsuUVzmvGuBciJOl4-K726'
-    }
-  ];
+
 
   return (
     <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
@@ -128,7 +114,9 @@ const UserEvents = () => {
           {/* 3. CONTENT GRID */}
           <div className="flex-1">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              {events
+              {loading ? (
+                <div className="col-span-full text-center text-[#6b0f0d] py-10 font-body">Đang tải dữ liệu...</div>
+              ) : events
                 .filter(e => {
                   const matchSearch = e.title.toLowerCase().includes(searchTerm.toLowerCase()) || e.desc.toLowerCase().includes(searchTerm.toLowerCase());
                   const matchYear = searchYear ? e.year.includes(searchYear) : true;

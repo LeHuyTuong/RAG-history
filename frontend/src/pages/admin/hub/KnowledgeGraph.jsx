@@ -1,17 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const KnowledgeGraph = () => {
   const navigate = useNavigate();
   const [selectedEntity, setSelectedEntity] = useState(null);
+  const [nodes, setNodes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Dữ liệu mẫu các nút (Nodes)
-  const nodes = [
-    { id: 1, name: 'Lê Thánh Tông', type: 'Nhân vật', pos: { top: '50%', left: '50%' }, size: 'w-20 h-20' },
-    { id: 2, name: 'Thăng Long', type: 'Địa danh', pos: { top: '30%', left: '40%' }, size: 'w-12 h-12' },
-    { id: 3, name: 'Cải cách Hồng Đức', type: 'Sự kiện', pos: { top: '35%', left: '60%' }, size: 'w-14 h-14' },
-    // { id: 4, name: 'Hồng Đức Bản Đồ', type: 'Sử liệu', pos: { top: '75%', left: '45%' }, size: 'w-12 h-12' },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/admin_graph_nodes.json');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        setNodes(data);
+      } catch (error) {
+        console.error('Error fetching graph nodes:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="flex flex-col h-screen bg-surface font-body overflow-hidden">
@@ -42,21 +52,27 @@ const KnowledgeGraph = () => {
            </svg>
 
            {/* Các thực thể (Nodes) */}
-           {nodes.map(node => (
-             <div 
-               key={node.id} 
-               onClick={() => setSelectedEntity(node)}
-               style={{ top: node.pos.top, left: node.pos.left }}
-               className={`absolute -translate-x-1/2 -translate-y-1/2 z-10 group cursor-pointer transition-all hover:scale-110`}
-             >
-                <div className={`${node.size} rounded-full border-2 border-accent bg-white flex items-center justify-center shadow-lg group-hover:border-primary transition-all`}>
-                   <span className="material-symbols-outlined text-primary">{node.id === 1 ? 'person' : node.id === 3 ? 'event' : 'location_on'}</span>
-                </div>
-                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-primary text-white text-[9px] font-bold px-2 py-0.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                   {node.name}
-                </div>
-             </div>
-           ))}
+           {loading ? (
+              <div className="absolute inset-0 flex items-center justify-center font-body text-primary z-50 bg-[#FDFBF0]/80 backdrop-blur-sm">
+                Đang tải mạng lưới tri thức...
+              </div>
+           ) : (
+             nodes.map(node => (
+               <div 
+                 key={node.id} 
+                 onClick={() => setSelectedEntity(node)}
+                 style={{ top: node.pos.top, left: node.pos.left }}
+                 className={`absolute -translate-x-1/2 -translate-y-1/2 z-10 group cursor-pointer transition-all hover:scale-110`}
+               >
+                  <div className={`${node.size} rounded-full border-2 border-accent bg-white flex items-center justify-center shadow-lg group-hover:border-primary transition-all`}>
+                     <span className="material-symbols-outlined text-primary">{node.id === 1 ? 'person' : node.id === 3 ? 'event' : 'location_on'}</span>
+                  </div>
+                  <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-primary text-white text-[9px] font-bold px-2 py-0.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                     {node.name}
+                  </div>
+               </div>
+             ))
+           )}
 
            {/* Chú giải góc trái */}
            <div className="absolute bottom-6 left-6 bg-white/90 p-4 rounded-lg border border-outline-variant shadow-xl text-[10px] font-body space-y-2">

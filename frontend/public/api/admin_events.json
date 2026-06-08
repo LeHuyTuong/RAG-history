@@ -1,0 +1,12 @@
+{
+  "stats": {
+    "total": "4,200",
+    "pending": "350"
+  },
+  "events": [
+    { "id": "EVT-1010", "name": "Định đô Thăng Long", "sub": "Chiếu dời đô của Lý Công Uẩn", "time": "Năm 1010", "dynasty": "Nhà Lý" },
+    { "id": "EVT-1285", "name": "Trận Hàm Tử", "sub": "Chiến thắng quân Nguyên lần thứ hai", "time": "Năm 1285", "dynasty": "Nhà Trần" },
+    { "id": "EVT-1418", "name": "Khởi nghĩa Lam Sơn", "sub": "Lê Lợi xưng Bình Định Vương", "time": "1418 - 1427", "dynasty": "Nhà Lê" },
+    { "id": "EVT-1789", "name": "Chiến thắng Ngọc Hồi - Đống Đa", "sub": "Quang Trung đại phá quân Thanh", "time": "Năm 1789", "dynasty": "Nhà Tây Sơn" }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "stats": [
+    { "label": "Vector Nodes", "value": "142,840", "icon": "memory", "color": "text-primary" },
+    { "label": "Tài liệu đã học", "value": "856", "icon": "auto_stories", "color": "text-accent" },
+    { "label": "Độ chính xác RAG", "value": "94%", "icon": "verified", "color": "text-green-600" }
+  ],
+  "history": [
+    { "name": "Kỷ_Nhà_Trần_Full.pdf", "date": "2 giờ trước", "status": "Done" },
+    { "name": "Văn_bia_Quốc_Tử_Giám.json", "date": "Hôm qua", "status": "Done" }
+  ]
+}

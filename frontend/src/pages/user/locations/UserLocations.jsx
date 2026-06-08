@@ -3,113 +3,36 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import VietnamMap from '../../../components/VietnamMap';
 
-// --- MẢNG DỮ LIỆU ĐỊA DANH LỊCH SỬ ---
-const locations = [
-  {
-    id: 1,
-    name: 'Cố đô Huế',
-    province: 'Thừa Thiên Huế',
-    type: 'Kinh đô cổ',
-    period: 'Nhà Nguyễn',
-    x: 63, y: 50,
-    desc: 'Kinh đô của triều đại nhà Nguyễn, biểu tượng cho quyền lực và sự tinh xảo trong kiến trúc phong kiến.',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAy9HOsSy2w5f4u8FOROpkAqDh91oFc040gmrIqvtUnfdASl5Yv9fpuP_-v4xHO4hsVTXFgvPoQU1zC-N-xtLmqBi7yI1Z5ywQqyAB92yDXzJ00RHI38gz9tYVAVrPha-f4mvXsYjgaUHHeWvmRY0PhijQlbC0VRcBNS3-RfERtElu_eZ5o6c8rXInSXEzTRrYZaxDQ65FF6EICyYGBypPopErqsIRLrd_nuI4027TYKL4-azB9b0bnqQbJXIfHzi3tPXRGwi212ueN',
-    famousCharacters: ['Vua Gia Long', 'Vua Minh Mạng'],
-    timeline: [{ year: '1802', event: 'Định đô' }, { year: '1945', event: 'Thoái vị' }],
-    aiPrompt: 'Tại sao Vua Gia Long lại quyết định dời đô vào Phú Xuân Huế?'
-  },
-  {
-    id: 2,
-    name: 'Hoàng Thành Thăng Long',
-    province: 'Hà Nội',
-    type: 'Hoàng thành',
-    period: 'Nhà Lý',
-    x: 48, y: 20,
-    desc: 'Trung tâm chính trị, văn hóa quan trọng nhất của Việt Nam trong suốt 13 thế kỷ liên tiếp từ thời Lý đến Nguyễn.',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCc93rr9Ln2v2v8oDXqcTThoFyvbU-lGRm-n2qyByLfGgx6QaY8sv2gDhR7DX3C83E0dbHwOLQSfFneh__EzEdMIz5U1dLpfRjorC21h4GwJ1bAJ3Vl2qOppE6m6VD4jtyZ2jO6RuPzfsRHwZdIp8QH-Bgt0FH1yyQKXZ-5zdQx0pJHYJ5aSKr4B2aRWDJMh4kFEjJT5T9SRT20VT6MDYN7vANjbJ2FcJ3nj4xLYwONlrcSAe0eCojuMEzE0EMelzyrqrXy6TDFvRWW',
-    famousCharacters: ['Lý Thái Tổ', 'Lê Thánh Tông'],
-    timeline: [{ year: '1010', event: 'Dời đô' }],
-    aiPrompt: 'Hoàng thành Thăng Long có những hiện vật quý giá nào?'
-  },
-  {
-    id: 3,
-    name: 'Cố đô Hoa Lư',
-    province: 'Ninh Bình',
-    type: 'Kinh đô cổ',
-    period: 'Nhà Đinh',
-    x: 52, y: 25,
-    desc: 'Kinh đô đầu tiên của nước Việt độc lập sau 1000 năm Bắc thuộc, gắn liền với sự nghiệp thống nhất của Đinh Bộ Lĩnh.',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC4zEJVUzoNRwMJqYZdNwfr3q46wbgd1Hrw79_Mrt3_mSJVw9bDu4ty1xtGhd2WK13hV5LE4tvo-wI2GtqJv4U3w-soRt_ywdRAGCGL4bosK_ZmVvCPzizbLil7IDmYzsyz3QssJMF5u9zfxauzzPQ0z4yRTsF0VJyJyaFh3CSaceFdiTeEan44feuxMDSnkuNeXhg_b2CQezVPHci4oGO9PrrDXqsB_0wP3V4jwpH9Akka8QC3XacpsLnreP6LoTmLCn08_v3Yds6s',
-    famousCharacters: ['Đinh Tiên Hoàng', 'Lê Đại Hành'],
-    timeline: [{ year: '968', event: 'Lập quốc' }],
-    aiPrompt: 'Địa thế Hoa Lư hiểm trở như thế nào?'
-  },
-  {
-    id: 4,
-    name: 'Văn Miếu - Quốc Tử Giám',
-    province: 'Hà Nội',
-    type: 'Di tích văn hóa',
-    period: 'Nhà Lý',
-    x: 48, y: 19,
-    desc: 'Trường đại học đầu tiên của Việt Nam, nơi lưu giữ tinh hoa khoa bảng ngàn năm và 82 tấm bia Tiến sĩ quý giá.',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAmNocjFRWbOeTTb4D0X6GrSEqRqAXqYKuZffaLLwlhDsSOh0IFLQkAgBfW2d1MdC4FTUsi96mBv2FryFIh-X2wAsezin7d4QckXyAroun0MplIEGEDNN6v6Y6vsl1otxU8kond2lnWMMIZdA1xNS5XKkNquZrLNF83nVGEYXFHFFKkc1gAgMDV_OLj-wHq6I7ziUbvMbrilELjQCgrDGH3ua9wBkEfakzf1loum-zGM5B7q7hkOf7FFNZJh7sLDFiihew0LiUD-bCo',
-    famousCharacters: ['Chu Văn An', 'Lý Nhân Tông'],
-    timeline: [{ year: '1070', event: 'Khởi dựng' }],
-    aiPrompt: 'Ý nghĩa của 82 bia Tiến sĩ tại Văn Miếu.'
-  },
-  {
-    id: 5,
-    name: 'Di tích Lam Kinh',
-    province: 'Thanh Hóa',
-    type: 'Khu lăng tẩm',
-    period: 'Nhà Lê Sơ',
-    x: 46, y: 30,
-    desc: 'Nơi phát tích của cuộc khởi nghĩa Lam Sơn và là khu lăng tẩm hoàng gia linh thiêng của vương triều Hậu Lê.',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDh48rEx3whFt-uLgXeFfaouAxswoghSNKU3kZ0uZthttK9uZCGTtlrwat-dkOuIDQm8JgoQQgtoI5UE7kWk5locGj5ph9lA_kJAM1vAKKqJp6lTSacw_RMEvhyo3E4Crdwo-zQY3o80VtVsvTy8v-t1RELwDqRYwfd7MTtX9U1B9MtfFli_rLejuz-vyFk7E25UI5VQYur_BU3UwparR335gjSs06YNDEsCDfa1gea0wCV15Q-yk7VAsxz7yMHk6wx439Phkko_zFW',
-    famousCharacters: ['Lê Lợi', 'Nguyễn Trãi'],
-    timeline: [{ year: '1433', event: 'Xây dựng' }],
-    aiPrompt: 'Kiến trúc phong thủy của khu lăng tẩm Lam Kinh.'
-  },
-  {
-    id: 6,
-    name: 'Sông Bạch Đằng',
-    province: 'Quảng Ninh - Hải Phòng',
-    type: 'Di tích lịch sử',
-    period: 'Nhà Ngô',
-    x: 52, y: 15,
-    desc: 'Dòng sông lịch sử nơi Ngô Quyền đánh tan quân Nam Hán năm 938, mở đầu thời kỳ độc lập dân tộc.',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBArlscw3wc_0llom4YXbNv7OUtmTW1u8adGJtB0r_R9ouLWRlOhBtwANhi8h-y-oKCXyjtcMAw-fv_DqJa8j9I0UYbf6VIaYfgHL50aCXOYoKCdQKYmjZdoMl1JYnzrRbkzkf79To66-2d-f1XfB1xrJTtxZoVqJiuNrqbgJSqttpHAF3wZGHnereJFQmlr7zvRv_OYZP3ifnXN8WYT8_1w8_n43OLOx1lJp01FpEjYuFGNSEqolT22CJMX1LelRwU2FVHe3Qq_fbP',
-    famousCharacters: ['Ngô Quyền', 'Trần Hưng Đạo'],
-    timeline: [{ year: '938', event: 'Đại thắng Nam Hán' }],
-    aiPrompt: 'Trận cọc gỗ Bạch Đằng năm 938.'
-  },
-  {
-    id: 7,
-    name: 'Đường Lâm',
-    province: 'Hà Nội',
-    type: 'Làng cổ',
-    period: 'Nhà Ngô',
-    x: 47, y: 19,
-    desc: 'Làng cổ nghìn năm tuổi, quê hương của Ngô Quyền vị vua mở đầu kỷ nguyên độc lập dân tộc.',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDDTXt3tOmQLzCboBJbQ63U5COKxdxaq5GrOn1775TXtXg3zq28AuTTb3mfVjKs6uj5Nkhc7auEFnCrMuCs6G4YIcZmzBgEE4ZdY3awqlP12VklH3BWkRe6Q83fhxNWatx1MbYcLIq7RztTsqI3HQRxPVW7T-TPQdwD7HM2eOSpwVHwup9Hp3K7KuNRjtoiaNSNbwvYXV_yv4pvRx5WIpTl05zH0YYusegbAB7v9qKEqrHI9SzL2DI2Hb0snIW35b9H7yKKrRRXIf79',
-    famousCharacters: ['Ngô Quyền', 'Phùng Hưng'],
-    timeline: [{ year: '898', event: 'Ngô Quyền ra đời' }],
-    aiPrompt: 'Đường Lâm ấp 2 vua.'
-  }
-];
-
 export default function UserLocations() {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'map'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDynasty, setSelectedDynasty] = useState('');
+  const [locations, setLocations] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   // Map state
-  const [selectedSite, setSelectedSite] = useState(locations[0]);
+  const [selectedSite, setSelectedSite] = useState(null);
   const [hoveredSite, setHoveredSite] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/user_locations.json');
+        if (!response.ok) throw new Error('Network error');
+        const data = await response.json();
+        setLocations(data);
+        if (data.length > 0) {
+          setSelectedSite(data[0]);
+        }
+      } catch (error) {
+        console.error('Error fetching locations:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   // Filter logic

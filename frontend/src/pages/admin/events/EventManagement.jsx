@@ -1,16 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const EventManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, itemName: '', id: null });
+  const [data, setData] = useState({ stats: { total: '0', pending: '0' }, events: [] });
+  const [loading, setLoading] = useState(true);
 
-  const events = [
-    { id: 'EVT-1010', name: 'Định đô Thăng Long', sub: 'Chiếu dời đô của Lý Công Uẩn', time: 'Năm 1010', dynasty: 'Nhà Lý' },
-    { id: 'EVT-1285', name: 'Trận Hàm Tử', sub: 'Chiến thắng quân Nguyên lần thứ hai', time: 'Năm 1285', dynasty: 'Nhà Trần' },
-    { id: 'EVT-1418', name: 'Khởi nghĩa Lam Sơn', sub: 'Lê Lợi xưng Bình Định Vương', time: '1418 - 1427', dynasty: 'Nhà Lê' },
-    { id: 'EVT-1789', name: 'Chiến thắng Ngọc Hồi - Đống Đa', sub: 'Quang Trung đại phá quân Thanh', time: 'Năm 1789', dynasty: 'Nhà Tây Sơn' },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/admin_events.json');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const result = await response.json();
+        setData(result);
+      } catch (error) {
+        console.error('Error fetching event data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="flex-grow flex flex-col min-h-screen bg-surface">
@@ -31,11 +42,11 @@ const EventManagement = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-surface-container border border-outline-variant p-6 rounded-xl">
              <p className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest">Tổng sự kiện</p>
-             <h3 className="font-headline text-3xl text-primary font-bold mt-1">4,200</h3>
+             <h3 className="font-headline text-3xl text-primary font-bold mt-1">{loading ? '...' : data.stats.total}</h3>
           </div>
           <div className="bg-surface-variant/30 border border-outline-variant p-6 rounded-xl text-on-primary-container">
              <p className="font-body text-[10px] uppercase tracking-widest">Chờ duyệt</p>
-             <h3 className="font-headline text-3xl font-bold mt-1 text-primary">350</h3>
+             <h3 className="font-headline text-3xl font-bold mt-1 text-primary">{loading ? '...' : data.stats.pending}</h3>
           </div>
         </div>
 
@@ -65,27 +76,31 @@ const EventManagement = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant text-sm">
-              {events.map((event) => (
-                <tr key={event.id} className="hover:bg-surface-low transition-colors group">
-                  <td className="px-6 py-4 font-body text-xs text-on-surface-variant">{event.id}</td>
-                  <td className="px-6 py-4">
-                    <div className="font-headline text-primary font-bold text-base group-hover:underline cursor-pointer">{event.name}</div>
-                    <div className="text-[11px] text-on-surface-variant italic">{event.sub}</div>
-                  </td>
-                  <td className="px-6 py-4 font-medium">{event.time}</td>
-                  <td className="px-6 py-4">
-                    <span className="bg-primary/5 text-primary border border-primary/20 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-tighter">
-                      {event.dynasty}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => navigate(`/admin/events/edit/${event.id}`)} className="p-2 hover:text-primary"><span className="material-symbols-outlined text-sm">edit</span></button>
-                      <button onClick={() => setDeleteModal({ open: true, itemName: event.name, id: event.id })} className="p-2 hover:text-red-600"><span className="material-symbols-outlined text-sm">delete</span></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {loading ? (
+                <tr><td colSpan="5" className="text-center py-8 font-body text-sm text-on-surface-variant">Đang tải sự kiện...</td></tr>
+              ) : (
+                data.events.map((event) => (
+                  <tr key={event.id} className="hover:bg-surface-low transition-colors group">
+                    <td className="px-6 py-4 font-body text-xs text-on-surface-variant">{event.id}</td>
+                    <td className="px-6 py-4">
+                      <div className="font-headline text-primary font-bold text-base group-hover:underline cursor-pointer">{event.name}</div>
+                      <div className="text-[11px] text-on-surface-variant italic">{event.sub}</div>
+                    </td>
+                    <td className="px-6 py-4 font-medium">{event.time}</td>
+                    <td className="px-6 py-4">
+                      <span className="bg-primary/5 text-primary border border-primary/20 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-tighter">
+                        {event.dynasty}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => navigate(`/admin/events/edit/${event.id}`)} className="p-2 hover:text-primary"><span className="material-symbols-outlined text-sm">edit</span></button>
+                        <button onClick={() => setDeleteModal({ open: true, itemName: event.name, id: event.id })} className="p-2 hover:text-red-600"><span className="material-symbols-outlined text-sm">delete</span></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

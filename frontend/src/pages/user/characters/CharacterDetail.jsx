@@ -4,34 +4,31 @@ import { useParams, Link } from 'react-router-dom';
 const CharacterDetail = () => {
   const { id } = useParams();
 
-  // Tự động cuộn lên đầu trang khi vào
+  const [character, setCharacter] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  // Dữ liệu mẫu cho Lê Thái Tổ (Sau này bạn sẽ fetch từ API theo id)
-  const character = {
-    name: "Lê Thái Tổ (Lê Lợi)",
-    dynastyTitle: "Sáng lập triều Hậu Lê",
-    templeName: "Thái Tổ",
-    eraName: "Thuận Thiên",
-    reign: "1428 — 1433",
-    portrait: "https://lh3.googleusercontent.com/aida-public/AB6AXuA-lVrS3LMr6Zms2FT8YRmly_7b25lqxl3RpuoAi2JGXD5zpJ8GJRWjaguZWAkcQAaDNndOV7i6fMX4OjzMo88RvY5r16XHFIC0mZNZ-APzJsPq1bAUOl16PIrJf5SegotiZpv641eq-TmE7n5rfCO8xf0SbCXX8FiWN-tiFv-Vghj05wwH9XabjNnS-otCjl9fmTq_XwJ8DDQBpJ_uZewR-N9lbxMb0Kz3tueWGiPnhatompKkLCiovr5UjFrw_eX9F6CZLhBZrwjQ",
-    quote: "Bình Ngô đại cáo – Bản tuyên ngôn độc lập thứ hai của dân tộc được viết dưới thời đại của Ngài, khẳng định chủ quyền lãnh thổ và tư tưởng nhân nghĩa Việt Nam.",
-    description: "Lê Thái Tổ, tên húy là Lê Lợi, là vị hoàng đế sáng lập triều đại Hậu Lê – triều đại quân chủ tồn tại lâu nhất trong lịch sử Việt Nam. Xuất thân từ hào trưởng đất Lam Sơn, ông đã dành 10 năm gian khổ lãnh đạo nghĩa quân đánh đuổi giặc Minh, khôi phục nền độc lập cho Đại Việt.",
-    milestones: [
-      { time: "MÙA XUÂN, 1418", title: "Khởi nghĩa Lam Sơn", desc: "Lê Lợi xưng là Bình Định Vương, truyền hịch kêu gọi nhân dân đánh đuổi giặc Minh tại căn cứ Lam Sơn, Thanh Hóa." },
-      { time: "1416", title: "Hội thề Lũng Nhai", desc: "Hợp sức cùng 18 người anh em trung liệt cắt máu ăn thề, nguyện một lòng quyết tử cho tổ quốc quyết sinh." },
-      { time: "1427", title: "Chiến thắng Chi Lăng - Xương Giang", desc: "Đập tan 15 vạn quân viện binh của Liễu Thăng, buộc quân Minh phải giảng hòa và rút quân về nước." },
-      { time: "1428", title: "Lên ngôi Hoàng đế", desc: "Chính thức đăng quang tại điện Kính Thiên, Thăng Long. Đổi tên nước thành Đại Việt, đặt niên hiệu Thuận Thiên.", isSpecial: true }
-    ],
-    relatedFigures: [
-      { name: "Nguyễn Trãi", role: "Quốc sư, Tác gia", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCdMgquRu3yaUhok0e-zl-0bR4PEYP0Oew3a6GoMSdu5mgrDt8tVvo6dB_WgcYbBOc2zcDyfJCr8XC05LONTKT_gh2DNHXqJEDv0Msk4-yyTIVzH2gk1Qaj45EysDzrB9lLuNhxwUp_uV-PazmnfDYs_DX2d4WPvrIVem_XaQ0la4bE_V19TAOKFHc3FyDQkAKvaLksAqoJFfMU5iVt-s2jSTU3ymOpZUJp1yTggyD76wk9ntNEqJPhurAQlYVYt4g6rYQ03zFR9HOV" },
-      { name: "Lê Sát", role: "Đại công thần", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDMszKAkrRVdSQy7xB7nNuzV9ES2l0iqbPtr-SHDqj5TKThpPFqNXWjDOxHbaDwCheafYQVJb6xw-FcPOh9TYgZPjqmgTqUUtbVZWxxxS2ovBFgpGCsFW474VYaWwNEEaCih8NEbI81FdQnu_CZGEhwolDdya0h319s6vkLvH0aKdU_RwGPto5KH7-zV9obCybf23ws8bXMznCpa1oFC4zPPyC8EHcKVUkaXMFYe1Hkxs69aYMUz5hlGHy-AEohvvJyV8NI6WWYsU65" },
-      { name: "Nguyễn Xí", role: "Tướng tiên phong", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCcycV1ySqPKKuZDbnjU993BULakAMgfCOujdrOjo8SyV0voN4wC0szw65q9-RgdIIvmuuOH5v6-4CNQ5Waajs-mq8gFWBbvmJk1RSwn5-5_wMG4Y04jgjJKn_jpS4sXMiH8U0YT1oGpqax_ntb_P0ywP6Kk1j-LNbMazIEsrwRZqCbhrSqGRSuuxAtGV3OjrKn2cSpCo0Up46ipeMy1uEuzmb33BcldVmKfnC3MIKb_DT83n06RbmqPfsFEFaeGNEsQ7ONzCDTcnn1" }
-    ],
-    steleImg: "https://lh3.googleusercontent.com/aida-public/AB6AXuCUmvnwzdL20uy5yXpLNGvMOXcjDflpZDV9mE5K7UqNFe9xlxfzbha5En8Rz-Y4jeLEPXLJVpOKztruQmrTzGtRWyzVffac3ez-0lu4W36FgcfTtAOOwqSMWS2sCupDK66ddjM1TA3CuIdKvyhdDREOa5CQl5NuNwEKNdCGCTLpS87hnUfIyDbMUU11RYhFPXpdGLvQqQtXyNaxPZIvbCBL0-EXzaulG9S8fxlau3D_qTO6LJaeNqjorzgpEQGGU0bQHoge4qZtqo3j"
-  };
+  useEffect(() => {
+    const fetchCharacter = async () => {
+      try {
+        const response = await fetch('/api/user_character_detail.json');
+        if (!response.ok) throw new Error('Network error');
+        const data = await response.json();
+        setCharacter(data);
+      } catch (error) {
+        console.error('Error fetching character details:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCharacter();
+  }, [id]);
+
+  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải thông tin nhân vật...</div>;
+  if (!character) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Không tìm thấy thông tin nhân vật.</div>;
 
   return (
     <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/30 pb-24 relative overflow-hidden">
