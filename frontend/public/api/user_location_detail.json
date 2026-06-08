@@ -1,0 +1,58 @@
+{
+  "name": "Cố đô Huệ",
+  "category": "DI SẢN VĂN HÓA THẾ GIỚI",
+  "heroImg": "https://lh3.googleusercontent.com/aida-public/AB6AXuCKLHWeWj3vTsKv2mconxq0gMjej8NpLLxS7ULSYKb17LLtEilBkjNNXRpGgmXsa5cit6jAVKY4R2EamuEXXjxJffT5d4La1xt3teUTz0dKXgG-ooZwoGtUMQ4jqEV8UM5eVRcELZb6IoF7-WzB4Sbt4xt-lKU3DzW8pL1xFrwxl-bYoN0KeNvHkFX2NdMQZ3m2wqs6-HuhE1MePvHSq-F62T1hwexNusRgGgJL0zwRXASpQmfrZACwD8jgyH-5N1MN8mLhT2T1TGhR",
+  "shortDesc": "Kinh đô của triều đại nhà Nguyễn, biểu tượng cho quyền lực và sự hưng thịnh của một quốc gia thống nhất qua hơn một thế kỷ.",
+  "importance": [
+    "Quần thể di tích Cố đô Huế là trung tâm chính trị, văn hóa, và tôn giáo của Việt Nam dưới sự trị vì của mười ba đời vua nhà Nguyễn (1802-1945). Được xây dựng dọc theo bờ sông Hương thơ mộng, kinh thành Huế không chỉ là một pháo đài quân sự kiên cố mà còn là một tác phẩm nghệ thuật kiến trúc kết hợp hài hòa giữa triết lý phương Đông và kỹ thuật phương Tây.",
+    "Với hệ thống thành quách gồm ba vòng thành: Kinh Thành, Hoàng Thành và Tử Cấm Thành, Huế đại diện cho đỉnh cao của quy hoạch đô thị phong kiến Việt Nam."
+  ],
+  "stats": [
+    {
+      "label": "Khởi công",
+      "value": "1804"
+    },
+    {
+      "label": "Diện tích",
+      "value": "520 ha"
+    },
+    {
+      "label": "UNESCO",
+      "value": "1993"
+    }
+  ],
+  "timeline": [
+    {
+      "year": "1802",
+      "title": "Định đô Phú Xuân",
+      "desc": "Vua Gia Long thống nhất đất nước, chọn Huế làm thủ đô."
+    },
+    {
+      "year": "1833",
+      "title": "Hoàn thiện Kinh thành",
+      "desc": "Vua Minh Mạng hoàn tất hệ thống cung điện tráng lệ nhất."
+    },
+    {
+      "year": "1945",
+      "title": "Lễ thoái vị",
+      "desc": "Vua Bảo Đại trao ấn kiếm, kết thúc chế độ quân chủ tại Ngọ Môn."
+    }
+  ],
+  "location": {
+    "lat": 16.4637,
+    "lng": 107.5908,
+    "quote": "\"Phía Bắc giáp dãy núi Bạch Mã, phía Nam nhìn ra biển Đông, Huế nằm tại yết hầu của dải đất miền Trung.\""
+  },
+  "figures": [
+    {
+      "name": "Vua Gia Long",
+      "role": "Người đặt nền móng",
+      "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuBdlOxLklt8X1pglTEyM8Xyd_dikhvxAq1Bw6V45ZAuWnuYFJOOO-ZjZ05Ir_z-0a8yw4FikeCEeo5uz89-tbOHTyxtaixkVHjS-BoDoqER1gZOBffoH-fuA53uqBIzWoy3wm4b2n2sHZR7ueI7kjLcZbYtCPqKW9qxKVEHEvxzOrUQ9Nfbmq0xNi58_mr9alOOjuVYc0i2-B5UTE1M32kZBXR7YyWxXyQCTn7e2g__-Sg_nU3eEmS4G22DINL7iJYYb-wzm4gRT8-b"
+    },
+    {
+      "name": "Vua Minh Mạng",
+      "role": "Người hoàn thiện kiến trúc",
+      "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAYeNIgZu43O0hKS5jOprrToZEm7xJWgegZLzp66vU8YXp2CdJFNofZdjPViWKkXhRHcy7gRYqN1ZgdZl_GYKNc7ncBFwJTeT1mk9CjJIoX4O7pylN7FCqVkG-Czc5T_fLi3i6XwH5Cw9sxSx2A9Ylfiay8hnXOOki3dDn37RBWUXahbI_4DlTjYY0zfdpJbH2ffb9hWbnqKTBXBmkCHk6Vm4doolMcmMtai6SJ-KYu6SZj5bYWFlPhw1JEHtTVwgYbvk5Yta2P8DDJ"
+    }
+  ]
+}

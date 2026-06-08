@@ -33,11 +33,24 @@ const UserProfile = () => {
     alert('Đổi mật khẩu thành công!');
   };
 
-  const mockHistory = [
-    { id: 'EVT-1288', title: 'Trận Bạch Đằng Lần Thứ Ba', type: 'Sự kiện', interaction: 'Đã thích', date: 'Hôm nay', link: '/events/EVT-1288', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBArlscw3wc_0llom4YXbNv7OUtmTW1u8adGJtB0r_R9ouLWRlOhBtwANhi8h-y-oKCXyjtcMAw-fv_DqJa8j9I0UYbf6VIaYfgHL50aCXOYoKCdQKYmjZdoMl1JYnzrRbkzkf79To66-2d-f1XfB1xrJTtxZoVqJiuNrqbgJSqttpHAF3wZGHnereJFQmlr7zvRv_OYZP3ifnXN8WYT8_1w8_n43OLOx1lJp01FpEjYuFGNSEqolT22CJMX1LelRwU2FVHe3Qq_fbP' },
-    { id: 'HUE-1', title: 'Cố đô Huế', type: 'Địa danh', interaction: 'Đã bình luận', date: 'Hôm qua', link: '/locations/1', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCKLHWeWj3vTsKv2mconxq0gMjej8NpLLxS7ULSYKb17LLtEilBkjNNXRpGgmXsa5cit6jAVKY4R2EamuEXXjxJffT5d4La1xt3teUTz0dKXgG-ooZwoGtUMQ4jqEV8UM5eVRcELZb6IoF7-WzB4Sbt4xt-lKU3DzW8pL1xFrwxl-bYoN0KeNvHkFX2NdMQZ3m2wqs6-HuhE1MePvHSq-F62T1hwexNusRgGgJL0zwRXASpQmfrZACwD8jgyH-5N1MN8mLhT2T1TGhR' },
-    { id: 'CHAR-2', title: 'Vua Quang Trung', type: 'Nhân vật', interaction: 'Đã thích', date: '3 ngày trước', link: '/characters/1', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD9sXk9256E1K8rK242r4y48o_3x2B-p7G8h0U1w02rT5-D0yI3rN97V4x0O7O6-hG4zR77wR8P0x5pE9J3D7Z4g-3W_s2n-9V4x0O7O6-hG4zR77wR8P0x5pE9J3D7Z4g' },
-  ];
+  const [mockHistory, setMockHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const response = await fetch('/api/user_profile_history.json');
+        if (!response.ok) throw new Error('Network error');
+        const data = await response.json();
+        setMockHistory(data);
+      } catch (error) {
+        console.error('Error fetching history:', error);
+      } finally {
+        setLoadingHistory(false);
+      }
+    };
+    fetchHistory();
+  }, []);
 
   return (
     <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20">

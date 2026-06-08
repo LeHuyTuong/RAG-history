@@ -1,13 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const AiManagement = () => {
   const [isSyncing, setIsSyncing] = useState(false);
+  const [data, setData] = useState({ stats: [], history: [] });
+  const [loading, setLoading] = useState(true);
 
-  const stats = [
-    { label: 'Vector Nodes', value: '142,840', icon: 'memory', color: 'text-primary' },
-    { label: 'Tài liệu đã học', value: '856', icon: 'auto_stories', color: 'text-accent' },
-    { label: 'Độ chính xác RAG', value: '94%', icon: 'verified', color: 'text-green-600' },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/admin_ai.json');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const result = await response.json();
+        setData(result);
+      } catch (error) {
+        console.error('Error fetching AI data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleSync = () => {
     setIsSyncing(true);
@@ -36,15 +48,19 @@ const AiManagement = () => {
 
       {/* Stats Bento */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {stats.map((s, idx) => (
-          <div key={idx} className="bg-white border border-outline-variant p-6 rounded-xl shadow-sm flex items-center justify-between">
-            <div>
-              <p className="font-body text-[10px] uppercase font-bold text-on-surface-variant tracking-widest">{s.label}</p>
-              <h3 className={`font-headline text-3xl font-bold mt-1 ${s.color}`}>{s.value}</h3>
+        {loading ? (
+          <div className="col-span-full text-center py-4 font-body text-sm text-on-surface-variant">Đang tải dữ liệu...</div>
+        ) : (
+          data.stats.map((s, idx) => (
+            <div key={idx} className="bg-white border border-outline-variant p-6 rounded-xl shadow-sm flex items-center justify-between">
+              <div>
+                <p className="font-body text-[10px] uppercase font-bold text-on-surface-variant tracking-widest">{s.label}</p>
+                <h3 className={`font-headline text-3xl font-bold mt-1 ${s.color}`}>{s.value}</h3>
+              </div>
+              <span className="material-symbols-outlined text-4xl opacity-10">{s.icon}</span>
             </div>
-            <span className="material-symbols-outlined text-4xl opacity-10">{s.icon}</span>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       <div className="grid grid-cols-12 gap-8">
@@ -100,21 +116,22 @@ const AiManagement = () => {
           <div className="bg-white border border-outline-variant rounded-xl p-6 shadow-sm">
             <h4 className="font-body text-[10px] font-bold uppercase text-primary border-b border-outline-variant pb-2 mb-4 tracking-widest">Lịch sử nạp liệu</h4>
             <div className="space-y-4">
-              {[
-                { name: 'Kỷ_Nhà_Trần_Full.pdf', date: '2 giờ trước', status: 'Done' },
-                { name: 'Văn_bia_Quốc_Tử_Giám.json', date: 'Hôm qua', status: 'Done' },
-              ].map((file, i) => (
-                <div key={i} className="flex items-center justify-between group">
-                  <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-on-surface-variant text-sm">description</span>
-                    <div className="text-[11px]">
-                      <p className="font-bold text-on-surface group-hover:text-primary transition-colors">{file.name}</p>
-                      <p className="opacity-50 font-body text-[9px] uppercase">{file.date}</p>
+              {loading ? (
+                <div className="text-center py-4 font-body text-sm text-on-surface-variant">Đang tải lịch sử...</div>
+              ) : (
+                data.history.map((file, i) => (
+                  <div key={i} className="flex items-center justify-between group">
+                    <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-on-surface-variant text-sm">description</span>
+                      <div className="text-[11px]">
+                        <p className="font-bold text-on-surface group-hover:text-primary transition-colors">{file.name}</p>
+                        <p className="opacity-50 font-body text-[9px] uppercase">{file.date}</p>
+                      </div>
                     </div>
+                    <span className="material-symbols-outlined text-green-600 text-sm">check_circle</span>
                   </div>
-                  <span className="material-symbols-outlined text-green-600 text-sm">check_circle</span>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </section>

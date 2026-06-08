@@ -1,0 +1,38 @@
+[
+  {
+    "id": "hong-bang",
+    "name": "Thời đại Hùng Vương",
+    "range": "2879 TCN - 258 TCN",
+    "category": "Kỷ Hồng Bàng",
+    "desc": "Giai đoạn khởi thủy của dân tộc với truyền thuyết Con Rồng Cháu Tiên. Nền văn minh Đông Sơn rực rỡ với kỹ thuật đúc đồng tinh xảo.",
+    "details": ["18 đời Hùng Vương trị vì", "Sự tích Lạc Long Quân - Âu Cơ"],
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBI-gkQtZyuGSYSyPBbC8isN7FdmTSvDiyKXtUbIE8iGpa3xh1hbTc1hMhDQlFDkGbC8PYj9uNmzg9bbN2oW0QqdQjZb5kpaXaEWHHFbDPxR3umN8EF_TdJqWu5tUoa7hPlrCQU7NxMPx5UgJ9JU1gzW3TDiQTr_GY7OOUubFGhljKhAxqaqlVtRaMMqvAe4QXZ9kPf94N7RKIO5QL9AyWPuBg8fUKvfjabWBg5ChA_T2Fh1LkF0BbgkUkV2ZggUIOqQCaY85JNT_Ky"
+  },
+  {
+    "id": "ly",
+    "name": "Kỷ Nguyên Thăng Long",
+    "range": "1009 - 1225",
+    "category": "Nhà Lý",
+    "desc": "Vua Lý Thái Tổ dời đô về Thăng Long, mở ra thời kỳ hưng thịnh của Phật giáo và văn hóa Đại Việt. Xây dựng Văn Miếu - Quốc Tử Giám.",
+    "details": ["Chiếu Dời Đô (1010)", "Phá Tống trên sông Như Nguyệt"],
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2"
+  },
+  {
+    "id": "tran",
+    "name": "Hào Khí Đông A",
+    "range": "1225 - 1400",
+    "category": "Nhà Trần",
+    "desc": "Ba lần đại thắng quân Nguyên Mông, đế quốc hùng mạnh nhất bấy giờ. Tinh thần đoàn kết quân dân lên cao nhất với Hội nghị Diên Hồng.",
+    "details": ["Chiến thắng Bạch Đằng (1288)", "Thiền phái Trúc Lâm Yên Tử"],
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuAMX3lFtj-6Z0RXVTnWLTWAah11z-bWRBxGeLq5DhzWb8HSeM3wYIMHw1tgKPGplh-hpC5CsPKjeKt6R42LsERrUQwcXHh3ojTy-i2q4YoYA5TQTR1HlIF514G9Nwu2Ovg-Rd9hz-Vm_kQsHiTASSI4PskklWfdXf6prOGhjrL_z46mwvDI35210tqBwyNdsLgHNkhfnooYr0sIRSbznd2tyz0nRLu2lZAj5ShL-D2B6o3EpZzJgWSnkP92Gg6BIh-L7IbtyWiYQg22"
+  },
+  {
+    "id": "le-so",
+    "name": "Phục Hưng Đại Việt",
+    "range": "1428 - 1527",
+    "category": "Nhà Lê Sơ",
+    "desc": "Lê Lợi lãnh đạo khởi nghĩa Lam Sơn quét sạch quân Minh. Giai đoạn cực thịnh với bộ luật Hồng Đức và tập bản đồ đầu tiên.",
+    "details": ["Bình Ngô Đại Cáo", "Luật Hồng Đức (1483)"],
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuC69XjPXwUCv4uiCyg1FXrV8lnKtzig-y9c_2ADvW1KBphb5JrHVrfRO-yFo6F6uZ9rj0tIaQ7BLsMsyWg4XHH8f2y4NKxtBODBBO9yDjMj4rTrua_55fQFUOFcAgiegZRVTCdJXyCxP9z26GVh4xwhFv6ArIlh0axKbja9sJagtfSJjCUH1XFmF8wvrD7GfVZReHja_BXK7vUK6uKWbI17rkpWfSLpNf44-OwjBCL31S2nGukioNSNy1bjxK1W4H2ZnedewEinUH2G"
+  }
+]

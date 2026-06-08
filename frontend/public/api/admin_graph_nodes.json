@@ -1,0 +1,5 @@
+[
+  { "id": 1, "name": "Lê Thánh Tông", "type": "Nhân vật", "pos": { "top": "50%", "left": "50%" }, "size": "w-20 h-20" },
+  { "id": 2, "name": "Thăng Long", "type": "Địa danh", "pos": { "top": "30%", "left": "40%" }, "size": "w-12 h-12" },
+  { "id": 3, "name": "Cải cách Hồng Đức", "type": "Sự kiện", "pos": { "top": "35%", "left": "60%" }, "size": "w-14 h-14" }
+]

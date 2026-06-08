@@ -1,0 +1,12 @@
+{
+  "stats": {
+    "total": { "value": "1,248", "sub": "+12 trong tháng này" },
+    "pending": { "value": "266", "sub": "Cần xử lý trong 48h tới" }
+  },
+  "records": [
+    { "id": "SL-001", "name": "Đại Việt Sử Ký Toàn Thư", "type": "Bộ chính sử", "dynasty": "Hậu Lê", "author": "Ngô Sĩ Liên", "icon": "menu_book" },
+    { "id": "SL-002", "name": "Khâm Định Việt Sử Thông Giám Cương Mục", "type": "Bộ chính sử", "dynasty": "Nhà Nguyễn", "author": "Quốc sử quán", "icon": "auto_stories" },
+    { "id": "SL-045", "name": "Chiếu Dời Đô (Thuận Thiên)", "type": "Văn bản cổ", "dynasty": "Nhà Lý", "author": "Lý Công Uẩn", "icon": "description" },
+    { "id": "SL-112", "name": "Bản đồ Hoàng triều trực tỉnh", "type": "Tài liệu số", "dynasty": "Nhà Nguyễn", "author": "N/A", "icon": "folder_zip" }
+  ]
+}

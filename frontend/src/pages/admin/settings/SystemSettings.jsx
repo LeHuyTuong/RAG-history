@@ -50,14 +50,24 @@ const AddParamModal = ({ onClose }) => (
 // --- COMPONENT CHÍNH ---
 const SystemSettings = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [data, setData] = useState({ stats: [], parameters: [] });
+  const [loading, setLoading] = useState(true);
 
-  // Dữ liệu mẫu
-  const parameters = [
-    { key: 'site_name', value: 'Sử Việt', desc: 'Tên hiển thị chính của hệ thống' },
-    { key: 'rag_threshold', value: '0.75', desc: 'Ngưỡng tương đồng vector cho AI' },
-    { key: 'max_upload_size', value: '50MB', desc: 'Giới hạn dung lượng tài liệu số' },
-    { key: 'embedding_model', value: 'text-embedding-3-small', desc: 'Mô hình ngôn ngữ tạo vector' },
-  ];
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/admin_settings.json');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const result = await response.json();
+        setData(result);
+      } catch (error) {
+        console.error('Error fetching settings data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="flex-grow flex flex-col min-h-screen">
@@ -73,9 +83,13 @@ const SystemSettings = () => {
 
         {/* 3. STATS BENTO */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatCard label="Danh mục chính" value="18" icon="category" />
-          <StatCard label="Thẻ hệ thống" value="1,482" icon="sell" />
-          <StatCard label="Thời kỳ lịch sử" value="12" icon="timeline" />
+          {loading ? (
+            <div className="col-span-full text-center py-4 font-body text-sm text-on-surface-variant">Đang tải dữ liệu...</div>
+          ) : (
+            data.stats.map((stat, idx) => (
+              <StatCard key={idx} label={stat.label} value={stat.value} icon={stat.icon} />
+            ))
+          )}
         </div>
 
         {/* 4. PARAMETERS TABLE */}
@@ -101,18 +115,22 @@ const SystemSettings = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/30 text-sm">
-                {parameters.map((p) => (
-                  <tr key={p.key} className="hover:bg-surface-variant/10 transition-colors group">
-                    <td className="p-4 font-bold text-primary font-body text-xs">{p.key}</td>
-                    <td className="p-4 font-medium text-on-surface">{p.value}</td>
-                    <td className="p-4 text-on-surface-variant italic text-[11px] leading-relaxed">{p.desc}</td>
-                    <td className="p-4 text-right">
-                      <button className="p-1 hover:text-primary text-on-surface-variant transition-all">
-  <span className="material-symbols-outlined text-sm">edit</span>
-</button>
-                    </td>
-                  </tr>
-                ))}
+                {loading ? (
+                  <tr><td colSpan="4" className="text-center py-8 font-body text-sm text-on-surface-variant">Đang tải tham số...</td></tr>
+                ) : (
+                  data.parameters.map((p) => (
+                    <tr key={p.key} className="hover:bg-surface-variant/10 transition-colors group">
+                      <td className="p-4 font-bold text-primary font-body text-xs">{p.key}</td>
+                      <td className="p-4 font-medium text-on-surface">{p.value}</td>
+                      <td className="p-4 text-on-surface-variant italic text-[11px] leading-relaxed">{p.desc}</td>
+                      <td className="p-4 text-right">
+                        <button className="p-1 hover:text-primary text-on-surface-variant transition-all">
+                          <span className="material-symbols-outlined text-sm">edit</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

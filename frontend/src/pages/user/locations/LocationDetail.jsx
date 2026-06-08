@@ -1,14 +1,35 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import VietnamMap from '../../../components/VietnamMap';
 
 const LocationDetail = () => {
   const { id } = useParams();
+  const [location, setLocation] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Hiệu ứng cuộn lên đầu trang khi vào
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+  }, [id]);
+
+  useEffect(() => {
+    const fetchLocation = async () => {
+      try {
+        const response = await fetch('/api/user_location_detail.json');
+        if (!response.ok) throw new Error('Network error');
+        const data = await response.json();
+        setLocation(data);
+      } catch (error) {
+        console.error('Error fetching location:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLocation();
+  }, [id]);
+
+  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải di tích...</div>;
+  if (!location) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Không tìm thấy di tích.</div>;
 
   return (
     <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20">
@@ -16,20 +37,20 @@ const LocationDetail = () => {
       <section className="relative h-[70vh] w-full overflow-hidden border-b-[6px] border-[#d99b4a]/40">
         <img
           className="w-full h-full object-cover grayscale-[0.3] sepia-[0.2]"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKLHWeWj3vTsKv2mconxq0gMjej8NpLLxS7ULSYKb17LLtEilBkjNNXRpGgmXsa5cit6jAVKY4R2EamuEXXjxJffT5d4La1xt3teUTz0dKXgG-ooZwoGtUMQ4jqEV8UM5eVRcELZb6IoF7-WzB4Sbt4xt-lKU3DzW8pL1xFrwxl-bYoN0KeNvHkFX2NdMQZ3m2wqs6-HuhE1MePvHSq-F62T1hwexNusRgGgJL0zwRXASpQmfrZACwD8jgyH-5N1MN8mLhT2T1TGhR"
-          alt="Cố đô Huế"
+          src={location.heroImg}
+          alt={location.name}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201] via-[#2b0504]/60 to-transparent flex flex-col justify-end p-12 md:p-24">
           <div className="absolute inset-0 bg-[#fcf9ee]/5 mix-blend-overlay dong-son-pattern opacity-30 pointer-events-none"></div>
           <div className="max-w-[1440px] mx-auto w-full relative z-10">
             <span className="inline-block bg-[#6b0f0d] text-[#ffe7b0] px-6 py-1.5 font-body text-[10px] font-bold uppercase tracking-widest mb-6 shadow-lg border border-[#d99b4a]/40">
-              DI SẢN VĂN HÓA THẾ GIỚI
+              {location.category}
             </span>
             <h1 className="font-headline text-6xl md:text-8xl text-[#f7d78a] font-semibold tracking-tight mb-6">
-              Cố đô Huế
+              {location.name}
             </h1>
             <p className="text-[#fcf9ee]/90 font-body text-[16px] max-w-2xl leading-relaxed">
-              Kinh đô của triều đại nhà Nguyễn, biểu tượng cho quyền lực và sự hưng thịnh của một quốc gia thống nhất qua hơn một thế kỷ.
+              {location.shortDesc}
             </p>
           </div>
         </div>
@@ -47,19 +68,16 @@ const LocationDetail = () => {
                 Tầm quan trọng Lịch sử
               </h2>
               <div className="space-y-6 text-[#2b1a16]/80 text-[16px] leading-loose">
-                <p>
-                  Quần thể di tích Cố đô Huế là trung tâm chính trị, văn hóa, và tôn giáo của Việt Nam dưới sự trị vì của mười ba đời vua nhà Nguyễn (1802-1945). Được xây dựng dọc theo bờ sông Hương thơ mộng, kinh thành Huế không chỉ là một pháo đài quân sự kiên cố mà còn là một tác phẩm nghệ thuật kiến trúc kết hợp hài hòa giữa triết lý phương Đông và kỹ thuật phương Tây.
-                </p>
-                <p>
-                  Với hệ thống thành quách gồm ba vòng thành: Kinh Thành, Hoàng Thành và Tử Cấm Thành, Huế đại diện cho đỉnh cao của quy hoạch đô thị phong kiến Việt Nam.
-                </p>
+                {location.importance.map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
               </div>
 
               {/* Stats Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 pt-8 border-t border-[#d99b4a]/20">
-                <StatBox label="Khởi công" value="1804" />
-                <StatBox label="Diện tích" value="520 ha" />
-                <StatBox label="UNESCO" value="1993" />
+                {location.stats.map((s, i) => (
+                  <StatBox key={i} label={s.label} value={s.value} />
+                ))}
               </div>
             </div>
           </article>
@@ -75,21 +93,14 @@ const LocationDetail = () => {
               {/* Đường kẻ dọc giữa desktop */}
               <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-[2px] bg-[#d99b4a]/30"></div>
 
-              <TimelineItem
-                year="1802" title="Định đô Phú Xuân"
-                desc="Vua Gia Long thống nhất đất nước, chọn Huế làm thủ đô."
-                align="left"
-              />
-              <TimelineItem
-                year="1833" title="Hoàn thiện Kinh thành"
-                desc="Vua Minh Mạng hoàn tất hệ thống cung điện tráng lệ nhất."
-                align="right"
-              />
-              <TimelineItem
-                year="1945" title="Lễ thoái vị"
-                desc="Vua Bảo Đại trao ấn kiếm, kết thúc chế độ quân chủ tại Ngọ Môn."
-                align="left"
-              />
+              {location.timeline.map((item, i) => (
+                <TimelineItem
+                  key={i}
+                  year={item.year} title={item.title}
+                  desc={item.desc}
+                  align={i % 2 === 0 ? "left" : "right"}
+                />
+              ))}
             </div>
           </section>
         </div>
@@ -119,11 +130,11 @@ const LocationDetail = () => {
                 </div>
               </div>
               <div className="absolute bottom-4 right-4 bg-[#6b0f0d] text-[#ffe7b0] px-3 py-1 font-body text-[10px] font-bold shadow-2xl border border-[#d99b4a]/40">
-                16.4637° N, 107.5908° E
+                {location.location.lat}° N, {location.location.lng}° E
               </div>
             </div>
             <p className="text-[#2b1a16]/80 text-[14px] leading-relaxed border-l-2 border-[#d99b4a] pl-4">
-              "Phía Bắc giáp dãy núi Bạch Mã, phía Nam nhìn ra biển Đông, Huế nằm tại yết hầu của dải đất miền Trung."
+              {location.location.quote}
             </p>
           </div>
 
@@ -132,16 +143,14 @@ const LocationDetail = () => {
             <div className="absolute inset-0 dong-son-pattern opacity-10 mix-blend-overlay"></div>
             <h4 className="font-headline text-2xl font-semibold mb-8 relative z-10 border-b border-[#d99b4a]/20 pb-4 text-[#f7d78a]">Nhân vật liên quan</h4>
             <div className="space-y-6 relative z-10">
-              <FigureItem
-                name="Vua Gia Long"
-                role="Người đặt nền móng"
-                img="https://lh3.googleusercontent.com/aida-public/AB6AXuBdlOxLklt8X1pglTEyM8Xyd_dikhvxAq1Bw6V45ZAuWnuYFJOOO-ZjZ05Ir_z-0a8yw4FikeCEeo5uz89-tbOHTyxtaixkVHjS-BoDoqER1gZOBffoH-fuA53uqBIzWoy3wm4b2n2sHZR7ueI7kjLcZbYtCPqKW9qxKVEHEvxzOrUQ9Nfbmq0xNi58_mr9alOOjuVYc0i2-B5UTE1M32kZBXR7YyWxXyQCTn7e2g__-Sg_nU3eEmS4G22DINL7iJYYb-wzm4gRT8-b"
-              />
-              <FigureItem
-                name="Vua Minh Mạng"
-                role="Người hoàn thiện kiến trúc"
-                img="https://lh3.googleusercontent.com/aida-public/AB6AXuAYeNIgZu43O0hKS5jOprrToZEm7xJWgegZLzp66vU8YXp2CdJFNofZdjPViWKkXhRHcy7gRYqN1ZgdZl_GYKNc7ncBFwJTeT1mk9CjJIoX4O7pylN7FCqVkG-Czc5T_fLi3i6XwH5Cw9sxSx2A9Ylfiay8hnXOOki3dDn37RBWUXahbI_4DlTjYY0zfdpJbH2ffb9hWbnqKTBXBmkCHk6Vm4doolMcmMtai6SJ-KYu6SZj5bYWFlPhw1JEHtTVwgYbvk5Yta2P8DDJ"
-              />
+              {location.figures.map((fig, i) => (
+                <FigureItem
+                  key={i}
+                  name={fig.name}
+                  role={fig.role}
+                  img={fig.img}
+                />
+              ))}
             </div>
             <button className="w-full mt-10 py-3 border border-[#d99b4a]/40 text-[#f7d78a] text-[10px] font-bold uppercase tracking-widest hover:bg-[#d99b4a]/10 hover:text-white transition-all relative z-10 bg-[#1a0201]/40">
               Xem phả hệ nhà Nguyễn

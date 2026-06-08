@@ -1,0 +1,13 @@
+{
+  "stats": [
+    { "title": "Tổng địa danh", "value": "850", "icon": "map" },
+    { "title": "Đã xác định tọa độ", "value": "720", "icon": "location_on" },
+    { "title": "Di tích quốc gia", "value": "124", "icon": "fort" }
+  ],
+  "locations": [
+    { "id": "LOC-1001", "name": "Ải Chi Lăng", "type": "Chiến trường", "coords": "21.62, 106.67", "dynasties": ["Nhà Lê", "Nhà Trần"] },
+    { "id": "LOC-1024", "name": "Hoàng Thành Thăng Long", "type": "Cố đô", "coords": "21.03, 105.83", "dynasties": ["Lý", "Trần", "Lê", "Nguyễn"] },
+    { "id": "LOC-1056", "name": "Cố đô Hoa Lư", "type": "Cố đô", "coords": "20.28, 105.91", "dynasties": ["Nhà Đinh", "Tiền Lê"] },
+    { "id": "LOC-1102", "name": "Bạch Đằng Giang", "type": "Chiến trường", "coords": "20.85, 106.66", "dynasties": ["Nhà Ngô", "Nhà Trần"] }
+  ]
+}

@@ -12,17 +12,31 @@ const ArticleDetail = () => {
   ]);
   const [newComment, setNewComment] = useState('');
 
-  // Dữ liệu mẫu (Thực tế sẽ fetch từ API dựa trên slug)
-  const article = {
-    title: "Kiến trúc Cung điện Thăng Long qua các triều đại Lý-Trần",
-    author: "Học giả Trần Duy Hùng",
-    authorRole: "Viện Nghiên cứu Kinh thành",
-    authorImg: "https://lh3.googleusercontent.com/aida-public/AB6AXuCMHcdTOW_dxMtuwmxyW--OBFFCWbw1pKW6o872X-BC7wFqD-Aj2QfeGlztAlrOX6LWdwjTT3qIn-ieBA5v27gxwMY9PxkgRWcUWg3-PZSNcRwmQFJtnrt2XLelaJ-t0G8QB38Me2u3YcCyEowczw7cRzGYHPTpbEWpNN3lyEfrPrxyLX0mkEOCJT_be9zdImqCPMR-puG43GYWbpnqO15H5i6jecJLQ_FkJYy7KCRzb-57sQ7zfQnZ6ql98Ks24ceEcGRROhLPKDgY",
-    publishedAt: "14 Tháng 10, 2023",
-    readingTime: "15 phút đọc",
-    heroImage: "https://lh3.googleusercontent.com/aida-public/AB6AXuAVaoTt7OmvfdX-z3YyqFqAX4Y1Ihkjvs5emJRmKGgOo_V6KXn2TDBUhtjxjWpdefmw2UYxcc_dGVKRTPpQx97q5bU8-ZHl88UUpDGcWY0yc0p91hGp4TLMwXj3Eo0X9m6jm4Ur6KjP6l6YR6Z-NPrix-C_2iLcQK89e0crl9yF_2yxjOETGgWJEiB_h6rEWBU-9uW1uLjoc5SpY7pGCmiyVL6pXDP1ZGb6DtJ2atbMIOtuGYVFZqRsdxH_-D9zlp5p05W4fuv1p9ft",
-    imageCaption: "Phối cảnh 3D Điện Kính Thiên thời Lê Sơ dựa trên các hiện vật khảo cổ học tìm thấy tại khu di tích Hoàng thành Thăng Long.",
-  };
+  const [article, setArticle] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
+
+  useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        const response = await fetch('/api/user_article_detail.json');
+        if (!response.ok) throw new Error('Network error');
+        const data = await response.json();
+        setArticle(data);
+      } catch (error) {
+        console.error('Error fetching article:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchArticle();
+  }, [slug]);
+
+  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải bài viết...</div>;
+  if (!article) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Không tìm thấy bài viết.</div>;
 
   const handleLike = () => {
     setLikes(prev => isLiked ? prev - 1 : prev + 1);
@@ -88,32 +102,39 @@ const ArticleDetail = () => {
             </figcaption>
           </figure>
 
-          {/* Article Body Content */}
           <div className="prose max-w-none prose-lg prose-p:text-[#2b1a16]/90 prose-headings:text-[#6b0f0d]">
-            {/* Drop Cap styling applied via CSS in App.css or Tailwind utility */}
-            <p className="font-body text-[17px] leading-loose text-[#2b1a16]/90 mb-8 drop-cap first-letter:text-7xl first-letter:font-headline first-letter:text-[#6b0f0d] first-letter:mr-4 first-letter:float-left first-letter:leading-none">
-              Thăng Long, kinh đô ngàn năm văn hiến, không chỉ là trung tâm chính trị mà còn là biểu tượng rực rỡ nhất của nền kiến trúc Đại Việt. Dưới thời Lý và Trần, việc xây dựng cung điện không chỉ đáp ứng nhu cầu nghi lễ mà còn thể hiện tư duy vũ trụ luận sâu sắc và niềm tự hào tự chủ của dân tộc sau nghìn năm Bắc thuộc.
-            </p>
-
-            <h2 className="font-headline text-3xl text-[#6b0f0d] font-semibold mt-16 mb-8 flex items-center gap-4">
-              <span className="w-8 h-px bg-[#d99b4a]"></span>
-              Cấu trúc đa tầng và nghệ thuật chạm khắc
-            </h2>
-            <p className="font-body text-[17px] leading-loose text-[#2b1a16]/90 mb-8">
-              Đặc điểm nổi bật của kiến trúc cung điện thời Lý chính là sự kết hợp nhuần nhuyễn giữa phong cách Phật giáo và tính chất cung đình. Các cột gỗ lim khổng lồ đặt trên chân tảng đá chạm khắc hoa sen, mây tản là minh chứng cho sự tinh xảo bậc nhất. Hệ thống đấu củng - một thành tựu kỹ thuật phức tạp - giúp nâng đỡ những bộ mái chồng diêm đồ sộ.
-            </p>
-
-            <blockquote className="my-16 p-12 bg-[#fffdf8] border border-[#d99b4a]/40 relative overflow-hidden shadow-sm">
-              <div className="absolute inset-0 bg-[#fcf9ee] opacity-40 dong-son-pattern pointer-events-none"></div>
-              <div className="absolute top-0 right-0 p-6 opacity-10"><span className="material-symbols-outlined text-8xl text-[#6b0f0d]">format_quote</span></div>
-              <p className="font-headline text-2xl text-[#2b0504] font-medium leading-loose relative z-10">
-                "Kinh đô Thăng Long dưới thời Lý là một kiệt tác của sự hòa hợp giữa con người và thiên nhiên, giữa quyền uy đế chế và tinh thần từ bi của đạo Phật."
-              </p>
-            </blockquote>
-
-            <p className="font-body text-[17px] leading-loose text-[#2b1a16]/90 mb-8">
-              Bước sang thời Trần, mặc dù kế thừa những tinh hoa từ thời Lý, kiến trúc cung điện bắt đầu dịch chuyển sang vẻ đẹp khỏe khoắn, thực dụng hơn, phản ánh tinh thần thượng võ của một dân tộc vừa trải qua ba cuộc kháng chiến chống Nguyên - Mông oanh liệt.
-            </p>
+            {article.content.map((block, i) => {
+              if (block.type === 'paragraph' && i === 0) {
+                return (
+                  <p key={i} className="font-body text-[17px] leading-loose text-[#2b1a16]/90 mb-8 drop-cap first-letter:text-7xl first-letter:font-headline first-letter:text-[#6b0f0d] first-letter:mr-4 first-letter:float-left first-letter:leading-none">
+                    {block.text}
+                  </p>
+                );
+              }
+              if (block.type === 'paragraph') {
+                return <p key={i} className="font-body text-[17px] leading-loose text-[#2b1a16]/90 mb-8">{block.text}</p>;
+              }
+              if (block.type === 'heading') {
+                return (
+                  <h2 key={i} className="font-headline text-3xl text-[#6b0f0d] font-semibold mt-16 mb-8 flex items-center gap-4">
+                    <span className="w-8 h-px bg-[#d99b4a]"></span>
+                    {block.text}
+                  </h2>
+                );
+              }
+              if (block.type === 'blockquote') {
+                return (
+                  <blockquote key={i} className="my-16 p-12 bg-[#fffdf8] border border-[#d99b4a]/40 relative overflow-hidden shadow-sm">
+                    <div className="absolute inset-0 bg-[#fcf9ee] opacity-40 dong-son-pattern pointer-events-none"></div>
+                    <div className="absolute top-0 right-0 p-6 opacity-10"><span className="material-symbols-outlined text-8xl text-[#6b0f0d]">format_quote</span></div>
+                    <p className="font-headline text-2xl text-[#2b0504] font-medium leading-loose relative z-10">
+                      "{block.text}"
+                    </p>
+                  </blockquote>
+                );
+              }
+              return null;
+            })}
           </div>
 
           {/* Engagement Section */}
@@ -201,9 +222,9 @@ const ArticleDetail = () => {
             <div className="absolute -top-6 -right-6 w-24 h-24 bg-[#6b0f0d]/5 rounded-full blur-2xl pointer-events-none"></div>
             <h4 className="font-body text-[10px] text-[#6b0f0d] uppercase font-bold tracking-[0.2em] border-b border-[#d99b4a]/30 pb-4 mb-8">Thực thể liên quan</h4>
             <div className="space-y-6">
-              <EntityLink icon="history_edu" title="Nhà Lý (1009–1225)" type="Triều đại" />
-              <EntityLink icon="map" title="Kinh thành Thăng Long" type="Địa danh" />
-              <EntityLink icon="person" title="Lý Thái Tổ" type="Nhân vật" />
+              {article.relatedEntities?.map((entity, i) => (
+                <EntityLink key={i} icon={entity.icon} title={entity.title} type={entity.type} />
+              ))}
             </div>
           </section>
 
@@ -211,18 +232,12 @@ const ArticleDetail = () => {
           <section className="p-8 border-l-2 border-[#d99b4a] space-y-8 bg-[#fcf9ee] border-y border-r border-[#d99b4a]/20 shadow-inner">
             <h4 className="font-body text-[10px] text-[#6b0f0d]/80 uppercase font-bold tracking-[0.2em]">Tài liệu trích dẫn</h4>
             <ul className="space-y-6">
-              <li className="group cursor-pointer">
-                <p className="font-headline text-lg text-[#2b0504] font-semibold leading-tight group-hover:text-[#6b0f0d] transition-colors">Đại Việt Sử Ký Toàn Thư</p>
-                <p className="font-body text-[11px] text-[#2b1a16]/60 mt-1 uppercase tracking-widest">Ngô Sĩ Liên, Thế kỷ XV</p>
-              </li>
-              <li className="group cursor-pointer">
-                <p className="font-headline text-lg text-[#2b0504] font-semibold leading-tight group-hover:text-[#6b0f0d] transition-colors">Việt Sử Lược</p>
-                <p className="font-body text-[11px] text-[#2b1a16]/60 mt-1 uppercase tracking-widest">Khuyết danh, Thế kỷ XIV</p>
-              </li>
-              <li className="group cursor-pointer">
-                <p className="font-headline text-lg text-[#2b0504] font-semibold leading-tight group-hover:text-[#6b0f0d] transition-colors">Khảo cổ học 18 Hoàng Diệu</p>
-                <p className="font-body text-[11px] text-[#2b1a16]/60 mt-1 uppercase tracking-widest">Viện Hàn lâm KHXH, 2004</p>
-              </li>
+              {article.citations?.map((cit, i) => (
+                <li key={i} className="group cursor-pointer">
+                  <p className="font-headline text-lg text-[#2b0504] font-semibold leading-tight group-hover:text-[#6b0f0d] transition-colors">{cit.title}</p>
+                  <p className="font-body text-[11px] text-[#2b1a16]/60 mt-1 uppercase tracking-widest">{cit.author}</p>
+                </li>
+              ))}
             </ul>
           </section>
 

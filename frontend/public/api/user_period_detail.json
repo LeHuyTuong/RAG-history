@@ -1,0 +1,30 @@
+{
+  "title": "Thời đại Hùng Vương (Hồng Bàng)",
+  "subtitle": "Nền móng của văn minh Văn Lang (2879 TCN – 258 TCN)",
+  "heroImg": "https://lh3.googleusercontent.com/aida-public/AB6AXuCVTT2QqvD6K9-wucC1WkR7VZnFnP0rjHn6TrcyVqbMkCLEt-GrSb7RFMcwfuFYl9579qyI-CbhlttwgMYFgZtqaEK6hcj7gIzEvC-x8r1WJkxShSTdvgJAiGZim3mnjYlIdJsvmeUw2bip5ou99uGqVBVApXptp6Lpy5LmjEOMY2yZYFGSQzjZdZ5ZBKHO-vZMXFRcwX7gOF6f0s6dB3ZlO7K3KuUYQcdtVpUeP-fDnTut1_okhKeJqvG2OJTJ0xZCroTJlNoWryp1",
+  "formation": "Theo 'Đại Việt Sử Ký Toàn Thư', Kinh Dương Vương là người sáng lập triều đại Hồng Bàng. Con của ông là Lạc Long Quân kết duyên cùng Âu Cơ, sinh ra bọc trăm trứng, nở ra một trăm người con trai. Người con trưởng được suy tôn làm vua, hiệu là Hùng Vương, đặt quốc hiệu là Văn Lang.",
+  "stats": [
+    { "label": "NĂM TCN", "value": "2879" },
+    { "label": "THẾ HỆ VUA", "value": "18" }
+  ],
+  "archaeology": {
+    "title": "Trống đồng Đông Sơn",
+    "desc": "Không chỉ là nhạc khí, Trống đồng Đông Sơn là biểu tượng của quyền lực và trình độ kỹ thuật luyện kim bậc thầy của người Việt cổ. Các họa tiết trên mặt trống phản ánh đời sống tâm linh, lao động và thế giới quan sơ khai.",
+    "features": [
+      { "icon": "star", "title": "Ngôi sao trung tâm", "detail": "Tượng trưng cho mặt trời, nguồn sống của cư dân nông nghiệp." },
+      { "icon": "flight", "title": "Chim Lạc, Chim Hồng", "detail": "Những linh vật biểu hiện khát vọng tự do và cội nguồn tiên rồng." },
+      { "icon": "house", "title": "Nhà sàn mái cong", "detail": "Hình ảnh kiến trúc đặc trưng vùng nhiệt đới gió mùa." }
+    ],
+    "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuBQUFneCUC9Cm6lKYaxqx655bpWdnD5_cMtbwhcDTyim4obj7j3ks0Mdwv6IhD516mwDIQ1eaCofW15H8uJzDCVkJkzjFyx2Ss8EgYu-hGjbwHtyha0P1WH1gczNvQp7HrXnpAYz8EeJQ_E3YQx8E-RnqQRxeqcLUX5eUFvWTBaK6Bd2hWJWDlx7vtbUsLcfpsMCbVbpyBEB6zeQPYCDjnvaDRx3arsFw2WmzM9n2PimNRz6bLLw_2VjwmykWWcIpajM0F4Vu5HcUnO"
+  },
+  "legends": [
+    { "title": "Lạc Long Quân & Âu Cơ", "desc": "Truyền thuyết về 'Đồng bào' giải thích nguồn gốc chung của người Việt.", "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuCm-9HivWvj2gUK8lUhhC0GihEG5o9F51tZG3JoYtL5sfF98R0b-B1WdleKlG7LCnK8PS-Mhm8xsV7qSlgEpBIRtYoWcOAj1WEeOVGiJAj8uKjAEBJLIeBonrTJKAKkpbCL4bea-TkoRxy81ynnIq4_C3pnJsBfGCoXwVc2NP0k4BaOhtxSEMuWd3uwO6GFF358WWNin-y8-St-xIBr5YLtoX5YjLMaxKhA6N9IcsztUBYJRN14Q3ziEQ7pGaHl2D7s3RFsdysHT9Q4" },
+    { "title": "Phù Đổng Thiên Vương", "desc": "Thánh Gióng đánh tan giặc Ân bằng gậy sắt, tượng trưng cho sức mạnh vệ quốc.", "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuDby4IpTpSxcRKHLaTl29gEAIa2Uyz1ucx6FaaJ750Ytr87ZvjT9OlVIoUQutRZvPjAsHywBxIS13-eeLiuLTQwKdhk-CSTR02Q7Y6XqPzpCbB97RYxykst1ZzXFv8V1f_6ytKvS2hHgHdPFJhNhThDa0FiWRlwSapFjhlUUQx08Zy-IvuvsmvFa6e6wSMfmYlTZjscfsyhfXOOy2CJ0NgWAZ_rR0yhcrkhsiVoIIStUogWUQagnLsUOor2FVPepRMJ84j7q6Po9INS" },
+    { "title": "Lang Liêu", "desc": "Sự tích Bánh Chưng, Bánh Giầy răn dạy lòng hiếu thảo và sự trân trọng hạt gạo.", "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuD-nyawpZUlqr5F0I5I_BTyGdAtyA3pLMhGzUWS7ISa9K0pyHHS_UlEaV-MMAKXbsCAdyASAX85TDrNNcgsZV_QPiN0JKJDGiIbsBmj0OIwSnJmSC1aFo_h4Tup4BjEySs1a0Sy073niJ9j1Alkw2JYFVOcbEF7sfATVKemA5dM0AICbLs0xEVVZ_gKhFqHABQBD0LVrPhAl4RnhHyxFKLQyJe9Ll7A5J_8UpVBSB491tFBZ9U3BdDs8BTASh2VxAeuxJYto3zrmtf3" }
+  ],
+  "timeline": [
+    { "year": "2879 TCN", "title": "Kinh Dương Vương lập nước Xích Quỷ", "desc": "Mở đầu cho thời kỳ Hồng Bàng, lãnh thổ trải rộng vùng Lĩnh Nam." },
+    { "year": "Thế kỷ VII TCN", "title": "Hùng Vương lập nước Văn Lang", "desc": "Văn hóa Đông Sơn phát triển rực rỡ, tổ chức bộ lạc liên minh ổn định." },
+    { "year": "258 TCN", "title": "Sự trỗi dậy của Thục Phán", "desc": "Kết thúc thời kỳ Hồng Bàng, chuyển sang triều đại Âu Lạc." }
+  ]
+}

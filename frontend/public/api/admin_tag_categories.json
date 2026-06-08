@@ -1,0 +1,6 @@
+[
+  { "id": "dynasty", "label": "Triều đại", "icon": "castle", "color": "bg-primary" },
+  { "id": "topic", "label": "Chủ đề", "icon": "auto_stories", "color": "bg-secondary" },
+  { "id": "event", "label": "Sự kiện", "icon": "event_note", "color": "bg-red-600" },
+  { "id": "person", "label": "Nhân vật", "icon": "person", "color": "bg-accent" }
+]

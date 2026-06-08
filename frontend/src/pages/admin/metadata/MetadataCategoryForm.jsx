@@ -16,17 +16,26 @@ const [imagePreview, setImagePreview] = useState(null);
     image: null
   });
 
-  // Giả lập load dữ liệu cũ khi ở chế độ Chỉnh sửa
   useEffect(() => {
     if (isEdit) {
-      setForm({
-        name: 'Di sản Văn hóa',
-        slug: 'di-san-van-hoa',
-        parentId: '2',
-        description: 'Bao gồm các di sản văn hóa vật thể và phi vật thể mang giá trị lịch sử cao quý...',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC8whZjR9fFlq7Qd9iiM9qz1KQuRlhLugVYn1mv9hci_KAoW-S-DUuOwMjdrPiTdx2x2kDkDQHOQsUJ6OP7SJxk_Y7AROC-7wsQUK7VBaJ7EeB45UeDB-2fM22oqeLOUU97trbZbtmJ83QWcc0xgGuk6czVD0OE22BXXpNd-HlYSyFl0FxwQS00bt_8y59Pyb5YFUnN_epZBHwhYRCpiBI5ESsaCZNCORkxx8m6iJzkZpDUNpJKOefCgSlthlHzLrbJFmW6jDHT_ls'
-      });
-       setImagePreview('https://lh3.googleusercontent.com/aida-public/AB6AXuC8whZjR9fFlq7Qd9iiM9qz1KQuRlhLugVYn1mv9hci_KAoW-S-DUuOwMjdrPiTdx2x2kDkDQHOQsUJ6OP7SJxk_Y7AROC-7wsQUK7VBaJ7EeB45UeDB-2fM22oqeLOUU97trbZbtmJ83QWcc0xgGuk6czVD0OE22BXXpNd-HlYSyFl0FxwQS00bt_8y59Pyb5YFUnN_epZBHwhYRCpiBI5ESsaCZNCORkxx8m6iJzkZpDUNpJKOefCgSlthlHzLrbJFmW6jDHT_ls');
+      const fetchCategory = async () => {
+        try {
+          const response = await fetch('/api/admin_metadata_category_detail.json');
+          if (!response.ok) throw new Error('Network error');
+          const data = await response.json();
+          setForm({
+            name: data.name,
+            slug: data.slug,
+            parentId: data.parentId,
+            description: data.description,
+            image: data.image
+          });
+          setImagePreview(data.image);
+        } catch (error) {
+          console.error('Error fetching category:', error);
+        }
+      };
+      fetchCategory();
     }
   }, [id, isEdit]);
 const handleImageChange = (e) => {
