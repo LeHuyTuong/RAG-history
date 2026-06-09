@@ -7,6 +7,10 @@ data/raw_pdfs/*
 !data/raw_pdfs/.gitkeep
 data/extracted/page_text_audit/
 
+# Extracted CSVs are regenerable artifacts (run scripts 02 + 05); keep the dir tracked
+data/extracted/*.csv
+!data/extracted/.gitkeep
+
 indexes/bm25/*
 !indexes/bm25/.gitkeep
 indexes/faiss_bge_m3/*
