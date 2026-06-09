@@ -1,0 +1,41 @@
+qid,question,question_type,expected_answer_type,difficulty,source_doc_hint,notes
+Q0001,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 2002?,fact_date,date_or_event,easy,D001,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0007,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 863?,fact_date,date_or_event,easy,D002,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0013,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 1592?,fact_date,date_or_event,easy,D004,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0022,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 1802?,fact_date,date_or_event,easy,D005,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0028,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 1858?,fact_date,date_or_event,easy,D006,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0033,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 1919?,fact_date,date_or_event,easy,D008,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0039,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 1930?,fact_date,date_or_event,easy,D009,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0048,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 1945?,fact_date,date_or_event,easy,D010,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0002,Vai trò hoặc hành động của Việt Nam được tài liệu mô tả như thế nào?,person_entity,person_or_organization,medium,D001,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0008,Vai trò hoặc hành động của Nam Chiếu được tài liệu mô tả như thế nào?,person_entity,person_or_organization,medium,D002,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0014,Vai trò hoặc hành động của Tây Son được tài liệu mô tả như thế nào?,person_entity,person_or_organization,medium,D004,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0023,Vai trò hoặc hành động của Việt Nam được tài liệu mô tả như thế nào?,person_entity,person_or_organization,medium,D005,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0029,Vai trò hoặc hành động của Việt Nam được tài liệu mô tả như thế nào?,person_entity,person_or_organization,medium,D006,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0034,Vai trò hoặc hành động của Việt Nam được tài liệu mô tả như thế nào?,person_entity,person_or_organization,medium,D008,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0040,Vai trò hoặc hành động của Việt Nam được tài liệu mô tả như thế nào?,person_entity,person_or_organization,medium,D009,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0049,Vai trò hoặc hành động của Liên Xô được tài liệu mô tả như thế nào?,person_entity,person_or_organization,medium,D010,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0004,Tài liệu ghi nhận sự kiện gì liên quan đến Việt Nam trong giai đoạn được nêu?,event,event,medium,D001,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0010,Tài liệu ghi nhận sự kiện gì liên quan đến Nam Chiếu trong giai đoạn được nêu?,event,event,medium,D002,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0015,Sự kiện lịch sử nào được tài liệu mô tả liên quan đến phong trào?,event,event,medium,D004,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0019,Tài liệu ghi nhận sự kiện gì liên quan đến Tây Son trong giai đoạn được nêu?,event,event,medium,D004,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0025,Tài liệu ghi nhận sự kiện gì liên quan đến Việt Nam trong giai đoạn được nêu?,event,event,medium,D005,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0031,Tài liệu ghi nhận sự kiện gì liên quan đến Việt Nam trong giai đoạn được nêu?,event,event,medium,D006,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0003,Mốc thời gian nào được nêu liên quan đến Việt Nam?,timeline,timeline,medium,D001,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0009,Mốc thời gian nào được nêu liên quan đến Nam Chiếu?,timeline,timeline,medium,D002,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0018,Mốc thời gian nào được nêu liên quan đến Tây Son?,timeline,timeline,medium,D004,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0024,Mốc thời gian nào được nêu liên quan đến Việt Nam?,timeline,timeline,medium,D005,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0030,Mốc thời gian nào được nêu liên quan đến Việt Nam?,timeline,timeline,medium,D006,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0035,Mốc thời gian nào được nêu liên quan đến Việt Nam?,timeline,timeline,medium,D008,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0017,Nguyên nhân hoặc hệ quả nào được nêu liên quan đến phong trào?,cause_effect,explanation,hard,D004,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0043,Nguyên nhân hoặc hệ quả nào được nêu liên quan đến Cách mạng?,cause_effect,explanation,hard,D009,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0052,Nguyên nhân hoặc hệ quả nào được nêu liên quan đến kháng chiến?,cause_effect,explanation,hard,D010,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0061,Nguyên nhân hoặc hệ quả nào được nêu liên quan đến Cách mạng?,cause_effect,explanation,hard,D011,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0070,Nguyên nhân hoặc hệ quả nào được nêu liên quan đến cải cách?,cause_effect,explanation,hard,D012,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0079,Nguyên nhân hoặc hệ quả nào được nêu liên quan đến kháng chiến?,cause_effect,explanation,hard,D013,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0016,Khái niệm hoặc chính sách phong trào được trình bày như thế nào trong tài liệu?,policy_concept,concept,medium,D004,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0042,Khái niệm hoặc chính sách Cách mạng được trình bày như thế nào trong tài liệu?,policy_concept,concept,medium,D009,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0051,Khái niệm hoặc chính sách kháng chiến được trình bày như thế nào trong tài liệu?,policy_concept,concept,medium,D010,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0060,Khái niệm hoặc chính sách Cách mạng được trình bày như thế nào trong tài liệu?,policy_concept,concept,medium,D011,AUTO_CANDIDATE_ONLY; manual review and qrels verification required; MANUAL_FINALIZATION_REQUIRED
+Q0196,Câu hỏi no-answer cần được người gán nhãn thay bằng một câu hỏi không có bằng chứng trong 15 PDF.,no_answer,none,medium,,PLACEHOLDER_NO_ANSWER; replace manually; verified must remain false until checked; MANUAL_FINALIZATION_REQUIRED
+Q0197,Câu hỏi no-answer cần được người gán nhãn thay bằng một câu hỏi không có bằng chứng trong 15 PDF.,no_answer,none,medium,,PLACEHOLDER_NO_ANSWER; replace manually; verified must remain false until checked; MANUAL_FINALIZATION_REQUIRED
