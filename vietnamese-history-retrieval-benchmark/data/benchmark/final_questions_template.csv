@@ -1,0 +1,41 @@
+qid,question,question_type,expected_answer_type,difficulty,source_doc_hint,notes
+Q0001,"Năm 2002, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Việt Nam?",fact_date,date_or_event,easy,D001,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0007,"Năm 863, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Nam Chiếu?",fact_date,date_or_event,easy,D002,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0013,"Năm 1592, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Tây Son?",fact_date,date_or_event,easy,D004,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0022,"Năm 1802, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Việt Nam?",fact_date,date_or_event,easy,D005,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0028,"Năm 1858, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Việt Nam?",fact_date,date_or_event,easy,D006,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0033,"Năm 1919, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Việt Nam?",fact_date,date_or_event,easy,D008,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0039,"Năm 1930, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Việt Nam?",fact_date,date_or_event,easy,D009,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0048,"Năm 1945, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Liên Xô?",fact_date,date_or_event,easy,D010,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0002,Tài liệu mô tả vai trò hoặc hành động của Việt Nam như thế nào?,person_entity,person_or_organization,medium,D001,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0008,Tài liệu mô tả vai trò hoặc hành động của Nam Chiếu như thế nào?,person_entity,person_or_organization,medium,D002,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0014,Tài liệu mô tả vai trò hoặc hành động của Tây Son như thế nào?,person_entity,person_or_organization,medium,D004,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0023,Tài liệu mô tả vai trò hoặc hành động của Việt Nam như thế nào?,person_entity,person_or_organization,medium,D005,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0029,Tài liệu mô tả vai trò hoặc hành động của Việt Nam như thế nào?,person_entity,person_or_organization,medium,D006,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0034,Tài liệu mô tả vai trò hoặc hành động của Việt Nam như thế nào?,person_entity,person_or_organization,medium,D008,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0040,Tài liệu mô tả vai trò hoặc hành động của Việt Nam như thế nào?,person_entity,person_or_organization,medium,D009,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0049,Tài liệu mô tả vai trò hoặc hành động của Liên Xô như thế nào?,person_entity,person_or_organization,medium,D010,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0004,Tài liệu mô tả sự kiện lịch sử nào liên quan đến Việt Nam?,event,event,medium,D001,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0010,Tài liệu mô tả sự kiện lịch sử nào liên quan đến Nam Chiếu?,event,event,medium,D002,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0015,Sự kiện liên quan đến Tây Son được tài liệu mô tả như thế nào?,event,event,medium,D004,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0019,Sự kiện liên quan đến Tây Son được tài liệu mô tả như thế nào?,event,event,medium,D004,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0025,Sự kiện liên quan đến Việt Nam được tài liệu mô tả như thế nào?,event,event,medium,D005,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0031,Sự kiện liên quan đến Việt Nam được tài liệu mô tả như thế nào?,event,event,medium,D006,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0003,Mốc 2002 có ý nghĩa gì trong diễn biến liên quan đến Việt Nam?,timeline,timeline,medium,D001,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0009,Mốc 863 có ý nghĩa gì trong diễn biến liên quan đến Nam Chiếu?,timeline,timeline,medium,D002,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0018,Mốc 1592 có ý nghĩa gì trong diễn biến liên quan đến Tây Son?,timeline,timeline,medium,D004,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0024,Mốc 1802 có ý nghĩa gì trong diễn biến liên quan đến Việt Nam?,timeline,timeline,medium,D005,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0030,Mốc 1858 có ý nghĩa gì trong diễn biến liên quan đến Việt Nam?,timeline,timeline,medium,D006,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0035,Mốc 1919 có ý nghĩa gì trong diễn biến liên quan đến Việt Nam?,timeline,timeline,medium,D008,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0017,Nguyên nhân hoặc hệ quả nào được tài liệu nêu liên quan đến phong trào?,cause_effect,explanation,hard,D004,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0043,Nguyên nhân hoặc hệ quả nào được tài liệu nêu liên quan đến Cách mạng?,cause_effect,explanation,hard,D009,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0052,Nguyên nhân hoặc hệ quả nào được tài liệu nêu liên quan đến kháng chiến?,cause_effect,explanation,hard,D010,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0061,Nguyên nhân hoặc hệ quả nào được tài liệu nêu liên quan đến Cách mạng?,cause_effect,explanation,hard,D011,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0070,Nguyên nhân hoặc hệ quả nào được tài liệu nêu liên quan đến cải cách?,cause_effect,explanation,hard,D012,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0079,Nguyên nhân hoặc hệ quả nào được tài liệu nêu liên quan đến kháng chiến?,cause_effect,explanation,hard,D013,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0016,Tài liệu giải thích hoặc mô tả khái niệm/chính sách phong trào như thế nào?,policy_concept,concept,medium,D004,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0042,Tài liệu giải thích hoặc mô tả khái niệm/chính sách Cách mạng như thế nào?,policy_concept,concept,medium,D009,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0051,Tài liệu giải thích hoặc mô tả khái niệm/chính sách kháng chiến như thế nào?,policy_concept,concept,medium,D010,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0060,Tài liệu giải thích hoặc mô tả khái niệm/chính sách Cách mạng như thế nào?,policy_concept,concept,medium,D011,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0196,Câu hỏi no-answer cần được người gán nhãn thay bằng một câu hỏi không có bằng chứng trong 15 PDF.,no_answer,none,medium,,TEMPLATE_ONLY; keep/edit manually; not verified ground truth
+Q0197,Câu hỏi no-answer cần được người gán nhãn thay bằng một câu hỏi không có bằng chứng trong 15 PDF.,no_answer,none,medium,,TEMPLATE_ONLY; keep/edit manually; not verified ground truth

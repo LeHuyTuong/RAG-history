@@ -1,0 +1,1196 @@
+qid,original_question,suggested_rewritten_question,question_type,difficulty,doc_id,page_id,page_number,chunk_id,evidence_text,evidence_text_short,years_detected,entities_detected,extraction_method,quality_flag,ocr_needed,proposed_answer,keep_for_benchmark,relevance,verified,labeler,notes
+Q0001,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 2002?,"Năm 2002, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Việt Nam?",fact_date,easy,D001,D001_P0021,21,D001_C0012,"[Page 21]
+LỜI NÓI ĐÀU
+Trước nhu cầu của xã hội cần có một bộ sử Việt Nam đầy đủ 
+và phong phú; năm 2002, Viện Sừ học đã xác lập một kế hoạch 
+khoa học (Chương trình trọng điểm cấp Bộ được Viện Khoa học 
+xã hội Việt Nam phê duyệt) biên soạn bộ Lịch sử Việt Nam 15 tập, 
+từ khởi thủy đến ngày nay. Với một yêu cầu nâng cao hơn chất 
+lượng và phương pháp nghiên cứu, sách Lịch sử Việt Nam từ 
+khởi thủy đến thế kỳ X do nhóm chúng tôi biên soạn nằm trong 
+chương trình đó.
+Quá trình tiến hành đề tài Lịch sử Việt Nam từ khới thủy đến 
+thế kỳ X vốn đặt ra quá nhiều vấn đề đòi hỏi nhóm nghiên cứu cần 
+góp phần làm sáng tỏ. Khó khăn gai góc đầu tiên mà chúng tôi đối 
+diện chính là những sự kiện lịch sử của con người thời tiền sử và sơ 
+sử diễn ra trên một địa bàn mà cương vực chưa được xác định rõ 
+ràng như nước ta ngày nay; theo một trục thời gian quá dài hàng mấy 
+chục vạn năm, có khi sai số tới cả ngàn năm!
+Liên quan đến thời kỳ này, các van tự ghi chép vô cùng ÍL Thời kỳ 
+nguyên thủy chưa có tư liệu chữ viết, khi nghiên cứu hoàn toàn 
+phải dựa vào tư liệu khảo cổ học (tư liệu không biết nói), cổ sinh 
+học... Thời lcỳ Hùng Vương dựng nước, nhóm nghiên cứu tuy có dựa 
+vào truyền thuyết, nhưng lại là của người đời sau ghi chép, sáng tác. 
+Thòi kỳ Bắc thuộc, tư liệu chữ Hán cổ cũng rất tản mạn, nghèo nàn; 
+đôi khi thiếu độ tin cậy, khách quan.
+Từ trước đến nay có nhiều người nghiên cứu lịch sử Việt Nam 
+từ khởi thủy đến thế kỷ X và có nhiều công trinh đã được công bố. 
+Chính từ các công trình đó, nhiều vấn đề lịch sử được đánh giá 
+khách quan, nhất quán. Nhưng vẫn còn quá nhiều vấn đề gây tranh cãi;
+19","[Page 21] LỜI NÓI ĐÀU Trước nhu cầu của xã hội cần có một bộ sử Việt Nam đầy đủ và phong phú; năm 2002, Viện Sừ học đã xác lập một kế hoạch khoa học (Chương trình trọng điểm cấp Bộ được Viện Khoa học xã hội Việt Nam phê duyệt) biên soạn bộ Lịch sử Việt Nam 15 tập, từ khởi thủy đến ngày nay. Với một yêu cầu nâng cao hơn chất lượng và phương pháp nghiên cứu, sách Lịch sử Việt Nam từ khởi thủy đến thế kỳ X do nhóm chúng tôi biên soạn nằm trong chương trình đó. Quá trình tiến hành đề tài Lịch sử...",2002,Việt Nam|Viện Sừ|Viện Khoa|Hùng Vương,pymupdf,clean_text,false,Trước nhu cầu của xã hội cần có một bộ sử Việt Nam đầy đủ,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0007,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 863?,"Năm 863, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Nam Chiếu?",fact_date,easy,D002,D002_P0020,20,D002_C0013,"[Page 20]
+Chương I. Bước quá độ từ thỉri kỳ mất nước..
+chặn không cho quân Nam Chiếu tiến sâu vào nội địa Trung Quốc, 
+nên đã bỏ mặc An Nam cho quân Nam Chiếu chiếm giữ. Quân 
+Nam Chiếu tiến vào bao vây phủ thành Tống Bình - trị sở của chính 
+quyền đô hộ nhà Đường lúc đó. Thái Tập - viên quan coi giữ thành 
+cùa nhà Đường chống giữ không nổi, để thành bị phá (năm 863), 
+gia quyến của Thái Tập có đến 70 người bị chết, Thái Tập liều 
+mạng bò chạy ra thuyền nhưng không kịp, cuối cùng bị chết đuối1. 
+Thừa thắng, quân Nam Chiếu chia nhau đóng giữ các nơi, đốt phá 
+nhiều nhà cửa và giết hại nhiều dân sống trong khu vực thành Tống 
+Bình. Chỉ trong hai lần đánh xuống An Nam, quân Nam Chiếu đã 
+giết hại tới 15 vạn người2 dân vô tội.
+Cuộc chiến tranh giằng co nhiều lần giữa chính quyền đô hộ nhà 
+Đường và quân Nam Chiếu trên đất nước ta không những đã gây ra 
+bao thảm cảnh cho nhân dân ta mà còn làm thương vong khá nhiều 
+quân đội cùa nhà Đường, đó chính là những người dân Bắc quốc vô 
+tội phải sung vào đội quân đi tiêu diệt quân Nam Chiếu. Những 
+thương vong mà nhân dân hai nước phải gánh chịu trong cuộc 
+chiến giữa nhà Đường và Nam Chiểu lúc đó, trách nhiệm hoàn toàn 
+thuộc về chính quyền phong kiến nhà Đường.
+Sau khi chiếm được An Nam, tướng Dương Tư Tấn3 của Nam 
+Chiếu được cử ờ lại cùng với 2 vạn quân, còn quan lại và tướng sĩ 
+nhà Đường ở An Nam thì đều tháo chạy về nước. Sau đó, theo dự 
+đoán của vua quan nhà Đường, quân Nam Chiếu đã tiếp tục mở 
+cuộc tiến công sang xâm lược miền Tả giang và Hữu giang, gần sát 
+tới vùng châu Ung (Nam Ninh).
+ở nước ta, vào tháng 6 năm 863, nhà Đường bò An Nam đô hộ 
+phủ, đặt Hành Giao châu ở Hải Môn trấn (Liêm châu, Quảng 
+Đông). Nhưng mới đuợc một tháng thì nhà Đường lại đặt An Nam 
+đô hộ phủ ở Hành Giao châu4. Đầu năm 864, nhà Đường cử 
+Truơng Nhân đem quân sang chiếm lại và coi việc An Nam. Nhung
+1, 2, 3. Cao Hùng Trưng, An Nam chí nguyên, quyển 2, bản dịch đánh máy
+Viện Sử học, tr. 27.
+4. Cao Hùng Trưng, An Nam chí nguyên, quyển 2, sđd, tr. 27 - 28.","[Page 20] Chương I. Bước quá độ từ thỉri kỳ mất nước.. chặn không cho quân Nam Chiếu tiến sâu vào nội địa Trung Quốc, nên đã bỏ mặc An Nam cho quân Nam Chiếu chiếm giữ. Quân Nam Chiếu tiến vào bao vây phủ thành Tống Bình - trị sở của chính quyền đô hộ nhà Đường lúc đó. Thái Tập - viên quan coi giữ thành cùa nhà Đường chống giữ không nổi, để thành bị phá (năm 863), gia quyến của Thái Tập có đến 70 người bị chết, Thái Tập liều mạng bò chạy ra thuyền nhưng không kịp, cuối cùng bị chết đuối1. Thừ...",863|864,Nam Chiếu|An Nam|Quân Nam Chiếu|Tống Bình|Thái Tập|Nam Chiểu|Dương Tư|Hành Giao|Hải Môn|Truơng Nhân|Cao Hùng|Viện Sử,pymupdf,clean_text,false,"chặn không cho quân Nam Chiếu tiến sâu vào nội địa Trung Quốc,",false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0013,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 1592?,"Năm 1592, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Tây Son?",fact_date,easy,D004,D004_P0020,20,D004_C0012,"[Page 20]
+LỜI NÓI ĐẦU
+Lịch sử Việt Nam, tập 4: từ thế kỷ XVII đến thế kỷ XVIII là
+cuốn thứ 4 trong bộ thông sử nhiều tập, tiếp theo cuốn thứ 3 - Lịch 
+sừ Việt Nam, tập 3: từ thể kỳ XV đen thể kỷ XVI. Cuốn này được bắt 
+đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son 
+(1802), trước triều Nguyễn. Đây là tập sách viết về toàn bộ diễn 
+biến lịch sù của đất nước trên các mặt: chính trị - xã hội, kinh tế và 
+văn hóa trong hai thế kỷ XVII và XVIII.
+Thế kỷ XVII-XVIII là giai đoạn lịch sù tương đối đặc biệt Uong 
+tiến trình phát triển của lịch sù Việt Nam thời cổ Trung đại. Đó là 
+thời kỳ chiến tranh phân liệt giữa các tập đoàn phong kiến, thời kỳ 
+đất nước bị chia cắt làm hai miền với hai chế độ chính trị khác nhau: 
+vua Lê - chúa Trịnh ở Đàng Ngoài và chúa Nguyễn ở Đàng Trong, 
+hình thành nên một thể chế lưỡng đầu; Vua và Chúa cùng điều hành 
+chính sự - sản phẩm đặc biệt của lịch sử chế độ phong kiến Việt 
+Nam. Đây cũng là thời kỳ nổi dậy mạnh mẽ nhất của phong trào 
+nông dân, dòng lliừi lại là lliừi kỳ có những chuyên biên quun trọng 
+trong nền kinh tế của đất nước, đặc biệt là kinh tế công thương 
+nghiệp và cũng là thời kỳ phát triển của nền văn hóa dân tộc trên các 
+lĩnh vực văn học, sù học, y học, khoa học quân sự...
+Các bộ thông sử lớn của Việt Nam từ trước tới nay đã đề cập 
+nhiều tới giai đoạn lịch sử từ thế kỷ XVII đến thế kỷ XVIII:
+- Từ những năm 80 của thế kỷ XX trờ về trước, giới sử học 
+Việt Nam đã đặt thời kỳ lịch sử này nằm trong một giai đoạn lịch 
+sử dài từ thế kỷ XVI đến giữa thế kỷ XIX và coi chung đó là thời 
+kỳ suy vong và sụp đổ của chế độ phong kiến dân tộc.
+19","[Page 20] LỜI NÓI ĐẦU Lịch sử Việt Nam, tập 4: từ thế kỷ XVII đến thế kỷ XVIII là cuốn thứ 4 trong bộ thông sử nhiều tập, tiếp theo cuốn thứ 3 - Lịch sừ Việt Nam, tập 3: từ thể kỳ XV đen thể kỷ XVI. Cuốn này được bắt đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son (1802), trước triều Nguyễn. Đây là tập sách viết về toàn bộ diễn biến lịch sù của đất nước trên các mặt: chính trị - xã hội, kinh tế và văn hóa trong hai thế kỷ XVII và XVIII. Thế kỷ XVII-XVIII là giai đoạn lịch sù t...",1592|1802,Tây Son|Việt Nam|Đàng Ngoài|phong trào,pymupdf,clean_text,false,đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0022,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 1802?,"Năm 1802, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Việt Nam?",fact_date,easy,D005,D005_P0020,20,D005_C0012,"[Page 20]
+LỜI NÓI ĐẦU
+Vấn đề lịch sử Việt Nam thời Nguyễn hay lịch sử Việt Nam 
+giai đoạn nửa đầu thế kỷ XIX từ lâu đã được các nhà nghiên cứu 
+trong và ngoài nước quan tâm chú ý với mục đích nghiên cứu phục 
+dựng lại một giai đoạn lịch sừ có tính chất ""bản lề"" từ thời trung đại 
+sang thời cận đại, trước khi nước ta bị thực dân Pháp xâm lược.
+Trong chương trình biên soạn bộ thông sử 15 tập cùa Viện Sừ học, 
+chúng tôi được giao nhiệm vụ nghiên cứu, biên soạn tập V (Lịch sử 
+Việt Nam từ năm 1802 đến năm 1858) - tập cuối cùng về thời kỳ 
+lịch sử cổ trung đại Việt Nam.
+Mục tiêu đã được chúng tôi xác định ngay từ đầu và quán triệt 
+trong suốt quá trình thực hiện, đó là: nghiên cứu và biên soạn cuốn 
+Lịch sử Việt Nam từ năm 1802 đến năm 1858 một cách có hệ thống 
+và toàn diện để trình bày dưới dạng thông sử.
+Cuốn sách được giới hạn trong niên đại từ 1802 đến 1858 tức là 
+từ khi vương triều Nguyễn được thành lập đến thời điểm thực dân 
+Pháp chính thức nổ súng m ỡ đầu cuộc xâm lirợe Việt Nam.
+Cuốn sách được chia làm 10 chuơng với nội dung như sau:
+Chương I: Triều Nguyễn thiết lập nhà nước quân chủ chuyên chế.
+Chương II: Hệ thống quản lý hành chính các địa phương.
+Chương III: Tổ chức hành chính, xã hội và chính sách của nhà 
+nước đối với làng xã.
+Chương IV: Chế độ ruộng đất và kinh tế nông nghiệp.
+Chưcmg V: Công nghiệp và thủ công nghiệp.
+Chương Vỉ.ầ Thương nghiệp.
+19","[Page 20] LỜI NÓI ĐẦU Vấn đề lịch sử Việt Nam thời Nguyễn hay lịch sử Việt Nam giai đoạn nửa đầu thế kỷ XIX từ lâu đã được các nhà nghiên cứu trong và ngoài nước quan tâm chú ý với mục đích nghiên cứu phục dựng lại một giai đoạn lịch sừ có tính chất ""bản lề"" từ thời trung đại sang thời cận đại, trước khi nước ta bị thực dân Pháp xâm lược. Trong chương trình biên soạn bộ thông sử 15 tập cùa Viện Sừ học, chúng tôi được giao nhiệm vụ nghiên cứu, biên soạn tập V (Lịch sử Việt Nam từ năm 1802 đến...",1802|1858,Việt Nam|Viện Sừ|Triều Nguyễn,pymupdf,clean_text,false,Vấn đề lịch sử Việt Nam thời Nguyễn hay lịch sử Việt Nam,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0028,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 1858?,"Năm 1858, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Việt Nam?",fact_date,easy,D006,D006_P0020,20,D006_C0011,"[Page 20]
+LỜI NÓI ĐẦU
+Lịch sử Việt Nam từ năm 1858 đến năm 1896 là một giai đoạn 
+ràt đặc biệt, giai đoạn thực dân Pháp tiến hành quá trình xâm lược 
+Việt Nam.
+Từ trước đèn nay đã có rất nhiều công trình cả ỡ trong và 
+ngoài nước dưới nhiều góc độ khác nhau đã giới thiệu một cách khá 
+cặn kẽ và đa diện về giai đoạn này. Những công trình đó dựa trên 
+nhiều nguồn tư liệu, tài liệu khác nhau, với những chủ đích không 
+giống nhau nên các quan điểm được đưa ra không đồng nhất trong 
+nhiều vấn đề, thậm chí có khi còn trái ngược nhau. Chính vì vậy, 
+khi nhận thực hiện đề tài này trong hệ thống chương trình Lịch sử 
+Việt Nam (gồm 15 tập), chúng tôi gặp rất nhiều khó khăn và cũng 
+rất băn khoăn trước những kết quà đã có, bời vì:
+Thứ nhất, các nguồn tài liệu để tiếp cận vấn đề này hầu như 
+đã được khai thác cạn kiệt. Thêm vào đó, các nguồn tư liệu lại rất 
+đa dạng, nếu đi sâu vào SO sánh sẽ thấy sự khác biệt nhau về địa 
+điêm, thời gian, sự kiện, địa danh, số liệu thống kê... Việc xác 
+minh một cách khoa học sự ""vênh nhau” trong các nguồn tài liệu là 
+một quá trình lâu dài.
+Thứ hai, các vấn đề đưa ra dưới góc độ lý thuyết đều đã được 
+giải quyết tương đối trọn vẹn, trong đó vấn đề đánh giá âm mưu 
+của thực dân Pháp trong công cuộc xâm lược nước ta, vấn đề đánh 
+giá thái độ của triều Nguyễn trước nạn ngoại xâm, vấn đề kháng 
+chiến của quan quân triều đình Huế với sự SO sánh lực lượng, vũ 
+khí, khí tài, quân sự giữa hai bên khá chênh lệch, vấn đề khởi nghĩa 
+chông thực dân xâm lược cùa toàn thể nhân dân Việt Nam... đều đã 
+được giải quyết trong rất nhiều công ừình khác nhau. Ví dụ, vấn đề","[Page 20] LỜI NÓI ĐẦU Lịch sử Việt Nam từ năm 1858 đến năm 1896 là một giai đoạn ràt đặc biệt, giai đoạn thực dân Pháp tiến hành quá trình xâm lược Việt Nam. Từ trước đèn nay đã có rất nhiều công trình cả ỡ trong và ngoài nước dưới nhiều góc độ khác nhau đã giới thiệu một cách khá cặn kẽ và đa diện về giai đoạn này. Những công trình đó dựa trên nhiều nguồn tư liệu, tài liệu khác nhau, với những chủ đích không giống nhau nên các quan điểm được đưa ra không đồng nhất trong nhiều vấn đề, thậm ch...",1858|1896,Việt Nam,pymupdf,clean_text,false,Lịch sử Việt Nam từ năm 1858 đến năm 1896 là một giai đoạn,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0033,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 1919?,"Năm 1919, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Việt Nam?",fact_date,easy,D008,D008_P0020,20,D008_C0013,"[Page 20]
+LỊCH SỪ VIỆT NAM - TẬP 8
+khai thác được khá lớn. Tuy nhiên, nguồn tài liệu này có đặc điểm là 
+khá tản mạn nên các tác giả phải nhiều công chắt lọc và tổng hợp mới 
+có thể sử dụng được.
+về các ấn phẩm, ngoài những ấn phẩm mang tính chất tài liệu, 
+như những tập san niên giám hay báo chí các loại đề cập đến nhiều 
+khía cạnh khác nhau của đề tài, được khai thác ở các trung tâm lưu 
+trữ, các thư viện, còn nhiều công trình nghiên cứu của các học giả 
+người Pháp được công bố ngay trong giai đoạn 1919-1930 hay xa 
+hơn một chút - trước năm 1945. Mặt khác, phải kể tới những công 
+trình nghiên cứu có giá trị tham khảo cao của các học giả nổi tiếng 
+người Việt, người Pháp, người Mỹ, người Anh... được công bố trong 
+thời gian từ sau năm 1945 đến nay. Trong đó, một số học giả đã được 
+nói tới trong Lời nói đầu của cuốn Lịch sử Việt Nam tập 7.
+Nguồn tài liệu phong phú đó đã tạo nhiều thuận lợi cho việc tạo 
+dựng công trình, giải quyết ngọn ngành mỗi khía cạnh bên quan, bót 
+đi tình trạng tư biện, lấy suy diễn lôgích thay cho sử liệu, nâng cao giá 
+trị tham khảo cùa công trình. Tuy nhiên, điều này cũng đòi hỏi các tác 
+giả phải cố gắng để không bị sa đà, biến công bình thành tập hợp 
+những chuyên đề riêng rẽ. Hcm nữa, mặc dù rất phong phú, nhưng 
+nguồn tài liệu đố vẫn còn chưa đủ để cho phép giải quyết dứt điểm 
+mọi vấn đề liên quan đến giai đoạn lịch sử này. Chúng tôi hy vọng sẽ 
+hội đủ những điều kiện, nhất là điều kiện về tài liệu tham khảo, để làm 
+sáng tỏ những vấn đề chưa được giải quyết dứt điểm trong một công 
+binh khác.
+Cuốn Lịch sử Việt Nam từ năm 1919 đến năm 1930, tập 8 được trình 
+bày thành 9 chương, không bao gồm phần Lời nói đầu và phần Kết 
+luận, do 3 tác giả thực hiện là:
+1. PGS.TS. Tạ Thị Thuý là chủ biên công trình, biên soạn từ 
+chương I đến chương V và các phần Lời nói đầu, Kết luận, Tài liệu tham 
+khảo và thư mục sách;
+2. PGS. Ngô Văn Hòa biên soạn chương VI và VII;
+3. PGS. Vũ Huy Phúc biên soạn chương v in và IX.
+20","[Page 20] LỊCH SỪ VIỆT NAM - TẬP 8 khai thác được khá lớn. Tuy nhiên, nguồn tài liệu này có đặc điểm là khá tản mạn nên các tác giả phải nhiều công chắt lọc và tổng hợp mới có thể sử dụng được. về các ấn phẩm, ngoài những ấn phẩm mang tính chất tài liệu, như những tập san niên giám hay báo chí các loại đề cập đến nhiều khía cạnh khác nhau của đề tài, được khai thác ở các trung tâm lưu trữ, các thư viện, còn nhiều công trình nghiên cứu của các học giả người Pháp được công bố ngay trong giai đo...",1919|1930|1945,Việt Nam|Cuốn Lịch|Tạ Thị Thuý|Ngô Văn Hòa|Vũ Huy Phúc,pymupdf,clean_text,false,NEEDS_MANUAL_ANSWER,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0039,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 1930?,"Năm 1930, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Việt Nam?",fact_date,easy,D009,D009_P0020,20,D009_C0013,"[Page 20]
+LỊCH SỪ VIỆT NAM - TẬP 9
+hình thái chiến tranh cách mạng ớ Việt Nam đế giải thích nguyên 
+nhân đưa đến thang lợi của cuộc Cách mạng tháng Tám năm 1945.
+Trên những hướng nghiên cứu đó, đã có nhũng công trình mang 
+tính chat thông sử, trình bày khái quát về thời kỳ lịch sử này trên 
+tất cả các khía cạnh cùa 1ĨÓ. Lại vì thời kỳ này có thế được ngắt 
+thành những giai đoạn nhỏ, với những nội dung khác biệt trên các 
+khía cạnh kinh tế, chính trị, xã hội... nên đã có những công trình 
+chuyên biệt về một giai đoạn cụ thể nào đó, chẳng hạn như: 1930- 
+1931, 1932-1935, 1936-1939, 1939-1945 hoặc gia chi riêng về lịch 
+sử cùa Cách mạng tháng Tám. Cũng có những công trình chuyên 
+sâu phản ánh về một phương diện, một vấn đề cụ thế, một sự kiện 
+cụ the hoặc tại một địa phương cụ thế nào đó trong trường đoạn 
+lịch sử này, được trình bày và công bo dưới những hình thức rắt 
+phong phú, đa dạng.
+Điều đó nói lên rằng chúng tôi đã đi sau không ít người trong 
+việc nghiên cứu về “Lịch sử Việt Nam 1930-1945”. Đối với chúng 
+tôi, đó vừa là một thuận lợi, vừa là một thách thức. Thuận lợi là vì 
+chúng tôi được thừa hưởng kết quả cùa những công trình nghiên 
+cứu phong phú kia. Còn thách thức thì là vì chính sự phong phú 
+cùa các công trình đã công bo đặt chúng tôi trước một thực té là dù 
+chi muốn làm ""khác đi"" một chút thôi công trình của mình so với 
+những công trình trước cũng đòi hỏi phải cố gắng rất nhiều trong 
+cả việc bố sung thêm nguồn tài liệu tham khảo lẫn như trong 
+phương pháp tiếp cận và giải quyết vấn đề.
+Trên thực tế, về tài liệu tham kháo, chúng tôi chú ý đến cà hai 
+nguồn: nguồn các an phấm và nguồn tài liệu lưu trữ.
+Ve các an phẩm, bên cạnh những công trình cùa các học giã 
+trong nước, trong đó có những công trình cùa các nhà sừ học có 
+tên tuổi, được sưu tầm tại các thư viện ở cả trung ương cũng như ở 
+các địa phương, chúng tôi còn bằng nhiều cách thu gom được 
+không ít công trình nghiên cứu cùa các học giả nước ngoài, được 
+công bo dưới dạng các cuốn sách đồ sộ, các luận án tiến sì lịch sử, 
+các luận văn cao học và các bài viết được công bố trên các tạp chí
+20","[Page 20] LỊCH SỪ VIỆT NAM - TẬP 9 hình thái chiến tranh cách mạng ớ Việt Nam đế giải thích nguyên nhân đưa đến thang lợi của cuộc Cách mạng tháng Tám năm 1945. Trên những hướng nghiên cứu đó, đã có nhũng công trình mang tính chat thông sử, trình bày khái quát về thời kỳ lịch sử này trên tất cả các khía cạnh cùa 1ĨÓ. Lại vì thời kỳ này có thế được ngắt thành những giai đoạn nhỏ, với những nội dung khác biệt trên các khía cạnh kinh tế, chính trị, xã hội... nên đã có những công trình chuyên biệ...",1930|1931|1932|1935|1936|1939|1945,Việt Nam|Cách mạng,pymupdf,clean_text,false,NEEDS_MANUAL_ANSWER,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0048,Tài liệu mô tả sự kiện hoặc nội dung gì liên quan đến năm 1945?,"Năm 1945, tài liệu nêu sự kiện hoặc nội dung gì liên quan đến Liên Xô?",fact_date,easy,D010,D010_P0020,20,D010_C0013,"[Page 20]
+LỊCH SỬ VIỆT NAM - TẬP 10
+đã thi hành chính sách đổi nội, đối ngoại vừa mềm dẻo, lỉnh hoạt 
+vừa nguyên tắc, kiên định đã tùng bước thay đoi được tương quan 
+lực lượng và giành được những thắng lợi rất quan trọng có ý nghĩa 
+rất quyết định. Sự kiện Trung Quốc, Liên Xô và các nước dân chù 
+nhân dân khác công nhận nền độc lập cùa Việt Nam, đặt quan hệ 
+ngoại giao với nước Việt Nam dân chù cộng hòa vào đầu năm 
+1950, đặc biệt là Chiến thắng Biên giới Thu - Đông năm 1950 đập 
+tan các căn cứ chiếm đóng của địch, khai thông vùng căn cứ địa 
+Việt Bắc với the giới bên ngoài đã chấm dứt tình trạng bị cô lập 
+cùa nước Việt Nam dân chủ cộng hòa. Một cục diện mới (về chính 
+trị, quân sự, ngoại giao...) đã mở ra. Do đó, không chi phía Việt 
+Nam dân chù cộng hòa có sự chuyển hướng trong đường loi chì 
+đạo kháng chiến, mà cả phía Pháp với nguỵ quyển, nguỵ quân cũng 
+đã phải để ra những đối sách mới để ứng phó với tình hình mới. Từ 
+tháng 8/1945 đến cuối năm 1950, 13 đời Thủ tướng Pháp với nhiều 
+kế hoạch xâm lược Việt Nam như Ke hoạch D'Argenlieu, Ke hoạch 
+Leclerc, Ke hoạch Revers đã không xoay chuyển được tình hình và 
+cuối năm 1950 phải chuyển sang một ké hoạch mới do Turómg De 
+Lattre de Tassigny, Cao uỷ Tổng chi huy quân đội Pháp ở Đông 
+Dương phụ trách.
+Như vậy là đến cuối năm ỉ950, cả hai lực lượng song song tồn 
+tại ở Việt Nam (lực lượng cùa nước Việt Nam dân chù cộng hòa - 
+một ntỉớc đã được phe xã hội chù nghĩa công nhận và lực lượng 
+thân Pháp đang được một sổ nước đế quốc như Mỹ, Anh ùng hộ) 
+đều chuyển sang một giai đoạn mới trong cuộc đấu tranh một mất 
+một còn để giành giật vai trò là người đại diện đích thực trên đất 
+nước Việt Nam.
+Giai đoạn lịch sử 1945-1950 chứa đựng nhiều sự kiện, nhiều 
+vấn đề nhưng chưa được nghiên cứu một cách toàn diện và đầy đù. 
+Cho đến nay, những công trình của các sử gia Việt Nam nghiên 
+cứu ""phía bên kia"" một cách thật sự sâu sắc còn ít. Khôi phục lại 
+một cách chân thực, khách quan diện mạo cùa Việt Nam bằng cách 
+nhìn tổng thể, toàn diện cả hai phía là rất cần thiết đối với việc
+20","[Page 20] LỊCH SỬ VIỆT NAM - TẬP 10 đã thi hành chính sách đổi nội, đối ngoại vừa mềm dẻo, lỉnh hoạt vừa nguyên tắc, kiên định đã tùng bước thay đoi được tương quan lực lượng và giành được những thắng lợi rất quan trọng có ý nghĩa rất quyết định. Sự kiện Trung Quốc, Liên Xô và các nước dân chù nhân dân khác công nhận nền độc lập cùa Việt Nam, đặt quan hệ ngoại giao với nước Việt Nam dân chù cộng hòa vào đầu năm 1950, đặc biệt là Chiến thắng Biên giới Thu - Đông năm 1950 đập tan các căn cứ chi...",1945|1950,Liên Xô|Việt Nam|Việt Bắc|Turómg De Lattre|Đông Dương|kháng chiến|độc lập,pymupdf,clean_text,false,"Sự kiện Trung Quốc, Liên Xô và các nước dân chù",false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0002,Vai trò hoặc hành động của Việt Nam được tài liệu mô tả như thế nào?,Tài liệu mô tả vai trò hoặc hành động của Việt Nam như thế nào?,person_entity,medium,D001,D001_P0021,21,D001_C0012,"[Page 21]
+LỜI NÓI ĐÀU
+Trước nhu cầu của xã hội cần có một bộ sử Việt Nam đầy đủ 
+và phong phú; năm 2002, Viện Sừ học đã xác lập một kế hoạch 
+khoa học (Chương trình trọng điểm cấp Bộ được Viện Khoa học 
+xã hội Việt Nam phê duyệt) biên soạn bộ Lịch sử Việt Nam 15 tập, 
+từ khởi thủy đến ngày nay. Với một yêu cầu nâng cao hơn chất 
+lượng và phương pháp nghiên cứu, sách Lịch sử Việt Nam từ 
+khởi thủy đến thế kỳ X do nhóm chúng tôi biên soạn nằm trong 
+chương trình đó.
+Quá trình tiến hành đề tài Lịch sử Việt Nam từ khới thủy đến 
+thế kỳ X vốn đặt ra quá nhiều vấn đề đòi hỏi nhóm nghiên cứu cần 
+góp phần làm sáng tỏ. Khó khăn gai góc đầu tiên mà chúng tôi đối 
+diện chính là những sự kiện lịch sử của con người thời tiền sử và sơ 
+sử diễn ra trên một địa bàn mà cương vực chưa được xác định rõ 
+ràng như nước ta ngày nay; theo một trục thời gian quá dài hàng mấy 
+chục vạn năm, có khi sai số tới cả ngàn năm!
+Liên quan đến thời kỳ này, các van tự ghi chép vô cùng ÍL Thời kỳ 
+nguyên thủy chưa có tư liệu chữ viết, khi nghiên cứu hoàn toàn 
+phải dựa vào tư liệu khảo cổ học (tư liệu không biết nói), cổ sinh 
+học... Thời lcỳ Hùng Vương dựng nước, nhóm nghiên cứu tuy có dựa 
+vào truyền thuyết, nhưng lại là của người đời sau ghi chép, sáng tác. 
+Thòi kỳ Bắc thuộc, tư liệu chữ Hán cổ cũng rất tản mạn, nghèo nàn; 
+đôi khi thiếu độ tin cậy, khách quan.
+Từ trước đến nay có nhiều người nghiên cứu lịch sử Việt Nam 
+từ khởi thủy đến thế kỷ X và có nhiều công trinh đã được công bố. 
+Chính từ các công trình đó, nhiều vấn đề lịch sử được đánh giá 
+khách quan, nhất quán. Nhưng vẫn còn quá nhiều vấn đề gây tranh cãi;
+19","[Page 21] LỜI NÓI ĐÀU Trước nhu cầu của xã hội cần có một bộ sử Việt Nam đầy đủ và phong phú; năm 2002, Viện Sừ học đã xác lập một kế hoạch khoa học (Chương trình trọng điểm cấp Bộ được Viện Khoa học xã hội Việt Nam phê duyệt) biên soạn bộ Lịch sử Việt Nam 15 tập, từ khởi thủy đến ngày nay. Với một yêu cầu nâng cao hơn chất lượng và phương pháp nghiên cứu, sách Lịch sử Việt Nam từ khởi thủy đến thế kỳ X do nhóm chúng tôi biên soạn nằm trong chương trình đó. Quá trình tiến hành đề tài Lịch sử...",2002,Việt Nam|Viện Sừ|Viện Khoa|Hùng Vương,pymupdf,clean_text,false,Trước nhu cầu của xã hội cần có một bộ sử Việt Nam đầy đủ,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0008,Vai trò hoặc hành động của Nam Chiếu được tài liệu mô tả như thế nào?,Tài liệu mô tả vai trò hoặc hành động của Nam Chiếu như thế nào?,person_entity,medium,D002,D002_P0020,20,D002_C0013,"[Page 20]
+Chương I. Bước quá độ từ thỉri kỳ mất nước..
+chặn không cho quân Nam Chiếu tiến sâu vào nội địa Trung Quốc, 
+nên đã bỏ mặc An Nam cho quân Nam Chiếu chiếm giữ. Quân 
+Nam Chiếu tiến vào bao vây phủ thành Tống Bình - trị sở của chính 
+quyền đô hộ nhà Đường lúc đó. Thái Tập - viên quan coi giữ thành 
+cùa nhà Đường chống giữ không nổi, để thành bị phá (năm 863), 
+gia quyến của Thái Tập có đến 70 người bị chết, Thái Tập liều 
+mạng bò chạy ra thuyền nhưng không kịp, cuối cùng bị chết đuối1. 
+Thừa thắng, quân Nam Chiếu chia nhau đóng giữ các nơi, đốt phá 
+nhiều nhà cửa và giết hại nhiều dân sống trong khu vực thành Tống 
+Bình. Chỉ trong hai lần đánh xuống An Nam, quân Nam Chiếu đã 
+giết hại tới 15 vạn người2 dân vô tội.
+Cuộc chiến tranh giằng co nhiều lần giữa chính quyền đô hộ nhà 
+Đường và quân Nam Chiếu trên đất nước ta không những đã gây ra 
+bao thảm cảnh cho nhân dân ta mà còn làm thương vong khá nhiều 
+quân đội cùa nhà Đường, đó chính là những người dân Bắc quốc vô 
+tội phải sung vào đội quân đi tiêu diệt quân Nam Chiếu. Những 
+thương vong mà nhân dân hai nước phải gánh chịu trong cuộc 
+chiến giữa nhà Đường và Nam Chiểu lúc đó, trách nhiệm hoàn toàn 
+thuộc về chính quyền phong kiến nhà Đường.
+Sau khi chiếm được An Nam, tướng Dương Tư Tấn3 của Nam 
+Chiếu được cử ờ lại cùng với 2 vạn quân, còn quan lại và tướng sĩ 
+nhà Đường ở An Nam thì đều tháo chạy về nước. Sau đó, theo dự 
+đoán của vua quan nhà Đường, quân Nam Chiếu đã tiếp tục mở 
+cuộc tiến công sang xâm lược miền Tả giang và Hữu giang, gần sát 
+tới vùng châu Ung (Nam Ninh).
+ở nước ta, vào tháng 6 năm 863, nhà Đường bò An Nam đô hộ 
+phủ, đặt Hành Giao châu ở Hải Môn trấn (Liêm châu, Quảng 
+Đông). Nhưng mới đuợc một tháng thì nhà Đường lại đặt An Nam 
+đô hộ phủ ở Hành Giao châu4. Đầu năm 864, nhà Đường cử 
+Truơng Nhân đem quân sang chiếm lại và coi việc An Nam. Nhung
+1, 2, 3. Cao Hùng Trưng, An Nam chí nguyên, quyển 2, bản dịch đánh máy
+Viện Sử học, tr. 27.
+4. Cao Hùng Trưng, An Nam chí nguyên, quyển 2, sđd, tr. 27 - 28.","[Page 20] Chương I. Bước quá độ từ thỉri kỳ mất nước.. chặn không cho quân Nam Chiếu tiến sâu vào nội địa Trung Quốc, nên đã bỏ mặc An Nam cho quân Nam Chiếu chiếm giữ. Quân Nam Chiếu tiến vào bao vây phủ thành Tống Bình - trị sở của chính quyền đô hộ nhà Đường lúc đó. Thái Tập - viên quan coi giữ thành cùa nhà Đường chống giữ không nổi, để thành bị phá (năm 863), gia quyến của Thái Tập có đến 70 người bị chết, Thái Tập liều mạng bò chạy ra thuyền nhưng không kịp, cuối cùng bị chết đuối1. Thừ...",863|864,Nam Chiếu|An Nam|Quân Nam Chiếu|Tống Bình|Thái Tập|Nam Chiểu|Dương Tư|Hành Giao|Hải Môn|Truơng Nhân|Cao Hùng|Viện Sử,pymupdf,clean_text,false,"chặn không cho quân Nam Chiếu tiến sâu vào nội địa Trung Quốc,",false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0014,Vai trò hoặc hành động của Tây Son được tài liệu mô tả như thế nào?,Tài liệu mô tả vai trò hoặc hành động của Tây Son như thế nào?,person_entity,medium,D004,D004_P0020,20,D004_C0012,"[Page 20]
+LỜI NÓI ĐẦU
+Lịch sử Việt Nam, tập 4: từ thế kỷ XVII đến thế kỷ XVIII là
+cuốn thứ 4 trong bộ thông sử nhiều tập, tiếp theo cuốn thứ 3 - Lịch 
+sừ Việt Nam, tập 3: từ thể kỳ XV đen thể kỷ XVI. Cuốn này được bắt 
+đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son 
+(1802), trước triều Nguyễn. Đây là tập sách viết về toàn bộ diễn 
+biến lịch sù của đất nước trên các mặt: chính trị - xã hội, kinh tế và 
+văn hóa trong hai thế kỷ XVII và XVIII.
+Thế kỷ XVII-XVIII là giai đoạn lịch sù tương đối đặc biệt Uong 
+tiến trình phát triển của lịch sù Việt Nam thời cổ Trung đại. Đó là 
+thời kỳ chiến tranh phân liệt giữa các tập đoàn phong kiến, thời kỳ 
+đất nước bị chia cắt làm hai miền với hai chế độ chính trị khác nhau: 
+vua Lê - chúa Trịnh ở Đàng Ngoài và chúa Nguyễn ở Đàng Trong, 
+hình thành nên một thể chế lưỡng đầu; Vua và Chúa cùng điều hành 
+chính sự - sản phẩm đặc biệt của lịch sử chế độ phong kiến Việt 
+Nam. Đây cũng là thời kỳ nổi dậy mạnh mẽ nhất của phong trào 
+nông dân, dòng lliừi lại là lliừi kỳ có những chuyên biên quun trọng 
+trong nền kinh tế của đất nước, đặc biệt là kinh tế công thương 
+nghiệp và cũng là thời kỳ phát triển của nền văn hóa dân tộc trên các 
+lĩnh vực văn học, sù học, y học, khoa học quân sự...
+Các bộ thông sử lớn của Việt Nam từ trước tới nay đã đề cập 
+nhiều tới giai đoạn lịch sử từ thế kỷ XVII đến thế kỷ XVIII:
+- Từ những năm 80 của thế kỷ XX trờ về trước, giới sử học 
+Việt Nam đã đặt thời kỳ lịch sử này nằm trong một giai đoạn lịch 
+sử dài từ thế kỷ XVI đến giữa thế kỷ XIX và coi chung đó là thời 
+kỳ suy vong và sụp đổ của chế độ phong kiến dân tộc.
+19","[Page 20] LỜI NÓI ĐẦU Lịch sử Việt Nam, tập 4: từ thế kỷ XVII đến thế kỷ XVIII là cuốn thứ 4 trong bộ thông sử nhiều tập, tiếp theo cuốn thứ 3 - Lịch sừ Việt Nam, tập 3: từ thể kỳ XV đen thể kỷ XVI. Cuốn này được bắt đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son (1802), trước triều Nguyễn. Đây là tập sách viết về toàn bộ diễn biến lịch sù của đất nước trên các mặt: chính trị - xã hội, kinh tế và văn hóa trong hai thế kỷ XVII và XVIII. Thế kỷ XVII-XVIII là giai đoạn lịch sù t...",1592|1802,Tây Son|Việt Nam|Đàng Ngoài|phong trào,pymupdf,clean_text,false,đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0023,Vai trò hoặc hành động của Việt Nam được tài liệu mô tả như thế nào?,Tài liệu mô tả vai trò hoặc hành động của Việt Nam như thế nào?,person_entity,medium,D005,D005_P0020,20,D005_C0012,"[Page 20]
+LỜI NÓI ĐẦU
+Vấn đề lịch sử Việt Nam thời Nguyễn hay lịch sử Việt Nam 
+giai đoạn nửa đầu thế kỷ XIX từ lâu đã được các nhà nghiên cứu 
+trong và ngoài nước quan tâm chú ý với mục đích nghiên cứu phục 
+dựng lại một giai đoạn lịch sừ có tính chất ""bản lề"" từ thời trung đại 
+sang thời cận đại, trước khi nước ta bị thực dân Pháp xâm lược.
+Trong chương trình biên soạn bộ thông sử 15 tập cùa Viện Sừ học, 
+chúng tôi được giao nhiệm vụ nghiên cứu, biên soạn tập V (Lịch sử 
+Việt Nam từ năm 1802 đến năm 1858) - tập cuối cùng về thời kỳ 
+lịch sử cổ trung đại Việt Nam.
+Mục tiêu đã được chúng tôi xác định ngay từ đầu và quán triệt 
+trong suốt quá trình thực hiện, đó là: nghiên cứu và biên soạn cuốn 
+Lịch sử Việt Nam từ năm 1802 đến năm 1858 một cách có hệ thống 
+và toàn diện để trình bày dưới dạng thông sử.
+Cuốn sách được giới hạn trong niên đại từ 1802 đến 1858 tức là 
+từ khi vương triều Nguyễn được thành lập đến thời điểm thực dân 
+Pháp chính thức nổ súng m ỡ đầu cuộc xâm lirợe Việt Nam.
+Cuốn sách được chia làm 10 chuơng với nội dung như sau:
+Chương I: Triều Nguyễn thiết lập nhà nước quân chủ chuyên chế.
+Chương II: Hệ thống quản lý hành chính các địa phương.
+Chương III: Tổ chức hành chính, xã hội và chính sách của nhà 
+nước đối với làng xã.
+Chương IV: Chế độ ruộng đất và kinh tế nông nghiệp.
+Chưcmg V: Công nghiệp và thủ công nghiệp.
+Chương Vỉ.ầ Thương nghiệp.
+19","[Page 20] LỜI NÓI ĐẦU Vấn đề lịch sử Việt Nam thời Nguyễn hay lịch sử Việt Nam giai đoạn nửa đầu thế kỷ XIX từ lâu đã được các nhà nghiên cứu trong và ngoài nước quan tâm chú ý với mục đích nghiên cứu phục dựng lại một giai đoạn lịch sừ có tính chất ""bản lề"" từ thời trung đại sang thời cận đại, trước khi nước ta bị thực dân Pháp xâm lược. Trong chương trình biên soạn bộ thông sử 15 tập cùa Viện Sừ học, chúng tôi được giao nhiệm vụ nghiên cứu, biên soạn tập V (Lịch sử Việt Nam từ năm 1802 đến...",1802|1858,Việt Nam|Viện Sừ|Triều Nguyễn,pymupdf,clean_text,false,Vấn đề lịch sử Việt Nam thời Nguyễn hay lịch sử Việt Nam,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0029,Vai trò hoặc hành động của Việt Nam được tài liệu mô tả như thế nào?,Tài liệu mô tả vai trò hoặc hành động của Việt Nam như thế nào?,person_entity,medium,D006,D006_P0020,20,D006_C0011,"[Page 20]
+LỜI NÓI ĐẦU
+Lịch sử Việt Nam từ năm 1858 đến năm 1896 là một giai đoạn 
+ràt đặc biệt, giai đoạn thực dân Pháp tiến hành quá trình xâm lược 
+Việt Nam.
+Từ trước đèn nay đã có rất nhiều công trình cả ỡ trong và 
+ngoài nước dưới nhiều góc độ khác nhau đã giới thiệu một cách khá 
+cặn kẽ và đa diện về giai đoạn này. Những công trình đó dựa trên 
+nhiều nguồn tư liệu, tài liệu khác nhau, với những chủ đích không 
+giống nhau nên các quan điểm được đưa ra không đồng nhất trong 
+nhiều vấn đề, thậm chí có khi còn trái ngược nhau. Chính vì vậy, 
+khi nhận thực hiện đề tài này trong hệ thống chương trình Lịch sử 
+Việt Nam (gồm 15 tập), chúng tôi gặp rất nhiều khó khăn và cũng 
+rất băn khoăn trước những kết quà đã có, bời vì:
+Thứ nhất, các nguồn tài liệu để tiếp cận vấn đề này hầu như 
+đã được khai thác cạn kiệt. Thêm vào đó, các nguồn tư liệu lại rất 
+đa dạng, nếu đi sâu vào SO sánh sẽ thấy sự khác biệt nhau về địa 
+điêm, thời gian, sự kiện, địa danh, số liệu thống kê... Việc xác 
+minh một cách khoa học sự ""vênh nhau” trong các nguồn tài liệu là 
+một quá trình lâu dài.
+Thứ hai, các vấn đề đưa ra dưới góc độ lý thuyết đều đã được 
+giải quyết tương đối trọn vẹn, trong đó vấn đề đánh giá âm mưu 
+của thực dân Pháp trong công cuộc xâm lược nước ta, vấn đề đánh 
+giá thái độ của triều Nguyễn trước nạn ngoại xâm, vấn đề kháng 
+chiến của quan quân triều đình Huế với sự SO sánh lực lượng, vũ 
+khí, khí tài, quân sự giữa hai bên khá chênh lệch, vấn đề khởi nghĩa 
+chông thực dân xâm lược cùa toàn thể nhân dân Việt Nam... đều đã 
+được giải quyết trong rất nhiều công ừình khác nhau. Ví dụ, vấn đề","[Page 20] LỜI NÓI ĐẦU Lịch sử Việt Nam từ năm 1858 đến năm 1896 là một giai đoạn ràt đặc biệt, giai đoạn thực dân Pháp tiến hành quá trình xâm lược Việt Nam. Từ trước đèn nay đã có rất nhiều công trình cả ỡ trong và ngoài nước dưới nhiều góc độ khác nhau đã giới thiệu một cách khá cặn kẽ và đa diện về giai đoạn này. Những công trình đó dựa trên nhiều nguồn tư liệu, tài liệu khác nhau, với những chủ đích không giống nhau nên các quan điểm được đưa ra không đồng nhất trong nhiều vấn đề, thậm ch...",1858|1896,Việt Nam,pymupdf,clean_text,false,Lịch sử Việt Nam từ năm 1858 đến năm 1896 là một giai đoạn,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0034,Vai trò hoặc hành động của Việt Nam được tài liệu mô tả như thế nào?,Tài liệu mô tả vai trò hoặc hành động của Việt Nam như thế nào?,person_entity,medium,D008,D008_P0020,20,D008_C0013,"[Page 20]
+LỊCH SỪ VIỆT NAM - TẬP 8
+khai thác được khá lớn. Tuy nhiên, nguồn tài liệu này có đặc điểm là 
+khá tản mạn nên các tác giả phải nhiều công chắt lọc và tổng hợp mới 
+có thể sử dụng được.
+về các ấn phẩm, ngoài những ấn phẩm mang tính chất tài liệu, 
+như những tập san niên giám hay báo chí các loại đề cập đến nhiều 
+khía cạnh khác nhau của đề tài, được khai thác ở các trung tâm lưu 
+trữ, các thư viện, còn nhiều công trình nghiên cứu của các học giả 
+người Pháp được công bố ngay trong giai đoạn 1919-1930 hay xa 
+hơn một chút - trước năm 1945. Mặt khác, phải kể tới những công 
+trình nghiên cứu có giá trị tham khảo cao của các học giả nổi tiếng 
+người Việt, người Pháp, người Mỹ, người Anh... được công bố trong 
+thời gian từ sau năm 1945 đến nay. Trong đó, một số học giả đã được 
+nói tới trong Lời nói đầu của cuốn Lịch sử Việt Nam tập 7.
+Nguồn tài liệu phong phú đó đã tạo nhiều thuận lợi cho việc tạo 
+dựng công trình, giải quyết ngọn ngành mỗi khía cạnh bên quan, bót 
+đi tình trạng tư biện, lấy suy diễn lôgích thay cho sử liệu, nâng cao giá 
+trị tham khảo cùa công trình. Tuy nhiên, điều này cũng đòi hỏi các tác 
+giả phải cố gắng để không bị sa đà, biến công bình thành tập hợp 
+những chuyên đề riêng rẽ. Hcm nữa, mặc dù rất phong phú, nhưng 
+nguồn tài liệu đố vẫn còn chưa đủ để cho phép giải quyết dứt điểm 
+mọi vấn đề liên quan đến giai đoạn lịch sử này. Chúng tôi hy vọng sẽ 
+hội đủ những điều kiện, nhất là điều kiện về tài liệu tham khảo, để làm 
+sáng tỏ những vấn đề chưa được giải quyết dứt điểm trong một công 
+binh khác.
+Cuốn Lịch sử Việt Nam từ năm 1919 đến năm 1930, tập 8 được trình 
+bày thành 9 chương, không bao gồm phần Lời nói đầu và phần Kết 
+luận, do 3 tác giả thực hiện là:
+1. PGS.TS. Tạ Thị Thuý là chủ biên công trình, biên soạn từ 
+chương I đến chương V và các phần Lời nói đầu, Kết luận, Tài liệu tham 
+khảo và thư mục sách;
+2. PGS. Ngô Văn Hòa biên soạn chương VI và VII;
+3. PGS. Vũ Huy Phúc biên soạn chương v in và IX.
+20","[Page 20] LỊCH SỪ VIỆT NAM - TẬP 8 khai thác được khá lớn. Tuy nhiên, nguồn tài liệu này có đặc điểm là khá tản mạn nên các tác giả phải nhiều công chắt lọc và tổng hợp mới có thể sử dụng được. về các ấn phẩm, ngoài những ấn phẩm mang tính chất tài liệu, như những tập san niên giám hay báo chí các loại đề cập đến nhiều khía cạnh khác nhau của đề tài, được khai thác ở các trung tâm lưu trữ, các thư viện, còn nhiều công trình nghiên cứu của các học giả người Pháp được công bố ngay trong giai đo...",1919|1930|1945,Việt Nam|Cuốn Lịch|Tạ Thị Thuý|Ngô Văn Hòa|Vũ Huy Phúc,pymupdf,clean_text,false,NEEDS_MANUAL_ANSWER,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0040,Vai trò hoặc hành động của Việt Nam được tài liệu mô tả như thế nào?,Tài liệu mô tả vai trò hoặc hành động của Việt Nam như thế nào?,person_entity,medium,D009,D009_P0020,20,D009_C0013,"[Page 20]
+LỊCH SỪ VIỆT NAM - TẬP 9
+hình thái chiến tranh cách mạng ớ Việt Nam đế giải thích nguyên 
+nhân đưa đến thang lợi của cuộc Cách mạng tháng Tám năm 1945.
+Trên những hướng nghiên cứu đó, đã có nhũng công trình mang 
+tính chat thông sử, trình bày khái quát về thời kỳ lịch sử này trên 
+tất cả các khía cạnh cùa 1ĨÓ. Lại vì thời kỳ này có thế được ngắt 
+thành những giai đoạn nhỏ, với những nội dung khác biệt trên các 
+khía cạnh kinh tế, chính trị, xã hội... nên đã có những công trình 
+chuyên biệt về một giai đoạn cụ thể nào đó, chẳng hạn như: 1930- 
+1931, 1932-1935, 1936-1939, 1939-1945 hoặc gia chi riêng về lịch 
+sử cùa Cách mạng tháng Tám. Cũng có những công trình chuyên 
+sâu phản ánh về một phương diện, một vấn đề cụ thế, một sự kiện 
+cụ the hoặc tại một địa phương cụ thế nào đó trong trường đoạn 
+lịch sử này, được trình bày và công bo dưới những hình thức rắt 
+phong phú, đa dạng.
+Điều đó nói lên rằng chúng tôi đã đi sau không ít người trong 
+việc nghiên cứu về “Lịch sử Việt Nam 1930-1945”. Đối với chúng 
+tôi, đó vừa là một thuận lợi, vừa là một thách thức. Thuận lợi là vì 
+chúng tôi được thừa hưởng kết quả cùa những công trình nghiên 
+cứu phong phú kia. Còn thách thức thì là vì chính sự phong phú 
+cùa các công trình đã công bo đặt chúng tôi trước một thực té là dù 
+chi muốn làm ""khác đi"" một chút thôi công trình của mình so với 
+những công trình trước cũng đòi hỏi phải cố gắng rất nhiều trong 
+cả việc bố sung thêm nguồn tài liệu tham khảo lẫn như trong 
+phương pháp tiếp cận và giải quyết vấn đề.
+Trên thực tế, về tài liệu tham kháo, chúng tôi chú ý đến cà hai 
+nguồn: nguồn các an phấm và nguồn tài liệu lưu trữ.
+Ve các an phẩm, bên cạnh những công trình cùa các học giã 
+trong nước, trong đó có những công trình cùa các nhà sừ học có 
+tên tuổi, được sưu tầm tại các thư viện ở cả trung ương cũng như ở 
+các địa phương, chúng tôi còn bằng nhiều cách thu gom được 
+không ít công trình nghiên cứu cùa các học giả nước ngoài, được 
+công bo dưới dạng các cuốn sách đồ sộ, các luận án tiến sì lịch sử, 
+các luận văn cao học và các bài viết được công bố trên các tạp chí
+20","[Page 20] LỊCH SỪ VIỆT NAM - TẬP 9 hình thái chiến tranh cách mạng ớ Việt Nam đế giải thích nguyên nhân đưa đến thang lợi của cuộc Cách mạng tháng Tám năm 1945. Trên những hướng nghiên cứu đó, đã có nhũng công trình mang tính chat thông sử, trình bày khái quát về thời kỳ lịch sử này trên tất cả các khía cạnh cùa 1ĨÓ. Lại vì thời kỳ này có thế được ngắt thành những giai đoạn nhỏ, với những nội dung khác biệt trên các khía cạnh kinh tế, chính trị, xã hội... nên đã có những công trình chuyên biệ...",1930|1931|1932|1935|1936|1939|1945,Việt Nam|Cách mạng,pymupdf,clean_text,false,NEEDS_MANUAL_ANSWER,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0049,Vai trò hoặc hành động của Liên Xô được tài liệu mô tả như thế nào?,Tài liệu mô tả vai trò hoặc hành động của Liên Xô như thế nào?,person_entity,medium,D010,D010_P0020,20,D010_C0013,"[Page 20]
+LỊCH SỬ VIỆT NAM - TẬP 10
+đã thi hành chính sách đổi nội, đối ngoại vừa mềm dẻo, lỉnh hoạt 
+vừa nguyên tắc, kiên định đã tùng bước thay đoi được tương quan 
+lực lượng và giành được những thắng lợi rất quan trọng có ý nghĩa 
+rất quyết định. Sự kiện Trung Quốc, Liên Xô và các nước dân chù 
+nhân dân khác công nhận nền độc lập cùa Việt Nam, đặt quan hệ 
+ngoại giao với nước Việt Nam dân chù cộng hòa vào đầu năm 
+1950, đặc biệt là Chiến thắng Biên giới Thu - Đông năm 1950 đập 
+tan các căn cứ chiếm đóng của địch, khai thông vùng căn cứ địa 
+Việt Bắc với the giới bên ngoài đã chấm dứt tình trạng bị cô lập 
+cùa nước Việt Nam dân chủ cộng hòa. Một cục diện mới (về chính 
+trị, quân sự, ngoại giao...) đã mở ra. Do đó, không chi phía Việt 
+Nam dân chù cộng hòa có sự chuyển hướng trong đường loi chì 
+đạo kháng chiến, mà cả phía Pháp với nguỵ quyển, nguỵ quân cũng 
+đã phải để ra những đối sách mới để ứng phó với tình hình mới. Từ 
+tháng 8/1945 đến cuối năm 1950, 13 đời Thủ tướng Pháp với nhiều 
+kế hoạch xâm lược Việt Nam như Ke hoạch D'Argenlieu, Ke hoạch 
+Leclerc, Ke hoạch Revers đã không xoay chuyển được tình hình và 
+cuối năm 1950 phải chuyển sang một ké hoạch mới do Turómg De 
+Lattre de Tassigny, Cao uỷ Tổng chi huy quân đội Pháp ở Đông 
+Dương phụ trách.
+Như vậy là đến cuối năm ỉ950, cả hai lực lượng song song tồn 
+tại ở Việt Nam (lực lượng cùa nước Việt Nam dân chù cộng hòa - 
+một ntỉớc đã được phe xã hội chù nghĩa công nhận và lực lượng 
+thân Pháp đang được một sổ nước đế quốc như Mỹ, Anh ùng hộ) 
+đều chuyển sang một giai đoạn mới trong cuộc đấu tranh một mất 
+một còn để giành giật vai trò là người đại diện đích thực trên đất 
+nước Việt Nam.
+Giai đoạn lịch sử 1945-1950 chứa đựng nhiều sự kiện, nhiều 
+vấn đề nhưng chưa được nghiên cứu một cách toàn diện và đầy đù. 
+Cho đến nay, những công trình của các sử gia Việt Nam nghiên 
+cứu ""phía bên kia"" một cách thật sự sâu sắc còn ít. Khôi phục lại 
+một cách chân thực, khách quan diện mạo cùa Việt Nam bằng cách 
+nhìn tổng thể, toàn diện cả hai phía là rất cần thiết đối với việc
+20","[Page 20] LỊCH SỬ VIỆT NAM - TẬP 10 đã thi hành chính sách đổi nội, đối ngoại vừa mềm dẻo, lỉnh hoạt vừa nguyên tắc, kiên định đã tùng bước thay đoi được tương quan lực lượng và giành được những thắng lợi rất quan trọng có ý nghĩa rất quyết định. Sự kiện Trung Quốc, Liên Xô và các nước dân chù nhân dân khác công nhận nền độc lập cùa Việt Nam, đặt quan hệ ngoại giao với nước Việt Nam dân chù cộng hòa vào đầu năm 1950, đặc biệt là Chiến thắng Biên giới Thu - Đông năm 1950 đập tan các căn cứ chi...",1945|1950,Liên Xô|Việt Nam|Việt Bắc|Turómg De Lattre|Đông Dương|kháng chiến|độc lập,pymupdf,clean_text,false,"Sự kiện Trung Quốc, Liên Xô và các nước dân chù",false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0004,Tài liệu ghi nhận sự kiện gì liên quan đến Việt Nam trong giai đoạn được nêu?,Tài liệu mô tả sự kiện lịch sử nào liên quan đến Việt Nam?,event,medium,D001,D001_P0021,21,D001_C0012,"[Page 21]
+LỜI NÓI ĐÀU
+Trước nhu cầu của xã hội cần có một bộ sử Việt Nam đầy đủ 
+và phong phú; năm 2002, Viện Sừ học đã xác lập một kế hoạch 
+khoa học (Chương trình trọng điểm cấp Bộ được Viện Khoa học 
+xã hội Việt Nam phê duyệt) biên soạn bộ Lịch sử Việt Nam 15 tập, 
+từ khởi thủy đến ngày nay. Với một yêu cầu nâng cao hơn chất 
+lượng và phương pháp nghiên cứu, sách Lịch sử Việt Nam từ 
+khởi thủy đến thế kỳ X do nhóm chúng tôi biên soạn nằm trong 
+chương trình đó.
+Quá trình tiến hành đề tài Lịch sử Việt Nam từ khới thủy đến 
+thế kỳ X vốn đặt ra quá nhiều vấn đề đòi hỏi nhóm nghiên cứu cần 
+góp phần làm sáng tỏ. Khó khăn gai góc đầu tiên mà chúng tôi đối 
+diện chính là những sự kiện lịch sử của con người thời tiền sử và sơ 
+sử diễn ra trên một địa bàn mà cương vực chưa được xác định rõ 
+ràng như nước ta ngày nay; theo một trục thời gian quá dài hàng mấy 
+chục vạn năm, có khi sai số tới cả ngàn năm!
+Liên quan đến thời kỳ này, các van tự ghi chép vô cùng ÍL Thời kỳ 
+nguyên thủy chưa có tư liệu chữ viết, khi nghiên cứu hoàn toàn 
+phải dựa vào tư liệu khảo cổ học (tư liệu không biết nói), cổ sinh 
+học... Thời lcỳ Hùng Vương dựng nước, nhóm nghiên cứu tuy có dựa 
+vào truyền thuyết, nhưng lại là của người đời sau ghi chép, sáng tác. 
+Thòi kỳ Bắc thuộc, tư liệu chữ Hán cổ cũng rất tản mạn, nghèo nàn; 
+đôi khi thiếu độ tin cậy, khách quan.
+Từ trước đến nay có nhiều người nghiên cứu lịch sử Việt Nam 
+từ khởi thủy đến thế kỷ X và có nhiều công trinh đã được công bố. 
+Chính từ các công trình đó, nhiều vấn đề lịch sử được đánh giá 
+khách quan, nhất quán. Nhưng vẫn còn quá nhiều vấn đề gây tranh cãi;
+19","[Page 21] LỜI NÓI ĐÀU Trước nhu cầu của xã hội cần có một bộ sử Việt Nam đầy đủ và phong phú; năm 2002, Viện Sừ học đã xác lập một kế hoạch khoa học (Chương trình trọng điểm cấp Bộ được Viện Khoa học xã hội Việt Nam phê duyệt) biên soạn bộ Lịch sử Việt Nam 15 tập, từ khởi thủy đến ngày nay. Với một yêu cầu nâng cao hơn chất lượng và phương pháp nghiên cứu, sách Lịch sử Việt Nam từ khởi thủy đến thế kỳ X do nhóm chúng tôi biên soạn nằm trong chương trình đó. Quá trình tiến hành đề tài Lịch sử...",2002,Việt Nam|Viện Sừ|Viện Khoa|Hùng Vương,pymupdf,clean_text,false,Trước nhu cầu của xã hội cần có một bộ sử Việt Nam đầy đủ,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0010,Tài liệu ghi nhận sự kiện gì liên quan đến Nam Chiếu trong giai đoạn được nêu?,Tài liệu mô tả sự kiện lịch sử nào liên quan đến Nam Chiếu?,event,medium,D002,D002_P0020,20,D002_C0013,"[Page 20]
+Chương I. Bước quá độ từ thỉri kỳ mất nước..
+chặn không cho quân Nam Chiếu tiến sâu vào nội địa Trung Quốc, 
+nên đã bỏ mặc An Nam cho quân Nam Chiếu chiếm giữ. Quân 
+Nam Chiếu tiến vào bao vây phủ thành Tống Bình - trị sở của chính 
+quyền đô hộ nhà Đường lúc đó. Thái Tập - viên quan coi giữ thành 
+cùa nhà Đường chống giữ không nổi, để thành bị phá (năm 863), 
+gia quyến của Thái Tập có đến 70 người bị chết, Thái Tập liều 
+mạng bò chạy ra thuyền nhưng không kịp, cuối cùng bị chết đuối1. 
+Thừa thắng, quân Nam Chiếu chia nhau đóng giữ các nơi, đốt phá 
+nhiều nhà cửa và giết hại nhiều dân sống trong khu vực thành Tống 
+Bình. Chỉ trong hai lần đánh xuống An Nam, quân Nam Chiếu đã 
+giết hại tới 15 vạn người2 dân vô tội.
+Cuộc chiến tranh giằng co nhiều lần giữa chính quyền đô hộ nhà 
+Đường và quân Nam Chiếu trên đất nước ta không những đã gây ra 
+bao thảm cảnh cho nhân dân ta mà còn làm thương vong khá nhiều 
+quân đội cùa nhà Đường, đó chính là những người dân Bắc quốc vô 
+tội phải sung vào đội quân đi tiêu diệt quân Nam Chiếu. Những 
+thương vong mà nhân dân hai nước phải gánh chịu trong cuộc 
+chiến giữa nhà Đường và Nam Chiểu lúc đó, trách nhiệm hoàn toàn 
+thuộc về chính quyền phong kiến nhà Đường.
+Sau khi chiếm được An Nam, tướng Dương Tư Tấn3 của Nam 
+Chiếu được cử ờ lại cùng với 2 vạn quân, còn quan lại và tướng sĩ 
+nhà Đường ở An Nam thì đều tháo chạy về nước. Sau đó, theo dự 
+đoán của vua quan nhà Đường, quân Nam Chiếu đã tiếp tục mở 
+cuộc tiến công sang xâm lược miền Tả giang và Hữu giang, gần sát 
+tới vùng châu Ung (Nam Ninh).
+ở nước ta, vào tháng 6 năm 863, nhà Đường bò An Nam đô hộ 
+phủ, đặt Hành Giao châu ở Hải Môn trấn (Liêm châu, Quảng 
+Đông). Nhưng mới đuợc một tháng thì nhà Đường lại đặt An Nam 
+đô hộ phủ ở Hành Giao châu4. Đầu năm 864, nhà Đường cử 
+Truơng Nhân đem quân sang chiếm lại và coi việc An Nam. Nhung
+1, 2, 3. Cao Hùng Trưng, An Nam chí nguyên, quyển 2, bản dịch đánh máy
+Viện Sử học, tr. 27.
+4. Cao Hùng Trưng, An Nam chí nguyên, quyển 2, sđd, tr. 27 - 28.","[Page 20] Chương I. Bước quá độ từ thỉri kỳ mất nước.. chặn không cho quân Nam Chiếu tiến sâu vào nội địa Trung Quốc, nên đã bỏ mặc An Nam cho quân Nam Chiếu chiếm giữ. Quân Nam Chiếu tiến vào bao vây phủ thành Tống Bình - trị sở của chính quyền đô hộ nhà Đường lúc đó. Thái Tập - viên quan coi giữ thành cùa nhà Đường chống giữ không nổi, để thành bị phá (năm 863), gia quyến của Thái Tập có đến 70 người bị chết, Thái Tập liều mạng bò chạy ra thuyền nhưng không kịp, cuối cùng bị chết đuối1. Thừ...",863|864,Nam Chiếu|An Nam|Quân Nam Chiếu|Tống Bình|Thái Tập|Nam Chiểu|Dương Tư|Hành Giao|Hải Môn|Truơng Nhân|Cao Hùng|Viện Sử,pymupdf,clean_text,false,"chặn không cho quân Nam Chiếu tiến sâu vào nội địa Trung Quốc,",false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0015,Sự kiện lịch sử nào được tài liệu mô tả liên quan đến phong trào?,Sự kiện liên quan đến Tây Son được tài liệu mô tả như thế nào?,event,medium,D004,D004_P0020,20,D004_C0012,"[Page 20]
+LỜI NÓI ĐẦU
+Lịch sử Việt Nam, tập 4: từ thế kỷ XVII đến thế kỷ XVIII là
+cuốn thứ 4 trong bộ thông sử nhiều tập, tiếp theo cuốn thứ 3 - Lịch 
+sừ Việt Nam, tập 3: từ thể kỳ XV đen thể kỷ XVI. Cuốn này được bắt 
+đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son 
+(1802), trước triều Nguyễn. Đây là tập sách viết về toàn bộ diễn 
+biến lịch sù của đất nước trên các mặt: chính trị - xã hội, kinh tế và 
+văn hóa trong hai thế kỷ XVII và XVIII.
+Thế kỷ XVII-XVIII là giai đoạn lịch sù tương đối đặc biệt Uong 
+tiến trình phát triển của lịch sù Việt Nam thời cổ Trung đại. Đó là 
+thời kỳ chiến tranh phân liệt giữa các tập đoàn phong kiến, thời kỳ 
+đất nước bị chia cắt làm hai miền với hai chế độ chính trị khác nhau: 
+vua Lê - chúa Trịnh ở Đàng Ngoài và chúa Nguyễn ở Đàng Trong, 
+hình thành nên một thể chế lưỡng đầu; Vua và Chúa cùng điều hành 
+chính sự - sản phẩm đặc biệt của lịch sử chế độ phong kiến Việt 
+Nam. Đây cũng là thời kỳ nổi dậy mạnh mẽ nhất của phong trào 
+nông dân, dòng lliừi lại là lliừi kỳ có những chuyên biên quun trọng 
+trong nền kinh tế của đất nước, đặc biệt là kinh tế công thương 
+nghiệp và cũng là thời kỳ phát triển của nền văn hóa dân tộc trên các 
+lĩnh vực văn học, sù học, y học, khoa học quân sự...
+Các bộ thông sử lớn của Việt Nam từ trước tới nay đã đề cập 
+nhiều tới giai đoạn lịch sử từ thế kỷ XVII đến thế kỷ XVIII:
+- Từ những năm 80 của thế kỷ XX trờ về trước, giới sử học 
+Việt Nam đã đặt thời kỳ lịch sử này nằm trong một giai đoạn lịch 
+sử dài từ thế kỷ XVI đến giữa thế kỷ XIX và coi chung đó là thời 
+kỳ suy vong và sụp đổ của chế độ phong kiến dân tộc.
+19","[Page 20] LỜI NÓI ĐẦU Lịch sử Việt Nam, tập 4: từ thế kỷ XVII đến thế kỷ XVIII là cuốn thứ 4 trong bộ thông sử nhiều tập, tiếp theo cuốn thứ 3 - Lịch sừ Việt Nam, tập 3: từ thể kỳ XV đen thể kỷ XVI. Cuốn này được bắt đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son (1802), trước triều Nguyễn. Đây là tập sách viết về toàn bộ diễn biến lịch sù của đất nước trên các mặt: chính trị - xã hội, kinh tế và văn hóa trong hai thế kỷ XVII và XVIII. Thế kỷ XVII-XVIII là giai đoạn lịch sù t...",1592|1802,Tây Son|Việt Nam|Đàng Ngoài|phong trào,pymupdf,clean_text,false,đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0019,Tài liệu ghi nhận sự kiện gì liên quan đến Tây Son trong giai đoạn được nêu?,Sự kiện liên quan đến Tây Son được tài liệu mô tả như thế nào?,event,medium,D004,D004_P0020,20,D004_C0012,"[Page 20]
+LỜI NÓI ĐẦU
+Lịch sử Việt Nam, tập 4: từ thế kỷ XVII đến thế kỷ XVIII là
+cuốn thứ 4 trong bộ thông sử nhiều tập, tiếp theo cuốn thứ 3 - Lịch 
+sừ Việt Nam, tập 3: từ thể kỳ XV đen thể kỷ XVI. Cuốn này được bắt 
+đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son 
+(1802), trước triều Nguyễn. Đây là tập sách viết về toàn bộ diễn 
+biến lịch sù của đất nước trên các mặt: chính trị - xã hội, kinh tế và 
+văn hóa trong hai thế kỷ XVII và XVIII.
+Thế kỷ XVII-XVIII là giai đoạn lịch sù tương đối đặc biệt Uong 
+tiến trình phát triển của lịch sù Việt Nam thời cổ Trung đại. Đó là 
+thời kỳ chiến tranh phân liệt giữa các tập đoàn phong kiến, thời kỳ 
+đất nước bị chia cắt làm hai miền với hai chế độ chính trị khác nhau: 
+vua Lê - chúa Trịnh ở Đàng Ngoài và chúa Nguyễn ở Đàng Trong, 
+hình thành nên một thể chế lưỡng đầu; Vua và Chúa cùng điều hành 
+chính sự - sản phẩm đặc biệt của lịch sử chế độ phong kiến Việt 
+Nam. Đây cũng là thời kỳ nổi dậy mạnh mẽ nhất của phong trào 
+nông dân, dòng lliừi lại là lliừi kỳ có những chuyên biên quun trọng 
+trong nền kinh tế của đất nước, đặc biệt là kinh tế công thương 
+nghiệp và cũng là thời kỳ phát triển của nền văn hóa dân tộc trên các 
+lĩnh vực văn học, sù học, y học, khoa học quân sự...
+Các bộ thông sử lớn của Việt Nam từ trước tới nay đã đề cập 
+nhiều tới giai đoạn lịch sử từ thế kỷ XVII đến thế kỷ XVIII:
+- Từ những năm 80 của thế kỷ XX trờ về trước, giới sử học 
+Việt Nam đã đặt thời kỳ lịch sử này nằm trong một giai đoạn lịch 
+sử dài từ thế kỷ XVI đến giữa thế kỷ XIX và coi chung đó là thời 
+kỳ suy vong và sụp đổ của chế độ phong kiến dân tộc.
+19","[Page 20] LỜI NÓI ĐẦU Lịch sử Việt Nam, tập 4: từ thế kỷ XVII đến thế kỷ XVIII là cuốn thứ 4 trong bộ thông sử nhiều tập, tiếp theo cuốn thứ 3 - Lịch sừ Việt Nam, tập 3: từ thể kỳ XV đen thể kỷ XVI. Cuốn này được bắt đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son (1802), trước triều Nguyễn. Đây là tập sách viết về toàn bộ diễn biến lịch sù của đất nước trên các mặt: chính trị - xã hội, kinh tế và văn hóa trong hai thế kỷ XVII và XVIII. Thế kỷ XVII-XVIII là giai đoạn lịch sù t...",1592|1802,Tây Son|Việt Nam|Đàng Ngoài|phong trào,pymupdf,clean_text,false,đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0025,Tài liệu ghi nhận sự kiện gì liên quan đến Việt Nam trong giai đoạn được nêu?,Sự kiện liên quan đến Việt Nam được tài liệu mô tả như thế nào?,event,medium,D005,D005_P0020,20,D005_C0012,"[Page 20]
+LỜI NÓI ĐẦU
+Vấn đề lịch sử Việt Nam thời Nguyễn hay lịch sử Việt Nam 
+giai đoạn nửa đầu thế kỷ XIX từ lâu đã được các nhà nghiên cứu 
+trong và ngoài nước quan tâm chú ý với mục đích nghiên cứu phục 
+dựng lại một giai đoạn lịch sừ có tính chất ""bản lề"" từ thời trung đại 
+sang thời cận đại, trước khi nước ta bị thực dân Pháp xâm lược.
+Trong chương trình biên soạn bộ thông sử 15 tập cùa Viện Sừ học, 
+chúng tôi được giao nhiệm vụ nghiên cứu, biên soạn tập V (Lịch sử 
+Việt Nam từ năm 1802 đến năm 1858) - tập cuối cùng về thời kỳ 
+lịch sử cổ trung đại Việt Nam.
+Mục tiêu đã được chúng tôi xác định ngay từ đầu và quán triệt 
+trong suốt quá trình thực hiện, đó là: nghiên cứu và biên soạn cuốn 
+Lịch sử Việt Nam từ năm 1802 đến năm 1858 một cách có hệ thống 
+và toàn diện để trình bày dưới dạng thông sử.
+Cuốn sách được giới hạn trong niên đại từ 1802 đến 1858 tức là 
+từ khi vương triều Nguyễn được thành lập đến thời điểm thực dân 
+Pháp chính thức nổ súng m ỡ đầu cuộc xâm lirợe Việt Nam.
+Cuốn sách được chia làm 10 chuơng với nội dung như sau:
+Chương I: Triều Nguyễn thiết lập nhà nước quân chủ chuyên chế.
+Chương II: Hệ thống quản lý hành chính các địa phương.
+Chương III: Tổ chức hành chính, xã hội và chính sách của nhà 
+nước đối với làng xã.
+Chương IV: Chế độ ruộng đất và kinh tế nông nghiệp.
+Chưcmg V: Công nghiệp và thủ công nghiệp.
+Chương Vỉ.ầ Thương nghiệp.
+19","[Page 20] LỜI NÓI ĐẦU Vấn đề lịch sử Việt Nam thời Nguyễn hay lịch sử Việt Nam giai đoạn nửa đầu thế kỷ XIX từ lâu đã được các nhà nghiên cứu trong và ngoài nước quan tâm chú ý với mục đích nghiên cứu phục dựng lại một giai đoạn lịch sừ có tính chất ""bản lề"" từ thời trung đại sang thời cận đại, trước khi nước ta bị thực dân Pháp xâm lược. Trong chương trình biên soạn bộ thông sử 15 tập cùa Viện Sừ học, chúng tôi được giao nhiệm vụ nghiên cứu, biên soạn tập V (Lịch sử Việt Nam từ năm 1802 đến...",1802|1858,Việt Nam|Viện Sừ|Triều Nguyễn,pymupdf,clean_text,false,Vấn đề lịch sử Việt Nam thời Nguyễn hay lịch sử Việt Nam,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0031,Tài liệu ghi nhận sự kiện gì liên quan đến Việt Nam trong giai đoạn được nêu?,Sự kiện liên quan đến Việt Nam được tài liệu mô tả như thế nào?,event,medium,D006,D006_P0020,20,D006_C0011,"[Page 20]
+LỜI NÓI ĐẦU
+Lịch sử Việt Nam từ năm 1858 đến năm 1896 là một giai đoạn 
+ràt đặc biệt, giai đoạn thực dân Pháp tiến hành quá trình xâm lược 
+Việt Nam.
+Từ trước đèn nay đã có rất nhiều công trình cả ỡ trong và 
+ngoài nước dưới nhiều góc độ khác nhau đã giới thiệu một cách khá 
+cặn kẽ và đa diện về giai đoạn này. Những công trình đó dựa trên 
+nhiều nguồn tư liệu, tài liệu khác nhau, với những chủ đích không 
+giống nhau nên các quan điểm được đưa ra không đồng nhất trong 
+nhiều vấn đề, thậm chí có khi còn trái ngược nhau. Chính vì vậy, 
+khi nhận thực hiện đề tài này trong hệ thống chương trình Lịch sử 
+Việt Nam (gồm 15 tập), chúng tôi gặp rất nhiều khó khăn và cũng 
+rất băn khoăn trước những kết quà đã có, bời vì:
+Thứ nhất, các nguồn tài liệu để tiếp cận vấn đề này hầu như 
+đã được khai thác cạn kiệt. Thêm vào đó, các nguồn tư liệu lại rất 
+đa dạng, nếu đi sâu vào SO sánh sẽ thấy sự khác biệt nhau về địa 
+điêm, thời gian, sự kiện, địa danh, số liệu thống kê... Việc xác 
+minh một cách khoa học sự ""vênh nhau” trong các nguồn tài liệu là 
+một quá trình lâu dài.
+Thứ hai, các vấn đề đưa ra dưới góc độ lý thuyết đều đã được 
+giải quyết tương đối trọn vẹn, trong đó vấn đề đánh giá âm mưu 
+của thực dân Pháp trong công cuộc xâm lược nước ta, vấn đề đánh 
+giá thái độ của triều Nguyễn trước nạn ngoại xâm, vấn đề kháng 
+chiến của quan quân triều đình Huế với sự SO sánh lực lượng, vũ 
+khí, khí tài, quân sự giữa hai bên khá chênh lệch, vấn đề khởi nghĩa 
+chông thực dân xâm lược cùa toàn thể nhân dân Việt Nam... đều đã 
+được giải quyết trong rất nhiều công ừình khác nhau. Ví dụ, vấn đề","[Page 20] LỜI NÓI ĐẦU Lịch sử Việt Nam từ năm 1858 đến năm 1896 là một giai đoạn ràt đặc biệt, giai đoạn thực dân Pháp tiến hành quá trình xâm lược Việt Nam. Từ trước đèn nay đã có rất nhiều công trình cả ỡ trong và ngoài nước dưới nhiều góc độ khác nhau đã giới thiệu một cách khá cặn kẽ và đa diện về giai đoạn này. Những công trình đó dựa trên nhiều nguồn tư liệu, tài liệu khác nhau, với những chủ đích không giống nhau nên các quan điểm được đưa ra không đồng nhất trong nhiều vấn đề, thậm ch...",1858|1896,Việt Nam,pymupdf,clean_text,false,Lịch sử Việt Nam từ năm 1858 đến năm 1896 là một giai đoạn,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0003,Mốc thời gian nào được nêu liên quan đến Việt Nam?,Mốc 2002 có ý nghĩa gì trong diễn biến liên quan đến Việt Nam?,timeline,medium,D001,D001_P0021,21,D001_C0012,"[Page 21]
+LỜI NÓI ĐÀU
+Trước nhu cầu của xã hội cần có một bộ sử Việt Nam đầy đủ 
+và phong phú; năm 2002, Viện Sừ học đã xác lập một kế hoạch 
+khoa học (Chương trình trọng điểm cấp Bộ được Viện Khoa học 
+xã hội Việt Nam phê duyệt) biên soạn bộ Lịch sử Việt Nam 15 tập, 
+từ khởi thủy đến ngày nay. Với một yêu cầu nâng cao hơn chất 
+lượng và phương pháp nghiên cứu, sách Lịch sử Việt Nam từ 
+khởi thủy đến thế kỳ X do nhóm chúng tôi biên soạn nằm trong 
+chương trình đó.
+Quá trình tiến hành đề tài Lịch sử Việt Nam từ khới thủy đến 
+thế kỳ X vốn đặt ra quá nhiều vấn đề đòi hỏi nhóm nghiên cứu cần 
+góp phần làm sáng tỏ. Khó khăn gai góc đầu tiên mà chúng tôi đối 
+diện chính là những sự kiện lịch sử của con người thời tiền sử và sơ 
+sử diễn ra trên một địa bàn mà cương vực chưa được xác định rõ 
+ràng như nước ta ngày nay; theo một trục thời gian quá dài hàng mấy 
+chục vạn năm, có khi sai số tới cả ngàn năm!
+Liên quan đến thời kỳ này, các van tự ghi chép vô cùng ÍL Thời kỳ 
+nguyên thủy chưa có tư liệu chữ viết, khi nghiên cứu hoàn toàn 
+phải dựa vào tư liệu khảo cổ học (tư liệu không biết nói), cổ sinh 
+học... Thời lcỳ Hùng Vương dựng nước, nhóm nghiên cứu tuy có dựa 
+vào truyền thuyết, nhưng lại là của người đời sau ghi chép, sáng tác. 
+Thòi kỳ Bắc thuộc, tư liệu chữ Hán cổ cũng rất tản mạn, nghèo nàn; 
+đôi khi thiếu độ tin cậy, khách quan.
+Từ trước đến nay có nhiều người nghiên cứu lịch sử Việt Nam 
+từ khởi thủy đến thế kỷ X và có nhiều công trinh đã được công bố. 
+Chính từ các công trình đó, nhiều vấn đề lịch sử được đánh giá 
+khách quan, nhất quán. Nhưng vẫn còn quá nhiều vấn đề gây tranh cãi;
+19","[Page 21] LỜI NÓI ĐÀU Trước nhu cầu của xã hội cần có một bộ sử Việt Nam đầy đủ và phong phú; năm 2002, Viện Sừ học đã xác lập một kế hoạch khoa học (Chương trình trọng điểm cấp Bộ được Viện Khoa học xã hội Việt Nam phê duyệt) biên soạn bộ Lịch sử Việt Nam 15 tập, từ khởi thủy đến ngày nay. Với một yêu cầu nâng cao hơn chất lượng và phương pháp nghiên cứu, sách Lịch sử Việt Nam từ khởi thủy đến thế kỳ X do nhóm chúng tôi biên soạn nằm trong chương trình đó. Quá trình tiến hành đề tài Lịch sử...",2002,Việt Nam|Viện Sừ|Viện Khoa|Hùng Vương,pymupdf,clean_text,false,Trước nhu cầu của xã hội cần có một bộ sử Việt Nam đầy đủ,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0009,Mốc thời gian nào được nêu liên quan đến Nam Chiếu?,Mốc 863 có ý nghĩa gì trong diễn biến liên quan đến Nam Chiếu?,timeline,medium,D002,D002_P0020,20,D002_C0013,"[Page 20]
+Chương I. Bước quá độ từ thỉri kỳ mất nước..
+chặn không cho quân Nam Chiếu tiến sâu vào nội địa Trung Quốc, 
+nên đã bỏ mặc An Nam cho quân Nam Chiếu chiếm giữ. Quân 
+Nam Chiếu tiến vào bao vây phủ thành Tống Bình - trị sở của chính 
+quyền đô hộ nhà Đường lúc đó. Thái Tập - viên quan coi giữ thành 
+cùa nhà Đường chống giữ không nổi, để thành bị phá (năm 863), 
+gia quyến của Thái Tập có đến 70 người bị chết, Thái Tập liều 
+mạng bò chạy ra thuyền nhưng không kịp, cuối cùng bị chết đuối1. 
+Thừa thắng, quân Nam Chiếu chia nhau đóng giữ các nơi, đốt phá 
+nhiều nhà cửa và giết hại nhiều dân sống trong khu vực thành Tống 
+Bình. Chỉ trong hai lần đánh xuống An Nam, quân Nam Chiếu đã 
+giết hại tới 15 vạn người2 dân vô tội.
+Cuộc chiến tranh giằng co nhiều lần giữa chính quyền đô hộ nhà 
+Đường và quân Nam Chiếu trên đất nước ta không những đã gây ra 
+bao thảm cảnh cho nhân dân ta mà còn làm thương vong khá nhiều 
+quân đội cùa nhà Đường, đó chính là những người dân Bắc quốc vô 
+tội phải sung vào đội quân đi tiêu diệt quân Nam Chiếu. Những 
+thương vong mà nhân dân hai nước phải gánh chịu trong cuộc 
+chiến giữa nhà Đường và Nam Chiểu lúc đó, trách nhiệm hoàn toàn 
+thuộc về chính quyền phong kiến nhà Đường.
+Sau khi chiếm được An Nam, tướng Dương Tư Tấn3 của Nam 
+Chiếu được cử ờ lại cùng với 2 vạn quân, còn quan lại và tướng sĩ 
+nhà Đường ở An Nam thì đều tháo chạy về nước. Sau đó, theo dự 
+đoán của vua quan nhà Đường, quân Nam Chiếu đã tiếp tục mở 
+cuộc tiến công sang xâm lược miền Tả giang và Hữu giang, gần sát 
+tới vùng châu Ung (Nam Ninh).
+ở nước ta, vào tháng 6 năm 863, nhà Đường bò An Nam đô hộ 
+phủ, đặt Hành Giao châu ở Hải Môn trấn (Liêm châu, Quảng 
+Đông). Nhưng mới đuợc một tháng thì nhà Đường lại đặt An Nam 
+đô hộ phủ ở Hành Giao châu4. Đầu năm 864, nhà Đường cử 
+Truơng Nhân đem quân sang chiếm lại và coi việc An Nam. Nhung
+1, 2, 3. Cao Hùng Trưng, An Nam chí nguyên, quyển 2, bản dịch đánh máy
+Viện Sử học, tr. 27.
+4. Cao Hùng Trưng, An Nam chí nguyên, quyển 2, sđd, tr. 27 - 28.","[Page 20] Chương I. Bước quá độ từ thỉri kỳ mất nước.. chặn không cho quân Nam Chiếu tiến sâu vào nội địa Trung Quốc, nên đã bỏ mặc An Nam cho quân Nam Chiếu chiếm giữ. Quân Nam Chiếu tiến vào bao vây phủ thành Tống Bình - trị sở của chính quyền đô hộ nhà Đường lúc đó. Thái Tập - viên quan coi giữ thành cùa nhà Đường chống giữ không nổi, để thành bị phá (năm 863), gia quyến của Thái Tập có đến 70 người bị chết, Thái Tập liều mạng bò chạy ra thuyền nhưng không kịp, cuối cùng bị chết đuối1. Thừ...",863|864,Nam Chiếu|An Nam|Quân Nam Chiếu|Tống Bình|Thái Tập|Nam Chiểu|Dương Tư|Hành Giao|Hải Môn|Truơng Nhân|Cao Hùng|Viện Sử,pymupdf,clean_text,false,"chặn không cho quân Nam Chiếu tiến sâu vào nội địa Trung Quốc,",false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0018,Mốc thời gian nào được nêu liên quan đến Tây Son?,Mốc 1592 có ý nghĩa gì trong diễn biến liên quan đến Tây Son?,timeline,medium,D004,D004_P0020,20,D004_C0012,"[Page 20]
+LỜI NÓI ĐẦU
+Lịch sử Việt Nam, tập 4: từ thế kỷ XVII đến thế kỷ XVIII là
+cuốn thứ 4 trong bộ thông sử nhiều tập, tiếp theo cuốn thứ 3 - Lịch 
+sừ Việt Nam, tập 3: từ thể kỳ XV đen thể kỷ XVI. Cuốn này được bắt 
+đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son 
+(1802), trước triều Nguyễn. Đây là tập sách viết về toàn bộ diễn 
+biến lịch sù của đất nước trên các mặt: chính trị - xã hội, kinh tế và 
+văn hóa trong hai thế kỷ XVII và XVIII.
+Thế kỷ XVII-XVIII là giai đoạn lịch sù tương đối đặc biệt Uong 
+tiến trình phát triển của lịch sù Việt Nam thời cổ Trung đại. Đó là 
+thời kỳ chiến tranh phân liệt giữa các tập đoàn phong kiến, thời kỳ 
+đất nước bị chia cắt làm hai miền với hai chế độ chính trị khác nhau: 
+vua Lê - chúa Trịnh ở Đàng Ngoài và chúa Nguyễn ở Đàng Trong, 
+hình thành nên một thể chế lưỡng đầu; Vua và Chúa cùng điều hành 
+chính sự - sản phẩm đặc biệt của lịch sử chế độ phong kiến Việt 
+Nam. Đây cũng là thời kỳ nổi dậy mạnh mẽ nhất của phong trào 
+nông dân, dòng lliừi lại là lliừi kỳ có những chuyên biên quun trọng 
+trong nền kinh tế của đất nước, đặc biệt là kinh tế công thương 
+nghiệp và cũng là thời kỳ phát triển của nền văn hóa dân tộc trên các 
+lĩnh vực văn học, sù học, y học, khoa học quân sự...
+Các bộ thông sử lớn của Việt Nam từ trước tới nay đã đề cập 
+nhiều tới giai đoạn lịch sử từ thế kỷ XVII đến thế kỷ XVIII:
+- Từ những năm 80 của thế kỷ XX trờ về trước, giới sử học 
+Việt Nam đã đặt thời kỳ lịch sử này nằm trong một giai đoạn lịch 
+sử dài từ thế kỷ XVI đến giữa thế kỷ XIX và coi chung đó là thời 
+kỳ suy vong và sụp đổ của chế độ phong kiến dân tộc.
+19","[Page 20] LỜI NÓI ĐẦU Lịch sử Việt Nam, tập 4: từ thế kỷ XVII đến thế kỷ XVIII là cuốn thứ 4 trong bộ thông sử nhiều tập, tiếp theo cuốn thứ 3 - Lịch sừ Việt Nam, tập 3: từ thể kỳ XV đen thể kỷ XVI. Cuốn này được bắt đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son (1802), trước triều Nguyễn. Đây là tập sách viết về toàn bộ diễn biến lịch sù của đất nước trên các mặt: chính trị - xã hội, kinh tế và văn hóa trong hai thế kỷ XVII và XVIII. Thế kỷ XVII-XVIII là giai đoạn lịch sù t...",1592|1802,Tây Son|Việt Nam|Đàng Ngoài|phong trào,pymupdf,clean_text,false,đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0024,Mốc thời gian nào được nêu liên quan đến Việt Nam?,Mốc 1802 có ý nghĩa gì trong diễn biến liên quan đến Việt Nam?,timeline,medium,D005,D005_P0020,20,D005_C0012,"[Page 20]
+LỜI NÓI ĐẦU
+Vấn đề lịch sử Việt Nam thời Nguyễn hay lịch sử Việt Nam 
+giai đoạn nửa đầu thế kỷ XIX từ lâu đã được các nhà nghiên cứu 
+trong và ngoài nước quan tâm chú ý với mục đích nghiên cứu phục 
+dựng lại một giai đoạn lịch sừ có tính chất ""bản lề"" từ thời trung đại 
+sang thời cận đại, trước khi nước ta bị thực dân Pháp xâm lược.
+Trong chương trình biên soạn bộ thông sử 15 tập cùa Viện Sừ học, 
+chúng tôi được giao nhiệm vụ nghiên cứu, biên soạn tập V (Lịch sử 
+Việt Nam từ năm 1802 đến năm 1858) - tập cuối cùng về thời kỳ 
+lịch sử cổ trung đại Việt Nam.
+Mục tiêu đã được chúng tôi xác định ngay từ đầu và quán triệt 
+trong suốt quá trình thực hiện, đó là: nghiên cứu và biên soạn cuốn 
+Lịch sử Việt Nam từ năm 1802 đến năm 1858 một cách có hệ thống 
+và toàn diện để trình bày dưới dạng thông sử.
+Cuốn sách được giới hạn trong niên đại từ 1802 đến 1858 tức là 
+từ khi vương triều Nguyễn được thành lập đến thời điểm thực dân 
+Pháp chính thức nổ súng m ỡ đầu cuộc xâm lirợe Việt Nam.
+Cuốn sách được chia làm 10 chuơng với nội dung như sau:
+Chương I: Triều Nguyễn thiết lập nhà nước quân chủ chuyên chế.
+Chương II: Hệ thống quản lý hành chính các địa phương.
+Chương III: Tổ chức hành chính, xã hội và chính sách của nhà 
+nước đối với làng xã.
+Chương IV: Chế độ ruộng đất và kinh tế nông nghiệp.
+Chưcmg V: Công nghiệp và thủ công nghiệp.
+Chương Vỉ.ầ Thương nghiệp.
+19","[Page 20] LỜI NÓI ĐẦU Vấn đề lịch sử Việt Nam thời Nguyễn hay lịch sử Việt Nam giai đoạn nửa đầu thế kỷ XIX từ lâu đã được các nhà nghiên cứu trong và ngoài nước quan tâm chú ý với mục đích nghiên cứu phục dựng lại một giai đoạn lịch sừ có tính chất ""bản lề"" từ thời trung đại sang thời cận đại, trước khi nước ta bị thực dân Pháp xâm lược. Trong chương trình biên soạn bộ thông sử 15 tập cùa Viện Sừ học, chúng tôi được giao nhiệm vụ nghiên cứu, biên soạn tập V (Lịch sử Việt Nam từ năm 1802 đến...",1802|1858,Việt Nam|Viện Sừ|Triều Nguyễn,pymupdf,clean_text,false,Vấn đề lịch sử Việt Nam thời Nguyễn hay lịch sử Việt Nam,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0030,Mốc thời gian nào được nêu liên quan đến Việt Nam?,Mốc 1858 có ý nghĩa gì trong diễn biến liên quan đến Việt Nam?,timeline,medium,D006,D006_P0020,20,D006_C0011,"[Page 20]
+LỜI NÓI ĐẦU
+Lịch sử Việt Nam từ năm 1858 đến năm 1896 là một giai đoạn 
+ràt đặc biệt, giai đoạn thực dân Pháp tiến hành quá trình xâm lược 
+Việt Nam.
+Từ trước đèn nay đã có rất nhiều công trình cả ỡ trong và 
+ngoài nước dưới nhiều góc độ khác nhau đã giới thiệu một cách khá 
+cặn kẽ và đa diện về giai đoạn này. Những công trình đó dựa trên 
+nhiều nguồn tư liệu, tài liệu khác nhau, với những chủ đích không 
+giống nhau nên các quan điểm được đưa ra không đồng nhất trong 
+nhiều vấn đề, thậm chí có khi còn trái ngược nhau. Chính vì vậy, 
+khi nhận thực hiện đề tài này trong hệ thống chương trình Lịch sử 
+Việt Nam (gồm 15 tập), chúng tôi gặp rất nhiều khó khăn và cũng 
+rất băn khoăn trước những kết quà đã có, bời vì:
+Thứ nhất, các nguồn tài liệu để tiếp cận vấn đề này hầu như 
+đã được khai thác cạn kiệt. Thêm vào đó, các nguồn tư liệu lại rất 
+đa dạng, nếu đi sâu vào SO sánh sẽ thấy sự khác biệt nhau về địa 
+điêm, thời gian, sự kiện, địa danh, số liệu thống kê... Việc xác 
+minh một cách khoa học sự ""vênh nhau” trong các nguồn tài liệu là 
+một quá trình lâu dài.
+Thứ hai, các vấn đề đưa ra dưới góc độ lý thuyết đều đã được 
+giải quyết tương đối trọn vẹn, trong đó vấn đề đánh giá âm mưu 
+của thực dân Pháp trong công cuộc xâm lược nước ta, vấn đề đánh 
+giá thái độ của triều Nguyễn trước nạn ngoại xâm, vấn đề kháng 
+chiến của quan quân triều đình Huế với sự SO sánh lực lượng, vũ 
+khí, khí tài, quân sự giữa hai bên khá chênh lệch, vấn đề khởi nghĩa 
+chông thực dân xâm lược cùa toàn thể nhân dân Việt Nam... đều đã 
+được giải quyết trong rất nhiều công ừình khác nhau. Ví dụ, vấn đề","[Page 20] LỜI NÓI ĐẦU Lịch sử Việt Nam từ năm 1858 đến năm 1896 là một giai đoạn ràt đặc biệt, giai đoạn thực dân Pháp tiến hành quá trình xâm lược Việt Nam. Từ trước đèn nay đã có rất nhiều công trình cả ỡ trong và ngoài nước dưới nhiều góc độ khác nhau đã giới thiệu một cách khá cặn kẽ và đa diện về giai đoạn này. Những công trình đó dựa trên nhiều nguồn tư liệu, tài liệu khác nhau, với những chủ đích không giống nhau nên các quan điểm được đưa ra không đồng nhất trong nhiều vấn đề, thậm ch...",1858|1896,Việt Nam,pymupdf,clean_text,false,Lịch sử Việt Nam từ năm 1858 đến năm 1896 là một giai đoạn,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0035,Mốc thời gian nào được nêu liên quan đến Việt Nam?,Mốc 1919 có ý nghĩa gì trong diễn biến liên quan đến Việt Nam?,timeline,medium,D008,D008_P0020,20,D008_C0013,"[Page 20]
+LỊCH SỪ VIỆT NAM - TẬP 8
+khai thác được khá lớn. Tuy nhiên, nguồn tài liệu này có đặc điểm là 
+khá tản mạn nên các tác giả phải nhiều công chắt lọc và tổng hợp mới 
+có thể sử dụng được.
+về các ấn phẩm, ngoài những ấn phẩm mang tính chất tài liệu, 
+như những tập san niên giám hay báo chí các loại đề cập đến nhiều 
+khía cạnh khác nhau của đề tài, được khai thác ở các trung tâm lưu 
+trữ, các thư viện, còn nhiều công trình nghiên cứu của các học giả 
+người Pháp được công bố ngay trong giai đoạn 1919-1930 hay xa 
+hơn một chút - trước năm 1945. Mặt khác, phải kể tới những công 
+trình nghiên cứu có giá trị tham khảo cao của các học giả nổi tiếng 
+người Việt, người Pháp, người Mỹ, người Anh... được công bố trong 
+thời gian từ sau năm 1945 đến nay. Trong đó, một số học giả đã được 
+nói tới trong Lời nói đầu của cuốn Lịch sử Việt Nam tập 7.
+Nguồn tài liệu phong phú đó đã tạo nhiều thuận lợi cho việc tạo 
+dựng công trình, giải quyết ngọn ngành mỗi khía cạnh bên quan, bót 
+đi tình trạng tư biện, lấy suy diễn lôgích thay cho sử liệu, nâng cao giá 
+trị tham khảo cùa công trình. Tuy nhiên, điều này cũng đòi hỏi các tác 
+giả phải cố gắng để không bị sa đà, biến công bình thành tập hợp 
+những chuyên đề riêng rẽ. Hcm nữa, mặc dù rất phong phú, nhưng 
+nguồn tài liệu đố vẫn còn chưa đủ để cho phép giải quyết dứt điểm 
+mọi vấn đề liên quan đến giai đoạn lịch sử này. Chúng tôi hy vọng sẽ 
+hội đủ những điều kiện, nhất là điều kiện về tài liệu tham khảo, để làm 
+sáng tỏ những vấn đề chưa được giải quyết dứt điểm trong một công 
+binh khác.
+Cuốn Lịch sử Việt Nam từ năm 1919 đến năm 1930, tập 8 được trình 
+bày thành 9 chương, không bao gồm phần Lời nói đầu và phần Kết 
+luận, do 3 tác giả thực hiện là:
+1. PGS.TS. Tạ Thị Thuý là chủ biên công trình, biên soạn từ 
+chương I đến chương V và các phần Lời nói đầu, Kết luận, Tài liệu tham 
+khảo và thư mục sách;
+2. PGS. Ngô Văn Hòa biên soạn chương VI và VII;
+3. PGS. Vũ Huy Phúc biên soạn chương v in và IX.
+20","[Page 20] LỊCH SỪ VIỆT NAM - TẬP 8 khai thác được khá lớn. Tuy nhiên, nguồn tài liệu này có đặc điểm là khá tản mạn nên các tác giả phải nhiều công chắt lọc và tổng hợp mới có thể sử dụng được. về các ấn phẩm, ngoài những ấn phẩm mang tính chất tài liệu, như những tập san niên giám hay báo chí các loại đề cập đến nhiều khía cạnh khác nhau của đề tài, được khai thác ở các trung tâm lưu trữ, các thư viện, còn nhiều công trình nghiên cứu của các học giả người Pháp được công bố ngay trong giai đo...",1919|1930|1945,Việt Nam|Cuốn Lịch|Tạ Thị Thuý|Ngô Văn Hòa|Vũ Huy Phúc,pymupdf,clean_text,false,NEEDS_MANUAL_ANSWER,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0017,Nguyên nhân hoặc hệ quả nào được nêu liên quan đến phong trào?,Nguyên nhân hoặc hệ quả nào được tài liệu nêu liên quan đến phong trào?,cause_effect,hard,D004,D004_P0020,20,D004_C0012,"[Page 20]
+LỜI NÓI ĐẦU
+Lịch sử Việt Nam, tập 4: từ thế kỷ XVII đến thế kỷ XVIII là
+cuốn thứ 4 trong bộ thông sử nhiều tập, tiếp theo cuốn thứ 3 - Lịch 
+sừ Việt Nam, tập 3: từ thể kỳ XV đen thể kỷ XVI. Cuốn này được bắt 
+đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son 
+(1802), trước triều Nguyễn. Đây là tập sách viết về toàn bộ diễn 
+biến lịch sù của đất nước trên các mặt: chính trị - xã hội, kinh tế và 
+văn hóa trong hai thế kỷ XVII và XVIII.
+Thế kỷ XVII-XVIII là giai đoạn lịch sù tương đối đặc biệt Uong 
+tiến trình phát triển của lịch sù Việt Nam thời cổ Trung đại. Đó là 
+thời kỳ chiến tranh phân liệt giữa các tập đoàn phong kiến, thời kỳ 
+đất nước bị chia cắt làm hai miền với hai chế độ chính trị khác nhau: 
+vua Lê - chúa Trịnh ở Đàng Ngoài và chúa Nguyễn ở Đàng Trong, 
+hình thành nên một thể chế lưỡng đầu; Vua và Chúa cùng điều hành 
+chính sự - sản phẩm đặc biệt của lịch sử chế độ phong kiến Việt 
+Nam. Đây cũng là thời kỳ nổi dậy mạnh mẽ nhất của phong trào 
+nông dân, dòng lliừi lại là lliừi kỳ có những chuyên biên quun trọng 
+trong nền kinh tế của đất nước, đặc biệt là kinh tế công thương 
+nghiệp và cũng là thời kỳ phát triển của nền văn hóa dân tộc trên các 
+lĩnh vực văn học, sù học, y học, khoa học quân sự...
+Các bộ thông sử lớn của Việt Nam từ trước tới nay đã đề cập 
+nhiều tới giai đoạn lịch sử từ thế kỷ XVII đến thế kỷ XVIII:
+- Từ những năm 80 của thế kỷ XX trờ về trước, giới sử học 
+Việt Nam đã đặt thời kỳ lịch sử này nằm trong một giai đoạn lịch 
+sử dài từ thế kỷ XVI đến giữa thế kỷ XIX và coi chung đó là thời 
+kỳ suy vong và sụp đổ của chế độ phong kiến dân tộc.
+19","[Page 20] LỜI NÓI ĐẦU Lịch sử Việt Nam, tập 4: từ thế kỷ XVII đến thế kỷ XVIII là cuốn thứ 4 trong bộ thông sử nhiều tập, tiếp theo cuốn thứ 3 - Lịch sừ Việt Nam, tập 3: từ thể kỳ XV đen thể kỷ XVI. Cuốn này được bắt đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son (1802), trước triều Nguyễn. Đây là tập sách viết về toàn bộ diễn biến lịch sù của đất nước trên các mặt: chính trị - xã hội, kinh tế và văn hóa trong hai thế kỷ XVII và XVIII. Thế kỷ XVII-XVIII là giai đoạn lịch sù t...",1592|1802,Tây Son|Việt Nam|Đàng Ngoài|phong trào,pymupdf,clean_text,false,đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0043,Nguyên nhân hoặc hệ quả nào được nêu liên quan đến Cách mạng?,Nguyên nhân hoặc hệ quả nào được tài liệu nêu liên quan đến Cách mạng?,cause_effect,hard,D009,D009_P0020,20,D009_C0013,"[Page 20]
+LỊCH SỪ VIỆT NAM - TẬP 9
+hình thái chiến tranh cách mạng ớ Việt Nam đế giải thích nguyên 
+nhân đưa đến thang lợi của cuộc Cách mạng tháng Tám năm 1945.
+Trên những hướng nghiên cứu đó, đã có nhũng công trình mang 
+tính chat thông sử, trình bày khái quát về thời kỳ lịch sử này trên 
+tất cả các khía cạnh cùa 1ĨÓ. Lại vì thời kỳ này có thế được ngắt 
+thành những giai đoạn nhỏ, với những nội dung khác biệt trên các 
+khía cạnh kinh tế, chính trị, xã hội... nên đã có những công trình 
+chuyên biệt về một giai đoạn cụ thể nào đó, chẳng hạn như: 1930- 
+1931, 1932-1935, 1936-1939, 1939-1945 hoặc gia chi riêng về lịch 
+sử cùa Cách mạng tháng Tám. Cũng có những công trình chuyên 
+sâu phản ánh về một phương diện, một vấn đề cụ thế, một sự kiện 
+cụ the hoặc tại một địa phương cụ thế nào đó trong trường đoạn 
+lịch sử này, được trình bày và công bo dưới những hình thức rắt 
+phong phú, đa dạng.
+Điều đó nói lên rằng chúng tôi đã đi sau không ít người trong 
+việc nghiên cứu về “Lịch sử Việt Nam 1930-1945”. Đối với chúng 
+tôi, đó vừa là một thuận lợi, vừa là một thách thức. Thuận lợi là vì 
+chúng tôi được thừa hưởng kết quả cùa những công trình nghiên 
+cứu phong phú kia. Còn thách thức thì là vì chính sự phong phú 
+cùa các công trình đã công bo đặt chúng tôi trước một thực té là dù 
+chi muốn làm ""khác đi"" một chút thôi công trình của mình so với 
+những công trình trước cũng đòi hỏi phải cố gắng rất nhiều trong 
+cả việc bố sung thêm nguồn tài liệu tham khảo lẫn như trong 
+phương pháp tiếp cận và giải quyết vấn đề.
+Trên thực tế, về tài liệu tham kháo, chúng tôi chú ý đến cà hai 
+nguồn: nguồn các an phấm và nguồn tài liệu lưu trữ.
+Ve các an phẩm, bên cạnh những công trình cùa các học giã 
+trong nước, trong đó có những công trình cùa các nhà sừ học có 
+tên tuổi, được sưu tầm tại các thư viện ở cả trung ương cũng như ở 
+các địa phương, chúng tôi còn bằng nhiều cách thu gom được 
+không ít công trình nghiên cứu cùa các học giả nước ngoài, được 
+công bo dưới dạng các cuốn sách đồ sộ, các luận án tiến sì lịch sử, 
+các luận văn cao học và các bài viết được công bố trên các tạp chí
+20","[Page 20] LỊCH SỪ VIỆT NAM - TẬP 9 hình thái chiến tranh cách mạng ớ Việt Nam đế giải thích nguyên nhân đưa đến thang lợi của cuộc Cách mạng tháng Tám năm 1945. Trên những hướng nghiên cứu đó, đã có nhũng công trình mang tính chat thông sử, trình bày khái quát về thời kỳ lịch sử này trên tất cả các khía cạnh cùa 1ĨÓ. Lại vì thời kỳ này có thế được ngắt thành những giai đoạn nhỏ, với những nội dung khác biệt trên các khía cạnh kinh tế, chính trị, xã hội... nên đã có những công trình chuyên biệ...",1930|1931|1932|1935|1936|1939|1945,Việt Nam|Cách mạng,pymupdf,clean_text,false,NEEDS_MANUAL_ANSWER,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0052,Nguyên nhân hoặc hệ quả nào được nêu liên quan đến kháng chiến?,Nguyên nhân hoặc hệ quả nào được tài liệu nêu liên quan đến kháng chiến?,cause_effect,hard,D010,D010_P0020,20,D010_C0013,"[Page 20]
+LỊCH SỬ VIỆT NAM - TẬP 10
+đã thi hành chính sách đổi nội, đối ngoại vừa mềm dẻo, lỉnh hoạt 
+vừa nguyên tắc, kiên định đã tùng bước thay đoi được tương quan 
+lực lượng và giành được những thắng lợi rất quan trọng có ý nghĩa 
+rất quyết định. Sự kiện Trung Quốc, Liên Xô và các nước dân chù 
+nhân dân khác công nhận nền độc lập cùa Việt Nam, đặt quan hệ 
+ngoại giao với nước Việt Nam dân chù cộng hòa vào đầu năm 
+1950, đặc biệt là Chiến thắng Biên giới Thu - Đông năm 1950 đập 
+tan các căn cứ chiếm đóng của địch, khai thông vùng căn cứ địa 
+Việt Bắc với the giới bên ngoài đã chấm dứt tình trạng bị cô lập 
+cùa nước Việt Nam dân chủ cộng hòa. Một cục diện mới (về chính 
+trị, quân sự, ngoại giao...) đã mở ra. Do đó, không chi phía Việt 
+Nam dân chù cộng hòa có sự chuyển hướng trong đường loi chì 
+đạo kháng chiến, mà cả phía Pháp với nguỵ quyển, nguỵ quân cũng 
+đã phải để ra những đối sách mới để ứng phó với tình hình mới. Từ 
+tháng 8/1945 đến cuối năm 1950, 13 đời Thủ tướng Pháp với nhiều 
+kế hoạch xâm lược Việt Nam như Ke hoạch D'Argenlieu, Ke hoạch 
+Leclerc, Ke hoạch Revers đã không xoay chuyển được tình hình và 
+cuối năm 1950 phải chuyển sang một ké hoạch mới do Turómg De 
+Lattre de Tassigny, Cao uỷ Tổng chi huy quân đội Pháp ở Đông 
+Dương phụ trách.
+Như vậy là đến cuối năm ỉ950, cả hai lực lượng song song tồn 
+tại ở Việt Nam (lực lượng cùa nước Việt Nam dân chù cộng hòa - 
+một ntỉớc đã được phe xã hội chù nghĩa công nhận và lực lượng 
+thân Pháp đang được một sổ nước đế quốc như Mỹ, Anh ùng hộ) 
+đều chuyển sang một giai đoạn mới trong cuộc đấu tranh một mất 
+một còn để giành giật vai trò là người đại diện đích thực trên đất 
+nước Việt Nam.
+Giai đoạn lịch sử 1945-1950 chứa đựng nhiều sự kiện, nhiều 
+vấn đề nhưng chưa được nghiên cứu một cách toàn diện và đầy đù. 
+Cho đến nay, những công trình của các sử gia Việt Nam nghiên 
+cứu ""phía bên kia"" một cách thật sự sâu sắc còn ít. Khôi phục lại 
+một cách chân thực, khách quan diện mạo cùa Việt Nam bằng cách 
+nhìn tổng thể, toàn diện cả hai phía là rất cần thiết đối với việc
+20","[Page 20] LỊCH SỬ VIỆT NAM - TẬP 10 đã thi hành chính sách đổi nội, đối ngoại vừa mềm dẻo, lỉnh hoạt vừa nguyên tắc, kiên định đã tùng bước thay đoi được tương quan lực lượng và giành được những thắng lợi rất quan trọng có ý nghĩa rất quyết định. Sự kiện Trung Quốc, Liên Xô và các nước dân chù nhân dân khác công nhận nền độc lập cùa Việt Nam, đặt quan hệ ngoại giao với nước Việt Nam dân chù cộng hòa vào đầu năm 1950, đặc biệt là Chiến thắng Biên giới Thu - Đông năm 1950 đập tan các căn cứ chi...",1945|1950,Liên Xô|Việt Nam|Việt Bắc|Turómg De Lattre|Đông Dương|kháng chiến|độc lập,pymupdf,clean_text,false,"Sự kiện Trung Quốc, Liên Xô và các nước dân chù",false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0061,Nguyên nhân hoặc hệ quả nào được nêu liên quan đến Cách mạng?,Nguyên nhân hoặc hệ quả nào được tài liệu nêu liên quan đến Cách mạng?,cause_effect,hard,D011,D011_P0020,20,D011_C0013,"[Page 20]
+LỊCH SỪ VIỆT NAM - TẬP 11
+Cuộc kháng chiến chổng thực dân Pháp của nhân dân Việt Nam 
+phát triển, lớn mạnh qua từng giai đoạn. Sau Cách mạng tháng 
+Tám, Việt Nam từ chỗ bị bao vây; ngân sách trống rỗng, kinh tế bị 
+tàn phá, nghèo nàn, lạc hậu; lực lượng vũ trang còn nhỏ bé, thiếu 
+kinh nghiệm, trang thiết bị lạc hậu, qua năm tháng xây dựng và 
+tranh đấu đã từng bưóc tnrởng thành và lớn mạnh. Nền kinh tế đủ 
+cung cấp cho kháng chiến, lực lượng vôi trang nhân dân ngày càng 
+chính quy, hiện đại đủ sửc đánh và thắng trong các chiến dịch quân 
+sự lớn làm thay đổi cục diện chiến tranh như chiến dịch Biên Giới, 
+Hòa Bình, Tây Bắc, Thượng Lào... và nhất là chiến dịch lịch sử 
+Điện Biên Phủ đưa đến việc ký kết Hiệp định Gicmevơ chấm dứt 
+chiến tranh, lập lại hòa bình ở Việt Nam năm 1954.
+Đánh giá ý nghĩa thắng lợi của cuộc kháng chiến chống Pháp, 
+Chủ tịch Hồ Chí Minh đã chi rõ, đây là “lần đầu tiên trong lịch sừ, 
+một nước thuộc địa nhỏ yếu đã đảnh thắng một nước thực dân 
+hùng mạnh. Đó là một thắng lợi vẻ vang cùa nhân dân Việt Nam, 
+đồng thời cũng là một thăng lợi cùa các lực lượng hòa bình, dân 
+chù và chù nghĩa xã hội trên thế giớĩ'1.
+Lịch sử Việt Nam từ nỉm 1951 đến nSm 1954 nhằm giới thiệu 
+một cách chân thực, khách quan, toàn diện và hệ thống từ âm mưu, 
+kế hoạch xâm lược và thống trị của đế quốc Pháp - Mỹ trong cuộc 
+chiến tranh, đến chủ trương, đường lối của Đảng và quá trình đấu 
+tranh anh dũng của quân đội và nhân dân Việt Nam trong những 
+năm cuối của cuộc kháng chiến chống thực dân Pháp trên tất cả các 
+mặt từ chính trị, kinh tế, quân sự, ngoại giao, văn hóa...
+Cồng trình này do nhóm tác giả Viện Sử học biên soạn:
+- PGS.TS. Nguyễn Văn Nhật: Lời nói đầu, Chương VI, Kết luận 
+và Tài liệu tham khảo
+- TS. Đỗ Thị Nguyệt Quang: Chương I, Chương II và Chương m
+- PGS.TS. Đinh Quang Hải: Chương IV và Chương V
+1. Hồ Chí Minh, Toàn tập, tập 10, Nxb. Chính trị quốc gia, Hà Nội, 1996, tr. 12.","[Page 20] LỊCH SỪ VIỆT NAM - TẬP 11 Cuộc kháng chiến chổng thực dân Pháp của nhân dân Việt Nam phát triển, lớn mạnh qua từng giai đoạn. Sau Cách mạng tháng Tám, Việt Nam từ chỗ bị bao vây; ngân sách trống rỗng, kinh tế bị tàn phá, nghèo nàn, lạc hậu; lực lượng vũ trang còn nhỏ bé, thiếu kinh nghiệm, trang thiết bị lạc hậu, qua năm tháng xây dựng và tranh đấu đã từng bưóc tnrởng thành và lớn mạnh. Nền kinh tế đủ cung cấp cho kháng chiến, lực lượng vôi trang nhân dân ngày càng chính quy, hiện đ...",1951|1954|1996,Việt Nam|Sau Cách|Điện Biên Phủ|Hồ Chí Minh|Viện Sử|Nguyễn Văn|Đỗ Thị Nguyệt|Đinh Quang|Hồ Chí|Cách mạng|kháng chiến|hiệp định|chiến dịch|thuộc địa,pymupdf,clean_text,false,LỊCH SỪ VIỆT NAM - TẬP 11,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0070,Nguyên nhân hoặc hệ quả nào được nêu liên quan đến cải cách?,Nguyên nhân hoặc hệ quả nào được tài liệu nêu liên quan đến cải cách?,cause_effect,hard,D012,D012_P0020,20,D012_C0011,"[Page 20]
+LỊCH SỬ VIỆT NAM - TẬP 12
+Ngay sau khi Hiệp định Giơnevơ được ký kết và hòa bình lập 
+lại trên đất nước Việt Nam, nhân dân miền Bac đã ra sức lao động 
+sàn xuất, hàn gắn vết thương chiến tranh, khôi phục và phát triển 
+kinh tế, văn hóa, tăng cường giao lưu và mở rộng quan hệ quốc tế 
+trên tinh thần tôn trọng độc lập, chủ quyền của nhau. Nhân dân miền 
+Bắc không có nguyện vọng nào hơn là xây dựng cuộc sống ấm no, 
+hạnh phúc và nguyện cùng nhân dân miền Nam đấu tranh cho sự 
+nghiệp hòa bình, thống nhất Tổ quốc để tiến tới một nước Việt Nam 
+hòa bình, thống nhất độc lập, dân chủ và giàu mạnh.
+Dù có một số khó khăn do những sai lầm trong quá trình thực 
+hiện cuộc cải cách ruộng đất và xử lý vụ ""Nhân văn Giai phâm"" 
+trong khoảng thời gian từ năm 1955 đến năm 1957 nhưng nhờ có 
+đường lối đúng của Đảng và Nhà nước bộ mặt miền Bắc dã có sự 
+đổi khác, nhiều nhà máy, công trường, bệnh viện, trường học mọc 
+lên, tạo nên cuộc sống vui tươi, đầm ấm nơi bàn làng, thôn xóm, 
+phố thị. Ke hoạch 5 năm lần thứ nhất (1961-1965) mở ra những 
+khát vọng có được một cuộc sống no đủ hơn...
+Trong khi đó, ờ miền Nam, chính quyền Sài Gòn được Mỹ - vừa 
+là ngirời chủ mưu, vừa là kè đồng lõa trắng trợn phá hoại Hiệp định 
+Giơnevơ - dùng súng đạn và các thủ đoạn lừa mị, ngang nhiên 
+chống lại nguyện vọng thiêng liêng hòa bình thống nhất đất nước 
+của nhân dân hai miền Nam - Bắc. Chủ trương cùa Mỹ là: Không 
+Ihi hành Iiiộp định Giưnevư, chia cát lâu dài nước Viộl Nam , bién 
+miền Nam thành thuộc địa kiểu mới và căn cứ quân sự của Mỹ, lấy 
+miền Nam làm phòng tuyến ngăn chặn chủ nghĩa xã hội lan xuống 
+Đông Nam Á, đồng thời làm căn cứ để tiến công miền Bấc, bao 
+vây và uy hiếp các nước xã hội chủ nghĩa, ngăn chặn phong trào 
+giải phóng dân tộc đang có chiều hướng ngày càng phát triển trên 
+thế giới.
+Để thực hiện chủ trương này, Mỹ đã tìm cách nhanh chóng hất 
+cẳng Pháp ra khỏi miền Nam, lập nên ở Sài Gòn một chính phủ thân 
+Mỹ, làm theo sự chi đạo cùa Mỹ do Ngô Đình Diệm làm Thủ tướng
+18","[Page 20] LỊCH SỬ VIỆT NAM - TẬP 12 Ngay sau khi Hiệp định Giơnevơ được ký kết và hòa bình lập lại trên đất nước Việt Nam, nhân dân miền Bac đã ra sức lao động sàn xuất, hàn gắn vết thương chiến tranh, khôi phục và phát triển kinh tế, văn hóa, tăng cường giao lưu và mở rộng quan hệ quốc tế trên tinh thần tôn trọng độc lập, chủ quyền của nhau. Nhân dân miền Bắc không có nguyện vọng nào hơn là xây dựng cuộc sống ấm no, hạnh phúc và nguyện cùng nhân dân miền Nam đấu tranh cho sự nghiệp hòa bình,...",1955|1957|1961|1965,Việt Nam|Sài Gòn|Không Ihi|Viộl Nam|Đông Nam|Ngô Đình Diệm|cải cách|hiệp định|phong trào|độc lập|thuộc địa,pymupdf,clean_text,false,LỊCH SỬ VIỆT NAM - TẬP 12,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0079,Nguyên nhân hoặc hệ quả nào được nêu liên quan đến kháng chiến?,Nguyên nhân hoặc hệ quả nào được tài liệu nêu liên quan đến kháng chiến?,cause_effect,hard,D013,D013_P0021,21,D013_C0012,"[Page 21]
+LỜI NÓI ĐẦU
+Lịch sử Việt Nam thời kỳ 1954-1975 là lịch sử của công cuộc 
+xây dựng chủ nghĩa xã hội và chiến đấu chống cuộc chiến tranh 
+phá hoại của Mỹ ở miền Bắc; đồng thòi là lịch sử của cuộc kháng 
+chiến trường kỳ 21 năm chống Mỹ xâm lược, giải phóng miền Nam, 
+thống nhất đất nước.
+Trong lịch sừ đấu tranh chống ngoại xâm của nhân dân Việt 
+Nam, cuộc kháng chiến chống Mỹ, cứu nước (1954-1975) được coi 
+là thừ thách lớn nhất đối với dân tộc Việt Nam từ sau thử thách 
+cùa hơn nghìn năm Bắc thuộc và sau gần một trăm năm chống ách 
+thống trị và chiến tranh xâm lược của thực dân Pháp.
+Thắng lợi của cuộc kháng chiến chống Mỹ, cứu nước là thiên 
+anh hùng ca vĩ đại nhất trong lịch sử dựng nước và giữ nước của 
+nhân dân Việt Nam, đánh dấu một bước ngoặt quyết định ưong lịch 
+sử dân tộc, đưa Việt Nam bước vào kỷ nguyên mới, kỷ nguyên cùa 
+độc lập và xây rlựng đât rurác theo định hướng xã hội chủ nghĩu.
+Trong 21 năm kháng chiến chống Mỹ, cứu nước của nhân dân 
+Việt Nam, giai đoạn từ 1965 đến 1975 là giai đoạn gay go, ác liệt 
+nhất, thể hiện sức mạnh quân sự và thí nghiệm các học thuyết chiến 
+tranh cùa Mỹ; giai đoạn chứng tỏ sự sáng suốt trong chi đạo của 
+Đàng Cộng sản, sự thông minh và ý chí kiên cường của quân đội và 
+nhân dân Việt Nam, giai đoạn quyết định cùa cuộc chiến mà thắng lợi 
+cuối cùng thuộc về nhân dân Việt Nam.
+Trong giai đoạn này, để cứu vãn nguy cơ sụp đổ của chế độ 
+""Việt Nam Cộng hòa"", cùng với việc tảng cường viện trợ về kinh tế
+19","[Page 21] LỜI NÓI ĐẦU Lịch sử Việt Nam thời kỳ 1954-1975 là lịch sử của công cuộc xây dựng chủ nghĩa xã hội và chiến đấu chống cuộc chiến tranh phá hoại của Mỹ ở miền Bắc; đồng thòi là lịch sử của cuộc kháng chiến trường kỳ 21 năm chống Mỹ xâm lược, giải phóng miền Nam, thống nhất đất nước. Trong lịch sừ đấu tranh chống ngoại xâm của nhân dân Việt Nam, cuộc kháng chiến chống Mỹ, cứu nước (1954-1975) được coi là thừ thách lớn nhất đối với dân tộc Việt Nam từ sau thử thách cùa hơn nghìn năm Bắc...",1954|1965|1975,Việt Nam|Đàng Cộng|Việt Nam Cộng|kháng chiến|độc lập,pymupdf,clean_text,false,Lịch sử Việt Nam thời kỳ 1954-1975 là lịch sử của công cuộc,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0016,Khái niệm hoặc chính sách phong trào được trình bày như thế nào trong tài liệu?,Tài liệu giải thích hoặc mô tả khái niệm/chính sách phong trào như thế nào?,policy_concept,medium,D004,D004_P0020,20,D004_C0012,"[Page 20]
+LỜI NÓI ĐẦU
+Lịch sử Việt Nam, tập 4: từ thế kỷ XVII đến thế kỷ XVIII là
+cuốn thứ 4 trong bộ thông sử nhiều tập, tiếp theo cuốn thứ 3 - Lịch 
+sừ Việt Nam, tập 3: từ thể kỳ XV đen thể kỷ XVI. Cuốn này được bắt 
+đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son 
+(1802), trước triều Nguyễn. Đây là tập sách viết về toàn bộ diễn 
+biến lịch sù của đất nước trên các mặt: chính trị - xã hội, kinh tế và 
+văn hóa trong hai thế kỷ XVII và XVIII.
+Thế kỷ XVII-XVIII là giai đoạn lịch sù tương đối đặc biệt Uong 
+tiến trình phát triển của lịch sù Việt Nam thời cổ Trung đại. Đó là 
+thời kỳ chiến tranh phân liệt giữa các tập đoàn phong kiến, thời kỳ 
+đất nước bị chia cắt làm hai miền với hai chế độ chính trị khác nhau: 
+vua Lê - chúa Trịnh ở Đàng Ngoài và chúa Nguyễn ở Đàng Trong, 
+hình thành nên một thể chế lưỡng đầu; Vua và Chúa cùng điều hành 
+chính sự - sản phẩm đặc biệt của lịch sử chế độ phong kiến Việt 
+Nam. Đây cũng là thời kỳ nổi dậy mạnh mẽ nhất của phong trào 
+nông dân, dòng lliừi lại là lliừi kỳ có những chuyên biên quun trọng 
+trong nền kinh tế của đất nước, đặc biệt là kinh tế công thương 
+nghiệp và cũng là thời kỳ phát triển của nền văn hóa dân tộc trên các 
+lĩnh vực văn học, sù học, y học, khoa học quân sự...
+Các bộ thông sử lớn của Việt Nam từ trước tới nay đã đề cập 
+nhiều tới giai đoạn lịch sử từ thế kỷ XVII đến thế kỷ XVIII:
+- Từ những năm 80 của thế kỷ XX trờ về trước, giới sử học 
+Việt Nam đã đặt thời kỳ lịch sử này nằm trong một giai đoạn lịch 
+sử dài từ thế kỷ XVI đến giữa thế kỷ XIX và coi chung đó là thời 
+kỳ suy vong và sụp đổ của chế độ phong kiến dân tộc.
+19","[Page 20] LỜI NÓI ĐẦU Lịch sử Việt Nam, tập 4: từ thế kỷ XVII đến thế kỷ XVIII là cuốn thứ 4 trong bộ thông sử nhiều tập, tiếp theo cuốn thứ 3 - Lịch sừ Việt Nam, tập 3: từ thể kỳ XV đen thể kỷ XVI. Cuốn này được bắt đầu từ sau sự kiện triều Mạc bị đổ (1592) đến hết triều Tây Son (1802), trước triều Nguyễn. Đây là tập sách viết về toàn bộ diễn biến lịch sù của đất nước trên các mặt: chính trị - xã hội, kinh tế và văn hóa trong hai thế kỷ XVII và XVIII. Thế kỷ XVII-XVIII là giai đoạn lịch sù t...",1592|1802,Tây Son|Việt Nam|Đàng Ngoài|phong trào,pymupdf,clean_text,false,Đây cũng là thời kỳ nổi dậy mạnh mẽ nhất của phong trào,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0042,Khái niệm hoặc chính sách Cách mạng được trình bày như thế nào trong tài liệu?,Tài liệu giải thích hoặc mô tả khái niệm/chính sách Cách mạng như thế nào?,policy_concept,medium,D009,D009_P0020,20,D009_C0013,"[Page 20]
+LỊCH SỪ VIỆT NAM - TẬP 9
+hình thái chiến tranh cách mạng ớ Việt Nam đế giải thích nguyên 
+nhân đưa đến thang lợi của cuộc Cách mạng tháng Tám năm 1945.
+Trên những hướng nghiên cứu đó, đã có nhũng công trình mang 
+tính chat thông sử, trình bày khái quát về thời kỳ lịch sử này trên 
+tất cả các khía cạnh cùa 1ĨÓ. Lại vì thời kỳ này có thế được ngắt 
+thành những giai đoạn nhỏ, với những nội dung khác biệt trên các 
+khía cạnh kinh tế, chính trị, xã hội... nên đã có những công trình 
+chuyên biệt về một giai đoạn cụ thể nào đó, chẳng hạn như: 1930- 
+1931, 1932-1935, 1936-1939, 1939-1945 hoặc gia chi riêng về lịch 
+sử cùa Cách mạng tháng Tám. Cũng có những công trình chuyên 
+sâu phản ánh về một phương diện, một vấn đề cụ thế, một sự kiện 
+cụ the hoặc tại một địa phương cụ thế nào đó trong trường đoạn 
+lịch sử này, được trình bày và công bo dưới những hình thức rắt 
+phong phú, đa dạng.
+Điều đó nói lên rằng chúng tôi đã đi sau không ít người trong 
+việc nghiên cứu về “Lịch sử Việt Nam 1930-1945”. Đối với chúng 
+tôi, đó vừa là một thuận lợi, vừa là một thách thức. Thuận lợi là vì 
+chúng tôi được thừa hưởng kết quả cùa những công trình nghiên 
+cứu phong phú kia. Còn thách thức thì là vì chính sự phong phú 
+cùa các công trình đã công bo đặt chúng tôi trước một thực té là dù 
+chi muốn làm ""khác đi"" một chút thôi công trình của mình so với 
+những công trình trước cũng đòi hỏi phải cố gắng rất nhiều trong 
+cả việc bố sung thêm nguồn tài liệu tham khảo lẫn như trong 
+phương pháp tiếp cận và giải quyết vấn đề.
+Trên thực tế, về tài liệu tham kháo, chúng tôi chú ý đến cà hai 
+nguồn: nguồn các an phấm và nguồn tài liệu lưu trữ.
+Ve các an phẩm, bên cạnh những công trình cùa các học giã 
+trong nước, trong đó có những công trình cùa các nhà sừ học có 
+tên tuổi, được sưu tầm tại các thư viện ở cả trung ương cũng như ở 
+các địa phương, chúng tôi còn bằng nhiều cách thu gom được 
+không ít công trình nghiên cứu cùa các học giả nước ngoài, được 
+công bo dưới dạng các cuốn sách đồ sộ, các luận án tiến sì lịch sử, 
+các luận văn cao học và các bài viết được công bố trên các tạp chí
+20","[Page 20] LỊCH SỪ VIỆT NAM - TẬP 9 hình thái chiến tranh cách mạng ớ Việt Nam đế giải thích nguyên nhân đưa đến thang lợi của cuộc Cách mạng tháng Tám năm 1945. Trên những hướng nghiên cứu đó, đã có nhũng công trình mang tính chat thông sử, trình bày khái quát về thời kỳ lịch sử này trên tất cả các khía cạnh cùa 1ĨÓ. Lại vì thời kỳ này có thế được ngắt thành những giai đoạn nhỏ, với những nội dung khác biệt trên các khía cạnh kinh tế, chính trị, xã hội... nên đã có những công trình chuyên biệ...",1930|1931|1932|1935|1936|1939|1945,Việt Nam|Cách mạng,pymupdf,clean_text,false,hình thái chiến tranh cách mạng ớ Việt Nam đế giải thích nguyên,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0051,Khái niệm hoặc chính sách kháng chiến được trình bày như thế nào trong tài liệu?,Tài liệu giải thích hoặc mô tả khái niệm/chính sách kháng chiến như thế nào?,policy_concept,medium,D010,D010_P0020,20,D010_C0013,"[Page 20]
+LỊCH SỬ VIỆT NAM - TẬP 10
+đã thi hành chính sách đổi nội, đối ngoại vừa mềm dẻo, lỉnh hoạt 
+vừa nguyên tắc, kiên định đã tùng bước thay đoi được tương quan 
+lực lượng và giành được những thắng lợi rất quan trọng có ý nghĩa 
+rất quyết định. Sự kiện Trung Quốc, Liên Xô và các nước dân chù 
+nhân dân khác công nhận nền độc lập cùa Việt Nam, đặt quan hệ 
+ngoại giao với nước Việt Nam dân chù cộng hòa vào đầu năm 
+1950, đặc biệt là Chiến thắng Biên giới Thu - Đông năm 1950 đập 
+tan các căn cứ chiếm đóng của địch, khai thông vùng căn cứ địa 
+Việt Bắc với the giới bên ngoài đã chấm dứt tình trạng bị cô lập 
+cùa nước Việt Nam dân chủ cộng hòa. Một cục diện mới (về chính 
+trị, quân sự, ngoại giao...) đã mở ra. Do đó, không chi phía Việt 
+Nam dân chù cộng hòa có sự chuyển hướng trong đường loi chì 
+đạo kháng chiến, mà cả phía Pháp với nguỵ quyển, nguỵ quân cũng 
+đã phải để ra những đối sách mới để ứng phó với tình hình mới. Từ 
+tháng 8/1945 đến cuối năm 1950, 13 đời Thủ tướng Pháp với nhiều 
+kế hoạch xâm lược Việt Nam như Ke hoạch D'Argenlieu, Ke hoạch 
+Leclerc, Ke hoạch Revers đã không xoay chuyển được tình hình và 
+cuối năm 1950 phải chuyển sang một ké hoạch mới do Turómg De 
+Lattre de Tassigny, Cao uỷ Tổng chi huy quân đội Pháp ở Đông 
+Dương phụ trách.
+Như vậy là đến cuối năm ỉ950, cả hai lực lượng song song tồn 
+tại ở Việt Nam (lực lượng cùa nước Việt Nam dân chù cộng hòa - 
+một ntỉớc đã được phe xã hội chù nghĩa công nhận và lực lượng 
+thân Pháp đang được một sổ nước đế quốc như Mỹ, Anh ùng hộ) 
+đều chuyển sang một giai đoạn mới trong cuộc đấu tranh một mất 
+một còn để giành giật vai trò là người đại diện đích thực trên đất 
+nước Việt Nam.
+Giai đoạn lịch sử 1945-1950 chứa đựng nhiều sự kiện, nhiều 
+vấn đề nhưng chưa được nghiên cứu một cách toàn diện và đầy đù. 
+Cho đến nay, những công trình của các sử gia Việt Nam nghiên 
+cứu ""phía bên kia"" một cách thật sự sâu sắc còn ít. Khôi phục lại 
+một cách chân thực, khách quan diện mạo cùa Việt Nam bằng cách 
+nhìn tổng thể, toàn diện cả hai phía là rất cần thiết đối với việc
+20","[Page 20] LỊCH SỬ VIỆT NAM - TẬP 10 đã thi hành chính sách đổi nội, đối ngoại vừa mềm dẻo, lỉnh hoạt vừa nguyên tắc, kiên định đã tùng bước thay đoi được tương quan lực lượng và giành được những thắng lợi rất quan trọng có ý nghĩa rất quyết định. Sự kiện Trung Quốc, Liên Xô và các nước dân chù nhân dân khác công nhận nền độc lập cùa Việt Nam, đặt quan hệ ngoại giao với nước Việt Nam dân chù cộng hòa vào đầu năm 1950, đặc biệt là Chiến thắng Biên giới Thu - Đông năm 1950 đập tan các căn cứ chi...",1945|1950,Liên Xô|Việt Nam|Việt Bắc|Turómg De Lattre|Đông Dương|kháng chiến|độc lập,pymupdf,clean_text,false,"đạo kháng chiến, mà cả phía Pháp với nguỵ quyển, nguỵ quân cũng",false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0060,Khái niệm hoặc chính sách Cách mạng được trình bày như thế nào trong tài liệu?,Tài liệu giải thích hoặc mô tả khái niệm/chính sách Cách mạng như thế nào?,policy_concept,medium,D011,D011_P0020,20,D011_C0013,"[Page 20]
+LỊCH SỪ VIỆT NAM - TẬP 11
+Cuộc kháng chiến chổng thực dân Pháp của nhân dân Việt Nam 
+phát triển, lớn mạnh qua từng giai đoạn. Sau Cách mạng tháng 
+Tám, Việt Nam từ chỗ bị bao vây; ngân sách trống rỗng, kinh tế bị 
+tàn phá, nghèo nàn, lạc hậu; lực lượng vũ trang còn nhỏ bé, thiếu 
+kinh nghiệm, trang thiết bị lạc hậu, qua năm tháng xây dựng và 
+tranh đấu đã từng bưóc tnrởng thành và lớn mạnh. Nền kinh tế đủ 
+cung cấp cho kháng chiến, lực lượng vôi trang nhân dân ngày càng 
+chính quy, hiện đại đủ sửc đánh và thắng trong các chiến dịch quân 
+sự lớn làm thay đổi cục diện chiến tranh như chiến dịch Biên Giới, 
+Hòa Bình, Tây Bắc, Thượng Lào... và nhất là chiến dịch lịch sử 
+Điện Biên Phủ đưa đến việc ký kết Hiệp định Gicmevơ chấm dứt 
+chiến tranh, lập lại hòa bình ở Việt Nam năm 1954.
+Đánh giá ý nghĩa thắng lợi của cuộc kháng chiến chống Pháp, 
+Chủ tịch Hồ Chí Minh đã chi rõ, đây là “lần đầu tiên trong lịch sừ, 
+một nước thuộc địa nhỏ yếu đã đảnh thắng một nước thực dân 
+hùng mạnh. Đó là một thắng lợi vẻ vang cùa nhân dân Việt Nam, 
+đồng thời cũng là một thăng lợi cùa các lực lượng hòa bình, dân 
+chù và chù nghĩa xã hội trên thế giớĩ'1.
+Lịch sử Việt Nam từ nỉm 1951 đến nSm 1954 nhằm giới thiệu 
+một cách chân thực, khách quan, toàn diện và hệ thống từ âm mưu, 
+kế hoạch xâm lược và thống trị của đế quốc Pháp - Mỹ trong cuộc 
+chiến tranh, đến chủ trương, đường lối của Đảng và quá trình đấu 
+tranh anh dũng của quân đội và nhân dân Việt Nam trong những 
+năm cuối của cuộc kháng chiến chống thực dân Pháp trên tất cả các 
+mặt từ chính trị, kinh tế, quân sự, ngoại giao, văn hóa...
+Cồng trình này do nhóm tác giả Viện Sử học biên soạn:
+- PGS.TS. Nguyễn Văn Nhật: Lời nói đầu, Chương VI, Kết luận 
+và Tài liệu tham khảo
+- TS. Đỗ Thị Nguyệt Quang: Chương I, Chương II và Chương m
+- PGS.TS. Đinh Quang Hải: Chương IV và Chương V
+1. Hồ Chí Minh, Toàn tập, tập 10, Nxb. Chính trị quốc gia, Hà Nội, 1996, tr. 12.","[Page 20] LỊCH SỪ VIỆT NAM - TẬP 11 Cuộc kháng chiến chổng thực dân Pháp của nhân dân Việt Nam phát triển, lớn mạnh qua từng giai đoạn. Sau Cách mạng tháng Tám, Việt Nam từ chỗ bị bao vây; ngân sách trống rỗng, kinh tế bị tàn phá, nghèo nàn, lạc hậu; lực lượng vũ trang còn nhỏ bé, thiếu kinh nghiệm, trang thiết bị lạc hậu, qua năm tháng xây dựng và tranh đấu đã từng bưóc tnrởng thành và lớn mạnh. Nền kinh tế đủ cung cấp cho kháng chiến, lực lượng vôi trang nhân dân ngày càng chính quy, hiện đ...",1951|1954|1996,Việt Nam|Sau Cách|Điện Biên Phủ|Hồ Chí Minh|Viện Sử|Nguyễn Văn|Đỗ Thị Nguyệt|Đinh Quang|Hồ Chí|Cách mạng|kháng chiến|hiệp định|chiến dịch|thuộc địa,pymupdf,clean_text,false,NEEDS_MANUAL_ANSWER,false,0,false,,Candidate evidence only; set relevance=1 only after manual verification.|manual review required
+Q0196,Câu hỏi no-answer cần được người gán nhãn thay bằng một câu hỏi không có bằng chứng trong 15 PDF.,,no_answer,medium,,,,,,,,,,,,NEEDS_MANUAL_ANSWER,false,NONE,false,,No-answer candidate; manually verify no sufficient evidence exists.|weak evidence|manual review required
+Q0197,Câu hỏi no-answer cần được người gán nhãn thay bằng một câu hỏi không có bằng chứng trong 15 PDF.,,no_answer,medium,,,,,,,,,,,,NEEDS_MANUAL_ANSWER,false,NONE,false,,No-answer candidate; manually verify no sufficient evidence exists.|weak evidence|manual review required
