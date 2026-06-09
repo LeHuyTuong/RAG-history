@@ -1,0 +1,15 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.cache/
+
+data/raw_pdfs/*
+!data/raw_pdfs/.gitkeep
+data/extracted/page_text_audit/
+
+indexes/bm25/*
+!indexes/bm25/.gitkeep
+indexes/faiss_bge_m3/*
+!indexes/faiss_bge_m3/.gitkeep
+indexes/faiss_e5/*
+!indexes/faiss_e5/.gitkeep

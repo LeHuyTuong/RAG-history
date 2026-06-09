@@ -1,0 +1,41 @@
+qid,chunk_id,doc_id,page_id,page_number,relevance,evidence_note,labeler,verified
+Q0001,D001_C0012,D001,D001_P0021,21,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0007,D002_C0013,D002,D002_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0013,D004_C0012,D004,D004_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0022,D005_C0012,D005,D005_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0028,D006_C0011,D006,D006_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0033,D008_C0013,D008,D008_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0039,D009_C0013,D009,D009_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0048,D010_C0013,D010,D010_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0002,D001_C0012,D001,D001_P0021,21,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0008,D002_C0013,D002,D002_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0014,D004_C0012,D004,D004_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0023,D005_C0012,D005,D005_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0029,D006_C0011,D006,D006_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0034,D008_C0013,D008,D008_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0040,D009_C0013,D009,D009_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0049,D010_C0013,D010,D010_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0004,D001_C0012,D001,D001_P0021,21,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0010,D002_C0013,D002,D002_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0015,D004_C0012,D004,D004_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0019,D004_C0012,D004,D004_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0025,D005_C0012,D005,D005_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0031,D006_C0011,D006,D006_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0003,D001_C0012,D001,D001_P0021,21,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0009,D002_C0013,D002,D002_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0018,D004_C0012,D004,D004_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0024,D005_C0012,D005,D005_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0030,D006_C0011,D006,D006_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0035,D008_C0013,D008,D008_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0017,D004_C0012,D004,D004_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0043,D009_C0013,D009,D009_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0052,D010_C0013,D010,D010_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0061,D011_C0013,D011,D011_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0070,D012_C0011,D012,D012_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0079,D013_C0012,D013,D013_P0021,21,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0016,D004_C0012,D004,D004_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0042,D009_C0013,D009,D009_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0051,D010_C0013,D010,D010_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0060,D011_C0013,D011,D011_P0020,20,0,Candidate evidence only; set relevance=1 only after manual verification.,,false
+Q0196,,,,,NONE,No-answer candidate; manually verify no sufficient evidence exists.,,false
+Q0197,,,,,NONE,No-answer candidate; manually verify no sufficient evidence exists.,,false
