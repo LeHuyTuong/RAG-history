@@ -16,7 +16,7 @@ Với đồ án nhỏ, có thể chạy database bằng Docker và chạy fronte
 ## Yêu cầu cài đặt
 
 - Node.js LTS.
-- Java 17 hoặc 21.
+- Java 25.
 - Maven.
 - Python 3.10+.
 - Docker Desktop.
@@ -131,7 +131,7 @@ MYSQL_USER=history
 MYSQL_PASSWORD=history_password
 RAG_SERVICE_URL=http://localhost:8001
 UPLOAD_BASE_PATH=./uploads
-JWT_SECRET=change-me
+JWT_SECRET_KEY=change-me-change-me-change-me-change-me-change-me-change-me-change-me-1234
 ```
 
 ## Chạy FastAPI RAG Service

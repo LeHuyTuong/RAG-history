@@ -1,6 +1,6 @@
 # 24. Coding Standards
 
-> Cheat-sheet quy ước code cho backend **Spring Boot (Java 21)** và **RESTful API**. Áp dụng cho toàn team. Mỗi quy tắc có ví dụ ✅ DO / ❌ DON'T.
+> Cheat-sheet quy ước code cho backend **Spring Boot 4 (Java 25)** và **RESTful API**. Áp dụng cho toàn team. Mỗi quy tắc có ví dụ ✅ DO / ❌ DON'T.
 
 ---
 
