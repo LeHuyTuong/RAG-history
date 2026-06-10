@@ -9,7 +9,7 @@ record AuthAccount(
         String username,
         String email,
         String fullName,
-        String status,
+        Member.UserStatus status,
         String accountType,
         String role,
         Admin admin,

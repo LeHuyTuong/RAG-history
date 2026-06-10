@@ -1,25 +1,27 @@
-package com.example.historyrag.feature.auth.dto;
+package com.example.historyrag.feature.user.dto;
 
 import com.example.historyrag.feature.user.Member;
 
 import java.time.Instant;
 
-public record RegisterResponse(
+public record UserResponse(
         Long id,
         String username,
         String email,
         String fullName,
         Member.UserStatus status,
-        Instant createdAt
+        Instant createdAt,
+        Instant updatedAt
 ) {
-    public static RegisterResponse fromEntity(Member member) {
-        return new RegisterResponse(
+    public static UserResponse fromEntity(Member member) {
+        return new UserResponse(
                 member.getId(),
                 member.getUsername(),
                 member.getEmail(),
                 member.getFullName(),
                 member.getStatus(),
-                member.getCreatedAt()
+                member.getCreatedAt(),
+                member.getUpdatedAt()
         );
     }
 }

@@ -254,7 +254,7 @@ class AuthServiceImplTest {
         member.setUsername(username);
         member.setFullName(fullName);
         member.setPasswordHash("encoded-password");
-        member.setStatus("ACTIVE");
+        member.setStatus(Member.UserStatus.valueOf("ACTIVE"));
         member.setCreatedAt(Instant.now());
         member.setUpdatedAt(Instant.now());
         return member;

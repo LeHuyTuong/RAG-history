@@ -1,5 +1,6 @@
 package com.example.historyrag.feature.admin;
 
+import com.example.historyrag.feature.user.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -90,7 +91,7 @@ public class Admin {
         this.fullName = fullName;
     }
 
-    public String getStatus() {
+    public Member.UserStatus getStatus() {
         return status;
     }
 
