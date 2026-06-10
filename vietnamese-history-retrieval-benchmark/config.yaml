@@ -1,0 +1,39 @@
+raw_pdf_dir: data/raw_pdfs
+output_dir: data
+
+extracted_dir: data/extracted
+benchmark_dir: data/benchmark
+results_dir: results
+indexes_dir: indexes
+
+chunk_size: 500
+chunk_min_words: 300
+chunk_overlap: 50
+merge_short_pages: true
+
+bm25_top_k: 50
+dense_top_k: 50
+hybrid_top_k: 50
+
+dense_weight: 0.5
+bm25_weight: 0.5
+hybrid_fusion: weighted
+rrf_k: 60
+
+bge_m3_model_name: BAAI/bge-m3
+e5_model_name: intfloat/multilingual-e5-base
+embedding_batch_size: 16
+
+use_ocr: true
+ocr_engine: tesseract
+ocr_language: vie
+ocr_dpi: 200
+ocr_min_text_chars: 80
+ocr_broken_char_threshold: 0.03
+ocr_low_confidence_threshold: 60
+
+no_answer_threshold: 0.2
+
+run_hybrid_e5: false
+run_temporal_entity_rag_lite: false
+temporal_entity_boost: 0.05

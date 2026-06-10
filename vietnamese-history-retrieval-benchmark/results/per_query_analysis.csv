@@ -1,0 +1,121 @@
+qid,question,question_type,method,first_relevant_rank,hit_at_5,hit_at_10,reciprocal_rank,expected_pages,retrieved_pages_top5,error_type
+SQ0001,"Năm 800, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Văn Lang?",fact_date,bm25,,false,false,0.000000,113,360|171|105|359|301,missed_exact_date
+SQ0002,"Năm 350, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Văn Lang?",fact_date,bm25,,false,false,0.000000,115,360|171|105|359|350,missed_exact_date
+SQ0003,"Năm 981, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Hầu Nhân Bảo?",fact_date,bm25,1,true,true,1.000000,105|107|108|95,107|105|557|404|388,no_error
+SQ0004,"Năm 1823, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Quảng Đức?",fact_date,bm25,4,true,true,0.250000,102|386|414|479,583|105|584|386|301,no_error
+SQ0005,"Năm 1825, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Theo Đại Nam?",fact_date,bm25,2,true,true,0.500000,103|225|326|412,301|412|326|225|105,no_error
+SQ0006,"Năm 1802, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Đại Nam?",fact_date,bm25,8,false,true,0.125000,109|37|39|93,100|431|301|557|168,missed_exact_date
+SQ0007,"Năm 1919, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Tòa Hòa?",fact_date,bm25,1,true,true,1.000000,102|301|67|82,301|67|20|82|105,no_error
+SQ0008,"Năm 300, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Tưởng Chấp?",fact_date,bm25,1,true,true,1.000000,100|301|387|404,301|404|583|105|171,no_error
+SQ0009,Tài liệu mô tả vai trò hoặc hành động của Văn Lang trong chiến tranh như thế nào?,person_entity,bm25,2,true,true,0.500000,121|360|491|529,359|529|167|394|491,no_error
+SQ0010,Tài liệu mô tả vai trò hoặc hành động của Đại Việt trong phong trào như thế nào?,person_entity,bm25,1,true,true,1.000000,102|305|394|471,394|305|471|145|659,no_error
+SQ0011,Tài liệu mô tả vai trò hoặc hành động của Thăng Long trong Pháp như thế nào?,person_entity,bm25,1,true,true,1.000000,105|225|394|608,394|608|225|613|223,no_error
+SQ0012,Tài liệu mô tả vai trò hoặc hành động của Nại Hiên trong triều đình như thế nào?,person_entity,bm25,1,true,true,1.000000,101|102,101|398|83|167|690,no_error
+SQ0013,Tài liệu mô tả vai trò hoặc hành động của Phú Thọ trong triều đình như thế nào?,person_entity,bm25,,false,false,0.000000,107,402|167|171|181|145,missed_named_entity
+SQ0014,Tài liệu mô tả vai trò hoặc hành động của Phòng Nhì trong thuộc địa như thế nào?,person_entity,bm25,2,true,true,0.500000,103|225|394|402,167|394|225|529|402,no_error
+SQ0015,Tài liệu trình bày sự kiện nào liên quan đến Mỹ trong giai đoạn có mốc 800?,event,bm25,,false,false,0.000000,116,21|20|20|170|22,semantic_mismatch
+SQ0016,Tài liệu trình bày sự kiện nào liên quan đến kháng chiến trong giai đoạn có mốc 960?,event,bm25,,false,false,0.000000,100,21|170|20|20|20,semantic_mismatch
+SQ0017,Tài liệu trình bày sự kiện nào liên quan đến Trung Quốc trong giai đoạn có mốc 488?,event,bm25,,false,false,0.000000,108|488,21|19|20|362|20,semantic_mismatch
+SQ0018,Tài liệu trình bày sự kiện nào liên quan đến độc lập trong giai đoạn có mốc 1644?,event,bm25,,false,false,0.000000,101,21|20|22|20|22,semantic_mismatch
+SQ0019,Tài liệu trình bày sự kiện nào liên quan đến triều đình trong giai đoạn có mốc 323?,event,bm25,,false,false,0.000000,104,21|20|20|22|21,semantic_mismatch
+SQ0020,Tài liệu trình bày sự kiện nào liên quan đến triều đình trong giai đoạn có mốc 358?,event,bm25,8,false,true,0.125000,105|360,21|20|20|22|21,semantic_mismatch
+SQ0021,"Trong các mốc 938-1992, tài liệu nêu diễn biến chính nào liên quan đến Lê Đại Hành?",timeline,bm25,3,true,true,0.333333,103|370|66|680,374|100|370|680|724,no_error
+SQ0022,"Trong các mốc 383-1780, tài liệu nêu diễn biến chính nào liên quan đến Đàng Ngoài?",timeline,bm25,1,true,true,1.000000,106|663,106|663|374|305|298,no_error
+SQ0023,"Trong các mốc 575-2006, tài liệu nêu diễn biến chính nào liên quan đến Nguyễn Tri Phương?",timeline,bm25,1,true,true,1.000000,100|110|37|411,100|374|110|305|356,no_error
+SQ0024,"Trong các mốc 400-2006, tài liệu nêu diễn biến chính nào liên quan đến Trận Hoá Khuê?",timeline,bm25,1,true,true,1.000000,101|102|400|430,102|101|374|430|305,no_error
+SQ0025,"Trong các mốc 591-2006, tài liệu nêu diễn biến chính nào liên quan đến Chính Regault?",timeline,bm25,1,true,true,1.000000,103|110|37|424,110|109|103|374|305,no_error
+SQ0026,"Trong các mốc 1923-1925, tài liệu nêu diễn biến chính nào liên quan đến Patrice Morlat?",timeline,bm25,1,true,true,1.000000,101|26|29|432,101|294|26|432|27,no_error
+SQ0027,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Thanh Hóa?,cause_effect,bm25,1,true,true,1.000000,100|105|159|382,159|382|105|174|547,no_error
+SQ0028,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Hải Phòng?,cause_effect,bm25,,false,false,0.000000,102,547|159|494|105|117,semantic_mismatch
+SQ0029,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Bắc Kỳ?,cause_effect,bm25,,false,false,0.000000,103,159|105|174|232|180,semantic_mismatch
+SQ0030,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Bộ Tổng?,cause_effect,bm25,1,true,true,1.000000,100|105|128|99,105|99|128|137|559,no_error
+SQ0031,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Cao Lạng?,cause_effect,bm25,1,true,true,1.000000,102|123|207|607,207|607|159|105|123,no_error
+SQ0032,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Cách mạng?,cause_effect,bm25,1,true,true,1.000000,105|106|159|507,159|105|507|463|225,no_error
+SQ0033,Tài liệu giải thích hoặc mô tả khái niệm/chính sách kháng chiến như thế nào?,policy_concept,bm25,2,true,true,0.500000,102|260|30|53,20|30|491|260|53,no_error
+SQ0034,Tài liệu giải thích hoặc mô tả khái niệm/chính sách triều đình như thế nào?,policy_concept,bm25,1,true,true,1.000000,106|20|376|388,20|376|388|62|30,no_error
+SQ0035,Tài liệu giải thích hoặc mô tả khái niệm/chính sách thuộc địa như thế nào?,policy_concept,bm25,1,true,true,1.000000,106|20|30|53,20|53|30|144|491,no_error
+SQ0036,Tài liệu giải thích hoặc mô tả khái niệm/chính sách độc lập như thế nào?,policy_concept,bm25,1,true,true,1.000000,101|20|491|530,20|530|491|30|53,no_error
+SQ0037,Trang 108 cung cấp bằng chứng gì về Phùng Nguyên?,citation_grounded,bm25,1,true,true,1.000000,108|110|92|95,95|110|91|92|96,no_error
+SQ0038,Trang 101 cung cấp bằng chứng gì về Đông Dương?,citation_grounded,bm25,2,true,true,0.500000,101|28|323|491,457|323|491|28|308,no_error
+SQ0039,"Năm 1776, tài liệu mô tả Quốc hội Lục địa Hoa Kỳ thông qua Tuyên ngôn Độc lập như thế nào?",no_answer,bm25,,false,false,0.000000,,339|380|525|553|111,no_answer_failed
+SQ0040,Tài liệu nêu chính sách Minh Trị Duy Tân của Nhật Bản năm 1868 tác động đến giáo dục Nhật như thế nào?,no_answer,bm25,,false,false,0.000000,,582|646|33|666|665,no_answer_failed
+SQ0001,"Năm 800, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Văn Lang?",fact_date,e5,,false,false,0.000000,113,78|128|127|129|123,missed_exact_date
+SQ0002,"Năm 350, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Văn Lang?",fact_date,e5,,false,false,0.000000,115,78|129|128|667|83,missed_exact_date
+SQ0003,"Năm 981, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Hầu Nhân Bảo?",fact_date,e5,1,true,true,1.000000,105|107|108|95,108|107|101|105|555,no_error
+SQ0004,"Năm 1823, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Quảng Đức?",fact_date,e5,,false,false,0.000000,102|386|414|479,491|510|448|242|248,missed_exact_date
+SQ0005,"Năm 1825, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Theo Đại Nam?",fact_date,e5,,false,false,0.000000,103|225|326|412,404|154|418|435|106,missed_exact_date
+SQ0006,"Năm 1802, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Đại Nam?",fact_date,e5,,false,false,0.000000,109|37|39|93,418|436|404|431|434,missed_exact_date
+SQ0007,"Năm 1919, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Tòa Hòa?",fact_date,e5,1,true,true,1.000000,102|301|67|82,102|404|561|181|401,no_error
+SQ0008,"Năm 300, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Tưởng Chấp?",fact_date,e5,,false,false,0.000000,100|301|387|404,441|617|240|203|169,missed_exact_date
+SQ0009,Tài liệu mô tả vai trò hoặc hành động của Văn Lang trong chiến tranh như thế nào?,person_entity,e5,8,false,true,0.125000,121|360|491|529,78|127|128|667|83,missed_named_entity
+SQ0010,Tài liệu mô tả vai trò hoặc hành động của Đại Việt trong phong trào như thế nào?,person_entity,e5,,false,false,0.000000,102|305|394|471,469|220|399|400|373,missed_named_entity
+SQ0011,Tài liệu mô tả vai trò hoặc hành động của Thăng Long trong Pháp như thế nào?,person_entity,e5,,false,false,0.000000,105|225|394|608,486|151|23|53|40,missed_named_entity
+SQ0012,Tài liệu mô tả vai trò hoặc hành động của Nại Hiên trong triều đình như thế nào?,person_entity,e5,2,true,true,0.500000,101|102,215|101|260|169|113,no_error
+SQ0013,Tài liệu mô tả vai trò hoặc hành động của Phú Thọ trong triều đình như thế nào?,person_entity,e5,,false,false,0.000000,107,671|176|42|605|717,missed_named_entity
+SQ0014,Tài liệu mô tả vai trò hoặc hành động của Phòng Nhì trong thuộc địa như thế nào?,person_entity,e5,,false,false,0.000000,103|225|394|402,40|434|57|309|239,missed_named_entity
+SQ0015,Tài liệu trình bày sự kiện nào liên quan đến Mỹ trong giai đoạn có mốc 800?,event,e5,,false,false,0.000000,116,382|460|533|553|281,semantic_mismatch
+SQ0016,Tài liệu trình bày sự kiện nào liên quan đến kháng chiến trong giai đoạn có mốc 960?,event,e5,,false,false,0.000000,100,614|488|740|569|660,semantic_mismatch
+SQ0017,Tài liệu trình bày sự kiện nào liên quan đến Trung Quốc trong giai đoạn có mốc 488?,event,e5,,false,false,0.000000,108|488,591|540|18|490|533,semantic_mismatch
+SQ0018,Tài liệu trình bày sự kiện nào liên quan đến độc lập trong giai đoạn có mốc 1644?,event,e5,,false,false,0.000000,101,20|16|14|722|660,semantic_mismatch
+SQ0019,Tài liệu trình bày sự kiện nào liên quan đến triều đình trong giai đoạn có mốc 323?,event,e5,,false,false,0.000000,104,128|617|20|23|361,semantic_mismatch
+SQ0020,Tài liệu trình bày sự kiện nào liên quan đến triều đình trong giai đoạn có mốc 358?,event,e5,,false,false,0.000000,105|360,340|18|128|617|256,semantic_mismatch
+SQ0021,"Trong các mốc 938-1992, tài liệu nêu diễn biến chính nào liên quan đến Lê Đại Hành?",timeline,e5,2,true,true,0.500000,103|370|66|680,585|680|144|99|521,no_error
+SQ0022,"Trong các mốc 383-1780, tài liệu nêu diễn biến chính nào liên quan đến Đàng Ngoài?",timeline,e5,,false,false,0.000000,106|663,315|642|110|217|639,semantic_mismatch
+SQ0023,"Trong các mốc 575-2006, tài liệu nêu diễn biến chính nào liên quan đến Nguyễn Tri Phương?",timeline,e5,8,false,true,0.125000,100|110|37|411,115|137|620|469|571,semantic_mismatch
+SQ0024,"Trong các mốc 400-2006, tài liệu nêu diễn biến chính nào liên quan đến Trận Hoá Khuê?",timeline,e5,6,false,true,0.166667,101|102|400|430,670|565|568|115|36,semantic_mismatch
+SQ0025,"Trong các mốc 591-2006, tài liệu nêu diễn biến chính nào liên quan đến Chính Regault?",timeline,e5,,false,false,0.000000,103|110|37|424,114|355|56|308|109,semantic_mismatch
+SQ0026,"Trong các mốc 1923-1925, tài liệu nêu diễn biến chính nào liên quan đến Patrice Morlat?",timeline,e5,,false,false,0.000000,101|26|29|432,152|174|294|52|433,semantic_mismatch
+SQ0027,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Thanh Hóa?,cause_effect,e5,,false,false,0.000000,100|105|159|382,333|34|289|374|285,semantic_mismatch
+SQ0028,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Hải Phòng?,cause_effect,e5,,false,false,0.000000,102,274|68|174|189|258,semantic_mismatch
+SQ0029,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Bắc Kỳ?,cause_effect,e5,3,true,true,0.333333,103,38|465|103|520|186,no_error
+SQ0030,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Bộ Tổng?,cause_effect,e5,,false,false,0.000000,100|105|128|99,58|339|611|505|511,semantic_mismatch
+SQ0031,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Cao Lạng?,cause_effect,e5,,false,false,0.000000,102|123|207|607,283|645|209|479|22,semantic_mismatch
+SQ0032,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Cách mạng?,cause_effect,e5,,false,false,0.000000,105|106|159|507,198|736|734|378|589,semantic_mismatch
+SQ0033,Tài liệu giải thích hoặc mô tả khái niệm/chính sách kháng chiến như thế nào?,policy_concept,e5,,false,false,0.000000,102|260|30|53,23|566|614|184|488,semantic_mismatch
+SQ0034,Tài liệu giải thích hoặc mô tả khái niệm/chính sách triều đình như thế nào?,policy_concept,e5,,false,false,0.000000,106|20|376|388,604|21|20|128|127,chunking_error
+SQ0035,Tài liệu giải thích hoặc mô tả khái niệm/chính sách thuộc địa như thế nào?,policy_concept,e5,,false,false,0.000000,106|20|30|53,619|152|381|11|594,semantic_mismatch
+SQ0036,Tài liệu giải thích hoặc mô tả khái niệm/chính sách độc lập như thế nào?,policy_concept,e5,,false,false,0.000000,101|20|491|530,129|699|602|450|733,semantic_mismatch
+SQ0037,Trang 108 cung cấp bằng chứng gì về Phùng Nguyên?,citation_grounded,e5,2,true,true,0.500000,108|110|92|95,93|92|559|90|414,no_error
+SQ0038,Trang 101 cung cấp bằng chứng gì về Đông Dương?,citation_grounded,e5,,false,false,0.000000,101|28|323|491,160|131|139|43|501,wrong_page
+SQ0039,"Năm 1776, tài liệu mô tả Quốc hội Lục địa Hoa Kỳ thông qua Tuyên ngôn Độc lập như thế nào?",no_answer,e5,,false,false,0.000000,,532|460|721|24|354,no_answer_failed
+SQ0040,Tài liệu nêu chính sách Minh Trị Duy Tân của Nhật Bản năm 1868 tác động đến giáo dục Nhật như thế nào?,no_answer,e5,,false,false,0.000000,,581|32|312|497|401,no_answer_failed
+SQ0001,"Năm 800, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Văn Lang?",fact_date,hybrid_e5,,false,false,0.000000,113,78|360|171|128|105,missed_exact_date
+SQ0002,"Năm 350, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Văn Lang?",fact_date,hybrid_e5,,false,false,0.000000,115,78|360|171|105|359,missed_exact_date
+SQ0003,"Năm 981, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Hầu Nhân Bảo?",fact_date,hybrid_e5,1,true,true,1.000000,105|107|108|95,107|108|105|557|105,no_error
+SQ0004,"Năm 1823, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Quảng Đức?",fact_date,hybrid_e5,8,false,true,0.125000,102|386|414|479,510|583|491|105|448,missed_exact_date
+SQ0005,"Năm 1825, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Theo Đại Nam?",fact_date,hybrid_e5,4,true,true,0.250000,103|225|326|412,434|301|404|412|326,no_error
+SQ0006,"Năm 1802, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Đại Nam?",fact_date,hybrid_e5,,false,false,0.000000,109|37|39|93,418|100|436|434|431,missed_exact_date
+SQ0007,"Năm 1919, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Tòa Hòa?",fact_date,hybrid_e5,1,true,true,1.000000,102|301|67|82,102|301|67|404|20,no_error
+SQ0008,"Năm 300, tài liệu mô tả sự kiện hoặc diễn biến nào liên quan đến Tưởng Chấp?",fact_date,hybrid_e5,2,true,true,0.500000,100|301|387|404,441|301|404|583|105,no_error
+SQ0009,Tài liệu mô tả vai trò hoặc hành động của Văn Lang trong chiến tranh như thế nào?,person_entity,hybrid_e5,4,true,true,0.250000,121|360|491|529,78|359|127|529|167,no_error
+SQ0010,Tài liệu mô tả vai trò hoặc hành động của Đại Việt trong phong trào như thế nào?,person_entity,hybrid_e5,2,true,true,0.500000,102|305|394|471,469|394|305|220|258,no_error
+SQ0011,Tài liệu mô tả vai trò hoặc hành động của Thăng Long trong Pháp như thế nào?,person_entity,hybrid_e5,1,true,true,1.000000,105|225|394|608,394|486|151|23|608,no_error
+SQ0012,Tài liệu mô tả vai trò hoặc hành động của Nại Hiên trong triều đình như thế nào?,person_entity,hybrid_e5,1,true,true,1.000000,101|102,101|215|398|147|83,no_error
+SQ0013,Tài liệu mô tả vai trò hoặc hành động của Phú Thọ trong triều đình như thế nào?,person_entity,hybrid_e5,,false,false,0.000000,107,671|402|176|42|605,missed_named_entity
+SQ0014,Tài liệu mô tả vai trò hoặc hành động của Phòng Nhì trong thuộc địa như thế nào?,person_entity,hybrid_e5,9,false,true,0.111111,103|225|394|402,167|40|434|57|309,missed_named_entity
+SQ0015,Tài liệu trình bày sự kiện nào liên quan đến Mỹ trong giai đoạn có mốc 800?,event,hybrid_e5,,false,false,0.000000,116,382|21|460|533|20,semantic_mismatch
+SQ0016,Tài liệu trình bày sự kiện nào liên quan đến kháng chiến trong giai đoạn có mốc 960?,event,hybrid_e5,,false,false,0.000000,100,21|614|488|170|20,semantic_mismatch
+SQ0017,Tài liệu trình bày sự kiện nào liên quan đến Trung Quốc trong giai đoạn có mốc 488?,event,hybrid_e5,,false,false,0.000000,108|488,21|591|540|19|20,semantic_mismatch
+SQ0018,Tài liệu trình bày sự kiện nào liên quan đến độc lập trong giai đoạn có mốc 1644?,event,hybrid_e5,,false,false,0.000000,101,22|20|21|16|14,semantic_mismatch
+SQ0019,Tài liệu trình bày sự kiện nào liên quan đến triều đình trong giai đoạn có mốc 323?,event,hybrid_e5,,false,false,0.000000,104,128|21|617|22|20,semantic_mismatch
+SQ0020,Tài liệu trình bày sự kiện nào liên quan đến triều đình trong giai đoạn có mốc 358?,event,hybrid_e5,8,false,true,0.125000,105|360,340|21|18|128|617,semantic_mismatch
+SQ0021,"Trong các mốc 938-1992, tài liệu nêu diễn biến chính nào liên quan đến Lê Đại Hành?",timeline,hybrid_e5,1,true,true,1.000000,103|370|66|680,680|374|585|100|370,no_error
+SQ0022,"Trong các mốc 383-1780, tài liệu nêu diễn biến chính nào liên quan đến Đàng Ngoài?",timeline,hybrid_e5,2,true,true,0.500000,106|663,639|106|315|642|663,no_error
+SQ0023,"Trong các mốc 575-2006, tài liệu nêu diễn biến chính nào liên quan đến Nguyễn Tri Phương?",timeline,hybrid_e5,1,true,true,1.000000,100|110|37|411,100|137|115|374|620,no_error
+SQ0024,"Trong các mốc 400-2006, tài liệu nêu diễn biến chính nào liên quan đến Trận Hoá Khuê?",timeline,hybrid_e5,1,true,true,1.000000,101|102|400|430,102|101|670|374|565,no_error
+SQ0025,"Trong các mốc 591-2006, tài liệu nêu diễn biến chính nào liên quan đến Chính Regault?",timeline,hybrid_e5,2,true,true,0.500000,103|110|37|424,109|110|114|355|103,no_error
+SQ0026,"Trong các mốc 1923-1925, tài liệu nêu diễn biến chính nào liên quan đến Patrice Morlat?",timeline,hybrid_e5,2,true,true,0.500000,101|26|29|432,294|101|152|174|314,no_error
+SQ0027,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Thanh Hóa?,cause_effect,hybrid_e5,3,true,true,0.333333,100|105|159|382,374|333|159|382|34,no_error
+SQ0028,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Hải Phòng?,cause_effect,hybrid_e5,,false,false,0.000000,102,547|274|159|494|105,semantic_mismatch
+SQ0029,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Bắc Kỳ?,cause_effect,hybrid_e5,,false,false,0.000000,103,38|159|105|174|232,semantic_mismatch
+SQ0030,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Bộ Tổng?,cause_effect,hybrid_e5,2,true,true,0.500000,100|105|128|99,559|105|58|339|128,no_error
+SQ0031,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Cao Lạng?,cause_effect,hybrid_e5,1,true,true,1.000000,102|123|207|607,207|283|645|607|159,no_error
+SQ0032,Tài liệu nêu nguyên nhân hoặc hệ quả nào liên quan đến Cách mạng?,cause_effect,hybrid_e5,2,true,true,0.500000,105|106|159|507,198|159|507|20|736,no_error
+SQ0033,Tài liệu giải thích hoặc mô tả khái niệm/chính sách kháng chiến như thế nào?,policy_concept,hybrid_e5,8,false,true,0.125000,102|260|30|53,20|23|566|614|184,semantic_mismatch
+SQ0034,Tài liệu giải thích hoặc mô tả khái niệm/chính sách triều đình như thế nào?,policy_concept,hybrid_e5,2,true,true,0.500000,106|20|376|388,604|20|21|376|20,no_error
+SQ0035,Tài liệu giải thích hoặc mô tả khái niệm/chính sách thuộc địa như thế nào?,policy_concept,hybrid_e5,2,true,true,0.500000,106|20|30|53,619|20|152|278|381,no_error
+SQ0036,Tài liệu giải thích hoặc mô tả khái niệm/chính sách độc lập như thế nào?,policy_concept,hybrid_e5,1,true,true,1.000000,101|20|491|530,20|129|699|602|450,no_error
+SQ0037,Trang 108 cung cấp bằng chứng gì về Phùng Nguyên?,citation_grounded,hybrid_e5,2,true,true,0.500000,108|110|92|95,93|92|95|91|90,no_error
+SQ0038,Trang 101 cung cấp bằng chứng gì về Đông Dương?,citation_grounded,hybrid_e5,3,true,true,0.333333,101|28|323|491,457|160|323|491|131,no_error
+SQ0039,"Năm 1776, tài liệu mô tả Quốc hội Lục địa Hoa Kỳ thông qua Tuyên ngôn Độc lập như thế nào?",no_answer,hybrid_e5,,false,false,0.000000,,721|553|339|532|460,no_answer_failed
+SQ0040,Tài liệu nêu chính sách Minh Trị Duy Tân của Nhật Bản năm 1868 tác động đến giáo dục Nhật như thế nào?,no_answer,hybrid_e5,,false,false,0.000000,,32|581|582|646|569,no_answer_failed

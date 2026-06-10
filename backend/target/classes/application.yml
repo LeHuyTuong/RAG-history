@@ -5,9 +5,9 @@ spring:
   application:
     name: history-rag-backend
   datasource:
-    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/history_rag}
+    url: ${MYSQL_URL:jdbc:mysql://localhost:3307/history_rag}
     username: ${MYSQL_USER:history}
-    password: ${MYSQL_PASSWORD:history_password}
+    password: ${MYSQL_PASSWORD:khoi123456}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -20,7 +20,12 @@ spring:
     multipart:
       max-file-size: ${MAX_FILE_SIZE:20MB}
       max-request-size: ${MAX_REQUEST_SIZE:25MB}
-
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  # 15 minutes
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:900}
+  # 3 days
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:259200}
 management:
   endpoints:
     web:
