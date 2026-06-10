@@ -9,7 +9,7 @@ public record RegisterResponse(
         String username,
         String email,
         String fullName,
-        String status,
+        Member.UserStatus status,
         Instant createdAt
 ) {
     public static RegisterResponse fromEntity(Member member) {

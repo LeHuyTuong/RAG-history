@@ -9,7 +9,7 @@ public record UserResponse(
         String username,
         String email,
         String fullName,
-        String status,
+        Member.UserStatus status,
         Instant createdAt,
         Instant updatedAt
 ) {

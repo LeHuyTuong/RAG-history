@@ -58,9 +58,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserDetails buildUserDetails(
             String email,
             String passwordHash,
-            String status,
+            Member.UserStatus status,
             List<GrantedAuthority> authorities) {
-        boolean isActive = ACTIVE_STATUS.equalsIgnoreCase(status);
+        boolean isActive = ACTIVE_STATUS.equalsIgnoreCase(String.valueOf(status));
         return org.springframework.security.core.userdetails.User.builder()
                 .username(email)
                 .password(passwordHash)

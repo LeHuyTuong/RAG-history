@@ -105,7 +105,7 @@ public class AuthServiceImpl implements AuthService {
         member.setEmail(request.email());
         member.setPasswordHash(passwordEncoder.encode(request.password()));
         member.setFullName(request.name());
-        member.setStatus(ACTIVE_STATUS);
+        member.setStatus(Member.UserStatus.valueOf(ACTIVE_STATUS));
         Instant now = Instant.now();
         member.setCreatedAt(now);
         member.setUpdatedAt(now);

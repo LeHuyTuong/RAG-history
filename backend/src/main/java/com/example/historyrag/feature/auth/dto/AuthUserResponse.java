@@ -10,7 +10,7 @@ public record AuthUserResponse(
         String username,
         String email,
         String fullName,
-        String status,
+        Member.UserStatus status,
         String accountType,
         String role,
         Instant createdAt

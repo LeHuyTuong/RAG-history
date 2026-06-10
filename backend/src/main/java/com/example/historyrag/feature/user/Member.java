@@ -34,11 +34,15 @@ public class Member {
     @Column(name = "full_name")
     private String fullName;
 
-    @Size(max = 20)
+    public enum UserStatus {
+        ACTIVE, INACTIVE, DELETED, BANNED
+    }
     @NotNull
     @ColumnDefault("'ACTIVE'")
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
+
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
@@ -90,14 +94,6 @@ public class Member {
         this.fullName = fullName;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -113,4 +109,9 @@ public class Member {
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public UserStatus getStatus() {
+        return status;
+    }
+    public void setStatus(UserStatus status) { this.status = status;}
 }
