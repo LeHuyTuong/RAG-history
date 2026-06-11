@@ -1,0 +1,11 @@
+{
+  "triều đại": "bg-amber-50 text-amber-700 border-amber-200",
+  "quân sự": "bg-rose-50 text-rose-700 border-rose-200",
+  "văn hóa": "bg-emerald-50 text-emerald-700 border-emerald-200",
+  "ngoại giao": "bg-sky-50 text-sky-700 border-sky-200",
+  "nhân vật": "bg-blue-50 text-blue-700 border-blue-200",
+  "địa danh": "bg-teal-50 text-teal-700 border-teal-200",
+  "tác phẩm": "bg-purple-50 text-purple-700 border-purple-200",
+  "khác": "bg-surface-variant/30 text-on-surface-variant border-outline-variant/50",
+  "default": "bg-surface-variant/30 text-on-surface-variant border-outline-variant/50"
+}

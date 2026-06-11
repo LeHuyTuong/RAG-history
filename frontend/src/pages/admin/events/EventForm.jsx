@@ -1,195 +1,247 @@
-import React, { useState, useEffect, useRef } from 'react';
+import {  useState, useEffect  } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { generateSlug } from '../../../utils/stringUtils';
+import { RichTextEditor, EntityRelationInput, FormHeader } from '../../../components/admin';
 
 const EventForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = !!id;
 
-  // Refs cho Editor
-  const editorRef = useRef(null);
-  const editorImageInputRef = useRef(null);
-
   const [formData, setFormData] = useState({
     name: '',
-    time: '',
-    dynasty: '',
-    summary: '',
-    content: ''
+    slug: '',
+    startDate: '',
+    endDate: '',
+    description: '',
+    relatedLocations: [],
+    relatedCharacters: []
   });
 
-  // Load dữ liệu cũ
+  const [availableLocations, setAvailableLocations] = useState([]);
+  const [availableCharacters, setAvailableCharacters] = useState([]);
+
   useEffect(() => {
     if (isEdit) {
-      const mockContent = 'Sau thất bại ở Tây Kết, quân Nguyên của Toa Đô rút về đóng ở bến Hàm Tử...';
-      setFormData({
-        name: 'Trận Hàm Tử (1285)',
-        time: 'Tháng 5 năm 1285',
-        dynasty: 'Nhà Trần',
-        summary: 'Trận đánh then chốt do Trần Quang Khải chỉ huy tiêu diệt quân Nguyên...',
-        content: mockContent
-      });
-      // Đổ nội dung vào editor khi ở chế độ edit
-      if (editorRef.current) editorRef.current.innerHTML = mockContent;
+      const fetchData = async () => {
+        try {
+          const response = await fetch('/api/user_event_detail.json');
+          if (response.ok) {
+            const data = await response.json();
+            setFormData(prev => ({
+              ...prev,
+              name: data.name || data.title || '',
+              slug: generateSlug(data.name || data.title || ''),
+              startDate: data.time?.match(/\d+/)?.[0] || '',
+              description: data.description || data.content?.map(c => c.text).join('<br/>') || '',
+              relatedLocations: data.relatedLocations || [],
+              relatedCharacters: data.relatedCharacters || []
+            }));
+          }
+        } catch (error) {
+          console.error('Lỗi tải dữ liệu sự kiện:', error);
+        }
+      };
+      fetchData();
     }
+
+    const fetchAvailableData = async () => {
+      try {
+        const [locRes, charRes] = await Promise.all([
+          fetch('/api/admin_locations.json'),
+          fetch('/api/admin_characters.json')
+        ]);
+
+        if (locRes.ok) {
+          const locData = await locRes.json();
+          setAvailableLocations(locData.locations || []);
+        }
+        if (charRes.ok) {
+          const charData = await charRes.json();
+          setAvailableCharacters(charData.characters || []);
+        }
+      } catch (error) {
+        console.error('Lỗi khi tải dữ liệu liên kết:', error);
+      }
+    };
+    fetchAvailableData();
   }, [id, isEdit]);
 
-  // --- LOGIC EDITOR ĐỒNG BỘ ---
-  const runCommand = (command, value = null) => {
-    document.execCommand(command, false, value);
-    updateContent();
+  const removeLocation = (locToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      relatedLocations: prev.relatedLocations.filter(l => l !== locToRemove)
+    }));
   };
 
-  const updateContent = () => {
-    if (editorRef.current) {
-      setFormData(prev => ({ ...prev, content: editorRef.current.innerHTML }));
-    }
+  const addLocation = (loc) => {
+    setFormData(prev => ({
+      ...prev,
+      relatedLocations: [...new Set([...(prev.relatedLocations || []), loc])]
+    }));
   };
 
-  const handleEditorImageInsert = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const imgHtml = `<img src="${event.target.result}" class="max-w-full h-auto my-6 rounded-xl shadow-lg border border-outline-variant/30" alt="event-img" />`;
-        editorRef.current.focus();
-        document.execCommand('insertHTML', false, imgHtml + "<p><br></p>");
-        updateContent();
-      };
-      reader.readAsDataURL(file);
-    }
+  const removeCharacter = (charToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      relatedCharacters: prev.relatedCharacters.filter(c => c !== charToRemove)
+    }));
+  };
+
+  const addCharacter = (char) => {
+    setFormData(prev => ({
+      ...prev,
+      relatedCharacters: [...new Set([...(prev.relatedCharacters || []), char])]
+    }));
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 font-body">
-      
-      {/* 1. HEADER ACTIONS (Giống bài viết) */}
-      <div className="flex flex-col md:flex-row justify-between items-end border-b border-outline-variant/30 pb-6 mb-10 gap-4">
-        <div>
-           <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">
-             {isEdit ? 'Hiệu đính Sự kiện' : 'Thêm Sự kiện Lịch sử Mới'}
-           </h2>
-           <p className="font-body text-sm text-on-surface-variant italic mt-2">"Ghi chép những cột mốc vàng son của dân tộc"</p>
-        </div>
-        <div className="flex gap-3 font-body text-[10px] font-bold tracking-widest">
-          <button onClick={() => navigate('/admin/events')} className="px-6 py-2.5 border border-primary text-primary hover:bg-primary/5 transition-all uppercase">HỦY BỎ</button>
-          <button className="px-8 py-2.5 bg-primary text-white shadow-lg hover:bg-primary-container transition-all active:scale-95 uppercase">
-            <span className="material-symbols-outlined text-sm">save</span> LƯU SỰ KIỆN
-          </button>
-        </div>
-      </div>
+    <div className="flex-grow bg-surface min-h-screen animate-in fade-in duration-500 pb-20">
+      <main className="p-8 max-w-7xl mx-auto space-y-8 font-body">
 
-      <div className="grid grid-cols-12 gap-8">
-        <div className="col-span-12 lg:col-span-8 space-y-8">
-          
-          {/* Thông tin cơ bản */}
-          <section className="bg-white p-8 border border-outline-variant shadow-sm space-y-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-5"><span className="material-symbols-outlined text-[80px]">shield</span></div>
-            <div className="space-y-1">
-              <label className="font-body text-[10px] uppercase font-bold text-on-surface-variant tracking-widest opacity-60 block">Tên sự kiện lịch sử *</label>
-              <input 
-                type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-                className="w-full bg-transparent border-0 border-b-2 border-outline-variant focus:border-primary py-2 font-headline text-2xl text-primary font-bold outline-none transition-all"
-                placeholder="Ví dụ: Định đô Thăng Long..."
-              />
-            </div>
+        <FormHeader 
+          title={isEdit ? 'Hiệu đính Sự kiện' : 'Thêm Sự kiện Lịch sử Mới'}
+          subtitle='"Ghi chép những cột mốc vàng son của dân tộc"'
+          icon="history"
+          isEdit={isEdit}
+          onCancel={() => navigate('/admin/events')}
+          onSave={() => {}}
+        />
 
-            <div className="grid grid-cols-2 gap-8">
-              <div className="space-y-1">
-                <label className="font-body text-[10px] uppercase font-bold text-on-surface-variant tracking-widest opacity-60 block">Thời gian xảy ra</label>
-                <input type="text" value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary py-2 outline-none font-medium" placeholder="Ví dụ: Năm 1010" />
+        <div className="grid grid-cols-12 gap-8 items-start">
+
+          {/* CỘT TRÁI: FORM CHÍNH */}
+          <div className="col-span-12 lg:col-span-8 space-y-8">
+
+            {/* SECTION 1: IDENTITY */}
+            <section className="bg-white p-8 rounded-3xl border border-outline-variant/60 shadow-sm space-y-8 relative overflow-hidden transition-all hover:shadow-md">
+              <div className="absolute -top-12 -right-12 opacity-[0.02] text-primary pointer-events-none">
+                <span className="material-symbols-outlined text-[200px]">event</span>
               </div>
-              <div className="space-y-1">
-                <label className="font-body text-[10px] uppercase font-bold text-on-surface-variant tracking-widest opacity-60 block">Triều đại</label>
-                <select value={formData.dynasty} onChange={e => setFormData({...formData, dynasty: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary py-2 outline-none cursor-pointer">
-                  <option>Nhà Lý</option><option>Nhà Trần</option><option>Nhà Lê Sơ</option>
-                </select>
-              </div>
-            </div>
 
-            <div className="space-y-1">
-              <label className="font-body text-[10px] uppercase font-bold text-on-surface-variant tracking-widest opacity-60 block">Tóm lược (Summary)</label>
-              <textarea rows="3" value={formData.summary} onChange={e => setFormData({...formData, summary: e.target.value})} className="w-full bg-transparent border-none focus:ring-0 font-body text-sm italic leading-relaxed resize-none outline-none" placeholder="Mô tả tóm tắt diễn biến..." />
-            </div>
-          </section>
+              <h3 className="font-body text-xs font-bold text-on-surface uppercase tracking-widest border-b border-outline-variant/60 pb-3 flex items-center gap-2 relative z-10">
+                <span className="material-symbols-outlined text-primary text-[18px]">event_note</span>
+                Thông tin Sự kiện
+              </h3>
 
-          {/* TRÌNH SOẠN THẢO VĂN BẢN ĐỒNG BỘ */}
-          <section className="bg-white border border-outline-variant shadow-sm min-h-[600px] flex flex-col rounded-sm">
-            {/* Toolbar */}
-            <div className="flex items-center gap-1 p-2 border-b border-outline-variant bg-surface-low/30 sticky top-0 z-10">
-              <EditorBtn onClick={() => runCommand('bold')} label="B" />
-              <EditorBtn onClick={() => runCommand('italic')} label="I" />
-              <EditorBtn onClick={() => runCommand('underline')} label="U" />
-              <div className="w-px h-6 bg-outline-variant mx-2"></div>
-              <button onClick={() => runCommand('formatBlock', 'H1')} className="px-2 font-bold text-xs hover:text-primary transition-all font-body">H1</button>
-              <button onClick={() => runCommand('formatBlock', 'H2')} className="px-2 font-bold text-xs hover:text-primary transition-all font-body">H2</button>
-              <div className="w-px h-6 bg-outline-variant mx-2"></div>
-              <EditorBtn onClick={() => runCommand('insertUnorderedList')} icon="format_list_bulleted" />
-              <EditorBtn onClick={() => runCommand('formatBlock', 'blockquote')} icon="format_quote" />
-              <EditorBtn onClick={() => {
-                const url = prompt("Nhập liên kết:");
-                if(url) runCommand('createLink', url);
-              }} icon="link" />
-              
-              {/* Chèn ảnh vào nội dung */}
-              <input type="file" ref={editorImageInputRef} className="hidden" accept="image/*" onChange={handleEditorImageInsert} />
-              <EditorBtn onClick={() => editorImageInputRef.current.click()} icon="image" />
-              
-              <div className="w-px h-6 bg-outline-variant mx-2"></div>
-              <EditorBtn icon="history_edu" />
-            </div>
-
-            {/* Editable Area */}
-            <div
-              ref={editorRef}
-              contentEditable
-              onInput={updateContent}
-              className="flex-1 p-10 font-body text-lg leading-loose outline-none min-h-[450px] bg-[#fcf9ee]/10 prose max-w-none focus:bg-white transition-all"
-              placeholder="Bắt đầu ghi chép sử liệu chi tiết tại đây..."
-            ></div>
-          </section>
-        </div>
-
-        {/* CỘT PHẢI: LIÊN KẾT */}
-        <div className="col-span-12 lg:col-span-4 space-y-6">
-          <div className="bg-white p-6 border border-outline-variant shadow-sm space-y-4">
-            <h4 className="font-body text-[10px] font-bold text-primary uppercase border-b pb-2 tracking-widest flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">location_on</span> Địa danh liên quan
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {['Bến Hàm Tử', 'Chương Dương'].map(loc => (
-                   <span key={loc} className="inline-flex items-center gap-1 bg-surface-low text-on-surface px-2 py-1 rounded text-[10px] font-bold border border-outline-variant mr-2 italic">#{loc}</span>
-                 ))}
-                 <button className="w-full mt-2 py-2 border border-dashed border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest hover:bg-primary/5 transition-all">+ Gắn địa danh</button>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 border border-outline-variant shadow-sm space-y-4">
-            <h4 className="font-body text-[10px] font-bold text-primary uppercase border-b pb-2 tracking-widest">Nhân vật then chốt</h4>
-            <div className="space-y-3">
-              {['Trần Quang Khải', 'Trần Nhật Duật'].map(name => (
-                <div key={name} className="flex items-center gap-3 p-2 bg-surface-low border border-outline-variant/30 hover:bg-white transition-all cursor-pointer group">
-                  <div className="w-8 h-8 bg-primary/10 flex items-center justify-center rounded text-primary"><span className="material-symbols-outlined text-sm">person</span></div>
-                  <span className="text-xs font-bold flex-1">{name}</span>
-                  <span className="material-symbols-outlined text-xs opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+              <div className="space-y-6 relative z-10">
+                <div className="space-y-2">
+                  <label className="block font-body text-[11px] font-bold uppercase text-on-surface-variant tracking-widest">
+                    Tên sự kiện lịch sử *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={e => {
+                      const newName = e.target.value;
+                      setFormData({ ...formData, name: newName, slug: generateSlug(newName) });
+                    }}
+                    className="w-full bg-transparent border-0 border-b border-outline-variant/60 focus:border-primary py-3 font-headline text-3xl text-on-surface font-bold outline-none transition-all placeholder:text-outline-variant/60 placeholder:font-light"
+                    placeholder="Ví dụ: Định đô Thăng Long..."
+                  />
                 </div>
-              ))}
-            </div>
+
+                <div className="flex items-center gap-3 bg-surface-low/30 border border-outline-variant/40 rounded-xl p-3 text-on-surface-variant font-body text-[11px]">
+                  <span className="material-symbols-outlined text-[16px] text-primary/60">link</span>
+                  <span className="opacity-60 lowercase tracking-normal italic">suviet.vn/su-kien/</span>
+                  <input
+                    type="text"
+                    value={formData.slug}
+                    readOnly
+                    className="flex-1 bg-transparent border-none outline-none font-bold text-indigo-700 placeholder:text-outline-variant/40"
+                    placeholder="dinh-do-thang-long"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-outline-variant/30">
+                  <div className="space-y-2">
+                    <label className="block font-body text-[11px] font-bold uppercase text-on-surface-variant tracking-widest">Ngày bắt đầu</label>
+                    <div className="bg-surface-low/50 border border-outline-variant/60 rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all p-1 h-12">
+                      <input
+                        type="date"
+                        value={formData.startDate}
+                        onChange={e => setFormData({ ...formData, startDate: e.target.value })}
+                        className="w-full h-full bg-transparent border-none px-3 font-body text-xs outline-none placeholder:text-outline-variant/60 font-bold text-on-surface"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block font-body text-[11px] font-bold uppercase text-on-surface-variant tracking-widest">Ngày kết thúc</label>
+                    <div className="bg-surface-low/50 border border-outline-variant/60 rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all p-1 h-12">
+                      <input
+                        type="date"
+                        value={formData.endDate}
+                        onChange={e => setFormData({ ...formData, endDate: e.target.value })}
+                        className="w-full h-full bg-transparent border-none px-3 font-body text-xs outline-none placeholder:text-outline-variant/60 font-bold text-on-surface"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* SECTION 2: BIOGRAPHY */}
+            <section className="bg-white p-8 rounded-3xl border border-outline-variant/60 shadow-sm space-y-6 transition-all hover:shadow-md">
+              <h3 className="font-body text-xs font-bold text-on-surface uppercase tracking-widest border-b border-outline-variant/60 pb-3 flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-[18px]">history_edu</span>
+                Diễn biến chi tiết
+              </h3>
+
+              <div className="space-y-2">
+                <div className="rounded-2xl overflow-hidden border border-outline-variant/60 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all bg-surface-low/30">
+                  <RichTextEditor
+                    value={formData.description}
+                    onChange={(description) => setFormData({ ...formData, description })}
+                    placeholder="Bắt đầu ghi chép sử liệu chi tiết tại đây..."
+                    className="min-h-[500px]"
+                  />
+                </div>
+              </div>
+            </section>
+
           </div>
+
+          {/* CỘT PHẢI: LIÊN KẾT */}
+          <aside className="col-span-12 lg:col-span-4 space-y-6">
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-1 rounded-3xl shadow-xl sticky top-8 hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 overflow-hidden">
+              <div className="bg-surface/95 backdrop-blur-xl p-6 rounded-[22px] h-full border border-white/10 flex flex-col space-y-6 relative">
+                <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10">
+                  <span className="material-symbols-outlined text-[16px]">hub</span>
+                  Liên kết Thông tin
+                </h4>
+
+                <EntityRelationInput
+                  type="location"
+                  label="Địa danh liên quan"
+                  icon="location_on"
+                  entities={formData.relatedLocations}
+                  availableEntities={availableLocations}
+                  onAdd={addLocation}
+                  onRemove={removeLocation}
+                />
+
+                <EntityRelationInput
+                  type="character"
+                  label="Nhân vật then chốt"
+                  icon="groups"
+                  itemIcon="person"
+                  entities={formData.relatedCharacters}
+                  availableEntities={availableCharacters}
+                  onAdd={addCharacter}
+                  onRemove={removeCharacter}
+                />
+
+              </div>
+            </div>
+          </aside>
+
         </div>
-      </div>
+      </main>
     </div>
   );
 };
-
-// Component con cho nút Toolbar
-const EditorBtn = ({ onClick, icon, label }) => (
-  <button 
-    type="button" onClick={onClick} 
-    className="w-9 h-9 flex items-center justify-center rounded hover:bg-white hover:shadow-sm text-on-surface-variant hover:text-primary transition-all"
-  >
-    {label ? <span className="font-bold text-sm">{label}</span> : <span className="material-symbols-outlined text-lg">{icon}</span>}
-  </button>
-);
 
 export default EventForm;

@@ -1,20 +1,219 @@
 {
   "stats": [
-    { "label": "Danh mục chính", "value": "18", "icon": "category" },
-    { "label": "Tổng thẻ (Tags)", "value": "1,482", "icon": "sell" },
-    { "label": "Thời kỳ lịch sử", "value": "12", "icon": "timeline" }
+    {
+      "label": "Danh mục chính",
+      "value": "18",
+      "icon": "category"
+    },
+    {
+      "label": "Tổng thẻ (Tags)",
+      "value": "1,482",
+      "icon": "sell"
+    },
+    {
+      "label": "Thời kỳ lịch sử",
+      "value": "12",
+      "icon": "timeline"
+    }
   ],
   "categories": [
-    { "id": 1, "name": "Lịch sử Chính trị", "sub": "Nghiên cứu văn bia, chiếu chỉ" },
-    { "id": 2, "name": "Di sản Văn hóa", "sub": "Kiến trúc, nghệ thuật" }
+    {
+      "id": 1,
+      "name": "Lịch sử Chính trị",
+      "description": "Nghiên cứu văn bia, chiếu chỉ, chính sách quốc gia",
+      "children": [
+        {
+          "id": 11,
+          "name": "Nghiên cứu văn bia",
+          "count": 45
+        },
+        {
+          "id": 12,
+          "name": "Chiếu chỉ hoàng gia",
+          "count": 28
+        },
+        {
+          "id": 13,
+          "name": "Ngoại giao & Hiệp ước",
+          "count": 16
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Di sản Văn hóa",
+      "description": "Kiến trúc, nghệ thuật, phong tục tập quán",
+      "children": [
+        {
+          "id": 21,
+          "name": "Kiến trúc cung đình",
+          "count": 52
+        },
+        {
+          "id": 22,
+          "name": "Nghệ thuật dân gian",
+          "count": 34
+        },
+        {
+          "id": 23,
+          "name": "Lễ hội truyền thống",
+          "count": 68
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Quân sự & Chiến tranh",
+      "description": "Các cuộc khởi nghĩa, chiến thuật, vũ khí",
+      "children": [
+        {
+          "id": 31,
+          "name": "Khởi nghĩa nông dân",
+          "count": 21
+        },
+        {
+          "id": 32,
+          "name": "Chiến thuật phòng thủ",
+          "count": 39
+        },
+        {
+          "id": 33,
+          "name": "Vũ khí cổ đại",
+          "count": 15
+        }
+      ]
+    }
   ],
   "tags": [
-    { "id": 1, "name": "Nhà Trần", "slug": "nha-tran", "count": 1240, "usage": 85 },
-    { "id": 2, "name": "Nhà Lý", "slug": "nha-ly", "count": 892, "usage": 62 }
+    {
+      "id": 1,
+      "name": "Nhà Trần",
+      "type": "Triều đại",
+      "slug": "nha-tran",
+      "count": 1240,
+      "usage": 85
+    },
+    {
+      "id": 2,
+      "name": "Nhà Lý",
+      "type": "Triều đại",
+      "slug": "nha-ly",
+      "count": 892,
+      "usage": 62
+    },
+    {
+      "id": 3,
+      "name": "Nhà Lê Sơ",
+      "type": "Triều đại",
+      "slug": "nha-le-so",
+      "count": 950,
+      "usage": 78
+    },
+    {
+      "id": 4,
+      "name": "Chiến thuật",
+      "type": "Quân sự",
+      "slug": "chien-thuat",
+      "count": 892,
+      "usage": 62
+    },
+    {
+      "id": 5,
+      "name": "Vũ khí",
+      "type": "Quân sự",
+      "slug": "vu-khi",
+      "count": 320,
+      "usage": 45
+    },
+    {
+      "id": 6,
+      "name": "Ngoại giao",
+      "type": "Ngoại giao",
+      "slug": "ngoai-giao",
+      "count": 450,
+      "usage": 35
+    },
+    {
+      "id": 7,
+      "name": "Kiến trúc",
+      "type": "Văn hóa",
+      "slug": "kien-truc",
+      "count": 1560,
+      "usage": 92
+    },
+    {
+      "id": 8,
+      "name": "Nghệ thuật",
+      "type": "Văn hóa",
+      "slug": "nghe-thuat",
+      "count": 1120,
+      "usage": 88
+    },
+    {
+      "id": 9,
+      "name": "Lý Thái Tổ",
+      "type": "Nhân vật",
+      "slug": "ly-thai-to",
+      "count": 1020,
+      "usage": 70
+    },
+    {
+      "id": 10,
+      "name": "Hoàng thành",
+      "type": "Địa danh",
+      "slug": "hoang-thanh",
+      "count": 800,
+      "usage": 50
+    }
   ],
   "periods": [
-    { "id": 1, "name": "Hồng Bàng", "range": "2879 TCN - 258 TCN", "desc": "Kinh Dương Vương khởi đầu." },
-    { "id": 2, "name": "Nhà Lý", "range": "1009 - 1225", "desc": "Dời đô về Thăng Long." },
-    { "id": 3, "name": "Nhà Trần", "range": "1225 - 1400", "desc": "Đại thắng Nguyên Mông.", "active": true }
+    {
+      "id": 1,
+      "name": "Hồng Bàng",
+      "range": "2879 TCN - 258 TCN",
+      "desc": "Kinh Dương Vương khởi đầu."
+    },
+    {
+      "id": 2,
+      "name": "Nhà Ngô",
+      "range": "939 - 965",
+      "desc": "Ngô Quyền xưng vương, chấm dứt Bắc thuộc."
+    },
+    {
+      "id": 3,
+      "name": "Nhà Đinh",
+      "range": "968 - 980",
+      "desc": "Đinh Bộ Lĩnh dẹp loạn 12 sứ quân."
+    },
+    {
+      "id": 4,
+      "name": "Nhà Lý",
+      "range": "1009 - 1225",
+      "desc": "Dời đô về Thăng Long."
+    },
+    {
+      "id": 5,
+      "name": "Nhà Trần",
+      "range": "1225 - 1400",
+      "desc": "Đại thắng Nguyên Mông."
+    },
+    {
+      "id": 6,
+      "name": "Nhà Lê",
+      "range": "1428 - 1789",
+      "desc": "Lê Lợi khởi nghĩa Lam Sơn."
+    },
+    {
+      "id": 7,
+      "name": "Nhà Tây Sơn",
+      "range": "1778 - 1802",
+      "desc": "Nguyễn Huệ đại phá quân Thanh."
+    },
+    {
+      "id": 8,
+      "name": "Nhà Nguyễn",
+      "range": "1802 - 1945",
+      "desc": "Gia Long thống nhất đất nước."
+    }
   ]
 }
