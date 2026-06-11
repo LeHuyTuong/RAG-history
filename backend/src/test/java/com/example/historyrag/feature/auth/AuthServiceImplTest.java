@@ -128,7 +128,7 @@ class AuthServiceImplTest {
         assertEquals("nguyenvana", response.username());
         assertEquals("nguyenvana@example.com", response.email());
         assertEquals("Nguyen Van A", response.fullName());
-        assertEquals("ACTIVE", response.status());
+        assertEquals(Member.UserStatus.ACTIVE, response.status());
 
         ArgumentCaptor<Member> captor = ArgumentCaptor.forClass(Member.class);
         verify(memberRepository).save(captor.capture());
@@ -267,7 +267,7 @@ class AuthServiceImplTest {
         admin.setUsername(username);
         admin.setFullName(fullName);
         admin.setPasswordHash("encoded-password");
-        admin.setStatus("ACTIVE");
+        admin.setStatus(Member.UserStatus.valueOf("ACTIVE"));
         admin.setCreatedAt(Instant.now());
         admin.setUpdatedAt(Instant.now());
         return admin;

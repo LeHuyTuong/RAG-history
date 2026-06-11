@@ -7,6 +7,7 @@ import com.example.historyrag.feature.auth.dto.LoginRequest;
 import com.example.historyrag.feature.auth.dto.LoginResponse;
 import com.example.historyrag.feature.auth.dto.RegisterRequest;
 import com.example.historyrag.feature.auth.dto.RegisterResponse;
+import com.example.historyrag.feature.user.Member;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -108,7 +109,7 @@ class AuthControllerTest {
                         "member",
                         "member@example.com",
                         "Member Name",
-                        "ACTIVE",
+                        Member.UserStatus.ACTIVE,
                         Instant.parse("2026-06-09T00:00:00Z")
                 ));
 
@@ -206,7 +207,7 @@ class AuthControllerTest {
                         "member",
                         "member@example.com",
                         "Member Name",
-                        "ACTIVE",
+                        Member.UserStatus.ACTIVE,
                         "MEMBER",
                         "ROLE_USER",
                         Instant.parse("2026-06-09T00:00:00Z")
