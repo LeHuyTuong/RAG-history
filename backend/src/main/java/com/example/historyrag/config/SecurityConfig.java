@@ -41,7 +41,6 @@ public class SecurityConfig {
             "/api/v1/auth/register",
             "/api/v1/auth/refresh",
             "/api/v1/auth/logout",
-            "/api/v1/dashboard",
             "/uploads/**"
     };
 
