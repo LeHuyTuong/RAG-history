@@ -1,12 +1,15 @@
 package com.example.historyrag.feature.admin;
 
 import com.example.historyrag.feature.admin.dto.DashboardResponse;
+import com.example.historyrag.feature.engagement.CommentStatus;
 import com.example.historyrag.feature.engagement.EngagementRepository;
+import com.example.historyrag.feature.engagement.EngagementType;
 import com.example.historyrag.feature.event.EventRepository;
 import com.example.historyrag.feature.location.LocationRepository;
 import com.example.historyrag.feature.period.PeriodRepository;
 import com.example.historyrag.feature.person.PersonRepository;
 import com.example.historyrag.feature.post.PostRepository;
+import com.example.historyrag.feature.post.PostStatus;
 import com.example.historyrag.feature.source.SourceRepository;
 import com.example.historyrag.feature.tag.TagRepository;
 import com.example.historyrag.feature.user.MemberRepository;
@@ -77,9 +80,9 @@ class AdminDashboardServiceImplTest {
         when(adminRepository.count()).thenReturn(2L);
         when(memberRepository.count()).thenReturn(40L);
         when(postRepository.count()).thenReturn(12L);
-        when(postRepository.countByStatus("PUBLISHED")).thenReturn(8L);
-        when(postRepository.countByStatus("DRAFT")).thenReturn(3L);
-        when(postRepository.countByStatus("ARCHIVED")).thenReturn(1L);
+        when(postRepository.countByStatus(PostStatus.PUBLISHED)).thenReturn(8L);
+        when(postRepository.countByStatus(PostStatus.DRAFT)).thenReturn(3L);
+        when(postRepository.countByStatus(PostStatus.ARCHIVED)).thenReturn(1L);
         when(eventRepository.count()).thenReturn(6L);
         when(personRepository.count()).thenReturn(9L);
         when(locationRepository.count()).thenReturn(5L);
@@ -87,12 +90,15 @@ class AdminDashboardServiceImplTest {
         when(tagRepository.count()).thenReturn(7L);
         when(periodRepository.count()).thenReturn(4L);
         when(engagementRepository.count()).thenReturn(100L);
-        when(engagementRepository.countByEngagementType("COMMENT")).thenReturn(20L);
-        when(engagementRepository.countByEngagementTypeAndCommentStatus("COMMENT", "PENDING"))
+        when(engagementRepository.countByEngagementType(EngagementType.COMMENT)).thenReturn(20L);
+        when(engagementRepository.countByEngagementTypeAndCommentStatus(
+                EngagementType.COMMENT, CommentStatus.PENDING))
                 .thenReturn(2L);
-        when(engagementRepository.countByEngagementTypeAndCommentStatus("COMMENT", "VISIBLE"))
+        when(engagementRepository.countByEngagementTypeAndCommentStatus(
+                EngagementType.COMMENT, CommentStatus.VISIBLE))
                 .thenReturn(17L);
-        when(engagementRepository.countByEngagementTypeAndCommentStatus("COMMENT", "HIDDEN"))
+        when(engagementRepository.countByEngagementTypeAndCommentStatus(
+                EngagementType.COMMENT, CommentStatus.HIDDEN))
                 .thenReturn(1L);
 
         DashboardResponse response = adminDashboardService.getDashboard();

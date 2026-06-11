@@ -2,12 +2,15 @@ package com.example.historyrag.feature.admin;
 
 import com.example.historyrag.feature.admin.dto.DashboardActivityResponse;
 import com.example.historyrag.feature.admin.dto.DashboardResponse;
+import com.example.historyrag.feature.engagement.CommentStatus;
 import com.example.historyrag.feature.engagement.EngagementRepository;
+import com.example.historyrag.feature.engagement.EngagementType;
 import com.example.historyrag.feature.event.EventRepository;
 import com.example.historyrag.feature.location.LocationRepository;
 import com.example.historyrag.feature.period.PeriodRepository;
 import com.example.historyrag.feature.person.PersonRepository;
 import com.example.historyrag.feature.post.PostRepository;
+import com.example.historyrag.feature.post.PostStatus;
 import com.example.historyrag.feature.source.SourceRepository;
 import com.example.historyrag.feature.tag.TagRepository;
 import com.example.historyrag.feature.user.MemberRepository;
@@ -19,14 +22,6 @@ import java.util.List;
 
 @Service
 public class AdminDashboardServiceImpl implements AdminDashboardService {
-
-    private static final String POST_STATUS_PUBLISHED = "PUBLISHED";
-    private static final String POST_STATUS_DRAFT = "DRAFT";
-    private static final String POST_STATUS_ARCHIVED = "ARCHIVED";
-    private static final String ENGAGEMENT_TYPE_COMMENT = "COMMENT";
-    private static final String COMMENT_STATUS_PENDING = "PENDING";
-    private static final String COMMENT_STATUS_VISIBLE = "VISIBLE";
-    private static final String COMMENT_STATUS_HIDDEN = "HIDDEN";
 
     private final AdminRepository adminRepository;
     private final MemberRepository memberRepository;
@@ -68,9 +63,9 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
         long totalAdmins = adminRepository.count();
         long totalMembers = memberRepository.count();
         long totalPosts = postRepository.count();
-        long publishedPosts = postRepository.countByStatus(POST_STATUS_PUBLISHED);
-        long draftPosts = postRepository.countByStatus(POST_STATUS_DRAFT);
-        long archivedPosts = postRepository.countByStatus(POST_STATUS_ARCHIVED);
+        long publishedPosts = postRepository.countByStatus(PostStatus.PUBLISHED);
+        long draftPosts = postRepository.countByStatus(PostStatus.DRAFT);
+        long archivedPosts = postRepository.countByStatus(PostStatus.ARCHIVED);
         long totalEvents = eventRepository.count();
         long totalPersons = personRepository.count();
         long totalLocations = locationRepository.count();
@@ -78,13 +73,13 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
         long totalTags = tagRepository.count();
         long totalPeriods = periodRepository.count();
         long totalEngagements = engagementRepository.count();
-        long totalComments = engagementRepository.countByEngagementType(ENGAGEMENT_TYPE_COMMENT);
+        long totalComments = engagementRepository.countByEngagementType(EngagementType.COMMENT);
         long pendingComments = engagementRepository.countByEngagementTypeAndCommentStatus(
-                ENGAGEMENT_TYPE_COMMENT, COMMENT_STATUS_PENDING);
+                EngagementType.COMMENT, CommentStatus.PENDING);
         long visibleComments = engagementRepository.countByEngagementTypeAndCommentStatus(
-                ENGAGEMENT_TYPE_COMMENT, COMMENT_STATUS_VISIBLE);
+                EngagementType.COMMENT, CommentStatus.VISIBLE);
         long hiddenComments = engagementRepository.countByEngagementTypeAndCommentStatus(
-                ENGAGEMENT_TYPE_COMMENT, COMMENT_STATUS_HIDDEN);
+                EngagementType.COMMENT, CommentStatus.HIDDEN);
 
         return new DashboardResponse(
                 totalAdmins,

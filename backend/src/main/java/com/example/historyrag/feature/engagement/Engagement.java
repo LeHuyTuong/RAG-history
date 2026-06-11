@@ -33,18 +33,18 @@ public class Engagement {
     @JoinColumn(name = "parent_engagement_id")
     private Engagement parentEngagement;
 
-    @Size(max = 20)
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "engagement_type", nullable = false, length = 20)
-    private String engagementType;
+    private EngagementType engagementType;
 
     @Lob
     @Column(name = "comment_content", columnDefinition = "TEXT")
     private String commentContent;
 
-    @Size(max = 20)
+    @Enumerated(EnumType.STRING)
     @Column(name = "comment_status", length = 20)
-    private String commentStatus;
+    private CommentStatus commentStatus;
 
     @Column(name = "rating_value")
     private Integer ratingValue;

@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface EngagementRepository extends JpaRepository<Engagement, Long> {
 
-    long countByEngagementType(String engagementType);
+    long countByEngagementType(EngagementType engagementType);
 
-    long countByEngagementTypeAndCommentStatus(String engagementType, String commentStatus);
+    long countByEngagementTypeAndCommentStatus(EngagementType engagementType, CommentStatus commentStatus);
 }

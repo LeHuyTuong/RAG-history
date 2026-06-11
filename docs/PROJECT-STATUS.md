@@ -17,6 +17,7 @@
 - Added unit and standalone MVC tests for the auth feature covering register, login, refresh rotation, logout, `/me`, validation, duplicate email, and missing refresh token cases.
 - Aligned Docker backend JWT environment variables on `JWT_SECRET_KEY` and removed the hardcoded JWT secret fallback from `application.yml`.
 - Added admin dashboard management: secured `GET /api/v1/dashboard`, direct Spring Data JPA repository counts/DTOs, frontend dashboard API integration with demo fallback, and dashboard unit/controller tests.
+- Replaced dashboard post/engagement status string constants with `PostStatus`, `EngagementType`, and `CommentStatus` enums across entities, repositories, service, and tests.
 - Fixed stale auth test fixtures for enum status DTOs and replaced Lombok constructor use in `MemberServiceImpl` with explicit constructor injection so backend tests compile.
 - Added `V2__sample_data.sql` with 20 sample rows per schema table for local development, preserving the existing 8 default `system_settings` rows from V1.
 - Aligned Hibernate LOB entity mappings with MySQL `TEXT`/`LONGTEXT` columns so `JPA_DDL_AUTO=validate` can start against the existing schema.

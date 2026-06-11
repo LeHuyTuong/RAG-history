@@ -55,11 +55,11 @@ public class Post {
     @Column(name = "thumbnail_url", length = 1000)
     private String thumbnailUrl;
 
-    @Size(max = 20)
     @NotNull
+    @Enumerated(EnumType.STRING)
     @ColumnDefault("'DRAFT'")
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    private PostStatus status;
 
     @Column(name = "published_at")
     private Instant publishedAt;
