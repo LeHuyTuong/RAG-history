@@ -4,7 +4,6 @@ import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.exception.InvalidRequestException;
 import com.example.historyrag.feature.user.dto.UpdateUserRequest;
 import com.example.historyrag.feature.user.dto.UserResponse;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,13 +16,16 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 @Service
 public class MemberServiceImpl implements MemberService {
 
     private static final Logger log = LoggerFactory.getLogger(MemberServiceImpl.class);
 
     private final MemberRepository memberRepository;
+
+    public MemberServiceImpl(MemberRepository memberRepository) {
+        this.memberRepository = memberRepository;
+    }
 
     @Override
     public UserResponse getUserById(Long id) {

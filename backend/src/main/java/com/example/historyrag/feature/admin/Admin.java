@@ -39,8 +39,8 @@ public class Admin {
     @NotNull
     @ColumnDefault("'ACTIVE'")
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
-
+    @Enumerated(EnumType.STRING)
+    private Member.UserStatus status;
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", nullable = false)
@@ -95,7 +95,7 @@ public class Admin {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Member.UserStatus status) {
         this.status = status;
     }
 

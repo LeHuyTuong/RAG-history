@@ -1,19 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import {  useState, useEffect  } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  AdminLayout,
+  PageHeader,
+  StatsGrid,
+  FilterBar,
+  FilterInput,
+  FilterSelect,
+  DataTable,
+  ActionModal,
+  TableActions
+} from '../../../components/admin';
+import { usePeriodColors } from '../../../hooks/usePeriodColors';
 
 const CharacterManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, name: '', id: null });
   const [data, setData] = useState({ stats: [], characters: [] });
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({ search: '', dynasty: '' });
+  const { periodColors, getPeriodStyle: getDynastyStyle } = usePeriodColors();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/admin_characters.json');
-        if (!response.ok) throw new Error('Network response was not ok');
-        const result = await response.json();
-        setData(result);
+        const charRes = await fetch('/api/admin_characters.json');
+        if (!charRes.ok) throw new Error('Characters fetch failed');
+        const charResult = await charRes.json();
+        setData(charResult);
       } catch (error) {
         console.error('Error fetching character data:', error);
       } finally {
@@ -23,96 +37,118 @@ const CharacterManagement = () => {
     fetchData();
   }, []);
 
-  return (
-    <div className="p-8 max-w-[1600px] mx-auto w-full space-y-10 animate-in fade-in duration-500">
-      
-      {/* PAGE TITLE & SUBTITLE */}
-      <div className="flex flex-col md:flex-row justify-between items-start gap-4 border-b border-outline-variant/30 pb-8">
-        <div>
-          <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">Quản lý Nhân vật Lịch sử</h2>
-          <p className="font-body text-sm text-on-surface-variant italic mt-2">Quản lý hồ sơ, tiểu sử và các mối liên kết thực thể trong hệ thống Sử Việt.</p>
-        </div>
-        <button 
-          onClick={() => navigate('/admin/characters/new')}
-          className="bg-primary text-white px-8 py-3 rounded-lg font-headline font-bold uppercase text-xs tracking-widest shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center gap-2"
-        >
-          <span className="material-symbols-outlined text-sm">person_add</span> THÊM NHÂN VẬT MỚI
-        </button>
-      </div>
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
 
-      {/* STATS GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {loading ? (
-          <div className="col-span-full text-center py-4 font-body text-sm text-on-surface-variant">Đang tải dữ liệu...</div>
-        ) : (
-          data.stats.map((stat, idx) => (
-            <StatCard key={idx} label={stat.label} value={stat.value} icon={stat.icon} colorClass={stat.colorClass} />
-          ))
-        )}
-      </div>
 
-      {/* MEMBER TABLE */}
-      <div className="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
-          <thead className="bg-surface-variant/30 border-b border-outline-variant font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-            <tr>
-              <th className="p-4">ID</th>
-              <th className="p-4">HỌ VÀ TÊN</th>
-              <th className="p-4">BIỆT HIỆU</th>
-              <th className="p-4 text-center">NIÊN ĐẠI</th>
-              <th className="p-4 text-right">THAO TÁC</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-outline-variant text-sm">
-            {loading ? (
-              <tr><td colSpan="5" className="text-center py-8 font-body text-sm text-on-surface-variant">Đang tải nhân vật...</td></tr>
-            ) : (
-              data.characters.map((char, idx) => (
-                <tr key={char.id} className={`${idx % 2 !== 0 ? 'bg-surface-low/30' : ''} hover:bg-surface-variant/20 transition-all group`}>
-                  <td className="p-4 font-body text-[11px] text-on-surface-variant">#{char.id}</td>
-                  <td className="p-4 font-headline text-primary font-bold text-lg tracking-tight">{char.name}</td>
-                  <td className="p-4 text-on-surface-variant font-body italic">{char.title}</td>
-                  <td className="p-4 font-body text-center text-xs font-bold uppercase">{char.years}</td>
-                  <td className="p-4 text-right">
-                    <div className="flex justify-end gap-1">
-                      <button onClick={() => navigate(`/admin/characters/edit/${char.id}`)} className="p-2 hover:text-primary transition-colors"><span className="material-symbols-outlined text-sm">edit</span></button>
-                      <button onClick={() => setDeleteModal({ open: true, name: char.name })} className="p-2 hover:text-red-600 transition-colors"><span className="material-symbols-outlined text-sm">delete</span></button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
 
-      {/* DELETE MODAL (typography synced) */}
-      {deleteModal.open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-xl shadow-2xl border-t-4 border-red-600 p-10 text-center animate-in fade-in zoom-in duration-300">
-            <span className="material-symbols-outlined text-red-600 text-5xl mb-4">delete_forever</span>
-            <h3 className="font-headline text-2xl text-primary font-bold mb-2">Xác nhận xóa nhân vật?</h3>
-            <p className="font-body text-sm text-on-surface-variant mb-10">Bạn chắc chắn muốn xóa hồ sơ <br/><strong className="text-on-surface italic">"{deleteModal.name}"</strong>?</p>
-            <div className="flex gap-4 font-body text-[11px] font-bold tracking-widest">
-              <button onClick={() => setDeleteModal({ open: false })} className="flex-1 py-3 border border-outline rounded-lg hover:bg-surface-low transition-all">HỦY BỎ</button>
-              <button className="flex-1 py-3 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 transition-all">XÓA NGAY</button>
-            </div>
+  const columns = [
+    {
+      key: 'name', header: 'HỌ VÀ TÊN', render: (row) => (
+        <div className="flex items-center gap-4 py-2">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center border border-amber-500/10 shadow-sm shrink-0">
+            <span className="material-symbols-outlined text-amber-600 text-xl">person</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="font-headline text-on-surface font-bold text-base hover:text-amber-600 transition-colors cursor-pointer line-clamp-1">{row.name}</span>
+            <span className="font-body text-[11px] text-on-surface-variant mt-0.5 opacity-80 italic flex items-center gap-1">
+              <span className="material-symbols-outlined text-[12px]">badge</span>
+              {row.title}
+            </span>
           </div>
         </div>
-      )}
-    </div>
+      )
+    },
+    { 
+      key: 'years', header: 'NIÊN ĐẠI', align: 'center', render: (row) => (
+        <span className="border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-surface-low text-on-surface-variant border-outline-variant">
+          {row.years}
+        </span>
+      )
+    },
+    { 
+      key: 'dynasty', header: 'TRIỀU ĐẠI', align: 'center', render: (row) => (
+        <span className={`border px-3 py-1 rounded-full text-[10px] font-bold tracking-wider ${getDynastyStyle(row.dynasty)}`}>
+          {row.dynasty}
+        </span>
+      )
+    },
+    { 
+      key: 'actions', header: 'THAO TÁC', align: 'right', render: (row) => (
+        <TableActions
+          onEdit={() => navigate(`/admin/characters/edit/${row.id}`)}
+          onDelete={() => setDeleteModal({ open: true, name: row.name })}
+        />
+      )
+    }
+  ];
+
+  const filteredCharacters = data.characters.filter(char => {
+    const matchSearch = char.name?.toLowerCase().includes(filters.search.toLowerCase()) || 
+                        char.title?.toLowerCase().includes(filters.search.toLowerCase());
+    const matchDynasty = filters.dynasty ? char.dynasty === filters.dynasty : true;
+    return matchSearch && matchDynasty;
+  });
+
+  return (
+    <AdminLayout>
+      <PageHeader
+        title="Quản lý Nhân vật Lịch sử"
+        subtitle="Quản lý hồ sơ, tiểu sử và các mối liên kết thực thể trong hệ thống Sử Việt."
+        actionLabel="THÊM NHÂN VẬT MỚI"
+        actionHref="/admin/characters/new"
+        actionIcon="person_add"
+      />
+
+      <div className="mb-6">
+        <StatsGrid 
+          stats={data.stats.filter(stat => !stat.label.toLowerCase().includes('chờ duyệt'))} 
+          loading={loading} 
+        />
+      </div>
+
+      <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col mt-6">
+        <div className="p-4 border-b border-outline-variant bg-surface-low/50">
+          <FilterBar>
+            <FilterInput
+              label="Tìm kiếm:"
+              placeholder="Nhập tên, chức danh..."
+              value={filters.search}
+              onChange={(e) => handleFilterChange('search', e.target.value)}
+            />
+            <FilterSelect
+              label="Triều đại:"
+              options={[
+                { value: '', label: 'Tất cả triều đại' },
+                ...Array.from(new Set(data.characters.map(c => c.dynasty))).filter(Boolean).map(d => ({ value: d, label: d }))
+              ]}
+              value={filters.dynasty}
+              onChange={(e) => handleFilterChange('dynasty', e.target.value)}
+            />
+          </FilterBar>
+        </div>
+
+        <DataTable
+          columns={columns}
+          data={filteredCharacters}
+          loading={loading}
+          emptyMessage="Không tìm thấy nhân vật nào phù hợp"
+          rowKey="id"
+          striped={false}
+          className="border-0 shadow-none rounded-none"
+        />
+      </div>
+
+      <ActionModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false })}
+        type="delete"
+        item={{ name: deleteModal.name }}
+        onConfirm={() => setDeleteModal({ open: false })}
+      />
+    </AdminLayout>
   );
 };
-
-// Component con hỗ trợ
-const StatCard = ({ label, value, icon, colorClass = "text-primary" }) => (
-  <div className="bg-white border border-outline-variant p-6 rounded-xl shadow-sm flex items-center justify-between hover:-translate-y-1 transition-all">
-    <div>
-      <p className="font-body text-[10px] uppercase font-bold text-on-surface-variant tracking-widest">{label}</p>
-      <h3 className={`font-headline text-3xl font-bold mt-1 ${colorClass}`}>{value}</h3>
-    </div>
-    <span className="material-symbols-outlined text-primary opacity-10 text-4xl">{icon}</span>
-  </div>
-);
 
 export default CharacterManagement;
