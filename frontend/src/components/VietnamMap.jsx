@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function VietnamMap({ className }) {
   return (
     <svg viewBox="0 0 1024 1024" className={className}>
