@@ -1,5 +1,6 @@
 package com.example.historyrag.feature.tag;
 
+import com.example.historyrag.exception.ConflictException;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.exception.InvalidRequestException;
 import com.example.historyrag.feature.tag.dto.TagRequest;
@@ -23,10 +24,10 @@ public class TagServiceImpl implements TagService {
     @Transactional
     public TagResponse createTag(TagRequest request) {
         if (tagRepository.existsByName(request.name())) {
-            throw new InvalidRequestException("Tag name already exists: " + request.name());
+            throw new ConflictException("Tag name already exists: " + request.name());
         }
         if (tagRepository.existsBySlug(request.slug())) {
-            throw new InvalidRequestException("Tag slug already exists: " + request.slug());
+            throw new ConflictException("Tag slug already exists: " + request.slug());
         }
 
         Tag tag = new Tag();

@@ -1,7 +1,7 @@
 package com.example.historyrag.feature.period;
 
 import com.example.historyrag.exception.ResourceNotFoundException;
-import com.example.historyrag.exception.InvalidRequestException;
+import com.example.historyrag.exception.ConflictException;
 import com.example.historyrag.feature.period.dto.PeriodRequest;
 import com.example.historyrag.feature.period.dto.PeriodResponse;
 import org.springframework.data.domain.Page;
@@ -23,11 +23,12 @@ public class PeriodServiceImpl implements PeriodService {
     @Transactional
     public PeriodResponse createPeriod(PeriodRequest request) {
         if (periodRepository.existsByName(request.name())) {
-            throw new InvalidRequestException("Period name already exists: " + request.name());
+            throw new ConflictException("Period name already exists: " + request.name());
         }
         if (periodRepository.existsBySlug(request.slug())) {
-            throw new InvalidRequestException("Period slug already exists: " + request.slug());
+            throw new ConflictException("Period slug already exists: " + request.slug());
         }
+
         Period period = new Period();
         period.setName(request.name());
         period.setSlug(request.slug());
@@ -36,7 +37,9 @@ public class PeriodServiceImpl implements PeriodService {
         period.setDescription(request.description());
         period.setCreatedAt(Instant.now());
         period.setUpdatedAt(Instant.now());
-        return PeriodResponse.fromEntity(periodRepository.save(period));
+
+        Period saved = periodRepository.save(period);
+        return PeriodResponse.fromEntity(saved);
     }
 
     @Override
@@ -46,11 +49,12 @@ public class PeriodServiceImpl implements PeriodService {
                 .orElseThrow(() -> new ResourceNotFoundException("Period", "id", id));
 
         if (!period.getName().equals(request.name()) && periodRepository.existsByName(request.name())) {
-            throw new InvalidRequestException("Period name already exists: " + request.name());
+            throw new ConflictException("Period name already exists: " + request.name());
         }
         if (!period.getSlug().equals(request.slug()) && periodRepository.existsBySlug(request.slug())) {
-            throw new InvalidRequestException("Period slug already exists: " + request.slug());
+            throw new ConflictException("Period slug already exists: " + request.slug());
         }
+
         period.setName(request.name());
         period.setSlug(request.slug());
         period.setStartYear(request.startYear());
@@ -58,12 +62,19 @@ public class PeriodServiceImpl implements PeriodService {
         period.setDescription(request.description());
         period.setUpdatedAt(Instant.now());
 
-        return PeriodResponse.fromEntity(periodRepository.save(period));
+        Period updated = periodRepository.save(period);
+        return PeriodResponse.fromEntity(updated);
     }
 
     @Override
-    public Page<PeriodResponse> getAllPeriods(Pageable pageable) {
-        return periodRepository.findAll(pageable).map(PeriodResponse::fromEntity);
+    public Page<PeriodResponse> getAllPeriods(String keyword, Pageable pageable) {
+        Page<Period> periods;
+        if (keyword != null && !keyword.isBlank()) {
+            periods = periodRepository.findByNameContainingIgnoreCase(keyword, pageable);
+        } else {
+            periods = periodRepository.findAll(pageable);
+        }
+        return periods.map(PeriodResponse::fromEntity);
     }
 
     @Override

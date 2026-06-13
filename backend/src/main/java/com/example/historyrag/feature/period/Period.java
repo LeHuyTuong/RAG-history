@@ -16,7 +16,10 @@ import java.time.Instant;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "period")
+@Table(name = "period", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "name"),
+        @UniqueConstraint(columnNames = "slug")
+})
 public class Period {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
