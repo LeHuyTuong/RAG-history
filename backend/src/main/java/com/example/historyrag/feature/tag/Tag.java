@@ -3,7 +3,9 @@ package com.example.historyrag.feature.tag;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -12,6 +14,8 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "tag")
 public class Tag {
     @Id
@@ -38,5 +42,9 @@ public class Tag {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @NotNull
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
 
 }
