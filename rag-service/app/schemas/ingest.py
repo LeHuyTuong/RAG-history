@@ -1,7 +1,16 @@
 """
-Schema cho ingest flow. Bám sát hợp đồng API định nghĩa trong docs/12 và docs/21.
-Spring Boot JOIN sẵn các metadata (tagIds, categoryId…) rồi gửi vào đây —
-RAG service không cần đọc thẳng MySQL.
+Pydantic schemas cho ingestion flow: request từ Spring Boot và response trả về.
+
+Vai trò: định nghĩa "hợp đồng" API cho /rag/ingest. Bám sát docs/12 và docs/21.
+
+4 model:
+  RagIngestRequest — toàn bộ thông tin 1 source cần ingest:
+                     content (filePath/sourceUrl/rawContent) + metadata đã denormalize
+  IngestSettings   — tham số chunk tuning per-request (override default từ config.py)
+  IngestMetadata   — metadata từ MySQL mà Spring Boot JOIN sẵn rồi gửi sang,
+                     sẽ được flatten vào Qdrant payload để filter không cần JOIN MySQL
+  RagIngestResponse — kết quả sau ingest: status + danh sách chunk đã lưu
+  IngestedChunk    — thông tin 1 chunk: index, UUID trong Qdrant, hash để detect thay đổi
 """
 from pydantic import BaseModel
 

@@ -1,6 +1,12 @@
 """
-Đọc cấu hình từ .env. Mọi giá trị magic number (chunk_size, top_k…) đều đặt
-ở đây — không hard-code trong service layer.
+Cấu hình tập trung của RAG service — đọc từ .env qua pydantic-settings.
+
+Vai trò: single source of truth cho mọi giá trị cấu hình (URL, API key,
+tham số pipeline). Không hard-code bất kỳ giá trị nào trong service layer.
+
+Cách dùng trong các service/module khác:
+  from app.config import settings
+  settings.qdrant_url, settings.default_top_k, ...
 """
 from pydantic_settings import BaseSettings, SettingsConfigDict
 

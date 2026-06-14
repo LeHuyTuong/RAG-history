@@ -1,5 +1,12 @@
 """
-Entry point của RAG service. Spring Boot là caller duy nhất — frontend không gọi trực tiếp.
+Entry point của RAG service (FastAPI).
+
+Vai trò: khởi động app, gắn CORS middleware, đăng ký 2 router chính.
+Caller duy nhất là Spring Boot — frontend không gọi trực tiếp service này.
+
+Flow tổng quát:
+  Spring Boot  →  /rag/ingest  →  ingest_routes  →  ingest_service (extract→chunk→embed→upsert)
+  Spring Boot  →  /rag/chat    →  chat_routes    →  retrieval_service + llm_service
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

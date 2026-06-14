@@ -1,6 +1,16 @@
 """
-Schema cho chat flow. Response phải luôn kèm citations — chatbot lịch sử
-không nên trả lời mà không có nguồn (docs/14).
+Pydantic schemas cho chat flow: request từ Spring Boot và response trả về.
+
+Vai trò: định nghĩa "hợp đồng" API giữa Spring Boot và RAG service cho /rag/chat.
+Spring Boot serialize Java object → JSON → RAG service deserialize vào đây.
+
+3 model:
+  RagChatRequest  — câu hỏi + tham số tuning (topK, filter, temperature)
+  RagChatResponse — answer text + danh sách citations + flags (usedVector/Graph)
+  Citation        — 1 nguồn được dùng để trả lời: sourceType, title, score...
+
+Response phải luôn kèm citations — chatbot lịch sử không được trả lời
+mà không có nguồn để user kiểm chứng (docs/14).
 """
 from pydantic import BaseModel
 

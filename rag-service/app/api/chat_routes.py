@@ -1,4 +1,23 @@
+"""
+API layer cho chat: POST /rag/chat và GET /rag/health.
+
+Vai trò: nhận câu hỏi từ Spring Boot, chạy RAG pipeline, trả answer + citations.
+Không chứa logic retrieval hay prompt — chỉ điều phối các service.
+
+Flow trong /rag/chat:
+  1. question_router_service.route()  — quyết định dùng vector / graph / cả hai
+  2. retrieval_service.retrieve()     — embed câu hỏi + search Qdrant topK chunks
+  3. prompt_service.build_user_msg()  — ghép câu hỏi + chunks thành prompt
+  4. llm_service.generate()          — gọi Gemma LLM sinh câu trả lời
+  5. citation_service.to_citations()  — map ScoredPoint → Citation objects
+
+Fallback: nếu không có hits hoặc LLM lỗi → trả _NO_DATA_MSG thay vì crash.
+Graph (Neo4j) chưa implement — useGraph luôn False trong MVP.
+"""
+import json
+
 from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
 
 from app.schemas.chat import RagChatRequest, RagChatResponse
 
@@ -14,6 +33,37 @@ async def health():
 
 @router.post("/chat", response_model=RagChatResponse)
 async def chat(req: RagChatRequest):
+    return await _chat(req)
+
+
+@router.post("/chat/stream")
+async def chat_stream(req: RagChatRequest):
+    async def event_stream():
+        yield _sse("chat.created", {"message": "stream started"})
+        response = await _chat(req)
+
+        for chunk in _chunk_text(response.answer):
+            yield _sse("chat.delta", {"text": chunk})
+
+        yield _sse("chat.citations", {
+            "citations": [citation.model_dump() for citation in response.citations],
+        })
+        yield _sse("chat.completed", {
+            "usedVector": response.usedVector,
+            "usedGraph": response.usedGraph,
+        })
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+async def _chat(req: RagChatRequest) -> RagChatResponse:
     from app.config import settings
     from app.services.retrieval_service import retrieve
     from app.services.prompt_service import load_system_prompt, build_user_message
@@ -59,3 +109,15 @@ async def chat(req: RagChatRequest):
         usedVector=True,
         usedGraph=False,
     )
+
+
+def _sse(event: str, data: dict) -> str:
+    payload = json.dumps(data, ensure_ascii=False)
+    return f"event: {event}\ndata: {payload}\n\n"
+
+
+def _chunk_text(text: str, chunk_size: int = 48):
+    if not text:
+        return
+    for index in range(0, len(text), chunk_size):
+        yield text[index:index + chunk_size]

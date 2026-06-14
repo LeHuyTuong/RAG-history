@@ -1,3 +1,22 @@
+"""
+Bước 3/4 trong ingestion pipeline: tạo vector embedding cho text.
+
+Vai trò: wrap Google Gemini Embedding API, cung cấp 2 hàm public:
+  embed_documents() — dùng lúc ingest (task_type=RETRIEVAL_DOCUMENT)
+  embed_query()     — dùng lúc search/chat (task_type=RETRIEVAL_QUERY)
+
+Flow trong ingest:
+  chunk_service  →  [ChunkData]  →  embed_documents(texts)  →  [vector, ...]  →  vector_repository
+
+Flow trong chat:
+  chat_routes  →  embed_query(question)  →  [vector]  →  vector_repository.search()
+
+Tại sao tách task_type: Gemini phân biệt document vs query để tối ưu
+similarity — document embedding tối ưu cho nội dung dài, query embedding
+tối ưu cho câu hỏi ngắn. Dùng nhầm sẽ giảm chất lượng retrieval.
+
+Batch size 100: giới hạn của Gemini Embedding API per request.
+"""
 from google import genai
 from google.genai import types
 
