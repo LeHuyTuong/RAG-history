@@ -40,18 +40,8 @@ async def chat(req: RagChatRequest):
 async def chat_stream(req: RagChatRequest):
     async def event_stream():
         yield _sse("chat.created", {"message": "stream started"})
-        response = await _chat(req)
-
-        for chunk in _chunk_text(response.answer):
-            yield _sse("chat.delta", {"text": chunk})
-
-        yield _sse("chat.citations", {
-            "citations": [citation.model_dump() for citation in response.citations],
-        })
-        yield _sse("chat.completed", {
-            "usedVector": response.usedVector,
-            "usedGraph": response.usedGraph,
-        })
+        async for event in _stream_chat_events(req):
+            yield event
 
     return StreamingResponse(
         event_stream(),
@@ -109,6 +99,63 @@ async def _chat(req: RagChatRequest) -> RagChatResponse:
         usedVector=True,
         usedGraph=False,
     )
+
+
+async def _stream_chat_events(req: RagChatRequest):
+    from app.config import settings
+    from app.services.retrieval_service import retrieve
+    from app.services.prompt_service import load_system_prompt, build_user_message
+    from app.services.llm_service import generate_stream
+    from app.services.citation_service import to_citations
+    from app.services.question_router_service import route
+
+    top_k = req.topK or settings.default_top_k
+    routing = route(req.question, req.useGraph)
+
+    hits = []
+    if routing["use_vector"]:
+        hits = retrieve(
+            question=req.question,
+            top_k=top_k,
+            source_ids=req.sourceIds or None,
+            tag_ids=req.tagIds or None,
+        )
+
+    if not hits:
+        for event in _answer_events(_NO_DATA_MSG, [], routing["use_vector"], False):
+            yield event
+        return
+
+    citations = to_citations(hits)
+    try:
+        system_prompt = load_system_prompt()
+        user_message = build_user_message(req.question, hits)
+        for chunk in generate_stream(system_prompt, user_message, req.temperature):
+            yield _sse("chat.delta", {"text": chunk})
+    except Exception:
+        for event in _answer_events(_NO_DATA_MSG, [], True, False):
+            yield event
+        return
+
+    yield _sse("chat.citations", {
+        "citations": [citation.model_dump() for citation in citations],
+    })
+    yield _sse("chat.completed", {
+        "usedVector": True,
+        "usedGraph": False,
+    })
+
+
+def _answer_events(answer: str, citations: list, used_vector: bool, used_graph: bool):
+    for chunk in _chunk_text(answer):
+        yield _sse("chat.delta", {"text": chunk})
+    yield _sse("chat.citations", {
+        "citations": [citation.model_dump() for citation in citations],
+    })
+    yield _sse("chat.completed", {
+        "usedVector": used_vector,
+        "usedGraph": used_graph,
+    })
 
 
 def _sse(event: str, data: dict) -> str:

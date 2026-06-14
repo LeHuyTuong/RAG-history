@@ -45,3 +45,33 @@ def generate(system_prompt: str, user_message: str, temperature: float = 0.2) ->
     if not text:
         raise ValueError("LLM returned empty response")
     return text
+
+
+def generate_stream(system_prompt: str, user_message: str, temperature: float = 0.2):
+    models = _get_client().models
+    stream_fn = getattr(models, "generate_content_stream", None)
+    if stream_fn is None:
+        yield from _chunk_text(generate(system_prompt, user_message, temperature))
+        return
+
+    has_text = False
+    for chunk in stream_fn(
+        model=settings.llm_model,
+        contents=user_message,
+        config=types.GenerateContentConfig(
+            system_instruction=system_prompt,
+            temperature=temperature,
+        ),
+    ):
+        text = getattr(chunk, "text", None) or ""
+        if text:
+            has_text = True
+            yield text
+
+    if not has_text:
+        raise ValueError("LLM returned empty stream")
+
+
+def _chunk_text(text: str, chunk_size: int = 48):
+    for index in range(0, len(text), chunk_size):
+        yield text[index:index + chunk_size]
