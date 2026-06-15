@@ -94,6 +94,14 @@ public class Member {
         this.fullName = fullName;
     }
 
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -110,8 +118,5 @@ public class Member {
         this.updatedAt = updatedAt;
     }
 
-    public UserStatus getStatus() {
-        return status;
+
     }
-    public void setStatus(UserStatus status) { this.status = status;}
-}
