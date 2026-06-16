@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.Instant;
 
 @Service
 public class PeriodServiceImpl implements PeriodService {
@@ -35,8 +34,6 @@ public class PeriodServiceImpl implements PeriodService {
         period.setStartYear(request.startYear());
         period.setEndYear(request.endYear());
         period.setDescription(request.description());
-        period.setCreatedAt(Instant.now());
-        period.setUpdatedAt(Instant.now());
 
         Period saved = periodRepository.save(period);
         return PeriodResponse.fromEntity(saved);
@@ -60,7 +57,6 @@ public class PeriodServiceImpl implements PeriodService {
         period.setStartYear(request.startYear());
         period.setEndYear(request.endYear());
         period.setDescription(request.description());
-        period.setUpdatedAt(Instant.now());
 
         Period updated = periodRepository.save(period);
         return PeriodResponse.fromEntity(updated);

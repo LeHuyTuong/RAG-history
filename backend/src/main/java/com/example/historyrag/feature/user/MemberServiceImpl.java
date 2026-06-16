@@ -12,7 +12,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,8 +60,6 @@ public class MemberServiceImpl implements MemberService {
             member.setFullName(request.fullName());
         }
 
-        member.setUpdatedAt(Instant.now());
-
         Member saved = memberRepository.save(member);
         log.info("User updated successfully: {}", saved.getId());
 
@@ -76,7 +73,6 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Member", "id", id));
         member.setStatus(Member.UserStatus.INACTIVE);
-        member.setUpdatedAt(Instant.now());
         memberRepository.save(member);
         log.info("User soft deleted: {}", id);
     }

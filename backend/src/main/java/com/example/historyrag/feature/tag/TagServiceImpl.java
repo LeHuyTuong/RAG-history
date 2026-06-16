@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.Instant;
 
 @Service
 public class TagServiceImpl implements TagService {
@@ -34,8 +33,6 @@ public class TagServiceImpl implements TagService {
         tag.setName(request.name());
         tag.setSlug(request.slug());
         tag.setDescription(request.description());
-        tag.setCreatedAt(Instant.now());
-        tag.setUpdatedAt(Instant.now());
 
         return TagResponse.fromEntity(tagRepository.save(tag));
     }
@@ -54,7 +51,6 @@ public class TagServiceImpl implements TagService {
         tag.setName(request.name());
         tag.setSlug(request.slug());
         tag.setDescription(request.description());
-        tag.setUpdatedAt(Instant.now());
 
         return TagResponse.fromEntity(tagRepository.save(tag));
     }

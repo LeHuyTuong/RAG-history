@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.Instant;
 
 @Service
 public class EngagementServiceImpl implements EngagementService {
@@ -37,7 +36,6 @@ public class EngagementServiceImpl implements EngagementService {
             throw new InvalidRequestException("Only COMMENT type can be moderated");
         }
         engagement.setCommentStatus(request.status());
-        engagement.setUpdatedAt(Instant.now());
         return EngagementResponse.fromEntity(engagementRepository.save(engagement));
     }
 }
