@@ -1,22 +1,35 @@
 # 12. API Design
 
+
 ## Nguyên tắc chung
 
 - Backend Spring Boot expose REST API cho frontend.
 - Frontend không gọi trực tiếp FastAPI RAG service.
-- API dùng JSON, riêng upload tài liệu dùng `multipart/form-data`.
-- Endpoint admin nên yêu cầu role `ADMIN`.
-- Response nên có format thống nhất.
+- API dùng JSON. Upload file chưa có Spring Boot controller trong code hiện tại.
+- Endpoint admin yêu cầu `ROLE_ADMIN`.
+- Endpoint không nằm trong whitelist của `SecurityConfig` yêu cầu JWT Bearer token.
+- Response thực tế dùng wrapper `ApiResponse<T>` với field `statusCode`, `message`, `data`, `error`, `details`.
+- DELETE trong code hiện tại trả `200` kèm wrapper, không phải `204 No Content`.
 
 ## Response wrapper gợi ý
 
-Success:
+Success thực tế:
 
 ```json
 {
-  "success": true,
-  "data": {},
-  "message": "OK"
+  "statusCode": 200,
+  "message": "Success",
+  "data": {}
+}
+```
+
+Created:
+
+```json
+{
+  "statusCode": 201,
+  "message": "Đăng ký thành công",
+  "data": {}
 }
 ```
 
@@ -24,76 +37,92 @@ Error:
 
 ```json
 {
-  "success": false,
-  "errorCode": "RESOURCE_NOT_FOUND",
-  "message": "Không tìm thấy dữ liệu",
-  "details": []
+  "statusCode": 404,
+  "message": "Resource not found with id: 1",
+  "error": "Not Found"
 }
 ```
 
-## Public article APIs
-
-| Method | URL | Purpose | Request body | Response body |
-|---|---|---|---|---|
-| `GET` | `/api/articles` | Lấy danh sách bài viết published. | Query: `page`, `size`, `categorySlug`, `keyword`. | Page of `ArticleSummaryResponse`. |
-| `GET` | `/api/articles/{slug}` | Lấy chi tiết bài viết. | None. | `ArticleDetailResponse`. |
-| `GET` | `/api/categories` | Lấy danh sách category. | None. | List `CategoryResponse`. |
-| `GET` | `/api/categories/{slug}/articles` | Lấy bài viết theo category. | Query: `page`, `size`. | Page of `ArticleSummaryResponse`. |
-
-Ví dụ response article detail:
+Validation error thực tế:
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": 12,
-    "title": "Đinh Bộ Lĩnh và loạn 12 sứ quân",
-    "slug": "dinh-bo-linh-loan-12-su-quan",
-    "summary": "Tổng quan về quá trình thống nhất đất nước...",
-    "content": "<p>...</p>",
-    "category": {
-      "id": 1,
-      "name": "Nhà Đinh",
-      "slug": "nha-dinh"
-    },
-    "tags": ["Đinh Bộ Lĩnh", "Loạn 12 sứ quân"],
-    "publishedAt": "2026-05-20T10:00:00"
-  },
-  "message": "OK"
+  "statusCode": 400,
+  "message": "Dữ liệu không hợp lệ",
+  "error": "Bad Request",
+  "details": [
+    "email: Email không đúng định dạng"
+  ]
 }
 ```
 
-## Admin article APIs
+## Authentication API
 
-| Method | URL | Purpose | Request body | Response body |
-|---|---|---|---|---|
-| `POST` | `/api/admin/articles` | Tạo bài viết. | `CreateArticleRequest`. | `ArticleDetailResponse`. |
-| `PUT` | `/api/admin/articles/{id}` | Cập nhật bài viết. | `UpdateArticleRequest`. | `ArticleDetailResponse`. |
-| `DELETE` | `/api/admin/articles/{id}` | Xóa bài viết. | None. | Empty/success. |
-| `PATCH` | `/api/admin/articles/{id}/publish` | Publish/unpublish bài viết. | `{ "published": true }`. | `ArticleDetailResponse`. |
+Auth cơ chế hiện tại:
 
-Request:
+- Spring Security chạy stateless JWT qua `oauth2ResourceServer`.
+- Access token gửi bằng header:
+
+```http
+Authorization: Bearer <accessToken>
+```
+
+- Refresh token được trả trong response body và được set thêm cookie `refresh_token`.
+- Cookie refresh token: `HttpOnly; Secure; SameSite=Lax; Path=/api/v1/auth`.
+- Public whitelist: `/api/v1/auth/login`, `/api/v1/auth/register`, `/api/v1/auth/refresh`, `/api/v1/auth/logout`, `/actuator/health`, `/uploads/**`, Swagger/OpenAPI.
+- Các endpoint còn lại yêu cầu authenticated JWT.
+- Admin endpoint dùng `@PreAuthorize("hasRole('ADMIN')")`.
+
+| Method | URL | Quyền | Purpose | Request body | Response body | Status codes |
+|---|---|---|---|---|---|---|
+| `POST` | `/api/v1/auth/register` | Public | Đăng ký member. | `RegisterRequest` | `RegisterResponse` | `201`, `400`, `409`, `500` |
+| `POST` | `/api/v1/auth/login` | Public | Đăng nhập, tạo access token và refresh token. | `LoginRequest` | `LoginResponse` | `200`, `400`, `401`, `500` |
+| `POST` | `/api/v1/auth/refresh` | Public | Refresh access token bằng cookie `refresh_token` hoặc body. | `RefreshRequest` optional | `LoginResponse` | `200`, `400`, `401`, `500` |
+| `POST` | `/api/v1/auth/logout` | Public | Revoke refresh token nếu có cookie, clear cookie. | None | `null` | `200`, `500` |
+| `GET` | `/api/v1/auth/me` | Authenticated | Lấy thông tin tài khoản hiện tại từ JWT subject và claim `accountType`. | None | `AuthUserResponse` | `200`, `401`, `404`, `500` |
+
+Ví dụ login:
 
 ```json
 {
-  "title": "Đinh Bộ Lĩnh và loạn 12 sứ quân",
-  "slug": "dinh-bo-linh-loan-12-su-quan",
-  "summary": "Tóm tắt ngắn...",
-  "content": "Nội dung bài viết...",
-  "categoryId": 1,
-  "tags": ["Đinh Bộ Lĩnh", "Nhà Đinh"],
-  "thumbnailUrl": "https://example.com/image.jpg",
-  "status": "DRAFT"
+  "email": "admin@example.com",
+  "password": "password123"
 }
 ```
 
-## Admin category APIs
+Ví dụ protected request:
 
-| Method | URL | Purpose | Request body | Response body |
-|---|---|---|---|---|
-| `POST` | `/api/admin/categories` | Tạo category. | `CreateCategoryRequest`. | `CategoryResponse`. |
-| `PUT` | `/api/admin/categories/{id}` | Cập nhật category. | `UpdateCategoryRequest`. | `CategoryResponse`. |
-| `DELETE` | `/api/admin/categories/{id}` | Xóa category. | None. | Empty/success. |
+```http
+GET /api/v1/auth/me HTTP/1.1
+Authorization: Bearer <accessToken>
+```
+
+## User profile APIs
+
+| Method | URL | Quyền | Purpose | Request body | Response body | Status codes |
+|---|---|---|---|---|---|---|
+| `GET` | `/api/v1/users/me` | Authenticated | Lấy member hiện tại. | None | `UserResponse` | `200`, `401`, `404`, `500` |
+| `GET` | `/api/v1/users/{id}` | Authenticated | Lấy member theo id. | None | `UserResponse` | `200`, `400`, `401`, `404`, `500` |
+| `GET` | `/api/v1/users/email/{email}` | Authenticated | Lấy member theo email. | None | `UserResponse` | `200`, `401`, `404`, `500` |
+| `GET` | `/api/v1/users` | Authenticated | Lấy toàn bộ member. | None | List `UserResponse` | `200`, `401`, `500` |
+| `PUT` | `/api/v1/users/{id}` | Authenticated | Cập nhật username/fullName. | `UpdateUserRequest` | `UserResponse` | `200`, `400`, `401`, `404`, `409`, `500` |
+| `DELETE` | `/api/v1/users/{id}` | Authenticated | Xóa member. | None | `null` | `200`, `400`, `401`, `404`, `500` |
+
+
+## Admin dashboard APIs
+
+| Method | URL | Quyền | Purpose | Request body | Response body | Status codes |
+|---|---|---|---|---|---|---|
+| `GET` | `/api/v1/dashboard` | `ROLE_ADMIN` | Lấy số liệu dashboard admin. | None | `DashboardResponse` | `200`, `401`, `403`, `500` |
+
+## Admin tag APIs
+
+| Method | URL | Quyền | Purpose | Request body | Response body | Status codes |
+|---|---|---|---|---|---|---|
+| `GET` | `/api/v1/admin/tags` | `ROLE_ADMIN` | Lấy danh sách tag phân trang. | Query: `page`, `size`, `sort` | Page `TagResponse` | `200`, `401`, `403`, `500` |
+| `POST` | `/api/v1/admin/tags` | `ROLE_ADMIN` | Tạo tag. | `TagRequest` | `TagResponse` | `201`, `400`, `401`, `403`, `409`, `500` |
+| `PUT` | `/api/v1/admin/tags/{id}` | `ROLE_ADMIN` | Cập nhật tag. | `TagRequest` | `TagResponse` | `200`, `400`, `401`, `403`, `404`, `409`, `500` |
+| `DELETE` | `/api/v1/admin/tags/{id}` | `ROLE_ADMIN` | Xóa tag. | None | `null` | `200`, `400`, `401`, `403`, `404`, `500` |
 
 Request:
 
@@ -101,214 +130,85 @@ Request:
 {
   "name": "Nhà Đinh",
   "slug": "nha-dinh",
-  "description": "Các bài viết về nhà Đinh",
-  "parentId": null
+  "description": "Các nội dung về nhà Đinh"
 }
 ```
 
-## Document APIs
+## Admin period APIs
 
-| Method | URL | Purpose | Request body | Response body |
-|---|---|---|---|---|
-| `POST` | `/api/admin/documents/upload` | Upload tài liệu. | `multipart/form-data` field `file`. | `DocumentResponse`. |
-| `GET` | `/api/admin/documents` | Lấy danh sách tài liệu. | Query: `page`, `size`, `status`. | Page of `DocumentResponse`. |
-| `GET` | `/api/admin/documents/{id}` | Lấy chi tiết tài liệu. | None. | `DocumentResponse`. |
-| `DELETE` | `/api/admin/documents/{id}` | Xóa tài liệu. | None. | Empty/success. |
-| `POST` | `/api/admin/documents/{id}/ingest` | Ingest tài liệu vào RAG. | Optional settings override. | `IngestionJobResponse`. |
-
-Response:
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": 10,
-    "fileName": "20260520_lich-su-viet-nam.pdf",
-    "originalFileName": "Lich-su-Viet-Nam.pdf",
-    "fileType": "PDF",
-    "status": "PENDING",
-    "createdAt": "2026-05-20T10:00:00"
-  },
-  "message": "Upload thành công"
-}
-```
-
-## Datasource APIs
-
-| Method | URL | Purpose | Request body | Response body |
-|---|---|---|---|---|
-| `POST` | `/api/admin/datasources` | Tạo datasource URL/manual/article/document. | `CreateDatasourceRequest`. | `DatasourceResponse`. |
-| `GET` | `/api/admin/datasources` | Lấy danh sách datasource. | Query: `page`, `size`, `sourceType`, `status`. | Page of `DatasourceResponse`. |
-| `POST` | `/api/admin/datasources/{id}/ingest` | Ingest datasource lần đầu. | None hoặc override settings. | `IngestionJobResponse`. |
-| `POST` | `/api/admin/datasources/{id}/re-ingest` | Ingest lại datasource. | None hoặc override settings. | `IngestionJobResponse`. |
-
-Request URL datasource:
-
-```json
-{
-  "sourceType": "URL",
-  "title": "Đinh Tiên Hoàng",
-  "sourceUrl": "https://example.com/wiki/dinh-tien-hoang",
-  "rawContent": null,
-  "articleId": null,
-  "documentId": null
-}
-```
-
-Request manual input:
-
-```json
-{
-  "sourceType": "MANUAL_INPUT",
-  "title": "Ghi chú về Hoa Lư",
-  "rawContent": "Hoa Lư là kinh đô của nhà Đinh và Tiền Lê.",
-  "sourceUrl": null,
-  "articleId": null,
-  "documentId": null
-}
-```
-
-## Chat APIs
-
-| Method | URL | Purpose | Request body | Response body |
-|---|---|---|---|---|
-| `POST` | `/api/chat/sessions` | Tạo chat session. | `CreateChatSessionRequest`. | `ChatSessionResponse`. |
-| `GET` | `/api/chat/sessions/{id}/messages` | Lấy messages của session. | None. | List `ChatMessageResponse`, sort `createdAt ASC`. |
-| `POST` | `/api/chat/sessions/{id}/messages` | Gửi message user và nhận assistant answer. | `SendMessageRequest`. | `ChatMessagePairResponse`. |
-| `GET` | `/api/chat/sessions/active?documentId=...` | Lấy hoặc tạo session đang active theo document nếu cần. | Query. | `ChatSessionResponse`. |
-
-Request gửi message:
-
-```json
-{
-  "message": "Vì sao Đinh Bộ Lĩnh dẹp được loạn 12 sứ quân?",
-  "documentId": null,
-  "articleId": null,
-  "sourceIds": [],
-  "useGraph": true
-}
-```
-
-Response:
-
-```json
-{
-  "success": true,
-  "data": {
-    "userMessage": {
-      "id": 101,
-      "role": "USER",
-      "content": "Vì sao Đinh Bộ Lĩnh dẹp được loạn 12 sứ quân?",
-      "createdAt": "2026-05-20T10:01:00"
-    },
-    "assistantMessage": {
-      "id": 102,
-      "role": "ASSISTANT",
-      "content": "Đinh Bộ Lĩnh dẹp được loạn 12 sứ quân nhờ...",
-      "citations": [
-        {
-          "sourceType": "ARTICLE",
-          "articleId": 12,
-          "title": "Đinh Bộ Lĩnh và loạn 12 sứ quân",
-          "slug": "dinh-bo-linh-loan-12-su-quan",
-          "chunkIndex": 2
-        }
-      ],
-      "createdAt": "2026-05-20T10:01:05"
-    }
-  },
-  "message": "OK"
-}
-```
-
-## Settings APIs
-
-| Method | URL | Purpose | Request body | Response body |
-|---|---|---|---|---|
-| `GET` | `/api/admin/settings` | Lấy settings hệ thống. | None. | List `SystemSettingResponse`. |
-| `PUT` | `/api/admin/settings/{key}` | Cập nhật setting theo key. | `UpdateSettingRequest`. | `SystemSettingResponse`. |
+| Method | URL | Quyền | Purpose | Request body | Response body | Status codes |
+|---|---|---|---|---|---|---|
+| `GET` | `/api/v1/admin/periods` | `ROLE_ADMIN` | Lấy danh sách thời kỳ, có lọc keyword. | Query: `keyword`, `page`, `size`, `sort` | Page `PeriodResponse` | `200`, `401`, `403`, `500` |
+| `POST` | `/api/v1/admin/periods` | `ROLE_ADMIN` | Tạo thời kỳ. | `PeriodRequest` | `PeriodResponse` | `201`, `400`, `401`, `403`, `409`, `500` |
+| `PUT` | `/api/v1/admin/periods/{id}` | `ROLE_ADMIN` | Cập nhật thời kỳ. | `PeriodRequest` | `PeriodResponse` | `200`, `400`, `401`, `403`, `404`, `409`, `500` |
+| `DELETE` | `/api/v1/admin/periods/{id}` | `ROLE_ADMIN` | Xóa thời kỳ. | None | `null` | `200`, `400`, `401`, `403`, `404`, `500` |
 
 Request:
 
 ```json
 {
-  "settingValue": "5",
-  "description": "Số chunk retrieve cho mỗi câu hỏi"
+  "name": "Nhà Lý",
+  "slug": "nha-ly",
+  "startYear": 1009,
+  "endYear": 1225,
+  "description": "Triều đại nhà Lý"
 }
 ```
 
-## Graph APIs
+## Admin engagement APIs
 
-| Method | URL | Purpose | Request body | Response body |
-|---|---|---|---|---|
-| `GET` | `/api/graph/persons/search?name=` | Tìm nhân vật theo tên. | Query `name`. | List `PersonResponse`. |
-| `GET` | `/api/graph/persons/{id}/family-tree` | Lấy cây gia phả. | None. | `FamilyTreeResponse`. |
-| `GET` | `/api/graph/persons/{id}/relationships` | Lấy quan hệ nhân vật. | None. | List `RelationshipResponse`. |
-| `GET` | `/api/graph/persons/{id}/subordinates` | Lấy người dưới trướng. | None. | List `PersonRelationshipResponse`. |
+| Method | URL | Quyền | Purpose | Request body | Response body | Status codes |
+|---|---|---|---|---|---|---|
+| `GET` | `/api/v1/admin/engagements/pending` | `ROLE_ADMIN` | Lấy comment đang chờ duyệt. | Query: `page`, `size`, `sort` | Page `EngagementResponse` | `200`, `401`, `403`, `500` |
+| `PUT` | `/api/v1/admin/engagements/{id}/moderate` | `ROLE_ADMIN` | Duyệt/ẩn comment. | `EngagementModerationRequest` | `EngagementResponse` | `200`, `400`, `401`, `403`, `404`, `500` |
 
-Family tree response:
+Request:
 
 ```json
 {
-  "success": true,
-  "data": {
-    "person": {
-      "id": "person-dinh-bo-linh",
-      "name": "Đinh Bộ Lĩnh"
-    },
-    "parents": [],
-    "children": [
-      {
-        "id": "person-dinh-lien",
-        "name": "Đinh Liễn"
-      }
-    ],
-    "citations": [
-      {
-        "sourceType": "GRAPH",
-        "relationship": "PARENT_OF",
-        "source": "Đinh Bộ Lĩnh",
-        "target": "Đinh Liễn",
-        "evidenceSourceId": "source-001"
-      }
-    ]
-  },
-  "message": "OK"
+  "status": "VISIBLE"
 }
 ```
+
+`status` hợp lệ: `PENDING`, `VISIBLE`, `HIDDEN`.
 
 ## RAG service APIs
 
 Các API này chỉ để Spring Boot gọi, frontend không gọi trực tiếp.
 
-| Method | URL | Purpose | Request body | Response body |
-|---|---|---|---|---|
-| `POST` | `/rag/ingest` | Ingest datasource/article/document. | `RagIngestRequest`. | `RagIngestResponse`. |
-| `POST` | `/rag/chat` | Hỏi RAG chatbot. | `RagChatRequest`. | `RagChatResponse`. |
-| `POST` | `/rag/graph/family-tree` | Lấy family tree từ Neo4j. | `GraphFamilyTreeRequest`. | `FamilyTreeResponse`. |
-| `POST` | `/rag/graph/query` | Query graph tổng quát. | `GraphQueryRequest`. | `GraphQueryResponse`. |
-| `GET` | `/rag/health` | Health check. | None. | Health status. |
+FastAPI base path: `/rag`.
+
+| Method | URL | Quyền | Purpose | Request body | Response body | Status codes |
+|---|---|---|---|---|---|---|
+| `GET` | `/rag/health` | Internal | Health check RAG service. | None | `{ "status": "ok", "service": "rag-history" }` | `200` |
+| `POST` | `/rag/ingest` | Internal | Ingest một source vào vector store. | `RagIngestRequest` | `RagIngestResponse` | `200`, `400`, `500` |
+| `DELETE` | `/rag/delete?sourceId={id}` | Internal | Xóa vector theo `sourceId`. | None | `{ "status": "deleted", "sourceId": 1 }` | `200`, `500` |
+| `POST` | `/rag/chat` | Internal | Hỏi RAG chatbot, response JSON. | `RagChatRequest` | `RagChatResponse` | `200`, `500` |
+| `POST` | `/rag/chat/stream` | Internal | Hỏi RAG chatbot, response Server-Sent Events. | `RagChatRequest` | SSE events | `200`, `500` |
 
 RAG ingest request:
 
 ```json
 {
-  "sourceId": "source-001",
+  "sourceId": 101,
   "sourceType": "DOCUMENT",
   "title": "Lịch sử Việt Nam",
-  "documentId": 10,
   "articleId": null,
-  "filePath": "/uploads/20260520_lich-su-viet-nam.pdf",
+  "documentId": 10,
+  "filePath": "/uploads/lich-su-viet-nam.pdf",
   "sourceUrl": null,
   "rawContent": null,
   "metadata": {
-    "categoryName": "Nhà Đinh",
-    "createdBy": "admin"
+    "categoryId": null,
+    "categoryName": null,
+    "slug": null,
+    "tagIds": [],
+    "eventIds": [],
+    "periodIds": []
   },
   "settings": {
     "chunkSize": 800,
-    "chunkOverlap": 120,
-    "embeddingModel": "text-embedding-3-small"
+    "chunkOverlap": 120
   }
 }
 ```
@@ -317,32 +217,334 @@ RAG chat request:
 
 ```json
 {
-  "sessionId": "session-001",
   "question": "Cha của Đinh Liễn là ai?",
   "topK": 5,
-  "useGraph": true,
+  "useGraph": false,
   "sourceIds": [],
-  "llmModel": "gpt-4.1-mini",
+  "tagIds": [],
   "temperature": 0.2
 }
 ```
 
-RAG chat response:
+SSE events từ `/rag/chat/stream`:
 
-```json
-{
-  "answer": "Theo dữ liệu graph, cha của Đinh Liễn là Đinh Bộ Lĩnh.",
-  "citations": [
-    {
-      "sourceType": "GRAPH",
-      "relationship": "PARENT_OF",
-      "source": "Đinh Bộ Lĩnh",
-      "target": "Đinh Liễn",
-      "evidenceSourceId": "source-001"
-    }
-  ],
-  "usedVector": false,
-  "usedGraph": true
-}
-```
+| Event | Data |
+|---|---|
+| `chat.created` | `{ "message": "stream started" }` |
+| `chat.delta` | `{ "text": "..." }` |
+| `chat.citations` | `{ "citations": [...] }` |
+| `chat.completed` | `{ "usedVector": true, "usedGraph": false }` |
+
+## Data models
+
+### ApiResponse<T>
+
+| Field | Type | Description |
+|---|---|---|
+| `statusCode` | integer | HTTP-like status code in body. |
+| `message` | string | Human-readable message. |
+| `data` | T/null | Response payload on success. Omitted when null because `NON_NULL`. |
+| `error` | string/null | Error label. |
+| `details` | array string/null | Validation details. |
+
+### Page<T>
+
+Spring Data `Page<T>` serialized by Jackson. Common fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `content` | array T | Dữ liệu trang hiện tại. |
+| `totalElements` | integer | Tổng số bản ghi. |
+| `totalPages` | integer | Tổng số trang. |
+| `size` | integer | Kích thước trang. |
+| `number` | integer | Số trang hiện tại, bắt đầu từ `0`. |
+| `first` | boolean | Có phải trang đầu không. |
+| `last` | boolean | Có phải trang cuối không. |
+| `numberOfElements` | integer | Số phần tử trong trang hiện tại. |
+| `empty` | boolean | Trang rỗng hay không. |
+
+### LoginRequest
+
+| Field | Type | Required | Constraints |
+|---|---|---|---|
+| `email` | string | Yes | `@NotBlank`, `@Email` |
+| `password` | string | Yes | `@NotBlank` |
+
+### RegisterRequest
+
+| Field | Type | Required | Constraints |
+|---|---|---|---|
+| `username` | string | No | `@Size(max=50)` |
+| `name` | string | Yes | `@NotBlank`, `@Size(min=2,max=255)` |
+| `email` | string | Yes | `@NotBlank`, `@Email` |
+| `password` | string | Yes | `@NotBlank`, `@Size(min=8,max=100)` |
+
+### RefreshRequest
+
+| Field | Type | Required | Constraints |
+|---|---|---|---|
+| `refreshToken` | string | No | Có thể thay bằng cookie `refresh_token`. |
+
+### LoginResponse
+
+| Field | Type |
+|---|---|
+| `accessToken` | string |
+| `refreshToken` | string |
+
+### RegisterResponse
+
+| Field | Type |
+|---|---|
+| `id` | long |
+| `username` | string |
+| `email` | string |
+| `fullName` | string |
+| `status` | enum `ACTIVE`, `INACTIVE`, `DELETED`, `BANNED` |
+| `createdAt` | instant |
+
+### AuthUserResponse
+
+| Field | Type |
+|---|---|
+| `id` | long |
+| `username` | string |
+| `email` | string |
+| `fullName` | string |
+| `status` | enum `ACTIVE`, `INACTIVE`, `DELETED`, `BANNED` |
+| `accountType` | string, `ADMIN` hoặc `MEMBER` |
+| `role` | string, `ROLE_ADMIN` hoặc `ROLE_USER` |
+| `createdAt` | instant |
+
+### UpdateUserRequest
+
+| Field | Type | Required | Constraints |
+|---|---|---|---|
+| `username` | string | No | `@Size(min=3,max=50)` |
+| `fullName` | string | No | `@Size(min=3,max=50)` |
+
+### UserResponse
+
+| Field | Type |
+|---|---|
+| `id` | long |
+| `username` | string |
+| `email` | string |
+| `fullName` | string |
+| `status` | enum `ACTIVE`, `INACTIVE`, `DELETED`, `BANNED` |
+| `createdAt` | instant |
+| `updatedAt` | instant |
+
+### DashboardResponse
+
+| Field | Type |
+|---|---|
+| `totalAdmins` | long |
+| `totalMembers` | long |
+| `totalPosts` | long |
+| `publishedPosts` | long |
+| `draftPosts` | long |
+| `archivedPosts` | long |
+| `totalEvents` | long |
+| `totalPersons` | long |
+| `totalLocations` | long |
+| `totalSources` | long |
+| `totalTags` | long |
+| `totalPeriods` | long |
+| `totalEngagements` | long |
+| `totalComments` | long |
+| `pendingComments` | long |
+| `visibleComments` | long |
+| `hiddenComments` | long |
+| `activities` | array `DashboardActivityResponse` |
+
+### DashboardActivityResponse
+
+| Field | Type |
+|---|---|
+| `id` | string |
+| `icon` | string |
+| `color` | string |
+| `background` | string |
+| `text` | string |
+| `time` | string |
+
+### TagRequest
+
+| Field | Type | Required | Constraints |
+|---|---|---|---|
+| `name` | string | Yes | `@NotBlank`, `@Size(max=50)` |
+| `slug` | string | Yes | `@NotBlank`, `@Size(max=100)`, pattern `^[a-z0-9]+(?:-[a-z0-9]+)*$` |
+| `description` | string | No | `@Size(max=500)` |
+
+### TagResponse
+
+| Field | Type |
+|---|---|
+| `id` | long |
+| `name` | string |
+| `slug` | string |
+| `description` | string |
+| `createdAt` | instant |
+| `updatedAt` | instant |
+
+### PeriodRequest
+
+| Field | Type | Required | Constraints |
+|---|---|---|---|
+| `name` | string | Yes | `@NotBlank`, `@Size(max=50)` |
+| `slug` | string | Yes | `@NotBlank`, `@Size(max=50)`, pattern `^[a-z0-9]+(?:-[a-z0-9]+)*$` |
+| `startYear` | integer | No | None |
+| `endYear` | integer | No | None |
+| `description` | string | No | `@Size(max=100)` |
+
+### PeriodResponse
+
+| Field | Type |
+|---|---|
+| `id` | long |
+| `name` | string |
+| `slug` | string |
+| `startYear` | integer |
+| `endYear` | integer |
+| `description` | string |
+| `createdAt` | instant |
+| `updatedAt` | instant |
+
+### EngagementModerationRequest
+
+| Field | Type | Required | Constraints |
+|---|---|---|---|
+| `status` | enum `PENDING`, `VISIBLE`, `HIDDEN` | Yes | `@NotNull` |
+
+### EngagementResponse
+
+| Field | Type |
+|---|---|
+| `id` | long |
+| `commentContent` | string |
+| `commentStatus` | enum `PENDING`, `VISIBLE`, `HIDDEN` |
+| `createdAt` | instant |
+
+### RagIngestRequest
+
+| Field | Type | Required | Constraints |
+|---|---|---|---|
+| `sourceId` | integer | Yes | Pydantic required |
+| `sourceType` | string | Yes | `"DOCUMENT"` / `"ARTICLE"` / `"URL"` / `"MANUAL_INPUT"` by comment only |
+| `title` | string | Yes | Pydantic required |
+| `articleId` | integer | No | None |
+| `documentId` | integer | No | None |
+| `filePath` | string | No | One of `filePath`, `sourceUrl`, `rawContent` expected by service comment |
+| `sourceUrl` | string | No | One of `filePath`, `sourceUrl`, `rawContent` expected by service comment |
+| `rawContent` | string | No | One of `filePath`, `sourceUrl`, `rawContent` expected by service comment |
+| `metadata` | `IngestMetadata` | No | Default empty object |
+| `settings` | `IngestSettings` | No | Default empty object |
+
+### IngestMetadata
+
+| Field | Type |
+|---|---|
+| `categoryId` | integer/null |
+| `categoryName` | string/null |
+| `slug` | string/null |
+| `tagIds` | array integer |
+| `eventIds` | array integer |
+| `periodIds` | array integer |
+
+### IngestSettings
+
+| Field | Type |
+|---|---|
+| `chunkSize` | integer/null |
+| `chunkOverlap` | integer/null |
+
+### RagIngestResponse
+
+| Field | Type |
+|---|---|
+| `sourceId` | integer |
+| `status` | string, comment: `COMPLETED`, `EMPTY`, `FAILED` |
+| `collection` | string |
+| `embeddingModel` | string |
+| `chunks` | array `IngestedChunk` |
+
+### IngestedChunk
+
+| Field | Type |
+|---|---|
+| `chunkIndex` | integer |
+| `qdrantPointId` | string |
+| `contentHash` | string |
+
+### RagChatRequest
+
+| Field | Type | Required | Constraints |
+|---|---|---|---|
+| `question` | string | Yes | Pydantic required |
+| `topK` | integer | No | `null` dùng default config |
+| `useGraph` | boolean | No | Default `false`; graph chưa implement trong MVP |
+| `sourceIds` | array integer | No | Default `[]` |
+| `tagIds` | array integer | No | Default `[]` |
+| `temperature` | number | No | Default `0.2` |
+
+### Citation
+
+| Field | Type |
+|---|---|
+| `sourceType` | string |
+| `sourceId` | integer/null |
+| `articleId` | integer/null |
+| `documentId` | integer/null |
+| `title` | string/null |
+| `slug` | string/null |
+| `pageNumber` | integer/null |
+| `chunkIndex` | integer/null |
+| `score` | number/null |
+
+### RagChatResponse
+
+| Field | Type |
+|---|---|
+| `answer` | string |
+| `citations` | array `Citation` |
+| `usedVector` | boolean |
+| `usedGraph` | boolean |
+
+## Error codes
+
+Code hiện tại không có enum `errorCode`; `ApiResponse.error` là nhãn text. Bảng dưới đây mô tả error labels/status thực tế từ `GlobalExceptionHandler` và `SecurityConfig`.
+
+| error | HTTP status | Khi xảy ra |
+|---|---:|---|
+| `Unauthorized` | `401` | JWT thiếu/sai/hết hạn; `InvalidTokenException`; `BadCredentialsException`. |
+| `Forbidden` | `403` | Authenticated nhưng thiếu quyền, ví dụ không có `ROLE_ADMIN`. |
+| `Bad Request` | `400` | Validation lỗi, request body sai/missing, type mismatch, `InvalidRequestException`. |
+| `Not Found` | `404` | `ResourceNotFoundException` hoặc no handler nếu Spring được cấu hình throw no handler. |
+| `Conflict` | `409` | `DuplicateResourceException`, `ConflictException`, duplicate unique field như email/slug/name. |
+| `Method Not Allowed` | `405` | HTTP method không được hỗ trợ cho endpoint. |
+| `Internal Server Error` | `500` | Exception không được handle cụ thể. |
+
+## Validation rules
+
+| DTO | Field | Required | Rule |
+|---|---|---|---|
+| `LoginRequest` | `email` | Yes | Not blank, email format |
+| `LoginRequest` | `password` | Yes | Not blank |
+| `RegisterRequest` | `username` | No | Max 50 |
+| `RegisterRequest` | `name` | Yes | Not blank, min 2, max 255 |
+| `RegisterRequest` | `email` | Yes | Not blank, email format |
+| `RegisterRequest` | `password` | Yes | Not blank, min 8, max 100 |
+| `UpdateUserRequest` | `username` | No | Min 3, max 50 |
+| `UpdateUserRequest` | `fullName` | No | Min 3, max 50 |
+| `TagRequest` | `name` | Yes | Not blank, max 50 |
+| `TagRequest` | `slug` | Yes | Not blank, max 100, lowercase hyphen slug pattern |
+| `TagRequest` | `description` | No | Max 500 |
+| `PeriodRequest` | `name` | Yes | Not blank, max 50 |
+| `PeriodRequest` | `slug` | Yes | Not blank, max 50, lowercase hyphen slug pattern |
+| `PeriodRequest` | `startYear` | No | No annotation |
+| `PeriodRequest` | `endYear` | No | No annotation |
+| `PeriodRequest` | `description` | No | Max 100 |
+| `EngagementModerationRequest` | `status` | Yes | Not null; enum `PENDING`, `VISIBLE`, `HIDDEN` |
+
 
