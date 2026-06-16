@@ -34,11 +34,26 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus
+
+observability:
+  enabled: ${OBSERVABILITY_ENABLED:true}
+  service-name: ${OBSERVABILITY_SERVICE_NAME:history-rag-backend}
+  http:
+    enabled: ${OBSERVABILITY_HTTP_ENABLED:true}
+    inbound:
+      enabled: ${OBSERVABILITY_HTTP_INBOUND_ENABLED:true}
+    outbound:
+      enabled: ${OBSERVABILITY_HTTP_OUTBOUND_ENABLED:true}
+
+logging:
+  pattern:
+    level: "%5p [${observability.service-name},%X{traceId},%X{spanId}]"
 
 app:
   rag:
     base-url: ${RAG_SERVICE_URL:http://localhost:8001}
+    request-timeout: ${RAG_SERVICE_REQUEST_TIMEOUT:60s}
   upload:
     base-path: ${UPLOAD_BASE_PATH:./uploads}
   cors:

@@ -1,6 +1,6 @@
 # Project Status
 
-> Last updated: 2026-06-18 | By: Codex | Session: #12
+> Last updated: 2026-06-16 | By: Codex | Session: #9
 >
 > AI: update this file at the end of every session when asked.
 > Follow this exact format. Keep it concise — under 80 lines.
@@ -28,10 +28,8 @@
 - Enabled Flyway migrations for the backend, defaulted JPA DDL to `validate`, and adjusted cloud Docker env so TiDB Cloud runs without waiting for local MySQL.
 - Made the initial post full-text indexes TiDB-compatible in `V1__init.sql` by splitting title, summary, and content into separate single-column indexes; verified Flyway V1-V3 migrations plus Hibernate validation against TiDB Cloud.
 - Fixed login refresh-token persistence by removing premature Bean Validation from Hibernate-managed `RefreshToken.createdAt`.
-- Added admin CRUD Post backend API with ResultPaginationDTO filtering, JWT admin author resolution, Post-Tag mapping, service/controller tests, and API docs.
-- Fixed post keyword filtering by casting searchable fields before `ilike`, avoiding Hibernate CLOB `lower()` errors on `summary` and `content`.
-- Added admin CRUD Location backend API with enum location types, ResultPaginationDTO filtering, validation, service/controller tests, and API docs.
-- Added admin CRUD Source backend API with source/reliability enums, ResultPaginationDTO filtering, validation, service/controller tests, and API docs.
+- Added OpenAI-style chat SSE design docs, FastAPI `/rag/chat/stream`, and Spring Boot `/api/v1/rag/chat/stream` SSE gateway.
+- Integrated local Viettel Java Foundation observability starter with Micrometer metrics bridge for backend tracing/metrics.
 
 ## In Progress
 _Nothing._

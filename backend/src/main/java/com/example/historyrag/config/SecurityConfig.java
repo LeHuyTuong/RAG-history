@@ -41,8 +41,8 @@ public class SecurityConfig {
             "/api/v1/auth/register",
             "/api/v1/auth/refresh",
             "/api/v1/auth/logout",
-            "/actuator/health",
-            "/uploads/**"
+            "/uploads/**",
+            "/actuator/health"
     };
 
     @Bean
@@ -57,7 +57,8 @@ public class SecurityConfig {
                 Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
         configuration.setAllowedHeaders(
-                Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
+                Arrays.asList("Authorization", "Content-Type", "Cache-Control", "traceparent", "tracestate"));
+        configuration.setExposedHeaders(Arrays.asList("traceparent", "tracestate"));
 
         configuration.setAllowCredentials(true);
 
