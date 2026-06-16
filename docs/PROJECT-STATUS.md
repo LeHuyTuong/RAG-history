@@ -1,6 +1,6 @@
 # Project Status
 
-> Last updated: 2026-06-11 | By: Codex | Session: #7
+> Last updated: 2026-06-16 | By: Codex | Session: #9
 >
 > AI: update this file at the end of every session when asked.
 > Follow this exact format. Keep it concise — under 80 lines.
@@ -22,6 +22,12 @@
 - Added `V2__sample_data.sql` with 20 sample rows per schema table for local development, preserving the existing 8 default `system_settings` rows from V1.
 - Aligned Hibernate LOB entity mappings with MySQL `TEXT`/`LONGTEXT` columns so `JPA_DDL_AUTO=validate` can start against the existing schema.
 - Added explicit method-security access-denied handling so admin-only endpoints return 403 instead of falling through to 500.
+- Hardened Docker startup by adding a MySQL healthcheck, making backend wait for healthy MySQL, and allowing `/actuator/health` through security.
+- Standardized all feature entities on Lombok `@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor`, and `@Builder`; configured Maven annotation processing with Lombok 1.18.46 so Docker backend builds on Java 25.
+- Centralized mutable entity audit fields in `BaseEntity` with Hibernate creation/update timestamps; removed audit `@ColumnDefault`, kept `RefreshToken` creation-only, and added `tag.updated_at` via Flyway migration.
+- Enabled Flyway migrations for the backend, defaulted JPA DDL to `validate`, and adjusted cloud Docker env so TiDB Cloud runs without waiting for local MySQL.
+- Made the initial post full-text indexes TiDB-compatible in `V1__init.sql` by splitting title, summary, and content into separate single-column indexes; verified Flyway V1-V3 migrations plus Hibernate validation against TiDB Cloud.
+- Fixed login refresh-token persistence by removing premature Bean Validation from Hibernate-managed `RefreshToken.createdAt`.
 
 ## In Progress
 _Nothing._

@@ -10,6 +10,7 @@ services:
 
   backend:
     build: ./backend
+    restart: on-failure
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     environment:
@@ -17,7 +18,10 @@ services:
       - MYSQL_URL=${MYSQL_URL}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - JPA_DDL_AUTO=${JPA_DDL_AUTO:-update}
+      - JPA_DDL_AUTO=${JPA_DDL_AUTO:-validate}
+      - FLYWAY_ENABLED=${FLYWAY_ENABLED:-true}
+      - FLYWAY_LOCATIONS=${FLYWAY_LOCATIONS:-classpath:db/migration}
+      - FLYWAY_BASELINE_ON_MIGRATE=${FLYWAY_BASELINE_ON_MIGRATE:-false}
       - RAG_SERVICE_URL=${RAG_SERVICE_URL}
       - UPLOAD_BASE_PATH=${UPLOAD_BASE_PATH}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
@@ -29,8 +33,8 @@ services:
     volumes:
       - uploaded_files:/app/uploads
     depends_on:
-      - mysql
-      - rag-service
+      rag-service:
+        condition: service_started
 
   rag-service:
     build: ./rag-service
@@ -61,6 +65,8 @@ services:
 
   mysql:
     image: mysql:8
+    profiles:
+      - local
     ports:
       - "3307:3306"
     environment:
@@ -70,6 +76,12 @@ services:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
 
   qdrant:
     image: qdrant/qdrant:latest
