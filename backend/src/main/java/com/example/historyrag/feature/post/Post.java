@@ -3,6 +3,7 @@ package com.example.historyrag.feature.post;
 import com.example.historyrag.common.BaseEntity;
 import com.example.historyrag.feature.admin.Admin;
 import com.example.historyrag.feature.event.Event;
+import com.example.historyrag.feature.tag.Tag;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -16,6 +17,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -70,5 +73,14 @@ public class Post extends BaseEntity {
 
     @Column(name = "published_at")
     private Instant publishedAt;
+
+    @Builder.Default
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "post_tag",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> tags = new ArrayList<>();
 
 }
