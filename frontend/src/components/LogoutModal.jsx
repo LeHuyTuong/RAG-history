@@ -1,5 +1,3 @@
-import React from 'react';
-
 const LogoutModal = ({ isOpen, onClose, onConfirm }) => {
   if (!isOpen) return null;
 

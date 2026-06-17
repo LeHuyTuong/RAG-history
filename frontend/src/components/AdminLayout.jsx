@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation, Link } from 'react-router-dom';
 import LogoutModal from './LogoutModal';
 
 const AdminLayout = () => {
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -42,45 +43,48 @@ const AdminLayout = () => {
     <div className="flex min-h-screen bg-surface">
       <div className="grain-overlay pointer-events-none fixed inset-0 z-0 opacity-5"></div>
 
-      <aside className="w-64 h-screen sticky top-0 left-0 bg-[#6B1515] text-white flex flex-col py-6 shrink-0 z-50 border-r border-white/10">
-        <div className="px-8 mb-8 cursor-pointer" onClick={() => navigate('/admin')}>
+      <aside className={`${isSidebarOpen ? 'w-64' : 'w-[80px]'} h-screen sticky top-0 left-0 bg-[#6B1515] text-white flex flex-col py-6 shrink-0 z-50 border-r border-white/10 transition-all duration-300 overflow-hidden`}>
+        <div className={`mb-8 cursor-pointer flex items-center ${isSidebarOpen ? 'px-8 justify-start' : 'justify-center'} transition-all`} onClick={() => navigate('/admin')}>
           <h1 className="font-headline text-3xl text-[#f7d78a] font-bold tracking-wider hover:opacity-80 transition drop-shadow-md flex items-center gap-2">
-            <span className="material-symbols-outlined text-[28px] text-[#f7d78a]">account_balance</span>
-            Sử Việt
+            <span className="material-symbols-outlined text-[28px] text-[#f7d78a] shrink-0">account_balance</span>
+            {isSidebarOpen && <span className="whitespace-nowrap transition-opacity duration-300">Sử Việt</span>}
           </h1>
         </div>
         
         <nav className="flex-1 flex flex-col gap-0.5 overflow-y-auto custom-scrollbar px-3">
           {menuItems.map((item) => (
-            <NavLink key={item.path} to={item.path} end={item.path === '/admin'}
-              className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg transition-all ${isActive ? 'bg-white/15 text-white border-l-4 border-[#FFFF00] font-bold' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}>
-              <span className="material-symbols-outlined text-[22px]">{item.icon}</span>
-              <span className="text-sm font-body font-medium">{item.label}</span>
+            <NavLink key={item.path} to={item.path} end={item.path === '/admin'} title={!isSidebarOpen ? item.label : undefined}
+              className={({ isActive }) => `flex items-center gap-4 py-3 rounded-lg transition-all ${isSidebarOpen ? 'px-4' : 'px-0 justify-center'} ${isActive ? 'bg-white/15 text-white border-l-4 border-[#FFFF00] font-bold' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}>
+              <span className="material-symbols-outlined text-[22px] shrink-0">{item.icon}</span>
+              {isSidebarOpen && <span className="text-sm font-body font-medium whitespace-nowrap">{item.label}</span>}
             </NavLink>
           ))}
         </nav>
 
         <div className="mt-auto pt-4 border-t border-white/10 px-3 space-y-1">
-          <NavLink to="/admin/settings" className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? 'bg-white/10 text-white font-bold' : 'text-white/60 hover:text-white'}`}>
-            <span className="material-symbols-outlined text-[22px]">settings</span>
-            <span className="text-sm font-body">Cài đặt</span>
+          <NavLink to="/admin/settings" title={!isSidebarOpen ? "Cài đặt" : undefined} className={({ isActive }) => `flex items-center gap-4 py-3 rounded-lg transition-all ${isSidebarOpen ? 'px-4' : 'px-0 justify-center'} ${isActive ? 'bg-white/10 text-white font-bold' : 'text-white/60 hover:text-white'}`}>
+            <span className="material-symbols-outlined text-[22px] shrink-0">settings</span>
+            {isSidebarOpen && <span className="text-sm font-body whitespace-nowrap">Cài đặt</span>}
           </NavLink>
-          <button onClick={() => setIsLogoutOpen(true)} className="w-full flex items-center gap-4 px-4 py-3 text-white/60 hover:text-red-400 transition-colors">
-            <span className="material-symbols-outlined text-[22px]">logout</span>
-            <span className="text-sm font-body text-left">Đăng xuất</span>
+          <button onClick={() => setIsLogoutOpen(true)} title={!isSidebarOpen ? "Đăng xuất" : undefined} className={`w-full flex items-center gap-4 py-3 text-white/60 hover:text-red-400 transition-colors ${isSidebarOpen ? 'px-4' : 'px-0 justify-center'}`}>
+            <span className="material-symbols-outlined text-[22px] shrink-0">logout</span>
+            {isSidebarOpen && <span className="text-sm font-body text-left whitespace-nowrap">Đăng xuất</span>}
           </button>
         </div>
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="h-14 bg-white/80 backdrop-blur-md border-b border-outline-variant flex items-center px-8 z-40">
-          <nav className="flex items-center gap-2 font-body text-[10px] uppercase tracking-widest text-on-surface-variant">
+        <header className="h-14 bg-white/80 backdrop-blur-md border-b border-outline-variant flex items-center px-6 z-40 gap-4">
+          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-1 text-on-surface hover:text-primary transition-colors flex items-center justify-center rounded hover:bg-surface-variant/30">
+            <span className="material-symbols-outlined text-xl">menu</span>
+          </button>
+          <nav className="flex items-center gap-2 font-body text-[10px] uppercase tracking-widest text-on-surface-variant border-l border-outline-variant pl-4">
             <Link to="/admin" className="hover:text-primary flex items-center gap-1"><span className="material-symbols-outlined text-sm">home</span> HOME</Link>
             {location.pathname.split('/').filter(x => x && x !== 'admin').map((path, index, array) => (
-              <React.Fragment key={path}>
+              <Fragment key={path}>
                 <span className="material-symbols-outlined text-[12px] opacity-40">chevron_right</span>
                 {index === array.length - 1 ? <span className="text-primary font-bold">{path.toUpperCase()}</span> : <Link to={`/admin/${path}`} className="hover:text-primary">{path.toUpperCase()}</Link>}
-              </React.Fragment>
+              </Fragment>
             ))}
           </nav>
         </header>

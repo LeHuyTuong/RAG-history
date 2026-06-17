@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import {  useState, useEffect  } from 'react';
+import { StatsGrid } from '../../../components/admin';
 
 const AiManagement = () => {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -47,20 +48,8 @@ const AiManagement = () => {
       </div>
 
       {/* Stats Bento */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {loading ? (
-          <div className="col-span-full text-center py-4 font-body text-sm text-on-surface-variant">Đang tải dữ liệu...</div>
-        ) : (
-          data.stats.map((s, idx) => (
-            <div key={idx} className="bg-white border border-outline-variant p-6 rounded-xl shadow-sm flex items-center justify-between">
-              <div>
-                <p className="font-body text-[10px] uppercase font-bold text-on-surface-variant tracking-widest">{s.label}</p>
-                <h3 className={`font-headline text-3xl font-bold mt-1 ${s.color}`}>{s.value}</h3>
-              </div>
-              <span className="material-symbols-outlined text-4xl opacity-10">{s.icon}</span>
-            </div>
-          ))
-        )}
+      <div className="mb-6">
+        <StatsGrid stats={data.stats} loading={loading} />
       </div>
 
       <div className="grid grid-cols-12 gap-8">

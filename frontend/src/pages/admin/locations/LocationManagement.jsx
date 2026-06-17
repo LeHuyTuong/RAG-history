@@ -1,19 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import {  useState, useEffect  } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  AdminLayout,
+  PageHeader,
+  StatsGrid,
+  FilterBar,
+  FilterInput,
+  FilterSelect,
+  DataTable,
+  ActionModal,
+  TableActions,
+  VietnamMap
+} from '../../../components/admin';
+import { usePeriodColors } from '../../../hooks/usePeriodColors';
 
 const LocationManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, name: '', id: null });
   const [data, setData] = useState({ stats: [], locations: [] });
+  const [filters, setFilters] = useState({ search: '', type: '' });
+  const { periodColors, getPeriodStyle: getDynastyStyle } = usePeriodColors();
+  const [typeColors, setTypeColors] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/admin_locations.json');
-        if (!response.ok) throw new Error('Network response was not ok');
-        const result = await response.json();
-        setData(result);
+        const [locRes, typeColorRes] = await Promise.all([
+          fetch('/api/admin_locations.json'),
+          fetch('/api/location_type_colors.json')
+        ]);
+        
+        if (!locRes.ok) throw new Error('Locations fetch failed');
+        const locResult = await locRes.json();
+        setData(locResult);
+
+        if (typeColorRes.ok) {
+          const typeColorResult = await typeColorRes.json();
+          setTypeColors(typeColorResult);
+        }
       } catch (error) {
         console.error('Error fetching locations data:', error);
       } finally {
@@ -23,133 +48,144 @@ const LocationManagement = () => {
     fetchData();
   }, []);
 
+  const getTypeStyle = (type) => {
+    if (!type || !typeColors) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    const lowerType = type.toLowerCase();
+    
+    if (typeColors[lowerType]) return typeColors[lowerType];
+    return typeColors['default'] || 'bg-emerald-50 text-emerald-700 border-emerald-200';
+  };
+
+
+
+  const columns = [
+    {
+      key: 'name', header: 'Địa danh', render: (row) => (
+        <div className="flex items-center gap-4 py-2">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center border border-emerald-500/10 shadow-sm shrink-0">
+            <span className="material-symbols-outlined text-emerald-600 text-xl">location_on</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="font-headline text-on-surface font-bold text-base hover:text-emerald-600 transition-colors cursor-pointer line-clamp-1">{row.name}</span>
+            <span className="font-body text-[11px] text-on-surface-variant mt-0.5 opacity-80 flex items-center gap-1">
+              <span className="material-symbols-outlined text-[12px]">explore</span>
+              {row.coords}
+            </span>
+          </div>
+        </div>
+      )
+    },
+    { 
+      key: 'type', header: 'Loại hình', render: (row) => (
+        <span className={`border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getTypeStyle(row.type)}`}>
+          {row.type}
+        </span>
+      )
+    },
+    {
+      key: 'dynasties', header: 'Triều đại', render: (row) => (
+        <div className="flex flex-wrap gap-1">
+          {row.dynasties?.map((dynasty, idx) => (
+            <span key={idx} className={`border px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider ${getDynastyStyle(dynasty)}`}>
+              {dynasty}
+            </span>
+          ))}
+        </div>
+      )
+    },
+    {
+      key: 'actions', header: 'Thao tác', align: 'right', render: (row) => (
+        <TableActions
+          onEdit={() => navigate(`/admin/locations/edit/${row.id}`)}
+          onDelete={() => setDeleteModal({ open: true, name: row.name, id: row.id })}
+        />
+      )
+    }
+  ];
+
+  const filteredLocations = data.locations.filter(loc => {
+    const matchSearch = loc.name?.toLowerCase().includes(filters.search.toLowerCase());
+    const matchType = filters.type ? loc.type === filters.type : true;
+    return matchSearch && matchType;
+  });
+
   return (
-    <div className="flex-grow flex flex-col min-h-screen bg-surface">
+    <AdminLayout>
+      <PageHeader
+        title="Quản lý Địa danh Lịch sử"
+        subtitle="Quản lý và hiệu đính các địa danh, di tích và chiến trường lịch sử."
+        actionLabel="Thêm địa danh mới"
+        actionHref="/admin/locations/new"
+        actionIcon="add_location"
+      />
 
+      <div className="mb-6">
+        <StatsGrid stats={data.stats} loading={loading} />
+      </div>
 
-      <main className="p-8 max-w-[1600px] mx-auto w-full space-y-8 font-body">
-        <div className="flex flex-col md:flex-row justify-between items-end gap-4">
-  <div>
-    <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">
-      Quản lý Địa danh Lịch sử
-    </h2>
+      <div className="grid grid-cols-12 gap-8 items-start mt-6">
+        <div className="col-span-12 lg:col-span-9">
+          <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">
+            <div className="p-4 border-b border-outline-variant bg-surface-low/50">
+              <FilterBar>
+                <FilterInput
+                  label="Tìm kiếm:"
+                  placeholder="Nhập tên địa danh..."
+                  value={filters.search}
+                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                />
+                <FilterSelect
+                  label="Loại hình:"
+                  options={[
+                    { value: '', label: 'Tất cả loại hình' },
+                    ...Array.from(new Set(data.locations.map(l => l.type))).filter(Boolean).map(t => ({ value: t, label: t }))
+                  ]}
+                  value={filters.type}
+                  onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
+                />
+              </FilterBar>
+            </div>
 
-    <p className="font-body text-sm text-on-surface-variant mt-1 italic">
-      Quản lý và hiệu đính các địa danh, di tích và chiến trường lịch sử.
-    </p>
-  </div>
-
-  <button
-    onClick={() => navigate('/admin/locations/new')}
-    className="bg-primary text-white px-6 py-3 rounded-lg flex items-center gap-2 hover:opacity-90 active:scale-95 shadow-md font-headline font-bold uppercase text-sm"
-  >
-    <span className="material-symbols-outlined">add_location</span>
-    Thêm địa danh mới
-  </button>
-</div>
-        {/* 2. SUMMARY STATS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {loading ? (
-            <div className="col-span-full text-center py-4 font-body text-sm text-on-surface-variant">Đang tải dữ liệu...</div>
-          ) : (
-            data.stats.map((stat, idx) => (
-              <StatCard key={idx} title={stat.title} value={stat.value} icon={stat.icon} />
-            ))
-          )}
-        </div>
-
-        {/* 3. MAIN CONTENT LAYOUT */}
-        <div className="grid grid-cols-12 gap-8 items-start">
-          {/* CỘT TRÁI: BẢNG DỮ LIỆU */}
-          <div className="col-span-12 lg:col-span-9 bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
-             <div className="p-4 bg-surface-low border-b border-outline-variant flex gap-4">
-                <select className="bg-white border border-outline-variant rounded px-3 py-1.5 text-xs outline-none"><option>Tất cả loại hình</option><option>Thành quách</option></select>
-                <select className="bg-white border border-outline-variant rounded px-3 py-1.5 text-xs outline-none"><option>Tất cả triều đại</option></select>
-             </div>
-             <table className="w-full text-left border-collapse">
-                <thead className="bg-surface-variant/30 font-body text-[10px] uppercase tracking-widest border-b border-outline-variant text-on-surface-variant">
-                  <tr>
-                    <th className="p-4">ID</th>
-                    <th className="p-4">Địa danh</th>
-                    <th className="p-4">Loại hình</th>
-                    <th className="p-4">Tọa độ</th>
-                    <th className="p-4 text-right">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-outline-variant text-sm">
-                  {loading ? (
-                    <tr><td colSpan="5" className="text-center py-8 font-body text-sm text-on-surface-variant">Đang tải địa danh...</td></tr>
-                  ) : (
-                    data.locations.map((loc, idx) => (
-                      <tr key={loc.id} className={`${idx % 2 !== 0 ? 'bg-surface-low/30' : ''} hover:bg-surface-variant/20 transition-colors group`}>
-                        <td className="p-4 font-body text-xs text-primary">{loc.id}</td>
-                        <td className="p-4 font-bold text-on-surface font-headline">{loc.name}</td>
-                        <td className="p-4 text-xs">
-                          <span className="bg-surface-variant px-2 py-0.5 rounded text-[10px]">{loc.type}</span>
-                        </td>
-                        <td className="p-4 font-body text-[11px] opacity-60">{loc.coords}</td>
-                        <td className="p-4 text-right">
-                          <div className="flex justify-end gap-1">
-                            <button onClick={() => navigate(`/admin/locations/edit/${loc.id}`)} className="p-2 hover:text-primary"><span className="material-symbols-outlined text-sm">edit</span></button>
-                            <button onClick={() => setDeleteModal({ open: true, name: loc.name, id: loc.id })} className="p-2 hover:text-red-600"><span className="material-symbols-outlined text-sm">delete</span></button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-             </table>
-          </div>
-
-          {/* CỘT PHẢI: MAP PREVIEW */}
-          <div className="col-span-12 lg:col-span-3 space-y-6">
-             <div className="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-md">
-                <div className="p-3 bg-surface-low border-b border-outline-variant flex justify-between items-center">
-                  <span className="font-body text-[10px] font-bold uppercase tracking-widest text-primary">Bản đồ Di tích</span>
-                  <span className="material-symbols-outlined text-sm text-primary">explore</span>
-                </div>
-                <div className="aspect-square bg-slate-200 relative group overflow-hidden">
-                   <img className="w-full h-full object-cover grayscale opacity-70 group-hover:scale-110 transition-transform duration-[10s]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGAMfJYW7Pnb6CKqQ7tCg6vlUaD7Cb76P1T0_SrKAVbymeCS6685PMZ6wJZG8LIoeE0J1jq7SIqQwtRpRzY94VFUS_ASrUPdycW1-Rc-mQQ1_jXi1Wci5WrHn6ZI55WUyzxOr4uuNjcP1bss7YHtYDJNXvZDOPBzxSwbAJodSrM8U8LvLM108AcXepkjukg9LD47RytTSzF1DhEJ-ap2nGsxUMwk1tB7Y4h6TBG8TAVyodoAkbTqctDricTEXy7ENUZJN6LcpwVSI" alt="map" />
-                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-primary rounded-full border-2 border-white shadow-lg animate-pulse"></div>
-                   <div className="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur p-2 rounded text-[9px] font-bold border border-outline-variant uppercase">Lạng Sơn: Chi Lăng</div>
-                </div>
-                <div className="p-4">
-                  <p className="text-xs italic text-on-surface-variant leading-relaxed">"Nơi ghi dấu những chiến công hiển hách của dân tộc trước quân xâm lược."</p>
-                </div>
-             </div>
+            <DataTable
+              columns={columns}
+              data={filteredLocations}
+              loading={loading}
+              emptyMessage="Không tìm thấy địa danh nào phù hợp"
+              rowKey="id"
+              striped={false}
+              className="border-0 shadow-none rounded-none"
+            />
           </div>
         </div>
-      </main>
 
-      {/* 4. DELETE MODAL */}
-      {deleteModal.open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDeleteModal({ open: false })}></div>
-          <div className="relative bg-white w-full max-w-md rounded-xl shadow-2xl border-t-4 border-red-600 p-10 text-center animate-in fade-in zoom-in duration-300">
-             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 text-red-600">
-                <span className="material-symbols-outlined text-4xl">delete_forever</span>
-             </div>
-             <h3 className="font-headline text-2xl text-on-surface font-bold mb-2 uppercase">Xác nhận xóa?</h3>
-             <p className="font-body text-sm text-on-surface-variant mb-10">Bạn chắc chắn muốn xóa địa danh <br/><strong className="text-primary italic">"{deleteModal.name}"</strong>? <br/>Dữ liệu này không thể khôi phục.</p>
-             <div className="flex gap-4 font-body text-[11px] font-bold tracking-widest">
-                <button onClick={() => setDeleteModal({ open: false })} className="flex-1 py-3 border border-outline rounded-lg hover:bg-surface-low transition-all">HỦY BỎ</button>
-                <button className="flex-1 py-3 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 transition-all">XÓA NGAY</button>
-             </div>
+        <div className="col-span-12 lg:col-span-3 space-y-6">
+          <div className="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-md">
+            <div className="p-3 bg-surface-low border-b border-outline-variant flex justify-between items-center">
+              <span className="font-body text-[10px] font-bold uppercase tracking-widest text-primary">Bản đồ Di tích</span>
+              <span className="material-symbols-outlined text-sm text-primary">explore</span>
+            </div>
+            <div className="aspect-[4/5] bg-surface-low relative group overflow-hidden border-b border-outline-variant">
+              <VietnamMap locations={filteredLocations} className="w-full h-full opacity-90 group-hover:scale-105 transition-transform duration-[5s]" />
+              <div className="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur p-2 rounded text-[9px] font-bold border border-outline-variant uppercase shadow-sm">Bản đồ Di tích Tổng hợp</div>
+            </div>
+            <div className="p-4">
+              <p className="text-xs italic text-on-surface-variant leading-relaxed">"Nơi ghi dấu những chiến công hiển hách của dân tộc trước quân xâm lược."</p>
+            </div>
           </div>
         </div>
-      )}
-    </div>
+      </div>
+
+      <ActionModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false })}
+        type="delete"
+        item={{ name: deleteModal.name }}
+        onConfirm={() => setDeleteModal({ open: false })}
+        title="Xác nhận xóa?"
+        description={`Bạn chắc chắn muốn xóa địa danh <br/><strong className="text-primary italic">"{deleteModal.name}"</strong>? <br/>Dữ liệu này không thể khôi phục.`}
+      />
+    </AdminLayout>
   );
 };
-
-const StatCard = ({ title, value, icon }) => (
-  <div className="bg-white border border-outline-variant p-6 rounded-xl flex items-center justify-between shadow-sm hover:-translate-y-1 transition-all">
-    <div>
-      <p className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest">{title}</p>
-      <h3 className="font-headline text-3xl text-primary font-bold mt-1">{value}</h3>
-    </div>
-    <span className="material-symbols-outlined text-primary-container opacity-20 text-4xl">{icon}</span>
-  </div>
-);
 
 export default LocationManagement;

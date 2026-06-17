@@ -1,19 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import {  useState, useEffect  } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { PageHeader, AdminLayout, StatsGrid, ActionModal } from '../../../components/admin';
+import { usePeriodColors } from '../../../hooks/usePeriodColors';
 const MetadataManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, type: '', name: '', id: null });
   const [data, setData] = useState({ stats: [], categories: [], tags: [], periods: [] });
+  const [tagColors, setTagColors] = useState({});
+  const { periodColors } = usePeriodColors();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/admin_metadata.json');
-        if (!response.ok) throw new Error('Network response was not ok');
-        const result = await response.json();
-        setData(result);
+        const [metaRes, colorsRes] = await Promise.all([
+          fetch('/api/admin_metadata.json'),
+          fetch('/api/tag_colors.json')
+        ]);
+
+        if (metaRes.ok) setData(await metaRes.json());
+        if (colorsRes.ok) setTagColors(await colorsRes.json());
       } catch (error) {
         console.error('Error fetching metadata:', error);
       } finally {
@@ -23,149 +29,232 @@ const MetadataManagement = () => {
     fetchData();
   }, []);
 
+  const getTagStyle = (tagName) => {
+    if (!tagName || !tagColors) return 'text-primary bg-primary/10 border-primary/20';
+    const lowerTag = tagName.toLowerCase();
+    if (tagColors[lowerTag]) return tagColors[lowerTag];
+    return tagColors['default'] || 'text-primary bg-primary/10 border-primary/20';
+  };
+
+  const getIndividualTagStyle = (tagName) => {
+    if (!tagName) return 'bg-surface-variant/30 text-on-surface-variant border-outline-variant/50';
+    const lower = tagName.toLowerCase();
+
+    // 1. Check if it matches period colors
+    for (const key in periodColors) {
+      if (key !== 'default' && lower.includes(key)) return periodColors[key];
+    }
+
+    // 2. Hash function for unique color
+    const palettes = [
+      'bg-amber-50 text-amber-700 border-amber-200',
+      'bg-rose-50 text-rose-700 border-rose-200',
+      'bg-emerald-50 text-emerald-700 border-emerald-200',
+      'bg-sky-50 text-sky-700 border-sky-200',
+      'bg-purple-50 text-purple-700 border-purple-200',
+      'bg-teal-50 text-teal-700 border-teal-200',
+      'bg-cyan-50 text-cyan-700 border-cyan-200',
+      'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200',
+      'bg-orange-50 text-orange-700 border-orange-200',
+      'bg-indigo-50 text-indigo-700 border-indigo-200',
+      'bg-pink-50 text-pink-700 border-pink-200',
+    ];
+
+    let hash = 0;
+    for (let i = 0; i < tagName.length; i++) {
+      hash = tagName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % palettes.length;
+    return palettes[index];
+  };
+
   const openDelete = (type, item) => setDeleteModal({ open: true, type, name: item.name, id: item.id });
 
   return (
-    <div className="flex-grow min-h-screen bg-surface font-body pb-20">
-      <header className="h-16 sticky top-0 z-40 bg-surface-low/90 backdrop-blur border-b border-outline-variant px-8 flex items-center justify-between">
-        <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">Quản lý Siêu dữ liệu</h2>
-        <div className="flex gap-3">
-           <button onClick={() => navigate('/admin/metadata/categories/new')} className="text-[10px] font-bold uppercase border border-primary text-primary px-4 py-2 rounded hover:bg-primary/5 transition-all"> + Danh mục</button>
-           <button onClick={() => navigate('/admin/metadata/tags/new')} className="text-[10px] font-bold uppercase border border-primary text-primary px-4 py-2 rounded hover:bg-primary/5 transition-all"> + Thẻ Tags</button>
-           <button onClick={() => navigate('/admin/metadata/periods/new')} className="text-[10px] font-bold uppercase bg-primary text-white px-4 py-2 rounded shadow-md transition-all"> + Thời kỳ</button>
-        </div>
-      </header>
+    <AdminLayout>
+      <PageHeader
+        title="Quản lý Siêu dữ liệu"
+        subtitle="Quản lý danh mục, thẻ phân loại và dòng thời gian cho toàn bộ hệ thống lưu trữ."
+        icon="database"
+      />
 
-      <main className="p-8 space-y-10 max-w-[1600px] mx-auto">
-        {/* STATS BENTO */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {loading ? (
-            <div className="col-span-full text-center py-4 font-body text-sm text-on-surface-variant">Đang tải dữ liệu...</div>
-          ) : (
-            data.stats.map((stat, idx) => (
-              <StatCard key={idx} label={stat.label} value={stat.value} icon={stat.icon} />
-            ))
-          )}
-        </div>
+      <div className="mb-8">
+        <StatsGrid stats={data.stats} loading={loading} />
+      </div>
 
-        <div className="grid grid-cols-12 gap-8 items-start">
-          {/* QUẢN LÝ DANH MỤC */}
-          <section className="col-span-12 lg:col-span-5 bg-white border border-outline-variant p-6 rounded-xl shadow-sm">
-            <h3 className="font-headline text-xl text-primary font-bold flex items-center gap-2 border-b border-outline-variant pb-3 mb-6">
+      <div className="grid grid-cols-12 gap-8 items-start">
+        {/* QUẢN LÝ DANH MỤC */}
+        <section className="col-span-12 lg:col-span-5 bg-white border border-outline-variant p-6 rounded-xl shadow-sm">
+          <div className="flex justify-between items-center border-b border-outline-variant pb-3 mb-6">
+            <h3 className="font-headline text-xl text-primary font-bold flex items-center gap-2">
               <span className="material-symbols-outlined">account_tree</span> Phân cấp Danh mục
             </h3>
-            <div className="space-y-3">
-              {loading ? (
-                <div className="text-center py-4 font-body text-sm text-on-surface-variant">Đang tải danh mục...</div>
-              ) : (
-                data.categories.map(cat => (
-                  <div key={cat.id} className="p-4 border border-surface-variant rounded-lg flex justify-between items-center hover:bg-surface-low transition-all group">
+            <button onClick={() => navigate('/admin/metadata/categories/new')} className="text-[10px] font-bold uppercase border border-primary text-primary px-3 py-1.5 rounded hover:bg-primary/5 transition-all flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">add</span> Danh mục
+            </button>
+          </div>
+          <div className="space-y-4">
+            {loading ? (
+              <div className="text-center py-4 font-body text-sm text-on-surface-variant">Đang tải danh mục...</div>
+            ) : (
+              data.categories.map(cat => (
+                <div key={cat.id} className="border border-outline-variant rounded-xl overflow-hidden shadow-sm bg-white">
+                  <div className="p-4 bg-surface-low/50 flex justify-between items-center group border-b border-outline-variant/50">
                     <div className="flex items-center gap-3">
-                      <span className="material-symbols-outlined text-accent">folder_open</span>
+                      <span className="material-symbols-outlined text-primary text-xl">folder_open</span>
                       <div>
                         <p className="font-bold text-sm text-on-surface">{cat.name}</p>
-                        <p className="text-[10px] text-on-surface-variant italic">{cat.sub}</p>
+                        <p className="text-[11px] text-on-surface-variant italic mt-0.5">{cat.description || cat.sub}</p>
                       </div>
                     </div>
-                    <div className="flex gap-1 ">
-                       <button onClick={() => navigate(`/admin/metadata/categories/edit/${cat.id}`)} className="material-symbols-outlined text-sm hover:text-primary">edit</button>
-                       <button onClick={() => openDelete('danh mục', cat)} className="material-symbols-outlined text-sm hover:text-red-600">delete</button>
+                    <div className="flex gap-2">
+                      <button onClick={() => navigate(`/admin/metadata/categories/edit/${cat.id}`)} className="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-md transition-all hover:bg-blue-500 hover:text-white" title="Chỉnh sửa">
+                        <span className="material-symbols-outlined text-[16px]">edit_note</span>
+                      </button>
+                      <button onClick={() => openDelete('danh mục', cat)} className="w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-600 rounded-md transition-all hover:bg-rose-500 hover:text-white" title="Xóa">
+                        <span className="material-symbols-outlined text-[16px]">delete</span>
+                      </button>
                     </div>
-                    
                   </div>
-                ))
-              )}
-            </div>
-          </section>
+                  {cat.children && cat.children.length > 0 && (
+                    <div className="bg-white">
+                      {cat.children.map(child => (
+                        <div key={child.id} className="flex justify-between items-center px-4 py-3 pl-12 border-b border-outline-variant/30 last:border-0 hover:bg-surface-low transition-colors">
+                          <div className="flex items-center gap-3">
+                            <span className="material-symbols-outlined text-on-surface-variant text-lg">subdirectory_arrow_right</span>
+                            <span className="text-sm font-medium text-on-surface">{child.name}</span>
+                          </div>
+                          <span className="text-[10px] font-bold bg-surface-variant/30 text-on-surface-variant px-2 py-1 rounded-full">
+                            {child.count} bài viết
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </section>
 
-          {/* QUẢN LÝ THẺ (TAGS) */}
-          <section className="col-span-12 lg:col-span-7 bg-white border border-outline-variant p-6 rounded-xl shadow-sm">
-            <h3 className="font-headline text-xl text-primary font-bold flex items-center gap-2 border-b border-outline-variant pb-3 mb-6">
+        {/* QUẢN LÝ THẺ (TAGS) */}
+        <section className="col-span-12 lg:col-span-7 bg-white border border-outline-variant p-6 rounded-xl shadow-sm">
+          <div className="flex justify-between items-center border-b border-outline-variant pb-3 mb-6">
+            <h3 className="font-headline text-xl text-primary font-bold flex items-center gap-2">
               <span className="material-symbols-outlined">sell</span> Quản lý Thẻ (Tags)
             </h3>
-            <table className="w-full text-left">
-              <thead className="font-body text-[10px] uppercase text-on-surface-variant border-b border-outline-variant">
-                <tr><th className="pb-3 px-2">Tên thẻ</th><th className="pb-3">Sử dụng</th><th className="pb-3 text-right">#</th></tr>
-              </thead>
-              <tbody className="text-sm">
-                {loading ? (
-                  <tr><td colSpan="3" className="text-center py-4 font-body text-sm text-on-surface-variant">Đang tải thẻ...</td></tr>
-                ) : (
-                  data.tags.map(tag => (
-                    <tr key={tag.id} className="hover:bg-surface-low transition-all group">
-                      <td className="py-4 px-2 font-bold text-primary font-headline tracking-wide">#{tag.name}</td>
-                      <td>
-                         <div className="flex items-center gap-3">
-                            <div className="w-24 h-1.5 bg-surface-variant rounded-full overflow-hidden">
-                               <div className="bg-accent h-full" style={{width: `${tag.usage}%`}}></div>
+            <button onClick={() => navigate('/admin/metadata/tags/new')} className="text-[10px] font-bold uppercase border border-primary text-primary px-3 py-1.5 rounded hover:bg-primary/5 transition-all flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">add</span> Thẻ Tags
+            </button>
+          </div>
+          <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+            {loading ? (
+              <div className="text-center py-4 font-body text-sm text-on-surface-variant">Đang tải thẻ...</div>
+            ) : (
+              Object.entries(
+                data.tags.reduce((acc, tag) => {
+                  const type = tag.type || 'Khác';
+                  if (!acc[type]) acc[type] = [];
+                  acc[type].push(tag);
+                  return acc;
+                }, {})
+              ).map(([type, tags]) => (
+                <div key={type} className="border border-outline-variant rounded-xl overflow-hidden shadow-sm bg-white">
+                  <div className="px-4 py-3 bg-surface-low/50 border-b border-outline-variant flex items-center gap-2">
+                    <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${getTagStyle(type)}`}>
+                      {type}
+                    </span>
+                    <span className="text-xs text-on-surface-variant font-medium">({tags.length} thẻ)</span>
+                  </div>
+                  <table className="w-full text-left">
+                    <tbody className="text-sm">
+                      {tags.map(tag => (
+                        <tr key={tag.id} className="hover:bg-surface-low transition-all group border-b border-outline-variant/30 last:border-0">
+                          <td className="py-3 px-4">
+                            <span className={`px-3 py-1.5 rounded-full text-[10px] font-bold border font-body inline-flex items-center gap-1.5 shadow-sm ${getIndividualTagStyle(tag.name)}`}>
+                              #{tag.name}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 w-48 hidden sm:table-cell">
+                            <div className="flex items-center gap-3">
+                              <div className="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+                                <div className="bg-accent h-full" style={{ width: `${tag.usage}%` }}></div>
+                              </div>
+                              <span className="font-body text-[10px] font-bold w-8">{tag.count}</span>
                             </div>
-                            <span className="font-body text-[10px] font-bold">{tag.count}</span>
-                         </div>
-                      </td>
-                      <td className="text-right">
-                         <button onClick={() => navigate(`/admin/metadata/tags/edit/${tag.id}`)} className="material-symbols-outlined text-sm mr-2 hover:text-primary transition-all">edit</button>
-                         <button onClick={() => openDelete('thẻ', tag)} className="material-symbols-outlined text-sm hover:text-red-600 transition-all">delete</button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </section>
+                          </td>
+                          <td className="py-3 px-4 text-right w-24">
+                            <div className="flex justify-end gap-2">
+                              <button onClick={() => navigate(`/admin/metadata/tags/edit/${tag.id}`)} className="w-7 h-7 flex items-center justify-center bg-blue-50 text-blue-600 rounded-md transition-all hover:bg-blue-500 hover:text-white" title="Chỉnh sửa">
+                                <span className="material-symbols-outlined text-[16px]">edit_note</span>
+                              </button>
+                              <button onClick={() => openDelete('thẻ', tag)} className="w-7 h-7 flex items-center justify-center bg-rose-50 text-rose-600 rounded-md transition-all hover:bg-rose-500 hover:text-white" title="Xóa">
+                                <span className="material-symbols-outlined text-[16px]">delete</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
 
-          {/* QUẢN LÝ THỜI KỲ (PERIODS) */}
-          <section className="col-span-12 bg-surface-low border border-outline-variant p-8 rounded-xl shadow-sm">
-            <h3 className="font-headline text-2xl text-primary font-bold mb-8 italic">Dòng chảy Thời kỳ (Timeline)</h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
-              <div className="absolute top-1/2 left-0 right-0 h-[1px] border-t border-dashed border-accent hidden md:block"></div>
+        {/* QUẢN LÝ THỜI KỲ (PERIODS) */}
+        <section className="col-span-12 bg-surface-low border border-outline-variant p-8 rounded-xl shadow-sm">
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="font-headline text-2xl text-primary font-bold italic">Dòng chảy Thời kỳ (Timeline)</h3>
+            <button onClick={() => navigate('/admin/metadata/periods/new')} className="text-[10px] font-bold uppercase border border-primary text-primary px-3 py-1.5 rounded hover:bg-primary/5 transition-all flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">add</span> Thời kỳ
+            </button>
+          </div>
+          <div className="relative">
+            <div className="absolute top-1/2 left-0 right-0 h-[1px] border-t-2 border-dashed border-accent/40 hidden md:block z-0 pointer-events-none"></div>
+            
+            <div className="flex gap-4 overflow-x-auto custom-scrollbar pb-4 pt-2 px-2 snap-x relative z-10 items-stretch">
               {loading ? (
-                <div className="col-span-full text-center py-4 font-body text-sm text-on-surface-variant">Đang tải thời kỳ...</div>
+                <div className="w-full text-center py-4 font-body text-sm text-on-surface-variant">Đang tải thời kỳ...</div>
               ) : (
                 data.periods.map(p => (
-                  <div key={p.id} className={`relative z-10 p-5 border rounded-lg transition-all hover:scale-105 hover:shadow-xl group ${p.active ? 'bg-primary text-white border-primary' : 'bg-white border-outline-variant'}`}>
-                    <span className={`font-body text-[9px] font-bold uppercase tracking-widest ${p.active ? 'text-accent' : 'text-on-surface-variant'}`}>{p.range}</span>
-                    <h4 className="font-headline font-bold text-xl mt-1">{p.name}</h4>
-                    <p className={`text-[11px] mt-2 italic leading-relaxed line-clamp-2 ${p.active ? 'opacity-80' : 'text-on-surface-variant'}`}>{p.desc}</p>
-                    <div className="flex gap-2 mt-4 pt-4 border-t border-current transition-all">
-                      <button onClick={() => navigate(`/admin/metadata/periods/edit/${p.id}`)} className="material-symbols-outlined text-xs">edit</button>
-                      <button onClick={() => openDelete('thời kỳ', p)} className="material-symbols-outlined text-xs">delete</button>
+                  <div key={p.id} draggable="true" className="shrink-0 w-48 cursor-move relative p-3.5 border rounded-xl transition-all hover:-translate-y-1 hover:shadow-xl group bg-white border-outline-variant snap-center flex flex-col justify-between">
+                    <div>
+                      <div className="absolute top-1.5 right-1.5 text-on-surface-variant opacity-20 group-hover:opacity-60 transition-opacity">
+                        <span className="material-symbols-outlined text-[15px]">drag_indicator</span>
+                      </div>
+                      <span className="font-body text-[9px] font-bold uppercase tracking-widest text-on-surface-variant bg-surface-low px-1.5 py-1 rounded border border-outline-variant/50 inline-block">{p.range}</span>
+                      <h4 className="font-headline font-bold text-base mt-2 text-primary pr-4 leading-tight">{p.name}</h4>
+                      <p className="text-[11px] mt-1.5 italic leading-snug text-on-surface-variant line-clamp-3">{p.desc}</p>
+                    </div>
+                    <div className="flex justify-end gap-1.5 mt-3 pt-2.5 border-t border-outline-variant/50 transition-all">
+                      <button onClick={() => navigate(`/admin/metadata/periods/edit/${p.id}`)} className="w-6 h-6 flex items-center justify-center bg-blue-50 text-blue-600 rounded transition-all hover:bg-blue-500 hover:text-white" title="Chỉnh sửa">
+                        <span className="material-symbols-outlined text-[14px]">edit_note</span>
+                      </button>
+                      <button onClick={() => openDelete('thời kỳ', p)} className="w-6 h-6 flex items-center justify-center bg-rose-50 text-rose-600 rounded transition-all hover:bg-rose-500 hover:text-white" title="Xóa">
+                        <span className="material-symbols-outlined text-[14px]">delete</span>
+                      </button>
                     </div>
                   </div>
                 ))
               )}
             </div>
-          </section>
-        </div>
-      </main>
-
-      {/* MODAL XÓA CHUNG */}
-      {deleteModal.open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden border-t-4 border-red-600 animate-in fade-in zoom-in duration-300">
-             <div className="p-10 text-center">
-                <span className="material-symbols-outlined text-5xl text-red-600 mb-4">warning</span>
-                <h3 className="font-headline text-2xl font-bold text-primary italic">Xác nhận xóa {deleteModal.type}?</h3>
-                <p className="font-body text-sm text-on-surface-variant mt-4">Dữ liệu của <strong>"{deleteModal.name}"</strong> sẽ bị gỡ bỏ vĩnh viễn khỏi các liên kết sử liệu.</p>
-                <div className="flex gap-4 mt-10 font-body text-[11px] font-bold">
-                   <button onClick={() => setDeleteModal({ ...deleteModal, open: false })} className="flex-1 py-3 border border-outline rounded-lg hover:bg-surface-low transition-all">HỦY BỎ</button>
-                   <button className="flex-1 py-3 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 transition-all">XÁC NHẬN XÓA</button>
-                </div>
-             </div>
           </div>
-        </div>
-      )}
-    </div>
+        </section>
+      </div>
+      {/* MODAL XÓA CHUNG */}
+      <ActionModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ ...deleteModal, open: false })}
+        type="delete"
+        item={{ name: deleteModal.name }}
+        onConfirm={() => { alert('Đã xóa'); setDeleteModal({ ...deleteModal, open: false }); }}
+        title={`Xác nhận xóa ${deleteModal.type}?`}
+        description={`Dữ liệu của <strong>"${deleteModal.name}"</strong> sẽ bị gỡ bỏ vĩnh viễn khỏi các liên kết sử liệu.`}
+      />
+    </AdminLayout>
   );
 };
-
-const StatCard = ({ label, value, icon }) => (
-  <div className="bg-white border border-outline-variant p-6 rounded-xl flex items-center justify-between shadow-sm hover:-translate-y-1 transition-all">
-    <div>
-      <p className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">{label}</p>
-      <h3 className="font-headline text-3xl text-primary font-bold mt-1">{value}</h3>
-    </div>
-    <span className="material-symbols-outlined text-accent opacity-20 text-4xl">{icon}</span>
-  </div>
-);
 
 export default MetadataManagement;

@@ -1,6 +1,11 @@
 [
   { "id": "dynasty", "label": "Triều đại", "icon": "castle", "color": "bg-primary" },
-  { "id": "topic", "label": "Chủ đề", "icon": "auto_stories", "color": "bg-secondary" },
-  { "id": "event", "label": "Sự kiện", "icon": "event_note", "color": "bg-red-600" },
-  { "id": "person", "label": "Nhân vật", "icon": "person", "color": "bg-accent" }
+  { "id": "military", "label": "Quân sự", "icon": "swords", "color": "bg-red-700" },
+  { "id": "diplomacy", "label": "Ngoại giao", "icon": "handshake", "color": "bg-blue-600" },
+  { "id": "culture", "label": "Văn hóa", "icon": "palette", "color": "bg-purple-600" },
+  { "id": "person", "label": "Nhân vật", "icon": "person", "color": "bg-emerald-600" },
+  { "id": "location", "label": "Địa danh", "icon": "location_on", "color": "bg-orange-600" },
+  { "id": "event", "label": "Sự kiện", "icon": "event_note", "color": "bg-rose-600" },
+  { "id": "topic", "label": "Chủ đề", "icon": "auto_stories", "color": "bg-indigo-600" },
+  { "id": "language", "label": "Ngoại ngữ", "icon": "language", "color": "bg-indigo-500" }
 ]

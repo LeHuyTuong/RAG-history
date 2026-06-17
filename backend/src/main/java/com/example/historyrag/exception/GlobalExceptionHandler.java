@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -37,6 +38,13 @@ public class GlobalExceptionHandler {
                 log.warn("BadCredentialsException: {}", ex.getMessage());
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                                 .body(ApiResponse.unauthorized("Email hoặc mật khẩu không đúng"));
+        }
+
+        @ExceptionHandler(AuthorizationDeniedException.class)
+        public ResponseEntity<ApiResponse<Void>> handleAuthorizationDenied(AuthorizationDeniedException ex) {
+                log.warn("AuthorizationDeniedException: {}", ex.getMessage());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body(ApiResponse.forbidden("Bạn không có quyền truy cập tài nguyên này"));
         }
 
 //        @ExceptionHandler(FileUploadException.class)

@@ -1,7 +1,18 @@
 """
-Extract text từ nhiều nguồn (PDF, DOCX, TXT, URL, rawContent).
-Trả về list[PageText] để chunk_service xử lý tiếp.
-Giữ page_number riêng cho từng trang PDF vì citation cần số trang (docs/14).
+Bước 1/4 trong ingestion pipeline: extract text thô từ nhiều loại nguồn.
+
+Vai trò: nhận input (rawContent / filePath / sourceUrl) và chuẩn hóa về
+list[PageText] để chunk_service xử lý ở bước tiếp theo.
+
+Flow:
+  ingest_service  →  extract()  →  [PageText, ...]  →  chunk_service
+
+Ưu tiên input: rawContent > filePath > sourceUrl
+  rawContent  — article/manual input, Spring Boot gửi thẳng text
+  filePath    — file đã upload lên server (PDF, DOCX, TXT, MD)
+  sourceUrl   — fetch HTML, strip boilerplate, lấy body text
+
+Giữ page_number riêng cho PDF vì citation cần số trang (docs/14).
 """
 from dataclasses import dataclass
 from pathlib import Path

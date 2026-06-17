@@ -1,7 +1,14 @@
 """
-Đọc cấu hình từ .env. Mọi giá trị magic number (chunk_size, top_k…) đều đặt
-ở đây — không hard-code trong service layer.
+Cấu hình tập trung của RAG service — đọc từ .env qua pydantic-settings.
+
+Vai trò: single source of truth cho mọi giá trị cấu hình (URL, API key,
+tham số pipeline). Không hard-code bất kỳ giá trị nào trong service layer.
+
+Cách dùng trong các service/module khác:
+  from app.config import settings
+  settings.qdrant_url, settings.default_top_k, ...
 """
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -14,7 +21,7 @@ class Settings(BaseSettings):
     qdrant_collection: str = "history_chunks"
 
     # Google AI Studio — dùng chung 1 key cho cả embedding (Gemini) và LLM (Gemma)
-    google_api_key: str
+    google_api_key: str = Field(validation_alias=AliasChoices("GOOGLE_API_KEY", "LLM_API_KEY"))
     llm_model: str = "gemma-3-27b-it"
     embedding_model: str = "gemini-embedding-001"
     # embedding_dim phải khớp với collection đã tạo trong Qdrant — đổi model thì phải tạo lại collection

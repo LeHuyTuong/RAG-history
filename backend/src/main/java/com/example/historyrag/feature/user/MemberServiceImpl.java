@@ -4,7 +4,6 @@ import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.exception.InvalidRequestException;
 import com.example.historyrag.feature.user.dto.UpdateUserRequest;
 import com.example.historyrag.feature.user.dto.UserResponse;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,17 +12,19 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 @Service
 public class MemberServiceImpl implements MemberService {
 
     private static final Logger log = LoggerFactory.getLogger(MemberServiceImpl.class);
 
     private final MemberRepository memberRepository;
+
+    public MemberServiceImpl(MemberRepository memberRepository) {
+        this.memberRepository = memberRepository;
+    }
 
     @Override
     public UserResponse getUserById(Long id) {
@@ -59,8 +60,6 @@ public class MemberServiceImpl implements MemberService {
             member.setFullName(request.fullName());
         }
 
-        member.setUpdatedAt(Instant.now());
-
         Member saved = memberRepository.save(member);
         log.info("User updated successfully: {}", saved.getId());
 
@@ -74,7 +73,6 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Member", "id", id));
         member.setStatus(Member.UserStatus.INACTIVE);
-        member.setUpdatedAt(Instant.now());
         memberRepository.save(member);
         log.info("User soft deleted: {}", id);
     }

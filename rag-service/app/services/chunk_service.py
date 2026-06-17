@@ -1,3 +1,17 @@
+"""
+Bước 2/4 trong ingestion pipeline: split text thành các chunk nhỏ có overlap.
+
+Vai trò: nhận list[PageText] từ extract_service, trả về list[ChunkData] —
+mỗi chunk có text, vị trí (page_number, chunk_index) và content_hash.
+
+Flow:
+  extract_service  →  [PageText]  →  chunk()  →  [ChunkData, ...]  →  embedding_service
+
+Overlap giữa các chunk giúp giữ ngữ cảnh ở ranh giới — câu hỏi lịch sử
+thường cần ngữ cảnh liên tục (mô tả trận đánh, diễn biến sự kiện).
+content_hash (sha256[:16]) giúp Spring Boot phát hiện chunk đã thay đổi
+khi re-ingest mà không cần so sánh full text.
+"""
 import hashlib
 from dataclasses import dataclass
 

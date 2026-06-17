@@ -29,6 +29,11 @@
       "iconBg": "bg-primary/5"
     }
   ],
+  "metadataStats": [
+    { "label": "Danh mục chính", "value": "18", "icon": "category" },
+    { "label": "Thẻ hệ thống", "value": "1,482", "icon": "sell" },
+    { "label": "Thời kỳ lịch sử", "value": "12", "icon": "timeline" }
+  ],
   "activities": [
     {
       "id": "act-1",

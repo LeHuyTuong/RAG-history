@@ -106,9 +106,6 @@ public class AuthServiceImpl implements AuthService {
         member.setPasswordHash(passwordEncoder.encode(request.password()));
         member.setFullName(request.name());
         member.setStatus(Member.UserStatus.valueOf(ACTIVE_STATUS));
-        Instant now = Instant.now();
-        member.setCreatedAt(now);
-        member.setUpdatedAt(now);
 
         Member saved = memberRepository.save(member);
         log.info("Member registered successfully: id={}", saved.getId());
@@ -250,7 +247,6 @@ public class AuthServiceImpl implements AuthService {
         refreshToken.setDeviceInfo(deviceInfo);
         refreshToken.setIpAddress(ipAddress);
         refreshToken.setRevoked(false);
-        refreshToken.setCreatedAt(Instant.now());
 
         if (AuthAccount.ADMIN_ACCOUNT_TYPE.equals(account.accountType())) {
             refreshToken.setAdmin(account.admin());
