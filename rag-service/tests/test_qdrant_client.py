@@ -12,11 +12,17 @@ def test_ensure_collection_returns_when_collection_exists(monkeypatch):
         def create_collection(self, **kwargs):
             calls.append(("create", kwargs))
 
+        def create_payload_index(self, **kwargs):
+            calls.append(("index", kwargs))
+
     monkeypatch.setattr(qdrant_client, "get_client", lambda: FakeClient())
 
     qdrant_client.ensure_collection("history")
 
-    assert calls == [("exists", "history")]
+    # collection đã tồn tại: KHÔNG create, nhưng vẫn ensure payload indexes
+    assert calls[0] == ("exists", "history")
+    assert all(c[0] == "index" for c in calls[1:])
+    assert [c[1]["field_name"] for c in calls[1:]] == ["sourceId", "tagIds"]
 
 
 def test_ensure_collection_creates_collection_and_payload_indexes(monkeypatch):

@@ -8,12 +8,23 @@ Cách dùng trong các service/module khác:
   from app.config import settings
   settings.qdrant_url, settings.default_top_k, ...
 """
+from pathlib import Path
+
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def _find_env_file() -> str:
+    """Tìm .env từ thư mục hiện tại lên tối đa 3 cấp (hỗ trợ chạy từ repo root hoặc rag-service/)."""
+    for parent in [Path.cwd(), *Path.cwd().parents[:3]]:
+        candidate = parent / ".env"
+        if candidate.is_file():
+            return str(candidate)
+    return ".env"  # fallback — để pydantic-settings báo lỗi rõ nếu không tìm thấy
+
+
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=_find_env_file(), extra="ignore")
 
     # Qdrant Cloud — kết nối qua HTTPS + API key
     qdrant_url: str
@@ -22,7 +33,7 @@ class Settings(BaseSettings):
 
     # Google AI Studio — dùng chung 1 key cho cả embedding (Gemini) và LLM (Gemma)
     google_api_key: str = Field(validation_alias=AliasChoices("GOOGLE_API_KEY", "LLM_API_KEY"))
-    llm_model: str = "gemma-3-27b-it"
+    llm_model: str = "gemma-4-31b-it"
     embedding_model: str = "gemini-embedding-001"
     # embedding_dim phải khớp với collection đã tạo trong Qdrant — đổi model thì phải tạo lại collection
     embedding_dim: int = 768
