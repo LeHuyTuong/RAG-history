@@ -13,6 +13,7 @@ import {
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 
+import { API_ENDPOINTS } from '../../../services/api';
 const EventManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, itemName: '', id: null });
@@ -62,7 +63,7 @@ const EventManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const eventRes = await fetch('/api/admin_events.json');
+        const eventRes = await fetch(API_ENDPOINTS.ADMIN_EVENTS);
         if (!eventRes.ok) throw new Error('Events fetch failed');
         const eventResult = await eventRes.json();
 

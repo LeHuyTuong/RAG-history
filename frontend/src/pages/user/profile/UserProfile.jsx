@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import { API_ENDPOINTS } from '../../../services/api';
 const UserProfile = () => {
   const [activeTab, setActiveTab] = useState('history');
-  const [user, setUser] = useState({ username: '', role: 'user' });
-  const [nameInput, setNameInput] = useState('');
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : { username: '', role: 'user' };
+  });
+  const [nameInput, setNameInput] = useState(user.username);
   const navigate = useNavigate();
 
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (!savedUser) {
       navigate('/login');
-    } else {
-      const parsed = JSON.parse(savedUser);
-      setUser(parsed);
-      setNameInput(parsed.username);
     }
     window.scrollTo(0, 0);
   }, [navigate]);
@@ -39,7 +39,7 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await fetch('/api/user_profile_history.json');
+        const response = await fetch(API_ENDPOINTS.USER_PROFILE_HISTORY);
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
         setMockHistory(data);

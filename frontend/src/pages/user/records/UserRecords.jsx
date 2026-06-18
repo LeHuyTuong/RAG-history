@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Pagination from '../../../components/common/Pagination';
+import { API_ENDPOINTS } from '../../../services/api';
 
 const UserRecords = () => {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' hoặc 'list'
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 6;
 
   useEffect(() => {
     const fetchRecords = async () => {
       try {
-        const response = await fetch('/api/user_records.json');
+        const response = await fetch(API_ENDPOINTS.USER_RECORDS);
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
         setRecords(data);
@@ -21,6 +25,9 @@ const UserRecords = () => {
     };
     fetchRecords();
   }, []);
+
+  const totalPages = Math.ceil(records.length / ITEMS_PER_PAGE);
+  const paginatedRecords = records.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   return (
     <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
@@ -110,7 +117,7 @@ const UserRecords = () => {
           {/* 3. MAIN CONTENT: GRID SỬ LIỆU */}
           <section className="lg:col-span-3">
             <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 gap-10" : "flex flex-col gap-6"}>
-              {records.map((item) => (
+              {paginatedRecords.map((item) => (
                 <article key={item.id} className={`group bg-[#fffdf8] border border-[#d99b4a]/40 shadow-lg hover:shadow-[0_20px_50px_rgba(43,5,4,0.12)] transition-all duration-700 flex p-1 ${viewMode === 'grid' ? 'flex-col' : 'flex-row h-48'}`}>
                   {/* Lớp viền trong cùng */}
                   <div className={`border border-[#d99b4a]/30 relative flex bg-[#fcf9ee] dong-son-pattern w-full ${viewMode === 'grid' ? 'flex-col' : 'flex-row'}`}>
@@ -137,7 +144,7 @@ const UserRecords = () => {
 
                     {/* Nội dung bản ghi */}
                     <div className="p-6 flex flex-col flex-grow relative z-10">
-                      <span className="text-[#6b0f0d]/80 font-body text-[9px] font-bold uppercase tracking-widest mb-2">Niên hiệu: {item.period}</span>
+                      <span className="text-[#6b0f0d]/80 font-body text-[9px] font-bold uppercase tracking-widest mb-2">Niên hiệu: {item.period && item.period.includes('Nhà') ? item.period.replace('Nhà', 'Triều') : item.period}</span>
                       <h3 className="font-headline text-2xl text-[#2b0504] font-semibold group-hover:text-[#6b0f0d] transition-colors tracking-tight leading-tight mb-3">
                         {item.name}
                       </h3>
@@ -161,13 +168,8 @@ const UserRecords = () => {
             </div>
 
             {/* 4. PAGINATION */}
-            <nav className="mt-16 flex justify-center items-center gap-3">
-              <button className="w-10 h-10 border border-[#d99b4a]/40 bg-[#fffdf8] flex items-center justify-center text-[#6b0f0d]/40 cursor-not-allowed"><span className="material-symbols-outlined">chevron_left</span></button>
-              <button className="w-10 h-10 bg-[#6b0f0d] text-[#ffe7b0] font-bold text-[13px] shadow-md border border-[#6b0f0d]">1</button>
-              <button className="w-10 h-10 border border-[#d99b4a]/60 bg-[#fffdf8] font-body text-[13px] font-bold text-[#6b0f0d] hover:bg-[#d99b4a]/20 transition-all">2</button>
-              <span className="text-[#6b0f0d] font-body tracking-widest">...</span>
-              <button className="w-10 h-10 border border-[#d99b4a]/60 bg-[#fffdf8] flex items-center justify-center text-[#6b0f0d] hover:bg-[#d99b4a]/20 transition-all"><span className="material-symbols-outlined">chevron_right</span></button>
-            </nav>
+            {/* 4. PAGINATION */}
+            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
           </section>
         </div>
       </div>

@@ -13,6 +13,7 @@ import {
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 
+import { API_ENDPOINTS } from '../../../services/api';
 const RecordManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, itemName: '', id: null });
@@ -58,7 +59,7 @@ const RecordManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/admin_records.json');
+        const response = await fetch(API_ENDPOINTS.ADMIN_RECORDS);
         if (!response.ok) throw new Error('Network response was not ok');
         const result = await response.json();
 

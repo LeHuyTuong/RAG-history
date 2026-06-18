@@ -5,10 +5,18 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleRegister = (e) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      setError("Mật khẩu xác nhận không khớp!");
+      return;
+    }
+    setError("");
     const role = username.toLowerCase().includes('admin') ? 'admin' : 'user';
     localStorage.setItem('user', JSON.stringify({ username: username || 'Người Dùng Mới', role }));
     if (role === 'admin') {
@@ -20,6 +28,14 @@ const Register = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#2b0504] px-4 py-10 flex items-center justify-center">
+      {/* Nút Back to Home */}
+      <Link 
+        to="/" 
+        className="absolute top-6 left-6 md:top-10 md:left-10 z-50 flex items-center gap-2 text-[#fff7df]/80 hover:text-[#f7d78a] hover:-translate-x-1 transition-all group"
+      >
+        <span className="material-symbols-outlined text-[24px]">arrow_back</span>
+        <span className="font-body font-bold text-[13px] uppercase tracking-widest hidden md:block">Về trang chủ</span>
+      </Link>
       {/* Background giống Home */}
       <div className="absolute inset-0 z-0">
         <img
@@ -99,6 +115,8 @@ const Register = () => {
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="w-full bg-white/90 border border-[#d9c7a7] focus:border-[#6b0000] py-3 pl-12 pr-10 text-sm outline-none font-body transition-colors text-[#2b1a16]"
                     required
                   />
@@ -125,6 +143,8 @@ const Register = () => {
                   <input
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full bg-white/90 border border-[#d9c7a7] focus:border-[#6b0000] py-3 pl-12 pr-10 text-sm outline-none font-body transition-colors text-[#2b1a16]"
                     required
                   />
@@ -140,6 +160,12 @@ const Register = () => {
                 </div>
               </div>
             </div>
+
+            {error && (
+              <div className="text-[#6b0000] text-sm font-bold font-body bg-[#6b0000]/10 p-2 rounded text-center border border-[#6b0000]/20">
+                {error}
+              </div>
+            )}
 
             <div className="pt-2">
               <button

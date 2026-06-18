@@ -74,9 +74,9 @@ const UserLayout = () => {
             {/* Logo */}
             <Link
               to={user?.role === 'admin' ? '/admin' : '/'}
-              className="shrink-0 font-headline text-4xl lg:text-[42px] font-bold text-[#f7d78a] tracking-wider hover:opacity-80 transition drop-shadow-md flex items-center gap-3"
+              className="shrink-0 font-headline text-[26px] lg:text-[30px] font-bold text-[#f7d78a] tracking-wider hover:opacity-80 transition drop-shadow-md flex items-center gap-3"
             >
-              <span className="material-symbols-outlined text-[32px] lg:text-[40px] text-[#8b1512]">account_balance</span>
+              <span className="material-symbols-outlined text-[28px] lg:text-[32px] text-[#f7d78a]">account_balance</span>
               {siteName}
             </Link>
 

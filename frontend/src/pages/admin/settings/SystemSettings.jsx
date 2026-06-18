@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ActionModal, TableActions } from '../../../components/admin';
 
+import { API_ENDPOINTS } from '../../../services/api';
 // --- COMPONENT CON 2: MODAL THÊM / SỬA THAM SỐ ---
 const ParamModal = ({ onClose, onSave, editData = null }) => {
   const [form, setForm] = useState(
@@ -103,7 +104,7 @@ const SystemSettings = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/admin_settings.json');
+        const response = await fetch(API_ENDPOINTS.ADMIN_SETTINGS);
         if (!response.ok) throw new Error('Network response was not ok');
         const result = await response.json();
         

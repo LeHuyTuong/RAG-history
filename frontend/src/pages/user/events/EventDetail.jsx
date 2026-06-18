@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
+import { API_ENDPOINTS } from '../../../services/api';
 const EventDetail = () => {
   const { id } = useParams();
 
@@ -15,7 +16,7 @@ const EventDetail = () => {
   useEffect(() => {
     const fetchEventData = async () => {
       try {
-        const response = await fetch('/api/user_event_detail.json');
+        const response = await fetch(API_ENDPOINTS.USER_EVENT_DETAIL);
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
         setEventData(data);
@@ -41,7 +42,7 @@ const EventDetail = () => {
           <span className="material-symbols-outlined text-xs opacity-40">chevron_right</span>
           <Link to="/events" className="hover:text-[#6b0f0d] transition-colors">Sự kiện Quân sự</Link>
           <span className="material-symbols-outlined text-xs opacity-40">chevron_right</span>
-          <span className="text-[#6b0f0d] font-bold">{eventData.title}</span>
+          <span className="text-[#6b0f0d] font-bold">{eventData.title || eventData.name}</span>
         </nav>
 
         {/* --- 1. HERO SECTION --- */}
@@ -51,10 +52,10 @@ const EventDetail = () => {
               Imperial Victory
             </span>
             <h1 className="font-headline text-5xl md:text-7xl text-[#6b0f0d] leading-tight font-semibold tracking-tight">
-              {eventData.title}
+              {eventData.title || eventData.name}
             </h1>
             <p className="font-body text-[16px] text-[#2b1a16]/80 max-w-2xl border-l-4 border-[#6b0f0d] pl-8 py-2 leading-relaxed">
-              "{eventData.subtitle}"
+              "{eventData.subtitle || eventData.description}"
             </p>
           </div>
           <div className="lg:col-span-5 relative group">
@@ -103,43 +104,24 @@ const EventDetail = () => {
                 <img className="w-full h-full object-cover grayscale-[0.6] sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500" src={eventData.gallery[1]} alt="visual 2" />
               </div>
             </div>
-            <button className="w-full py-4 border border-[#d99b4a]/60 bg-[#fffdf8] text-[#6b0f0d] font-body text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#d99b4a]/10 transition-all shadow-sm">
-              Mở rộng Thư viện ảnh
-            </button>
           </div>
         </section>
 
-        {/* --- 4. FIGURES & EVIDENCE --- */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-          <div className="lg:col-span-2 space-y-10">
-            <h2 className="font-headline text-3xl text-[#6b0f0d] font-semibold">Nhân vật tham chiến</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {eventData.figures.map((fig, i) => (
-                <div key={i} className={`flex items-center space-x-6 p-6 bg-[#fffdf8] border border-[#d99b4a]/30 border-l-4 ${fig.color} shadow-sm group hover:shadow-md transition-all`}>
-                  <div className="w-16 h-16 rounded-full bg-[#fcf9ee] flex-shrink-0 flex items-center justify-center border border-[#d99b4a]/40 group-hover:bg-[#d99b4a]/20 transition-colors">
-                    <span className="material-symbols-outlined text-[#6b0f0d]/60 text-3xl group-hover:text-[#6b0f0d]">person</span>
-                  </div>
-                  <div>
-                    <h4 className="font-headline text-xl text-[#2b0504] font-semibold">{fig.name}</h4>
-                    <p className="font-body text-[9px] font-bold uppercase text-[#2b1a16]/60 tracking-widest mt-1">{fig.role}</p>
-                  </div>
+        {/* --- 4. FIGURES --- */}
+        <section className="space-y-10">
+          <h2 className="font-headline text-3xl text-[#6b0f0d] font-semibold">Nhân vật tham chiến</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {(eventData.participations || []).map((fig, i) => (
+              <Link to={`/characters/${fig.person_id}`} key={i} className={`flex items-center space-x-6 p-6 bg-[#fffdf8] border border-[#d99b4a]/30 border-l-4 ${fig.color} shadow-sm group hover:shadow-md transition-all`}>
+                <div className="w-16 h-16 rounded-full bg-[#fcf9ee] flex-shrink-0 flex items-center justify-center border border-[#d99b4a]/40 group-hover:bg-[#d99b4a]/20 transition-colors">
+                  <span className="material-symbols-outlined text-[#6b0f0d]/60 text-3xl group-hover:text-[#6b0f0d]">person</span>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-8">
-            <h2 className="font-headline text-3xl text-[#6b0f0d] font-semibold">Sử liệu gốc</h2>
-            <div className="p-10 bg-[#fffdf8] border border-[#d99b4a]/40 relative shadow-md overflow-hidden group">
-              <div className="absolute inset-0 bg-[#fcf9ee] opacity-40 dong-son-pattern pointer-events-none"></div>
-              <span className="material-symbols-outlined text-[#d99b4a] opacity-20 text-7xl absolute top-4 right-4">format_quote</span>
-              <p className="font-body text-[16px] text-[#2b1a16]/90 leading-loose relative z-10 font-medium">
-                "{eventData.quote}"
-              </p>
-              <div className="mt-8 pt-6 border-t border-[#d99b4a]/30 font-body text-[10px] font-bold text-[#6b0f0d] uppercase tracking-widest relative z-10">
-                — {eventData.quoteSource}
-              </div>
-            </div>
+                <div>
+                  <h4 className="font-headline text-xl text-[#2b0504] font-semibold group-hover:text-[#6b0f0d] transition-colors">{fig.person_name}</h4>
+                  <p className="font-body text-[9px] font-bold uppercase text-[#2b1a16]/60 tracking-widest mt-1">{fig.role}</p>
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
 

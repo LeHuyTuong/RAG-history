@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { StatsGrid } from '../../../components/admin';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
+import { API_ENDPOINTS } from '../../../services/api';
 const CHART_DATA = [35, 50, 25, 70, 45, 90, 60, 80, 40, 65, 85, 55, 75, 45, 60];
 const CHART_DATA_INTERACTIONS = [15, 30, 20, 45, 25, 65, 40, 50, 35, 40, 60, 45, 55, 30, 45];
 
@@ -58,7 +59,7 @@ const AdminDashboard = () => {
 
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch('/api/dashboard.json');
+        const response = await fetch(API_ENDPOINTS.DASHBOARD);
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         setDashboardData(data);

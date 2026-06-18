@@ -13,6 +13,7 @@ import {
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 
+import { API_ENDPOINTS } from '../../../services/api';
 const CharacterManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, name: '', id: null });
@@ -46,7 +47,7 @@ const CharacterManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const charRes = await fetch('/api/admin_characters.json');
+        const charRes = await fetch(API_ENDPOINTS.ADMIN_CHARACTERS);
         if (!charRes.ok) throw new Error('Characters fetch failed');
         const charResult = await charRes.json();
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { AdminLayout, PageHeader, DataTable, StatsGrid, FilterBar, FilterInput, FilterSelect, ActionModal } from '../../../components/admin';
 
+import { API_ENDPOINTS } from '../../../services/api';
 const MemberManagement = () => {
   const navigate = useNavigate();
   // State quản lý các loại Modal
@@ -24,7 +25,7 @@ const MemberManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/admin_members.json');
+        const response = await fetch(API_ENDPOINTS.ADMIN_MEMBERS);
         if (!response.ok) throw new Error('Network response was not ok');
         const result = await response.json();
         // Merge new members from localStorage

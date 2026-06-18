@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import VietnamMap from '../../../components/VietnamMap';
 
+import { API_ENDPOINTS } from '../../../services/api';
 export default function UserLocations() {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'map'
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,7 +20,7 @@ export default function UserLocations() {
     window.scrollTo(0, 0);
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/user_locations.json');
+        const response = await fetch(API_ENDPOINTS.USER_LOCATIONS);
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
         setLocations(data);
@@ -29,6 +30,7 @@ export default function UserLocations() {
       } catch (error) {
         console.error('Error fetching locations:', error);
       } finally {
+
         setLoading(false);
       }
     };
@@ -38,7 +40,8 @@ export default function UserLocations() {
   // Filter logic
   let displayedLocations = locations;
   if (selectedDynasty) {
-    displayedLocations = displayedLocations.filter(loc => loc.period === selectedDynasty);
+    const normalizedFilter = selectedDynasty.replace('Triều ', '');
+    displayedLocations = displayedLocations.filter(loc => loc.period && loc.period.includes(normalizedFilter));
   }
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
@@ -48,51 +51,60 @@ export default function UserLocations() {
     );
   }
 
-  // Get unique dynasties for filter
-  const dynasties = [...new Set(locations.map(l => l.period))];
+  // Lấy các triều đại cố định để đồng bộ với các trang khác
+  const dynasties = ['Triều Lý', 'Triều Trần', 'Triều Lê Sơ', 'Triều Nguyễn', 'Triều Hồ'];
 
   return (
-    <div className="bg-[#f4f6f8] min-h-screen font-body pb-20 relative">
-      {/* RED BANNER HEADER */}
-      <div className="bg-[#9e1b1b] text-white pt-10 pb-12 px-6 md:px-12 w-full">
-        <div className="max-w-[1440px] mx-auto">
-
-          <h1 className="font-headline text-4xl md:text-5xl font-bold mb-4 drop-shadow-md">Di Tích Lịch Sử Việt Nam</h1>
-          <p className="text-white/90 max-w-2xl text-base mb-10 leading-relaxed font-body">
+    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20 relative">
+      {/* HERO SECTION */}
+      <section className="relative h-[450px] flex items-center justify-center overflow-hidden border-b border-[#d99b4a]/30">
+        <div className="absolute inset-0 z-0 bg-[#2b0504]">
+          <img
+            className="w-full h-full object-cover grayscale-[30%] sepia-[40%] brightness-[0.4] animate-ken-burns origin-center"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2"
+            alt="Locations Hero"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#2b0504]/90 via-[#2b0504]/40 to-[#fbf6e8] pointer-events-none"></div>
+        </div>
+        <div className="relative z-10 text-center space-y-4 max-w-4xl px-12 mt-10">
+          <span className="text-[#d9c7a7] font-body text-[11px] font-bold uppercase tracking-[0.4em] mb-4 block drop-shadow-md">Khám phá Di sản Quốc gia</span>
+          <h1 className="font-headline text-5xl md:text-6xl lg:text-[72px] text-[#f7d78a] font-semibold tracking-tight drop-shadow-lg mb-4">Di Tích Lịch Sử</h1>
+          <p className="font-body text-sm md:text-base lg:text-lg text-[#f8ead0]/90 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
             Khám phá di sản văn hóa đa dạng của Việt Nam qua những công trình kiến trúc, đền đài, lăng tẩm có giá trị lịch sử, văn hóa, và khoa học.
           </p>
+        </div>
+      </section>
 
-          <div className="flex flex-col md:flex-row gap-4 max-w-3xl">
-            {/* Search */}
-            <div className="relative flex-1">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/70">search</span>
-              <input
-                type="text"
-                placeholder="Tìm kiếm di tích..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="w-full bg-white/10 border border-white/20 text-white placeholder:text-white/60 rounded-md py-3 pl-12 pr-4 outline-none focus:bg-white/20 transition-colors font-body"
-              />
-            </div>
-            {/* Filter */}
-            <div className="relative md:w-64">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/70">filter_alt</span>
-              <select
-                value={selectedDynasty}
-                onChange={e => setSelectedDynasty(e.target.value)}
-                className="w-full bg-transparent border border-white/40 text-white rounded-md py-3 pl-12 pr-10 appearance-none outline-none focus:bg-white/10 transition-colors font-body cursor-pointer [&>option]:text-black"
-              >
-                <option value="">Tất cả thời kỳ</option>
-                {dynasties.map(dyn => (
-                  <option key={dyn} value={dyn}>{dyn}</option>
-                ))}
-              </select>
-              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-white/70 pointer-events-none">expand_more</span>
-            </div>
+      {/* SEARCH AND FILTER */}
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 -mt-8 relative z-20 mb-8">
+        <div className="bg-[#fffdf8]/90 backdrop-blur-md rounded-xl shadow-md border border-[#d99b4a]/40 p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div className="relative flex-1 w-full">
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#6b0f0d]/60">search</span>
+            <input
+              type="text"
+              placeholder="Tìm kiếm di tích..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] placeholder-[#6b0f0d]/40 rounded-lg py-3 pl-12 pr-4 outline-none focus:border-[#6b0f0d]/60 transition-colors font-body shadow-inner"
+            />
+          </div>
+          <div className="relative md:w-64 w-full">
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#6b0f0d]/60">filter_alt</span>
+            <select
+              value={selectedDynasty}
+              onChange={e => setSelectedDynasty(e.target.value)}
+              className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] rounded-lg py-3 pl-12 pr-10 appearance-none outline-none focus:border-[#6b0f0d]/60 transition-colors font-body cursor-pointer shadow-inner"
+            >
+              <option value="">Tất cả thời kỳ</option>
+              {dynasties.map(dyn => (
+                <option key={dyn} value={dyn}>{dyn}</option>
+              ))}
+            </select>
+            <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#6b0f0d]/60 pointer-events-none">expand_more</span>
           </div>
         </div>
       </div>
-
+      
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 mt-8">
         {/* VIEW MODE TOGGLE */}
         <div className="flex justify-end mb-6 relative z-10">
@@ -113,11 +125,11 @@ export default function UserLocations() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {displayedLocations.map((loc) => (
                 <motion.div
-                  key={loc.id}
+                  key={loc.location_id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4 }}
-                  onClick={() => navigate(`/locations/${loc.id}`)}
+                  onClick={() => navigate(`/locations/${loc.location_id}`)}
                   className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow cursor-pointer group flex flex-col h-full border border-gray-100"
                 >
                   <div className="relative h-60 w-full overflow-hidden">
@@ -132,16 +144,16 @@ export default function UserLocations() {
                     </div>
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
                       <span className="material-symbols-outlined text-[14px]">calendar_today</span>
-                      {loc.period}
+                      {loc.period && loc.period.includes('Nhà') ? loc.period.replace('Nhà', 'Triều') : loc.period}
                     </div>
                   </div>
                   <div className="p-6 flex flex-col flex-1">
                     <div className="inline-block px-3 py-1 bg-gray-100 text-gray-600 text-[11px] font-bold uppercase tracking-wider rounded-md w-fit mb-3">
-                      {loc.type}
+                      {loc.location_type}
                     </div>
                     <h3 className="font-headline text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#9e1b1b] transition-colors line-clamp-1">{loc.name}</h3>
                     <p className="text-gray-600 font-body text-sm leading-relaxed line-clamp-3 mb-4">
-                      {loc.desc}
+                      {loc.description}
                     </p>
                   </div>
                 </motion.div>
@@ -169,10 +181,10 @@ export default function UserLocations() {
                 />
 
                 {displayedLocations.map((site) => {
-                  const isSelected = selectedSite?.id === site.id;
+                  const isSelected = selectedSite?.location_id === site.location_id;
                   return (
                     <div
-                      key={site.id}
+                      key={site.location_id}
                       className="absolute cursor-pointer transition-all duration-500 z-20"
                       style={{ left: `${site.x}%`, top: `${site.y}%` }}
                       onClick={() => setSelectedSite(site)}
@@ -187,11 +199,11 @@ export default function UserLocations() {
                           : 'bg-white border-[#9e1b1b]/30 text-[#9e1b1b] hover:border-[#9e1b1b] z-20'
                           }`}>
                           <span className="material-symbols-outlined text-[16px]">
-                            {site.type === 'Hoàng thành' ? 'castle' : (site.type === 'Di tích văn hóa' || site.type === 'Khu lăng tẩm') ? 'history_edu' : 'account_balance'}
+                            {site.location_type === 'Hoàng thành' ? 'castle' : (site.location_type === 'Di tích văn hóa' || site.location_type === 'Khu lăng tẩm') ? 'history_edu' : 'account_balance'}
                           </span>
                         </div>
 
-                        <div className={`absolute bottom-full mb-3 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-gray-900 text-white text-[10px] font-bold tracking-widest uppercase rounded-sm shadow-xl whitespace-nowrap transition-all duration-300 pointer-events-none ${hoveredSite?.id === site.id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+                        <div className={`absolute bottom-full mb-3 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-gray-900 text-white text-[10px] font-bold tracking-widest uppercase rounded-sm shadow-xl whitespace-nowrap transition-all duration-300 pointer-events-none ${hoveredSite?.id === site.location_id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
                           {site.name}
                         </div>
                       </div>
@@ -209,9 +221,9 @@ export default function UserLocations() {
             {/* CỘT PHẢI: CHI TIẾT */}
             <div className="lg:col-span-5 flex flex-col relative z-20">
               <AnimatePresence mode="wait">
-                {selectedSite && displayedLocations.find(l => l.id === selectedSite.id) ? (
+                {selectedSite && displayedLocations.find(l => l.location_id === selectedSite.location_id) ? (
                   <motion.div
-                    key={selectedSite.id}
+                    key={selectedSite.location_id}
                     initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -30 }}
@@ -221,10 +233,10 @@ export default function UserLocations() {
                       <div className="space-y-3">
                         <div className="flex items-center gap-2 bg-gray-50 w-fit px-2 py-1 rounded-md text-gray-600">
                           <span className="material-symbols-outlined text-[14px]">
-                            {selectedSite.type === 'Hoàng thành' ? 'castle' : (selectedSite.type === 'Di tích văn hóa' || selectedSite.type === 'Khu lăng tẩm') ? 'history_edu' : 'account_balance'}
+                            {selectedSite.location_type === 'Hoàng thành' ? 'castle' : (selectedSite.location_type === 'Di tích văn hóa' || selectedSite.location_type === 'Khu lăng tẩm') ? 'history_edu' : 'account_balance'}
                           </span>
                           <span className="font-body text-[10px] font-bold uppercase tracking-widest">
-                            {selectedSite.type}
+                            {selectedSite.location_type}
                           </span>
                         </div>
                         <h3 className="font-headline text-3xl lg:text-4xl text-gray-900 font-bold leading-tight">{selectedSite.name}</h3>
@@ -245,13 +257,13 @@ export default function UserLocations() {
                       {/* Period Badge */}
                       <div className="absolute top-4 right-4 bg-white/90 backdrop-blur text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
                         <span className="material-symbols-outlined text-[14px]">calendar_today</span>
-                        {selectedSite.period}
+                        {selectedSite.period && selectedSite.period.includes('Nhà') ? selectedSite.period.replace('Nhà', 'Triều') : selectedSite.period}
                       </div>
                     </div>
 
                     <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 mb-6 relative z-10">
                       <p className="font-headline text-lg text-gray-800 mb-2 font-semibold">Tóm lược sớ sử</p>
-                      <p className="text-gray-600 leading-relaxed font-body text-sm">{selectedSite.desc}</p>
+                      <p className="text-gray-600 leading-relaxed font-body text-sm">{selectedSite.description}</p>
                     </div>
 
                     {selectedSite.famousCharacters && (
@@ -269,7 +281,7 @@ export default function UserLocations() {
 
                     <div className="mt-auto space-y-3 relative z-10">
                       <button
-                        onClick={() => navigate(`/locations/${selectedSite.id}`)}
+                        onClick={() => navigate(`/locations/${selectedSite.location_id}`)}
                         className="w-full py-3.5 bg-[#9e1b1b] text-white font-bold text-sm rounded-xl shadow-md hover:bg-[#b02a2a] active:scale-95 transition-all flex items-center justify-center gap-2"
                       >
                         XEM CHI TIẾT <span className="material-symbols-outlined text-[18px]">east</span>
