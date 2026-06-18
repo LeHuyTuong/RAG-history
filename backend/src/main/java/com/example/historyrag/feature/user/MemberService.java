@@ -1,21 +1,13 @@
 package com.example.historyrag.feature.user;
 
-import com.example.historyrag.feature.user.dto.UpdateUserRequest;
-import com.example.historyrag.feature.user.dto.UserResponse;
-
-import java.util.List;
+import com.example.historyrag.dto.ResultPaginationDTO;
+import com.example.historyrag.feature.user.dto.MemberRequest;
+import com.example.historyrag.feature.user.dto.MemberResponse;
+import org.springframework.data.domain.Pageable;
 
 public interface MemberService {
 
-    UserResponse getUserById(Long id);
-
-    UserResponse getUserByEmail(String email);
-
-    UserResponse updateUser(Long id, UpdateUserRequest request);
-
-    void deleteUser(Long id);
-
-    List<UserResponse> getAllUsers();
-
-    UserResponse getCurrentUser();
+    MemberResponse createMember(MemberRequest request);
+    MemberResponse updateMember(Long id, MemberRequest request);
+    void deleteMember(Long id);
 }

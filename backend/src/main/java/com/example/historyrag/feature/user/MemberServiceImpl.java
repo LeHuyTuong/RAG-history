@@ -1,11 +1,16 @@
 package com.example.historyrag.feature.user;
 
+import com.example.historyrag.dto.ResultPaginationDTO;
+import com.example.historyrag.exception.DuplicateResourceException;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.exception.InvalidRequestException;
-import com.example.historyrag.feature.user.dto.UpdateUserRequest;
-import com.example.historyrag.feature.user.dto.UserResponse;
+import com.example.historyrag.feature.user.dto.MemberRequest;
+import com.example.historyrag.feature.user.dto.MemberResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -21,91 +26,63 @@ public class MemberServiceImpl implements MemberService {
     private static final Logger log = LoggerFactory.getLogger(MemberServiceImpl.class);
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public MemberServiceImpl(MemberRepository memberRepository) {
+    public MemberServiceImpl(MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
         this.memberRepository = memberRepository;
+        this.passwordEncoder = passwordEncoder;
     }
-
-    @Override
-    public UserResponse getUserById(Long id) {
-        log.info("Getting user by id: {}", id);
-        Member member = memberRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Member", "id", id));
-        return UserResponse.fromEntity(member);
-    }
-
-    @Override
-    public UserResponse getUserByEmail(String email) {
-        log.info("Getting user by email: {}", email);
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Member", "email", email));
-        return UserResponse.fromEntity(member);
-    }
-
     @Override
     @Transactional
-    public UserResponse updateUser(Long id, UpdateUserRequest request) {
-        log.info("Updating user with id: {}", id);
-
-        Member member = memberRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Member", "id", id));
-        if (request.username() != null && !request.username().isBlank()) {
-            if (!request.username().equals(member.getUsername()) &&
-                    memberRepository.existsByUsername(request.username())) {
-                throw new InvalidRequestException("Username already exists");
-            }
-            member.setUsername(request.username());
+    public MemberResponse createMember(MemberRequest request) {
+        if (request.password() == null || request.password().isBlank()) {
+            throw new InvalidRequestException("Password is required");
         }
-        if (request.fullName() != null) {
-            member.setFullName(request.fullName());
+        if (memberRepository.existsByUsername(request.username())) {
+            throw new DuplicateResourceException("Member", "username", request.username());
+        }
+        if (memberRepository.existsByEmail(request.email())) {
+            throw new DuplicateResourceException("Member", "email", request.email());
         }
 
-        Member saved = memberRepository.save(member);
-        log.info("User updated successfully: {}", saved.getId());
-
-        return UserResponse.fromEntity(saved);
+        Member member = new Member();
+        applyRequest(member, request);
+        member.setPasswordHash(passwordEncoder.encode(request.password()));
+        return MemberResponse.fromEntity(memberRepository.save(member));
     }
-
     @Override
     @Transactional
-    public void deleteUser(Long id) {
-        log.info("Deleting user with id: {}", id);
+    public MemberResponse updateMember(Long id, MemberRequest request) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Member", "id", id));
-        member.setStatus(Member.UserStatus.INACTIVE);
-        memberRepository.save(member);
-        log.info("User soft deleted: {}", id);
-    }
 
-    @Override
-    public List<UserResponse> getAllUsers() {
-        log.info("Getting all active users");
-        return memberRepository.findAll().stream()
-                .filter(m -> Member.UserStatus.ACTIVE == m.getStatus())
-                .map(UserResponse::fromEntity)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public UserResponse getCurrentUser() {
-        log.info("Getting current authenticated user");
-
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
-            Jwt jwt = jwtAuth.getToken();
-            String email = jwt.getSubject();
-
-            if (email == null) {
-                throw new InvalidRequestException("Cannot extract user email from token");
-            }
-
-            Member member = memberRepository.findByEmail(email)
-                    .orElseThrow(() -> new ResourceNotFoundException("Member", "email", email));
-
-            return UserResponse.fromEntity(member);
+        if (!member.getUsername().equals(request.username())
+                && memberRepository.existsByUsernameAndIdNot(request.username(), id)) {
+            throw new DuplicateResourceException("Member", "username", request.username());
+        }
+        if (!member.getEmail().equals(request.email())
+                && memberRepository.existsByEmailAndIdNot(request.email(), id)) {
+            throw new DuplicateResourceException("Member", "email", request.email());
         }
 
-        throw new InvalidRequestException("User not authenticated");
+        applyRequest(member, request);
+        if (request.password() != null && !request.password().isBlank()) {
+            member.setPasswordHash(passwordEncoder.encode(request.password()));
+        }
+        return MemberResponse.fromEntity(memberRepository.save(member));
+    }
+    @Override
+    @Transactional
+    public void deleteMember(Long id) {
+        if (!memberRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Member", "id", id);
+        }
+        memberRepository.deleteById(id);
+    }
+    private void applyRequest(Member member, MemberRequest request) {
+        member.setUsername(request.username());
+        member.setEmail(request.email());
+        member.setFullName(request.fullName());
+        member.setStatus(request.status());
     }
 }

@@ -4,7 +4,7 @@ import com.example.historyrag.feature.user.Member;
 
 import java.time.Instant;
 
-public record UserResponse(
+public record MemberResponse(
         Long id,
         String username,
         String email,
@@ -13,8 +13,8 @@ public record UserResponse(
         Instant createdAt,
         Instant updatedAt
 ) {
-    public static UserResponse fromEntity(Member member) {
-        return new UserResponse(
+    public static MemberResponse fromEntity(Member member) {
+        return new MemberResponse(
                 member.getId(),
                 member.getUsername(),
                 member.getEmail(),
