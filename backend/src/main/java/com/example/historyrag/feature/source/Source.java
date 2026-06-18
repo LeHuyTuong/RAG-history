@@ -30,8 +30,9 @@ public class Source extends BaseEntity {
 
     @Size(max = 50)
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "source_type", nullable = false, length = 50)
-    private String sourceType;
+    private SourceType sourceType;
 
     @Size(max = 1000)
     @Column(name = "source_url", length = 1000)
@@ -52,8 +53,8 @@ public class Source extends BaseEntity {
     @Column(name = "publication_year")
     private Integer publicationYear;
 
-    @Size(max = 20)
+    @Enumerated(EnumType.STRING)
     @Column(name = "reliability_level", length = 20)
-    private String reliabilityLevel;
+    private ReliabilityLevel reliabilityLevel;
 
 }
