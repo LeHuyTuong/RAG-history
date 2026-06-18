@@ -1,3 +1,4 @@
-# Category Context
+# Location Context
 
-Category management feature. Keep controllers, service interface, service implementation, repositories, entities, and feature DTOs in this package according to project rules.
+Location management feature for historical places used by events and graph data.
+Admin CRUD lives under `/api/v1/admin/locations` and uses DTOs instead of exposing the entity.

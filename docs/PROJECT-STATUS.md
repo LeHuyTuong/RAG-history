@@ -1,6 +1,6 @@
 # Project Status
 
-> Last updated: 2026-06-16 | By: Codex | Session: #10
+> Last updated: 2026-06-17 | By: Codex | Session: #11
 >
 > AI: update this file at the end of every session when asked.
 > Follow this exact format. Keep it concise — under 80 lines.
@@ -30,6 +30,7 @@
 - Fixed login refresh-token persistence by removing premature Bean Validation from Hibernate-managed `RefreshToken.createdAt`.
 - Added admin CRUD Post backend API with ResultPaginationDTO filtering, JWT admin author resolution, Post-Tag mapping, service/controller tests, and API docs.
 - Fixed post keyword filtering by casting searchable fields before `ilike`, avoiding Hibernate CLOB `lower()` errors on `summary` and `content`.
+- Added admin CRUD Location backend API with enum location types, ResultPaginationDTO filtering, validation, service/controller tests, and API docs.
 
 ## In Progress
 _Nothing._
