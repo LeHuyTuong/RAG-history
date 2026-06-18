@@ -1,10 +1,11 @@
 package com.example.historyrag.feature.tag;
 
 import com.example.historyrag.dto.ApiResponse;
+import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.feature.tag.dto.TagRequest;
 import com.example.historyrag.feature.tag.dto.TagResponse;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class TagController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<TagResponse>>> getAllTags(Pageable pageable) {
+    public ResponseEntity<ApiResponse<ResultPaginationDTO>> getAllTags(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(tagService.getAllTags(pageable)));
     }
 

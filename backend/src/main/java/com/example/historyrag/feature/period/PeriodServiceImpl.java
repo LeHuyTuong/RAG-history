@@ -1,5 +1,6 @@
 package com.example.historyrag.feature.period;
 
+import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.exception.ConflictException;
 import com.example.historyrag.feature.period.dto.PeriodRequest;
@@ -63,14 +64,14 @@ public class PeriodServiceImpl implements PeriodService {
     }
 
     @Override
-    public Page<PeriodResponse> getAllPeriods(String keyword, Pageable pageable) {
+    public ResultPaginationDTO getAllPeriods(String keyword, Pageable pageable) {
         Page<Period> periods;
         if (keyword != null && !keyword.isBlank()) {
             periods = periodRepository.findByNameContainingIgnoreCase(keyword, pageable);
         } else {
             periods = periodRepository.findAll(pageable);
         }
-        return periods.map(PeriodResponse::fromEntity);
+        return ResultPaginationDTO.fromPage(periods.map(PeriodResponse::fromEntity));
     }
 
     @Override

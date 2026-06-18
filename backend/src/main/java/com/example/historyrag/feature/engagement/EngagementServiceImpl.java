@@ -1,10 +1,10 @@
 package com.example.historyrag.feature.engagement;
 
+import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.exception.InvalidRequestException;
 import com.example.historyrag.feature.engagement.dto.EngagementModerationRequest;
 import com.example.historyrag.feature.engagement.dto.EngagementResponse;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,12 +18,12 @@ public class EngagementServiceImpl implements EngagementService {
         this.engagementRepository = engagementRepository;
     }
     @Override
-    public Page<EngagementResponse> getPendingComments(Pageable pageable) {
-        return engagementRepository.findByEngagementTypeAndCommentStatus(
+    public ResultPaginationDTO getPendingComments(Pageable pageable) {
+        return ResultPaginationDTO.fromPage(engagementRepository.findByEngagementTypeAndCommentStatus(
                 EngagementType.COMMENT,
                 CommentStatus.PENDING,
                 pageable
-        ).map(EngagementResponse::fromEntity);
+        ).map(EngagementResponse::fromEntity));
     }
 
     @Override

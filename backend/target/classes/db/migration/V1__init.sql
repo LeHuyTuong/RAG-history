@@ -148,7 +148,9 @@ CREATE TABLE post (
     KEY idx_post_event (event_id),
     KEY idx_post_status (status),
     KEY idx_post_published (published_at),
-    FULLTEXT KEY ftx_post (title, summary, content),
+    FULLTEXT KEY ftx_post_title (title),
+    FULLTEXT KEY ftx_post_summary (summary),
+    FULLTEXT KEY ftx_post_content (content),
     CONSTRAINT fk_post_admin FOREIGN KEY (admin_id) REFERENCES admin (admin_id) ON DELETE RESTRICT,
     CONSTRAINT fk_post_event FOREIGN KEY (event_id) REFERENCES event (event_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
