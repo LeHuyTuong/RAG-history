@@ -15,13 +15,17 @@ const EntityRelationInput = ({
   const safeEntities = entities || [];
   const datalistId = `datalist-${type}`;
 
-  const getLabel = (e) => e.name || e.title;
-  const getSubLabel = (e) => e.type || e.title || e.dynasty || '';
+  const getLabel = (e) => (e && (e.name || e.title)) ? (e.name || e.title) : '';
+  const getSubLabel = (e) => (e && (e.type || e.title || e.dynasty)) ? (e.type || e.title || e.dynasty) : '';
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && e.target.value.trim()) {
       e.preventDefault();
-      onAdd(e.target.value.trim());
+      const val = e.target.value.trim();
+      const exists = safeEntities.some(ent => (typeof ent === 'object' ? ent.name : ent) === val);
+      if (!exists) {
+        onAdd(val);
+      }
       setInputVal('');
     }
   };
@@ -36,17 +40,32 @@ const EntityRelationInput = ({
         {safeEntities.length === 0 ? (
           <span className="text-[10px] font-bold text-on-surface-variant italic">Chưa liên kết</span>
         ) : (
-          safeEntities.map(name => {
+          safeEntities.map((ent, idx) => {
+            const isObject = typeof ent === 'object';
+            const entityName = isObject ? ent.name : ent;
+            const entityRelation = isObject ? ent.relation : '';
+
             if (type === 'character') {
               return (
-                <div key={name} className="flex items-center gap-3 p-2 bg-white rounded-xl border border-outline-variant/60 shadow-sm hover:border-primary/50 transition-all cursor-pointer group">
-                  <div className="w-8 h-8 bg-primary/10 flex items-center justify-center rounded-lg text-primary">
+                <div key={entityName || idx} className="flex items-center gap-3 p-2 bg-white rounded-xl border border-outline-variant/60 shadow-sm hover:border-primary/50 transition-all group">
+                  <div className="w-8 h-8 bg-primary/10 flex items-center justify-center rounded-lg text-primary shrink-0">
                     <span className="material-symbols-outlined text-sm">{itemIcon}</span>
                   </div>
-                  <span className="text-xs font-bold text-on-surface flex-1">{name}</span>
+                  <div className="flex-1 flex flex-col min-w-0">
+                    <span className="text-xs font-bold text-on-surface truncate">{entityName}</span>
+                    {isObject && (
+                      <input 
+                        type="text" 
+                        value={entityRelation} 
+                        onChange={(e) => onAdd({ name: entityName, relation: e.target.value }, true)} 
+                        placeholder="Mối quan hệ..." 
+                        className="text-[10px] text-on-surface-variant bg-transparent border-b border-outline-variant/30 focus:border-primary outline-none mt-0.5" 
+                      />
+                    )}
+                  </div>
                   <button
-                    onClick={(e) => { e.stopPropagation(); onRemove(name); }}
-                    className="material-symbols-outlined text-[16px] text-on-surface-variant opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all mr-2"
+                    onClick={(e) => { e.stopPropagation(); onRemove(ent); }}
+                    className="material-symbols-outlined text-[16px] text-on-surface-variant opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all mr-1 shrink-0"
                   >
                     close
                   </button>
@@ -54,10 +73,10 @@ const EntityRelationInput = ({
               );
             }
             return (
-              <span key={name} className="inline-flex items-center gap-1 bg-surface-low/50 text-on-surface px-3 py-1.5 rounded-xl text-[10px] font-bold border border-outline-variant/60 shadow-sm group">
-                {name}
+              <span key={entityName || idx} className="inline-flex items-center gap-1 bg-surface-low/50 text-on-surface px-3 py-1.5 rounded-xl text-[10px] font-bold border border-outline-variant/60 shadow-sm group">
+                {entityName}
                 <button
-                  onClick={(e) => { e.stopPropagation(); onRemove(name); }}
+                  onClick={(e) => { e.stopPropagation(); onRemove(ent); }}
                   className="material-symbols-outlined text-[14px] opacity-50 hover:opacity-100 hover:text-red-500 transition-all ml-1"
                 >
                   close

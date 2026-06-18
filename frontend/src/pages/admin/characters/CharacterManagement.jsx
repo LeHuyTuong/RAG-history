@@ -1,4 +1,4 @@
-import {  useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AdminLayout,
@@ -21,12 +21,62 @@ const CharacterManagement = () => {
   const [filters, setFilters] = useState({ search: '', dynasty: '' });
   const { periodColors, getPeriodStyle: getDynastyStyle } = usePeriodColors();
 
+  const handleDelete = () => {
+    if (deleteModal.id === null || deleteModal.id === undefined) return;
+    const deleteId = deleteModal.id;
+
+    let newChars = JSON.parse(localStorage.getItem('admin_new_characters') || '[]');
+    newChars = newChars.filter(item => String(item.id) !== String(deleteId));
+    localStorage.setItem('admin_new_characters', JSON.stringify(newChars));
+
+    const deletedIds = JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]');
+    if (!deletedIds.includes(String(deleteId))) {
+      deletedIds.push(String(deleteId));
+      localStorage.setItem('admin_deleted_ids', JSON.stringify(deletedIds));
+    }
+
+    setData(prev => ({
+      ...prev,
+      characters: prev.characters.filter(c => String(c.id) !== String(deleteId))
+    }));
+
+    setDeleteModal({ open: false, name: '', id: null });
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const charRes = await fetch('/api/admin_characters.json');
         if (!charRes.ok) throw new Error('Characters fetch failed');
         const charResult = await charRes.json();
+
+        // Merge new characters from localStorage
+        const newCharsStr = localStorage.getItem('admin_new_characters');
+        if (newCharsStr) {
+          try {
+            const newCharsRaw = JSON.parse(newCharsStr);
+            const newChars = newCharsRaw.map(c => ({
+              ...c,
+              title: c.title || c.role,
+              dynasty: c.dynasty || c.period || "Chưa cập nhật",
+              status: c.status === 'published' ? 'published' : 'draft'
+            }));
+
+            const newCharIds = new Set(newChars.map(c => String(c.id)));
+            const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]'));
+            charResult.characters = [
+              ...newChars,
+              ...charResult.characters.filter(c => !newCharIds.has(String(c.id)) && !deletedIds.has(String(c.id)))
+            ];
+          } catch (e) { console.error('Error parsing new characters', e); }
+        } else {
+          const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]'));
+          charResult.characters = charResult.characters.map(c => ({
+            ...c,
+            status: c.status || 'published'
+          })).filter(c => !deletedIds.has(String(c.id)));
+        }
+
         setData(charResult);
       } catch (error) {
         console.error('Error fetching character data:', error);
@@ -41,9 +91,29 @@ const CharacterManagement = () => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
+  const getNormalizedStatus = (status) => {
+    if (!status) return 'draft';
+    const normalized = status.toLowerCase().trim();
+    return normalized === 'published' || normalized === 'công khai' ? 'published' : 'draft';
+  };
 
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case 'published':
+        return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+      case 'draft':
+      default:
+        return 'bg-slate-100 text-slate-700 border-slate-200';
+    }
+  };
 
-  const columns = [
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'published': return 'Công khai';
+      case 'draft': return 'Bản nháp';
+      default: return 'Bản nháp';
+    }
+  };  const columns = [
     {
       key: 'name', header: 'HỌ VÀ TÊN', render: (row) => (
         <div className="flex items-center gap-4 py-2">
@@ -60,35 +130,53 @@ const CharacterManagement = () => {
         </div>
       )
     },
-    { 
+    {
       key: 'years', header: 'NIÊN ĐẠI', align: 'center', render: (row) => (
         <span className="border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-surface-low text-on-surface-variant border-outline-variant">
           {row.years}
         </span>
       )
     },
-    { 
-      key: 'dynasty', header: 'TRIỀU ĐẠI', align: 'center', render: (row) => (
-        <span className={`border px-3 py-1 rounded-full text-[10px] font-bold tracking-wider ${getDynastyStyle(row.dynasty)}`}>
-          {row.dynasty}
+    {
+      key: 'dynasty', header: 'TRIỀU ĐẠI', align: 'center', render: (row) => {
+        const dynasties = Array.isArray(row.dynasties) && row.dynasties.length > 0 
+          ? row.dynasties 
+          : (row.dynasty ? (Array.isArray(row.dynasty) ? row.dynasty : [row.dynasty]) : []);
+          
+        return (
+          <div className="flex flex-wrap items-center justify-center gap-1 max-w-[200px] mx-auto">
+            {dynasties.map((d, i) => (
+              <span key={i} className={`border px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider ${getDynastyStyle(d)}`}>
+                {d}
+              </span>
+            ))}
+          </div>
+        );
+      }
+    },
+    {
+      key: 'status', header: 'TRẠNG THÁI', align: 'center', render: (row) => (
+        <span className={`px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider border ${getStatusStyle(row.status)}`}>
+          {getStatusLabel(row.status)}
         </span>
       )
     },
-    { 
+    {
       key: 'actions', header: 'THAO TÁC', align: 'right', render: (row) => (
         <TableActions
           onEdit={() => navigate(`/admin/characters/edit/${row.id}`)}
-          onDelete={() => setDeleteModal({ open: true, name: row.name })}
+          onDelete={() => setDeleteModal({ open: true, name: row.name, id: row.id })}
         />
       )
     }
   ];
 
   const filteredCharacters = data.characters.filter(char => {
-    const matchSearch = char.name?.toLowerCase().includes(filters.search.toLowerCase()) || 
-                        char.title?.toLowerCase().includes(filters.search.toLowerCase());
+    const matchSearch = char.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
+      char.title?.toLowerCase().includes(filters.search.toLowerCase());
     const matchDynasty = filters.dynasty ? char.dynasty === filters.dynasty : true;
-    return matchSearch && matchDynasty;
+    const matchStatus = filters.status ? getNormalizedStatus(char.status) === filters.status : true;
+    return matchSearch && matchDynasty && matchStatus;
   });
 
   return (
@@ -102,31 +190,56 @@ const CharacterManagement = () => {
       />
 
       <div className="mb-6">
-        <StatsGrid 
-          stats={data.stats.filter(stat => !stat.label.toLowerCase().includes('chờ duyệt'))} 
-          loading={loading} 
+        <StatsGrid
+          stats={data.stats.filter(stat => !stat.label.toLowerCase().includes('chờ duyệt'))}
+          loading={loading}
         />
       </div>
 
       <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col mt-6">
         <div className="p-4 border-b border-outline-variant bg-surface-low/50">
-          <FilterBar>
-            <FilterInput
-              label="Tìm kiếm:"
-              placeholder="Nhập tên, chức danh..."
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+            <input
+              type="text"
+              placeholder="Tìm kiếm nhân vật (Tên, vai trò)..."
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
             />
-            <FilterSelect
-              label="Triều đại:"
-              options={[
-                { value: '', label: 'Tất cả triều đại' },
-                ...Array.from(new Set(data.characters.map(c => c.dynasty))).filter(Boolean).map(d => ({ value: d, label: d }))
-              ]}
-              value={filters.dynasty}
-              onChange={(e) => handleFilterChange('dynasty', e.target.value)}
-            />
-          </FilterBar>
+          </div>
+          <div className="flex gap-4">
+            <div className="relative">
+              <select
+                value={filters.dynasty}
+                onChange={(e) => handleFilterChange('dynasty', e.target.value)}
+                className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-amber-500 hover:border-amber-500/50 transition-all min-w-[160px]"
+              >
+                <option value="">Tất cả triều đại</option>
+                <option value="Nhà Đinh - Tiền Lê">Nhà Đinh - Tiền Lê</option>
+                <option value="Nhà Lý">Nhà Lý</option>
+                <option value="Nhà Trần">Nhà Trần</option>
+                <option value="Nhà Hậu Lê">Nhà Hậu Lê</option>
+                <option value="Nhà Nguyễn">Nhà Nguyễn</option>
+              </select>
+              <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+            </div>
+
+            <div className="relative">
+              <select
+                value={filters.status}
+                onChange={(e) => handleFilterChange('status', e.target.value)}
+                className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-amber-500 hover:border-amber-500/50 transition-all min-w-[150px]"
+              >
+                <option value="">Tất cả trạng thái</option>
+                <option value="published">Công khai</option>
+                <option value="draft">Bản nháp</option>
+              </select>
+              <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+            </div>
+          </div>
+        </div>
         </div>
 
         <DataTable
@@ -134,18 +247,20 @@ const CharacterManagement = () => {
           data={filteredCharacters}
           loading={loading}
           emptyMessage="Không tìm thấy nhân vật nào phù hợp"
+          onRowClick={(row) => navigate(`/admin/characters/edit/${row.id}`)}
           rowKey="id"
           striped={false}
+          rowClassName={(row) => getNormalizedStatus(row.status) === 'published' ? 'bg-emerald-50/80 !font-semibold border-l-4 border-l-emerald-500 shadow-sm relative z-10' : ''}
           className="border-0 shadow-none rounded-none"
         />
       </div>
 
       <ActionModal
         isOpen={deleteModal.open}
-        onClose={() => setDeleteModal({ open: false })}
+        onClose={() => setDeleteModal({ open: false, name: '', id: null })}
         type="delete"
         item={{ name: deleteModal.name }}
-        onConfirm={() => setDeleteModal({ open: false })}
+        onConfirm={handleDelete}
       />
     </AdminLayout>
   );
