@@ -3,6 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Swords, BookOpen, Compass, Sparkles, Feather, ArrowRight, X } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 
+const mapSites = [
+  { location_id: 1, title: 'Hoàng thành Thăng Long', location: 'Hà Nội', location_type: 'relic', x: 230, y: 150, summary: 'Trung tâm chính trị, văn hóa của các triều đại phong kiến Việt Nam.', historyDetails: 'Nơi lưu giữ nhiều dấu tích của các vương triều...', famousCharacters: ['Lý Thái Tổ'] },
+  { location_id: 2, title: 'Trận Bạch Đằng', location: 'Quảng Ninh', location_type: 'battleground', x: 260, y: 140, summary: 'Chiến thắng vẻ vang chống quân Nam Hán, Tống, Nguyên.', historyDetails: 'Trận chiến lừng danh sử sách...', famousCharacters: ['Ngô Quyền', 'Trần Hưng Đạo'] },
+  { location_id: 3, title: 'Thành Nhà Hồ', location: 'Thanh Hóa', location_type: 'relic', x: 250, y: 250, summary: 'Kinh đô thời nhà Hồ, kiến trúc đá độc đáo.', historyDetails: 'Do Hồ Quý Ly xây dựng...', famousCharacters: ['Hồ Quý Ly'] }
+];
+
 export default function HistoricalMap() {
   const [filterType, setFilterType] = useState('all');
   const [selectedSite, setSelectedSite] = useState(mapSites[2]); // Mặc định chọn Bạch Đằng
@@ -10,11 +16,11 @@ export default function HistoricalMap() {
   const navigate = useNavigate();
 
   const filteredSites = mapSites.filter(
-    (site) => filterType === 'all' || site.type === filterType
+    (site) => filterType === 'all' || site.location_type === filterType
   );
 
   return (
-    <div className="bg-[#fcf9ee] min-h-screen font-body pb-20 relative overflow-hidden">
+    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20 relative overflow-hidden">
       {/* Họa tiết Trống Đồng chìm toàn trang */}
       <div className="grain-overlay pointer-events-none fixed inset-0 z-0 opacity-5"></div>
       
@@ -71,12 +77,12 @@ export default function HistoricalMap() {
 
                {/* Hiển thị các điểm kỳ tiêu (Markers) */}
                {filteredSites.map((site) => {
-                 const isSelected = selectedSite?.id === site.id;
+                 const isSelected = selectedSite?.location_id === site.location_id;
                  return (
                    <div
-                     key={site.id}
+                     key={site.location_id}
                      className="absolute cursor-pointer transition-all duration-500"
-                     style={{ left: `${(site.x / 500) * 100}%`, top: `${(site.y / 650) * 100}%` }}
+                     style={{ left: `${(site.longitude / 500) * 100}%`, top: `${(site.latitude / 650) * 100}%` }}
                      onClick={() => setSelectedSite(site)}
                      onMouseEnter={() => setHoveredSite(site)}
                      onMouseLeave={() => setHoveredSite(null)}
@@ -91,11 +97,11 @@ export default function HistoricalMap() {
                           ? 'bg-primary border-accent text-white scale-125 shadow-2xl z-20' 
                           : 'bg-white border-primary/30 text-primary hover:border-primary z-10'
                        }`}>
-                          {site.type === 'battleground' ? <Swords size={16} /> : <MapPin size={16} />}
+                          {site.location_type === 'battleground' ? <Swords size={16} /> : <MapPin size={16} />}
                        </div>
 
                        {/* Tooltip nhanh khi hover */}
-                       <div className={`absolute bottom-full mb-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#1c1c15] text-white text-[10px] font-bold rounded whitespace-nowrap transition-all duration-300 pointer-events-none ${hoveredSite?.id === site.id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+                       <div className={`absolute bottom-full mb-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#1c1c15] text-white text-[10px] font-bold rounded whitespace-nowrap transition-all duration-300 pointer-events-none ${hoveredSite?.id === site.location_id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
                           {site.title.toUpperCase()}
                        </div>
                      </div>
@@ -115,7 +121,7 @@ export default function HistoricalMap() {
             <AnimatePresence mode="wait">
               {selectedSite ? (
                 <motion.div
-                  key={selectedSite.id}
+                  key={selectedSite.location_id}
                   initial={{ opacity: 0, x: 30 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -30 }}
@@ -165,7 +171,7 @@ export default function HistoricalMap() {
                   {/* Nút thao tác cuối trang */}
                   <div className="mt-auto space-y-4">
                     <button 
-                      onClick={() => navigate(`/locations/${selectedSite.id}`)}
+                      onClick={() => navigate(`/locations/${selectedSite.location_id}`)}
                       className="w-full py-4 bg-[#6B1515] text-white font-headline font-bold text-sm italic tracking-widest shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-3"
                     >
                       XEM TOÀN SỚ SỬ LIỆU <ArrowRight size={18} />

@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+
+import { API_ENDPOINTS } from '../../../services/api';
 
 const CharacterDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [character, setCharacter] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -47,7 +50,7 @@ const CharacterDetail = () => {
                 <img src={character.portrait} className="w-full aspect-[3/4] object-cover transition-transform duration-1000 group-hover:scale-105 grayscale-[0.3] sepia-[0.2] contrast-100 group-hover:grayscale-0 group-hover:sepia-0 opacity-90 group-hover:opacity-100" alt="Portrait" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201] via-[#6b0f0d]/60 to-transparent opacity-80 pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-10 z-10">
-                  <span className="inline-block px-4 py-1.5 bg-[#fcf9ee]/20 backdrop-blur-sm border border-[#d99b4a]/60 text-[#ffe7b0] font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-4 shadow-md">{character.dynastyTitle}</span>
+                  <span className="inline-block px-4 py-1.5 bg-[#fcf9ee]/20 backdrop-blur-sm border border-[#d99b4a]/60 text-[#ffe7b0] font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-4 shadow-md">{character.dynastyTitle && character.dynastyTitle.includes('Nhà') ? character.dynastyTitle.replace('Nhà', 'Triều') : character.dynastyTitle}</span>
                   <h1 className="font-headline text-5xl md:text-6xl text-[#ffe7b0] font-bold tracking-tight leading-tight drop-shadow-md">{character.name}</h1>
                 </div>
               </div>
@@ -108,8 +111,8 @@ const CharacterDetail = () => {
         <section className="mb-32">
           <h2 className="font-headline text-3xl text-[#6b0f0d] font-semibold mb-12 text-center tracking-tight">Nhân Vật Liên Quan</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {character.relatedFigures.map((fig, i) => (
-              <Link to="#" key={i} className="group flex items-center gap-6 p-4 border border-[#d99b4a]/30 bg-[#fffdf8]/60 hover:bg-[#fffdf8] hover:border-[#d99b4a]/60 transition-all shadow-sm">
+            {(character.relatedFigures || []).map((fig, i) => (
+              <Link to="/characters" key={i} className="group flex items-center gap-6 p-4 border border-[#d99b4a]/30 bg-[#fffdf8]/60 hover:bg-[#fffdf8] hover:border-[#d99b4a]/60 transition-all shadow-sm">
                 <img src={fig.img} className="w-20 h-20 rounded-full object-cover grayscale-[0.3] sepia-[0.2] group-hover:grayscale-0 group-hover:sepia-0 border-2 border-[#d99b4a]/40" alt={fig.name} />
                 <div>
                   <h5 className="font-headline text-xl text-[#6b0f0d] font-semibold group-hover:text-[#2b0504] transition-colors">{fig.name}</h5>
@@ -132,7 +135,10 @@ const CharacterDetail = () => {
               <p className="font-body text-[#2b1a16]/80 leading-relaxed">
                 Bia Vĩnh Lăng do Nguyễn Trãi soạn, khắc trên đá nguyên khối đặt tại Lam Kinh. Đây là bảo vật quốc gia ghi nhận công đức to lớn của Lê Thái Tổ trong sự nghiệp bình Ngô kiến quốc, mang giá trị văn chương và lịch sử vô giá.
               </p>
-              <button className="text-[#ffe7b0] bg-[#6b0f0d] px-6 py-2.5 font-body text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#2b0504] transition-colors shadow-md">
+              <button 
+                onClick={() => navigate('/locations')}
+                className="text-[#ffe7b0] bg-[#6b0f0d] px-6 py-2.5 font-body text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#2b0504] transition-colors shadow-md"
+              >
                 Khám phá thêm
               </button>
             </div>
@@ -145,10 +151,16 @@ const CharacterDetail = () => {
         {/* 5. NEXT NAVIGATION */}
         <section className="border-t border-[#d99b4a]/30 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex gap-4">
-            <button className="flex items-center gap-3 px-8 py-3 border border-[#d99b4a]/60 text-[#6b0f0d] font-body text-[10px] font-bold uppercase tracking-widest hover:bg-[#d99b4a]/10 transition-all bg-[#fffdf8]">
+            <button 
+              onClick={() => navigate('/characters')}
+              className="flex items-center gap-3 px-8 py-3 border border-[#d99b4a]/60 text-[#6b0f0d] font-body text-[10px] font-bold uppercase tracking-widest hover:bg-[#d99b4a]/10 transition-all bg-[#fffdf8]"
+            >
               <span className="material-symbols-outlined text-[14px]">arrow_back</span> Nhân vật trước
             </button>
-            <button className="flex items-center gap-3 px-8 py-3 bg-[#6b0f0d] text-[#ffe7b0] font-body text-[10px] font-bold uppercase tracking-widest hover:bg-[#2b0504] transition-all shadow-md">
+            <button 
+              onClick={() => navigate('/characters')}
+              className="flex items-center gap-3 px-8 py-3 bg-[#6b0f0d] text-[#ffe7b0] font-body text-[10px] font-bold uppercase tracking-widest hover:bg-[#2b0504] transition-all shadow-md"
+            >
               Nhân vật tiếp theo <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
             </button>
           </div>

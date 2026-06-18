@@ -1,13 +1,65 @@
 {
   "stats": [
-    { "title": "Tổng địa danh", "value": "850", "icon": "map" },
-    { "title": "Đã xác định tọa độ", "value": "720", "icon": "location_on" },
-    { "title": "Di tích quốc gia", "value": "124", "icon": "fort" }
+    {
+      "title": "Tổng địa danh",
+      "value": "850",
+      "icon": "map"
+    },
+    {
+      "title": "Đã xác định tọa độ",
+      "value": "720",
+      "icon": "location_on"
+    },
+    {
+      "title": "Di tích quốc gia",
+      "value": "124",
+      "icon": "fort"
+    }
   ],
   "locations": [
-    { "id": "LOC-1001", "name": "Ải Chi Lăng", "type": "Chiến trường", "coords": "21.62, 106.67", "dynasties": ["Nhà Lê", "Nhà Trần"] },
-    { "id": "LOC-1024", "name": "Hoàng Thành Thăng Long", "type": "Cố đô", "coords": "21.03, 105.83", "dynasties": ["Nhà Lý", "Nhà Trần", "Nhà Lê", "Nhà Nguyễn"] },
-    { "id": "LOC-1056", "name": "Cố đô Hoa Lư", "type": "Cố đô", "coords": "20.28, 105.91", "dynasties": ["Nhà Đinh", "Nhà Tiền Lê"] },
-    { "id": "LOC-1102", "name": "Bạch Đằng Giang", "type": "Chiến trường", "coords": "20.85, 106.66", "dynasties": ["Nhà Ngô", "Nhà Trần"] }
+    {
+      "location_id": "LOC-1001",
+      "name": "Ải Chi Lăng",
+      "slug": "slug-example",
+      "location_type": "Chiến trường",
+      "latitude": 16.4,
+      "longitude": 107.5,
+      "description": "",
+      "created_at": "2023-10-14T00:00:00Z",
+      "updated_at": "2023-10-14T00:00:00Z"
+    },
+    {
+      "location_id": "LOC-1024",
+      "name": "Hoàng Thành Thăng Long",
+      "slug": "slug-example",
+      "location_type": "Cố đô",
+      "latitude": 16.4,
+      "longitude": 107.5,
+      "description": "",
+      "created_at": "2023-10-14T00:00:00Z",
+      "updated_at": "2023-10-14T00:00:00Z"
+    },
+    {
+      "location_id": "LOC-1056",
+      "name": "Cố đô Hoa Lư",
+      "slug": "slug-example",
+      "location_type": "Cố đô",
+      "latitude": 16.4,
+      "longitude": 107.5,
+      "description": "",
+      "created_at": "2023-10-14T00:00:00Z",
+      "updated_at": "2023-10-14T00:00:00Z"
+    },
+    {
+      "location_id": "LOC-1102",
+      "name": "Bạch Đằng Giang",
+      "slug": "slug-example",
+      "location_type": "Chiến trường",
+      "latitude": 16.4,
+      "longitude": 107.5,
+      "description": "",
+      "created_at": "2023-10-14T00:00:00Z",
+      "updated_at": "2023-10-14T00:00:00Z"
+    }
   ]
 }

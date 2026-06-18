@@ -1,10 +1,11 @@
 package com.example.historyrag.feature.engagement;
 
 import com.example.historyrag.dto.ApiResponse;
+import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.feature.engagement.dto.EngagementModerationRequest;
 import com.example.historyrag.feature.engagement.dto.EngagementResponse;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,7 +23,7 @@ public class AdminEngagementController {
     }
 
     @GetMapping("/pending")
-    public ResponseEntity<ApiResponse<Page<EngagementResponse>>> getPendingComments(Pageable pageable) {
+    public ResponseEntity<ApiResponse<ResultPaginationDTO>> getPendingComments(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(engagementService.getPendingComments(pageable)));
     }
 

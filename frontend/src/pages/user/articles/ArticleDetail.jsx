@@ -1,14 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { API_ENDPOINTS } from '../../../services/api';
 
 const ArticleDetail = () => {
   const { slug } = useParams();
-  const [likes, setLikes] = useState(1240);
+  const [likes, setLikes] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
 
   const [comments, setComments] = useState([
-    { id: 1, author: 'Học giả Ẩn danh', text: 'Bài viết rất sâu sắc, làm rõ được nhiều chi tiết về chiến thuật của nhà Trần.', date: '2 giờ trước' },
-    { id: 2, author: 'Người Yêu Sử', text: 'Có tài liệu nào nói thêm về vai trò của Yết Kiêu trong trận này không ạ?', date: '5 giờ trước' }
+    {
+      engagement_id: 1,
+      member_id: 101,
+      post_id: parseInt(slug) || 1,
+      parent_engagement_id: null,
+      engagement_type: 'COMMENT',
+      comment_content: 'Bài viết rất sâu sắc, làm rõ được nhiều chi tiết về chiến thuật của nhà Trần.',
+      comment_status: 'VISIBLE',
+      rating_value: null,
+      created_at: new Date(Date.now() - 2 * 3600000).toISOString(),
+      updated_at: new Date(Date.now() - 2 * 3600000).toISOString(),
+      member_name: 'Học giả Ẩn danh'
+    },
+    {
+      engagement_id: 2,
+      member_id: 102,
+      post_id: parseInt(slug) || 1,
+      parent_engagement_id: null,
+      engagement_type: 'COMMENT',
+      comment_content: 'Có tài liệu nào nói thêm về vai trò của Yết Kiêu trong trận này không ạ?',
+      comment_status: 'VISIBLE',
+      rating_value: null,
+      created_at: new Date(Date.now() - 5 * 3600000).toISOString(),
+      updated_at: new Date(Date.now() - 5 * 3600000).toISOString(),
+      member_name: 'Người Yêu Sử'
+    }
   ]);
   const [newComment, setNewComment] = useState('');
 
@@ -22,10 +47,11 @@ const ArticleDetail = () => {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const response = await fetch('/api/user_article_detail.json');
+        const response = await fetch(API_ENDPOINTS.USER_ARTICLE_DETAIL);
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
         setArticle(data);
+        setLikes(data.likes || 0);
       } catch (error) {
         console.error('Error fetching article:', error);
       } finally {
@@ -69,21 +95,21 @@ const ArticleDetail = () => {
 
             <div className="flex flex-wrap items-center gap-8 py-6 border-y border-[#d99b4a]/40">
               <div className="flex items-center gap-4">
-                <img src={article.authorImg} alt="Author" className="w-12 h-12 rounded-full object-cover border border-[#d99b4a]/40 p-0.5 bg-[#fcf9ee] grayscale-[0.4]" />
+                <img src={article.authorImg || 'https://via.placeholder.com/150'} alt="Author" className="w-12 h-12 rounded-full object-cover border border-[#d99b4a]/40 p-0.5 bg-[#fcf9ee] grayscale-[0.4]" />
                 <div>
-                  <p className="font-headline font-semibold text-[#6b0f0d] text-[15px] leading-none">{article.author}</p>
-                  <p className="text-[9px] font-body uppercase tracking-widest text-[#2b1a16]/60 mt-1">{article.authorRole}</p>
+                  <p className="font-headline font-semibold text-[#6b0f0d] text-[15px] leading-none">{article.author || 'Admin'}</p>
+                  <p className="text-[9px] font-body uppercase tracking-widest text-[#2b1a16]/60 mt-1">{article.authorRole || 'Tác giả'}</p>
                 </div>
               </div>
               <div className="hidden md:block h-8 w-px bg-[#d99b4a]/30"></div>
               <div className="flex flex-col">
                 <span className="text-[#2b1a16]/60 font-body text-[9px] uppercase tracking-widest">Ngày xuất bản</span>
-                <time className="font-bold text-[12px] text-[#2b0504]">{article.publishedAt}</time>
+                <time className="font-bold text-[12px] text-[#2b0504]">{article.published_at || article.publishedAt}</time>
               </div>
               <div className="hidden md:block h-8 w-px bg-[#d99b4a]/30"></div>
               <div className="flex flex-col">
                 <span className="text-[#2b1a16]/60 font-body text-[9px] uppercase tracking-widest">Thời lượng</span>
-                <span className="font-bold text-[12px] text-[#2b0504]">{article.readingTime}</span>
+                <span className="font-bold text-[12px] text-[#2b0504]">{article.readingTime || '10 phút đọc'}</span>
               </div>
             </div>
           </header>
@@ -93,17 +119,17 @@ const ArticleDetail = () => {
             <div className="absolute -inset-4 border border-[#d99b4a]/40 pointer-events-none dong-son-border"></div>
             <div className="aspect-[16/9] w-full overflow-hidden border border-[#d99b4a]/50 relative bg-[#fffdf8] p-2 shadow-xl">
               <div className="w-full h-full relative border border-[#d99b4a]/30 overflow-hidden">
-                <img src={article.heroImage} alt="Cover" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 grayscale-[0.4] sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0" />
+                <img src={article.thumbnail_url || article.heroImage} alt="Cover" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 grayscale-[0.4] sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201]/40 to-transparent opacity-60 mix-blend-overlay"></div>
               </div>
             </div>
             <figcaption className="mt-8 text-center text-[#2b1a16]/80 font-body text-sm leading-relaxed border-l-2 border-[#d99b4a] pl-6 max-w-2xl mx-auto">
-              {article.imageCaption}
+              {article.summary || article.imageCaption}
             </figcaption>
           </figure>
 
           <div className="prose max-w-none prose-lg prose-p:text-[#2b1a16]/90 prose-headings:text-[#6b0f0d]">
-            {article.content.map((block, i) => {
+            {(article.content || []).map((block, i) => {
               if (block.type === 'paragraph' && i === 0) {
                 return (
                   <p key={i} className="font-body text-[17px] leading-loose text-[#2b1a16]/90 mb-8 drop-cap first-letter:text-7xl first-letter:font-headline first-letter:text-[#6b0f0d] first-letter:mr-4 first-letter:float-left first-letter:leading-none">
@@ -150,12 +176,10 @@ const ArticleDetail = () => {
                 </button>
                 <button className="flex items-center gap-2 text-[#2b1a16]/60 hover:text-[#6b0f0d] group transition-all">
                   <span className="material-symbols-outlined">chat_bubble</span>
-                  <span className="font-body text-[11px] font-bold tracking-widest">42 THẢO LUẬN</span>
+                  <span className="font-body text-[11px] font-bold tracking-widest">{comments.length} THẢO LUẬN</span>
                 </button>
               </div>
-              <button className="flex items-center gap-2 bg-[#6b0f0d] text-[#ffe7b0] px-6 py-2 rounded-sm font-body font-bold text-[10px] uppercase tracking-widest shadow-lg hover:bg-[#8b1512] border border-[#d99b4a]/40 active:scale-95 transition-all">
-                <span className="material-symbols-outlined text-[14px]">bookmark</span> LƯU TƯ LIỆU
-              </button>
+
             </div>
 
             {/* Comment Section */}
@@ -179,7 +203,19 @@ const ArticleDetail = () => {
                     <button
                       onClick={() => {
                         if (newComment.trim()) {
-                          setComments([...comments, { id: Date.now(), author: 'Khách', text: newComment, date: 'Vừa xong' }]);
+                          setComments([...comments, { 
+                            engagement_id: Date.now(), 
+                            member_id: 999, // ID của user hiện tại
+                            post_id: parseInt(slug) || 1,
+                            parent_engagement_id: null,
+                            engagement_type: 'COMMENT',
+                            comment_content: newComment, 
+                            comment_status: 'VISIBLE',
+                            rating_value: null,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString(),
+                            member_name: 'Khách'
+                          }]);
                           setNewComment('');
                         }
                       }}
@@ -194,17 +230,19 @@ const ArticleDetail = () => {
               {/* Comments List */}
               <div className="space-y-6 mt-8">
                 {comments.map((comment) => (
-                  <div key={comment.id} className="flex gap-4 p-4 border border-[#d99b4a]/20 bg-[#fcf9ee] rounded-sm">
+                  <div key={comment.engagement_id} className="flex gap-4 p-4 border border-[#d99b4a]/20 bg-[#fcf9ee] rounded-sm">
                     <div className="w-10 h-10 rounded-full bg-[#6b0f0d] text-[#ffe7b0] flex items-center justify-center shrink-0 font-headline font-bold text-lg">
-                      {comment.author.charAt(0)}
+                      {comment.member_name ? comment.member_name.charAt(0) : 'U'}
                     </div>
                     <div>
                       <div className="flex items-baseline gap-3 mb-1">
-                        <span className="font-headline font-bold text-[#6b0f0d]">{comment.author}</span>
-                        <span className="text-[11px] text-[#2b1a16]/50 font-body tracking-wider">{comment.date}</span>
+                        <span className="font-headline font-bold text-[#6b0f0d]">{comment.member_name}</span>
+                        <span className="text-[11px] text-[#2b1a16]/50 font-body tracking-wider">
+                          {new Date(comment.created_at).toLocaleString('vi-VN')}
+                        </span>
                       </div>
                       <p className="font-body text-[14px] text-[#2b1a16]/80 leading-relaxed">
-                        {comment.text}
+                        {comment.comment_content}
                       </p>
                     </div>
                   </div>
@@ -222,33 +260,11 @@ const ArticleDetail = () => {
             <div className="absolute -top-6 -right-6 w-24 h-24 bg-[#6b0f0d]/5 rounded-full blur-2xl pointer-events-none"></div>
             <h4 className="font-body text-[10px] text-[#6b0f0d] uppercase font-bold tracking-[0.2em] border-b border-[#d99b4a]/30 pb-4 mb-8">Thực thể liên quan</h4>
             <div className="space-y-6">
-              {article.relatedEntities?.map((entity, i) => (
-                <EntityLink key={i} icon={entity.icon} title={entity.title} type={entity.type} />
+              {(article.relatedEntities || []).map((entity, i) => (
+                <EntityLink key={i} icon={entity.icon} title={entity.title} type={entity.type} link={entity.link} />
               ))}
             </div>
           </section>
-
-          {/* Citations Section */}
-          <section className="p-8 border-l-2 border-[#d99b4a] space-y-8 bg-[#fcf9ee] border-y border-r border-[#d99b4a]/20 shadow-inner">
-            <h4 className="font-body text-[10px] text-[#6b0f0d]/80 uppercase font-bold tracking-[0.2em]">Tài liệu trích dẫn</h4>
-            <ul className="space-y-6">
-              {article.citations?.map((cit, i) => (
-                <li key={i} className="group cursor-pointer">
-                  <p className="font-headline text-lg text-[#2b0504] font-semibold leading-tight group-hover:text-[#6b0f0d] transition-colors">{cit.title}</p>
-                  <p className="font-body text-[11px] text-[#2b1a16]/60 mt-1 uppercase tracking-widest">{cit.author}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          {/* AI Helper Banner */}
-          <div className="bg-[#2b0504] p-8 text-[#fcf9ee] space-y-5 shadow-2xl relative overflow-hidden group cursor-pointer border border-[#d99b4a]/30">
-            <div className="absolute inset-0 dong-son-pattern opacity-10 mix-blend-overlay group-hover:scale-110 transition-transform duration-[10s]"></div>
-            <span className="material-symbols-outlined text-[#f7d78a] text-3xl relative z-10">psychology</span>
-            <h5 className="font-headline text-2xl font-semibold relative z-10 text-[#f7d78a]">Hỏi đáp với Sử Quan AI</h5>
-            <p className="text-[13px] opacity-80 leading-relaxed relative z-10">Giải mã sâu hơn về kiến trúc Thăng Long thông qua trí tuệ nhân tạo RAG.</p>
-            <button className="w-full py-3 bg-[#1a0201]/40 border border-[#d99b4a]/40 text-[#f7d78a] text-[10px] font-bold uppercase tracking-widest hover:bg-[#d99b4a]/20 hover:text-white transition-all relative z-10 mt-4">Bắt đầu thảo luận</button>
-          </div>
         </aside>
       </main>
     </div>
@@ -256,8 +272,8 @@ const ArticleDetail = () => {
 };
 
 // Component con cho Sidebar Links
-const EntityLink = ({ icon, title, type }) => (
-  <Link to="#" className="flex items-center gap-4 group p-2 -mx-2 hover:bg-[#fcf9ee] transition-colors rounded-sm">
+const EntityLink = ({ icon, title, type, link }) => (
+  <Link to={link || "#"} className="flex items-center gap-4 group p-2 -mx-2 hover:bg-[#fcf9ee] transition-colors rounded-sm">
     <div className="w-10 h-10 bg-[#fffdf8] flex items-center justify-center rounded-sm border border-[#d99b4a]/40 group-hover:bg-[#6b0f0d] group-hover:text-[#ffe7b0] group-hover:border-[#6b0f0d] transition-all duration-300 shadow-sm">
       <span className="material-symbols-outlined text-[20px] text-[#6b0f0d] group-hover:text-[#ffe7b0]">{icon}</span>
     </div>

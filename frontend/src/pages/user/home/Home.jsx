@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { API_ENDPOINTS } from '../../../services/api';
 const Home = () => {
     const navigate = useNavigate();
     const [data, setData] = useState({ featuredCharacters: [], recentPosts: [], periods: [], events: [] });
@@ -9,7 +10,7 @@ const Home = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('/api/user_home.json');
+                const response = await fetch(API_ENDPOINTS.USER_HOME);
                 if (!response.ok) throw new Error('Network error');
                 const result = await response.json();
                 setData(result);
@@ -50,10 +51,10 @@ const Home = () => {
 
                                 <div className="-mt-[120px] relative z-10">
                                     <h1 className="font-headline text-3xl lg:text-4xl xl:text-[42px] font-semibold leading-[1.1] text-[#f7d78a] drop-shadow-lg tracking-tight">
-                                        Chạm vào dòng chảy lịch sử nghìn năm văn hiến
+                                        Chạm vào dòng chảy nghìn năm văn hiến
                                     </h1>
                                     <p className="mt-5 max-w-[700px] font-body text-sm lg:text-[16px] leading-relaxed text-[#f8ead0]/90 drop-shadow-md">
-                                        Tìm hiểu về những bài viết nghiên cứu sâu sắc, các triều đại, sự kiện, anh hùng dân tộc và di tích lịch sử Đại Việt.
+                                        Tìm hiểu về những bài viết nghiên cứu sâu sắc, các triều đại, sự kiện, anh hùng dân tộc và di tích lịch sử Việt Nam.
                                     </p>
                                 </div>
                             </div>
@@ -126,9 +127,9 @@ const Home = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {recentPosts.map((post) => (
-                        <div 
-                            key={post.id} 
+                    {recentPosts.map((post, i) => (
+                        <div
+                            key={post.id}
                             onClick={() => navigate('/posts')}
                             className="flex flex-col sm:flex-row gap-6 p-6 bg-[#fffdf8] border border-[#d99b4a]/20 rounded-xl hover:shadow-md hover:border-[#d99b4a]/60 transition-all cursor-pointer group"
                         >
@@ -140,10 +141,10 @@ const Home = () => {
                                     </span>
                                 </div>
                                 <div className="absolute top-3 left-3 bg-[#6b0f0d] text-[#ffe7b0] text-[9px] font-bold px-3 py-1 rounded-sm uppercase tracking-widest z-10">
-                                    {post.category}
+                                    {post.category && post.category.includes('Nhà') ? post.category.replace('Nhà', 'Triều') : post.category}
                                 </div>
                             </div>
-                            
+
                             <div className="flex flex-col justify-center flex-1">
                                 <span className="font-body text-[11px] font-semibold text-[#d99b4a] uppercase tracking-widest mb-2 flex items-center gap-2">
                                     <span className="material-symbols-outlined text-[14px]">calendar_today</span>
@@ -155,7 +156,10 @@ const Home = () => {
                                 <p className="font-body text-[14px] text-[#2b1a16]/70 leading-relaxed italic line-clamp-2 border-l-2 border-[#d99b4a]/30 pl-3">
                                     {post.desc}
                                 </p>
-                                <div className="mt-5 text-[#d99b4a] font-bold text-[12px] uppercase tracking-widest flex items-center gap-1 group-hover:translate-x-2 transition-transform w-fit">
+                                <div 
+                                    className="mt-5 text-[#d99b4a] font-bold text-[12px] uppercase tracking-widest flex items-center gap-1 group-hover:translate-x-2 transition-transform w-fit cursor-pointer"
+                                    onClick={(e) => { e.stopPropagation(); navigate(`/articles/${post.id || i + 1}`); }}
+                                >
                                     Đọc tiếp <span className="material-symbols-outlined text-[16px]">trending_flat</span>
                                 </div>
                             </div>
@@ -194,11 +198,11 @@ const Home = () => {
                         >
                             <div className="absolute inset-0 bg-gradient-to-t from-[#8b1512] to-[#6b0f0d] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             <div className="absolute inset-0 dong-son-pattern mix-blend-overlay opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
-                            
+
                             <span className="material-symbols-outlined text-3xl text-[#d99b4a] mb-4 group-hover:text-[#f7d78a] transition-colors relative z-10 group-hover:scale-110 duration-500">
                                 {d.icon}
                             </span>
-                            
+
                             <div className="font-headline text-2xl font-bold text-[#6b0f0d] group-hover:text-[#f7d78a] transition-colors relative z-10">
                                 Nhà {d.name}
                             </div>
@@ -235,10 +239,10 @@ const Home = () => {
                             <div
                                 key={i}
                                 className="min-w-[320px] md:min-w-[380px] bg-[#fffdf8] border-l-4 border-l-[#d99b4a] border-y border-r border-[#d99b4a]/20 p-8 rounded-r-xl hover:translate-x-2 hover:shadow-lg transition-all duration-300 relative group cursor-pointer"
-                                onClick={() => navigate('/events')}
+                                onClick={() => navigate(`/events/${event.id || i + 1}`)}
                             >
                                 <div className="absolute top-8 -left-2 w-4 h-4 rounded-full bg-[#fbf6e8] border-4 border-[#d99b4a] group-hover:scale-125 transition-transform z-10"></div>
-                                
+
                                 <div className="mb-4">
                                     <span className="font-body text-[12px] font-bold text-[#6b0f0d] uppercase tracking-widest bg-[#d99b4a]/10 px-3 py-1.5 rounded-sm">
                                         {event.date}
@@ -280,13 +284,13 @@ const Home = () => {
                     {featuredCharacters.map((char) => (
                         <div key={char.id} className="bg-[#fffdf8] rounded-xl shadow-md border border-[#d99b4a]/30 overflow-hidden flex flex-col group hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer" onClick={() => navigate(`/characters/${char.id}`)}>
                             <div className="relative h-[300px] w-full overflow-hidden shrink-0 border-b-2 border-[#d99b4a]/20">
-                                <img 
-                                    src={char.image} 
-                                    alt={char.name} 
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 sepia-[0.1]" 
+                                <img
+                                    src={char.image}
+                                    alt={char.name}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 sepia-[0.1]"
                                 />
                                 <div className="absolute top-4 right-4 bg-[#6b0f0d]/95 backdrop-blur-sm border border-[#d99b4a]/40 text-[#ffe7b0] text-[10px] font-bold px-4 py-1.5 rounded-full z-10 shadow-lg uppercase tracking-widest">
-                                    {char.dynasty}
+                                    {char.dynasty && char.dynasty.includes('Nhà') ? char.dynasty.replace('Nhà', 'Triều') : char.dynasty}
                                 </div>
                                 <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#1a0201] via-[#1a0201]/50 to-transparent pointer-events-none"></div>
                                 <div className="absolute bottom-5 left-5 right-5 text-[#ffe7b0] z-10">
@@ -294,7 +298,7 @@ const Home = () => {
                                         {char.name}
                                     </h3>
                                     <div className="flex items-center gap-2 mt-1">
-                                        <span className="text-[16px] opacity-90 font-medium font-body text-[#f7d78a]">({char.realName})</span>
+                                        {(char.realName || char.title) && <span className="text-[16px] opacity-90 font-medium font-body text-[#f7d78a]">({char.realName || char.title})</span>}
                                         <span className="w-1.5 h-1.5 rounded-full bg-[#d99b4a] opacity-80"></span>
                                         <span className="text-[13px] opacity-80 font-medium tracking-widest">{char.years}</span>
                                     </div>
@@ -306,7 +310,7 @@ const Home = () => {
                                 </p>
                                 <div className="mt-8 pt-4 flex border-t border-[#d99b4a]/20 relative z-10">
                                     <span className="text-[#6b0f0d] font-bold text-[13px] uppercase tracking-widest flex items-center gap-1 group-hover:text-[#d99b4a] transition-colors">
-                                        Xem chi tiết 
+                                        Xem chi tiết
                                         <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">chevron_right</span>
                                     </span>
                                 </div>

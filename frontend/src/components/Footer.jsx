@@ -6,8 +6,8 @@ const Footer = () => {
 
       <div className="flex flex-col md:flex-row justify-between items-center w-full px-6 lg:px-14 xl:px-20 py-12 max-w-[1440px] mx-auto space-y-6 md:space-y-0 relative z-10">
         <div className="flex flex-col items-center md:items-start text-center md:text-left">
-          <span className="font-headline text-3xl md:text-4xl font-bold text-[#f7d78a] tracking-wider drop-shadow-md flex items-center gap-2">
-            <span className="material-symbols-outlined text-[28px] text-[#8b1512]">account_balance</span>
+          <span className="font-headline text-3xl md:text-[34px] font-bold text-[#f7d78a] tracking-wider drop-shadow-md flex items-center gap-2">
+            <span className="material-symbols-outlined text-[28px] md:text-[36px] text-[#f7d78a]">account_balance</span>
             Sử Việt
           </span>
           <p className="font-body text-xs md:text-sm text-[#d9c7a7]/70 mt-3 tracking-wide">

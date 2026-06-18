@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { ActionModal, TableActions } from '../../../components/admin';
 
+import { API_ENDPOINTS } from '../../../services/api';
 // --- COMPONENT CON 2: MODAL THÊM / SỬA THAM SỐ ---
-const ParamModal = ({ onClose, editData = null }) => {
+const ParamModal = ({ onClose, onSave, editData = null }) => {
   const [form, setForm] = useState(
     editData || { key: '', value: '', desc: '' }
   );
@@ -71,7 +73,7 @@ const ParamModal = ({ onClose, editData = null }) => {
               Hủy bỏ
             </button>
             <button
-              onClick={() => { alert('Đã lưu!'); onClose() }}
+              onClick={() => onSave(form)}
               className="flex-1 py-3 bg-gradient-to-r from-primary to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 uppercase tracking-widest transition-all text-xs flex items-center justify-center gap-2"
             >
               <span className="material-symbols-outlined text-[16px]">save</span>
@@ -94,16 +96,35 @@ const paramLabels = {
 // --- COMPONENT CHÍNH ---
 const SystemSettings = () => {
   const [modalState, setModalState] = useState({ open: false, editData: null });
+  const [deleteModal, setDeleteModal] = useState({ open: false, key: '' });
   const [data, setData] = useState({ stats: [], parameters: [] });
   const [loading, setLoading] = useState(true);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/admin_settings.json');
+        const response = await fetch(API_ENDPOINTS.ADMIN_SETTINGS);
         if (!response.ok) throw new Error('Network response was not ok');
         const result = await response.json();
-        setData(result);
+        
+        // Merge with local storage
+        const customSettings = JSON.parse(localStorage.getItem('admin_new_settings') || '[]');
+        
+        let mergedParams = [...(result.parameters || [])];
+        customSettings.forEach(customParam => {
+          const index = mergedParams.findIndex(p => p.key === customParam.key);
+          if (index >= 0) {
+            mergedParams[index] = customParam;
+          } else {
+            mergedParams.push(customParam);
+          }
+        });
+        // Filter out deleted
+        const deletedSettings = JSON.parse(localStorage.getItem('admin_deleted_settings') || '[]');
+        mergedParams = mergedParams.filter(p => !deletedSettings.includes(p.key));
+
+        setData({ ...result, parameters: mergedParams });
       } catch (error) {
         console.error('Error fetching settings data:', error);
       } finally {
@@ -112,6 +133,68 @@ const SystemSettings = () => {
     };
     fetchData();
   }, []);
+
+  const handleSave = (form) => {
+    if (!form.key.trim() || !form.value.trim()) return;
+
+    const newParam = {
+      key: form.key.trim(),
+      value: form.value.trim(),
+      desc: form.desc.trim()
+    };
+
+    // Update state
+    let updatedParams = [...data.parameters];
+    const index = updatedParams.findIndex(p => p.key === newParam.key);
+    if (index >= 0) {
+      updatedParams[index] = newParam;
+    } else {
+      updatedParams.push(newParam);
+    }
+    setData({ ...data, parameters: updatedParams });
+
+    // Save to local storage
+    const customSettings = JSON.parse(localStorage.getItem('admin_new_settings') || '[]');
+    const customIndex = customSettings.findIndex(p => p.key === newParam.key);
+    if (customIndex >= 0) {
+      customSettings[customIndex] = newParam;
+    } else {
+      customSettings.push(newParam);
+    }
+    localStorage.setItem('admin_new_settings', JSON.stringify(customSettings));
+
+    setModalState({ open: false, editData: null });
+    
+    // Show success toast
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000);
+  };
+
+  const handleDelete = () => {
+    const key = deleteModal.key;
+    if (!key) return;
+
+    // Remove from state
+    const updatedParams = data.parameters.filter(p => p.key !== key);
+    setData({ ...data, parameters: updatedParams });
+
+    // Remove from custom local storage
+    const customSettings = JSON.parse(localStorage.getItem('admin_new_settings') || '[]');
+    const newCustomSettings = customSettings.filter(p => p.key !== key);
+    localStorage.setItem('admin_new_settings', JSON.stringify(newCustomSettings));
+
+    // Add to deleted local storage (to prevent default from showing again)
+    const deletedSettings = JSON.parse(localStorage.getItem('admin_deleted_settings') || '[]');
+    if (!deletedSettings.includes(key)) {
+      deletedSettings.push(key);
+      localStorage.setItem('admin_deleted_settings', JSON.stringify(deletedSettings));
+    }
+
+    setDeleteModal({ open: false, key: '' });
+    // Show success toast
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000);
+  };
 
   return (
     <div className="flex-grow flex flex-col min-h-screen bg-surface pb-20 font-body animate-in fade-in duration-500">
@@ -186,14 +269,11 @@ const SystemSettings = () => {
                       <td className="p-5 text-on-surface-variant italic text-[12px] leading-relaxed max-w-xs truncate">
                         {p.desc}
                       </td>
-                      <td className="p-5 text-right">
-                        <button
-                          onClick={() => setModalState({ open: true, editData: p })}
-                          className="w-10 h-10 rounded-full bg-surface-variant/20 text-on-surface-variant flex items-center justify-center hover:bg-primary hover:text-white hover:shadow-md transition-all inline-flex"
-                          title="Chỉnh sửa tham số"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">edit</span>
-                        </button>
+                      <td className="p-5 text-right flex items-center justify-end gap-2">
+                        <TableActions
+                          onEdit={() => setModalState({ open: true, editData: p })}
+                          onDelete={() => setDeleteModal({ open: true, key: p.key })}
+                        />
                       </td>
                     </tr>
                   ))
@@ -205,7 +285,23 @@ const SystemSettings = () => {
       </main>
 
       {/* --- MODAL SYSTEM --- */}
-      {modalState.open && <ParamModal editData={modalState.editData} onClose={() => setModalState({ open: false, editData: null })} />}
+      {modalState.open && <ParamModal editData={modalState.editData} onSave={handleSave} onClose={() => setModalState({ open: false, editData: null })} />}
+
+      <ActionModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, key: '' })}
+        type="delete"
+        item={{ name: deleteModal.key }}
+        onConfirm={handleDelete}
+      />
+
+      {/* SUCCESS TOAST */}
+      {showSuccess && (
+        <div className="fixed bottom-8 right-8 bg-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-8 fade-in z-[200]">
+          <span className="material-symbols-outlined">check_circle</span>
+          <span className="font-body font-bold text-sm tracking-wide">Đã lưu cấu hình thành công!</span>
+        </div>
+      )}
     </div>
   );
 };

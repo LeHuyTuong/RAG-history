@@ -1,10 +1,11 @@
 package com.example.historyrag.feature.period;
 
 import com.example.historyrag.dto.ApiResponse;
+import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.feature.period.dto.PeriodRequest;
 import com.example.historyrag.feature.period.dto.PeriodResponse;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -25,10 +26,10 @@ public class PeriodController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<PeriodResponse>>> getAllPeriods(
+    public ResponseEntity<ApiResponse<ResultPaginationDTO>> getAllPeriods(
             @RequestParam(required = false) String keyword,
-            @PageableDefault(size = 20, sort = "startYear", direction = Sort.Direction.ASC) Pageable pageable) {
-        Page<PeriodResponse> result = periodService.getAllPeriods(keyword, pageable);
+            @ParameterObject @PageableDefault(size = 20, sort = "startYear", direction = Sort.Direction.ASC) Pageable pageable) {
+        ResultPaginationDTO result = periodService.getAllPeriods(keyword, pageable);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 

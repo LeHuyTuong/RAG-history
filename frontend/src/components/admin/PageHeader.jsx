@@ -1,15 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 
-const PageHeader = ({ 
-  title, 
-  subtitle, 
-  actionLabel, 
-  actionHref, 
+const PageHeader = ({
+  title,
+  subtitle,
+  actionLabel,
+  actionHref,
   actionIcon = 'add',
-  onActionClick 
+  onActionClick
 }) => {
   const navigate = useNavigate();
-  
+
   const handleActionClick = () => {
     if (onActionClick) {
       onActionClick();
@@ -23,7 +23,7 @@ const PageHeader = ({
       <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
         <span className="material-symbols-outlined text-[150px] leading-none">{actionIcon}</span>
       </div>
-      
+
       <div className="relative z-10">
         <h2 className="font-headline text-4xl lg:text-5xl text-primary font-bold italic tracking-tight mb-3">
           {title}
@@ -34,7 +34,7 @@ const PageHeader = ({
           </p>
         )}
       </div>
-      
+
       {(actionLabel || actionHref) && (
         <button
           onClick={handleActionClick}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 
+import { API_ENDPOINTS } from '../services/api';
 export const usePeriodColors = () => {
   const [periodColors, setPeriodColors] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -7,7 +8,7 @@ export const usePeriodColors = () => {
   useEffect(() => {
     const fetchColors = async () => {
       try {
-        const response = await fetch('/api/period_colors.json');
+        const response = await fetch(API_ENDPOINTS.PERIOD_COLORS);
         if (response.ok) {
           const data = await response.json();
           setPeriodColors(data);

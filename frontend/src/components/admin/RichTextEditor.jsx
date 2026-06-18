@@ -1,9 +1,15 @@
 import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import QuillTableBetter from 'quill-table-better';
+import 'quill-table-better/dist/quill-table-better.css';
 
 const Font = Quill.import('formats/font');
 Font.whitelist = ['arial', 'times-new-roman', 'tahoma', 'courier-new', 'georgia'];
 Quill.register(Font, true);
+
+Quill.register({
+  'modules/table-better': QuillTableBetter
+}, true);
 
 const RichTextEditor = ({ value, onChange, placeholder, className = "" }) => {
   return (
@@ -66,6 +72,16 @@ const RichTextEditor = ({ value, onChange, placeholder, className = "" }) => {
         value={value}
         onChange={onChange}
         modules={{
+          table: false,
+          'table-better': {
+            language: 'en_US',
+            toolbarTable: true,
+          },
+          keyboard: {
+            bindings: {
+              ...QuillTableBetter.keyboardBindings
+            }
+          },
           toolbar: [
             [{ 'font': [false, 'arial', 'times-new-roman', 'tahoma', 'courier-new', 'georgia'] }, { 'size': ['small', false, 'large', 'huge'] }],
             [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
@@ -78,6 +94,7 @@ const RichTextEditor = ({ value, onChange, placeholder, className = "" }) => {
             [{ 'direction': 'rtl' }],
             [{ 'align': [] }],
             ['link', 'image', 'video', 'formula'],
+            ['table-better'],
             ['clean']
           ]
         }}

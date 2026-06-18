@@ -21,7 +21,7 @@ import UserRecords from './pages/user/records/UserRecords';
 import RecordDetail from './pages/user/records/RecordDetail';
 import AIChat from './pages/user/ai/AIChat';
 import ArticleDetail from './pages/user/articles/ArticleDetail';
-import UserPosts from './pages/user/articles/UserPosts'; 
+import UserPosts from './pages/user/articles/UserPosts';
 import LocationDetail from './pages/user/locations/LocationDetail';
 import HistoricalMap from './pages/user/locations/HistoricalMap';
 import UserProfile from './pages/user/profile/UserProfile';
@@ -53,7 +53,7 @@ import RecordForm from './pages/admin/records/RecordForm';
 // Metadata (Siêu dữ liệu)
 import MetadataManagement from './pages/admin/metadata/MetadataManagement';
 import MetadataTagForm from './pages/admin/metadata/MetadataTagForm';
-import MetadataCategoryForm from './pages/admin/metadata/MetadataCategoryForm'; 
+import MetadataCategoryForm from './pages/admin/metadata/MetadataCategoryForm';
 import MetadataPeriodForm from './pages/admin/metadata/MetadataPeriodForm';
 
 // Hub (Mối quan hệ)
@@ -79,7 +79,7 @@ function App() {
         {/* 2. Hệ thống Giao diện Người dùng (User Site) */}
         <Route path="/" element={<UserLayout />}>
           <Route index element={<Home />} />
-          <Route path="posts" element={<UserPosts />} /> 
+          <Route path="posts" element={<UserPosts />} />
           <Route path="articles/:slug" element={<ArticleDetail />} />
           <Route path="periods" element={<UserPeriods />} />
           <Route path="periods/:id" element={<PeriodDetail />} />
@@ -92,7 +92,7 @@ function App() {
           <Route path="records/:id" element={<RecordDetail />} />
           <Route path="ai-chat" element={<AIChat />} />
           <Route path="locations/:id" element={<LocationDetail />} />
-          <Route path="map" element={<HistoricalMap />} /> 
+          <Route path="map" element={<HistoricalMap />} />
           <Route path="profile" element={<UserProfile />} />
 
         </Route>
@@ -100,10 +100,10 @@ function App() {
         {/* 3. Hệ thống Quản trị (Admin CMS) */}
         <Route path="/admin" element={<AdminLayout />}>
           {/* Dashboard chính */}
-          <Route index element={<AdminDashboard />} /> 
-          
+          <Route index element={<AdminDashboard />} />
+
           {/* Quản lý Bài viết */}
-          <Route path="articles" element={<ArticleManagement />} /> 
+          <Route path="articles" element={<ArticleManagement />} />
           <Route path="articles/new" element={<ArticleForm />} />
           <Route path="articles/edit/:id" element={<ArticleForm />} />
 
@@ -111,7 +111,7 @@ function App() {
           <Route path="events" element={<EventManagement />} />
           <Route path="events/new" element={<EventForm />} />
           <Route path="events/edit/:id" element={<EventForm />} />
-          
+
           {/* Quản lý Nhân vật */}
           <Route path="characters" element={<CharacterManagement />} />
           <Route path="characters/new" element={<CharacterForm />} />
@@ -147,7 +147,7 @@ function App() {
 
           {/* Cài đặt hệ thống */}
           <Route path="settings" element={<SystemSettings />} />
-          
+
           {/* <Route path="ai" element={<AiManagement />} /> */}
         </Route>
 

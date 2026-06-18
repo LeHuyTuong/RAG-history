@@ -1,4 +1,4 @@
-import {  useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AdminLayout,
@@ -21,12 +21,54 @@ const ArticleManagement = () => {
   const [filters, setFilters] = useState({ search: '', status: '', period: '', author: '' });
   const { periodColors, getPeriodStyle } = usePeriodColors();
 
+  const handleDelete = () => {
+    if (!modal.item || modal.item.id === null || modal.item.id === undefined) return;
+    const deleteId = modal.item.id;
+
+    let newArticles = JSON.parse(localStorage.getItem('admin_new_articles') || '[]');
+    newArticles = newArticles.filter(item => String(item.id) !== String(deleteId));
+    localStorage.setItem('admin_new_articles', JSON.stringify(newArticles));
+
+    const deletedIds = JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]');
+    if (!deletedIds.includes(String(deleteId))) {
+      deletedIds.push(String(deleteId));
+      localStorage.setItem('admin_deleted_ids', JSON.stringify(deletedIds));
+    }
+
+    setData(prev => ({
+      ...prev,
+      articles: prev.articles.filter(a => String(a.id) !== String(deleteId))
+    }));
+
+    closeModal();
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const articleRes = await fetch('/api/admin_articles.json');
         if (!articleRes.ok) throw new Error('Articles fetch failed');
         const articleResult = await articleRes.json();
+
+        // Merge new articles from localStorage
+        const newArticlesStr = localStorage.getItem('admin_new_articles');
+        if (newArticlesStr) {
+          try {
+            const newArticles = JSON.parse(newArticlesStr);
+            const newArticleIds = new Set(newArticles.map(a => String(a.id)));
+            const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]'));
+            articleResult.articles = [
+              ...newArticles,
+              ...articleResult.articles.filter(a => !newArticleIds.has(String(a.id)) && !deletedIds.has(String(a.id)))
+            ];
+          } catch (e) {
+            console.error('Error parsing new articles', e);
+          }
+        } else {
+          const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]'));
+          articleResult.articles = articleResult.articles.filter(a => !deletedIds.has(String(a.id)));
+        }
+
         setData(articleResult);
       } catch (error) {
         console.error('Error fetching articles data:', error);
@@ -44,10 +86,16 @@ const ArticleManagement = () => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
+  const getNormalizedStatus = (status) => {
+    if (!status) return 'draft';
+    const normalized = status.toLowerCase().trim();
+    return normalized === 'published' || normalized === 'công khai' ? 'published' : 'draft';
+  };
+
   const filteredArticles = data.articles.filter(article => {
     const matchSearch = article.title.toLowerCase().includes(filters.search.toLowerCase()) ||
       article.slug.toLowerCase().includes(filters.search.toLowerCase());
-    const matchStatus = filters.status ? article.status === filters.status : true;
+    const matchStatus = filters.status ? getNormalizedStatus(article.status) === filters.status : true;
     const matchPeriod = filters.period ? article.period === filters.period : true;
     const matchAuthor = filters.author ? article.author === filters.author : true;
     return matchSearch && matchStatus && matchPeriod && matchAuthor;
@@ -90,8 +138,8 @@ const ArticleManagement = () => {
         </div>
       )
     },
-    { 
-      key: 'period', header: 'Thời kỳ', render: (row) => (
+    {
+      key: 'period', header: 'Triều đại', render: (row) => (
         <span className={`border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getPeriodStyle(row.period)}`}>
           {row.period}
         </span>
@@ -118,7 +166,6 @@ const ArticleManagement = () => {
       key: 'actions', header: 'Thao tác', align: 'right', render: (row) => (
         <TableActions
           onEdit={() => navigate(`/admin/articles/edit/${row.id}`)}
-          onArchive={() => openModal('archive', row)}
           onDelete={() => openModal('delete', row)}
         />
       )
@@ -138,48 +185,66 @@ const ArticleManagement = () => {
 
         {/* BENTO STATS */}
         <div className="mb-6">
-          <StatsGrid stats={data.stats} loading={loading} />
+          <StatsGrid stats={data.stats.map(({ sub, ...rest }) => rest)} loading={loading} />
         </div>
 
         {/* FILTER & TABLE SECTION */}
         <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">
           <div className="p-4 border-b border-outline-variant bg-surface-low/50">
-            <FilterBar>
-              <FilterInput
-                label="Tìm kiếm:"
-                placeholder="Nhập tên bài viết, mã số..."
-                value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
-              />
-              <FilterSelect
-                label="Thời kỳ:"
-                options={[
-                  { value: '', label: 'Tất cả thời kỳ' },
-                  ...Array.from(new Set(data.articles.map(a => a.period))).filter(Boolean).map(p => ({ value: p, label: p }))
-                ]}
-                value={filters.period}
-                onChange={(e) => handleFilterChange('period', e.target.value)}
-              />
-              <FilterSelect
-                label="Tác giả:"
-                options={[
-                  { value: '', label: 'Tất cả tác giả' },
-                  ...Array.from(new Set(data.articles.map(a => a.author))).filter(Boolean).map(a => ({ value: a, label: a }))
-                ]}
-                value={filters.author}
-                onChange={(e) => handleFilterChange('author', e.target.value)}
-              />
-              <FilterSelect
-                label="Trạng thái:"
-                options={[
-                  { value: '', label: 'Tất cả trạng thái' },
-                  { value: 'published', label: 'Công khai' },
-                  { value: 'draft', label: 'Bản nháp' }
-                ]}
-                value={filters.status}
-                onChange={(e) => handleFilterChange('status', e.target.value)}
-              />
-            </FilterBar>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                <input
+                  type="text"
+                  placeholder="Nhập tên bài viết, mã số..."
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
+                />
+              </div>
+              <div className="flex gap-4">
+                <div className="relative">
+                  <select
+                    value={filters.period}
+                    onChange={(e) => handleFilterChange('period', e.target.value)}
+                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[160px]"
+                  >
+                    <option value="">Tất cả thời kỳ</option>
+                    {Array.from(new Set(data.articles.map(a => a.period))).filter(Boolean).map(p => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+
+                <div className="relative">
+                  <select
+                    value={filters.author}
+                    onChange={(e) => handleFilterChange('author', e.target.value)}
+                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[150px]"
+                  >
+                    <option value="">Tất cả tác giả</option>
+                    {Array.from(new Set(data.articles.map(a => a.author))).filter(Boolean).map(a => (
+                      <option key={a} value={a}>{a}</option>
+                    ))}
+                  </select>
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+
+                <div className="relative">
+                  <select
+                    value={filters.status}
+                    onChange={(e) => handleFilterChange('status', e.target.value)}
+                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[150px]"
+                  >
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="published">Công khai</option>
+                    <option value="draft">Bản nháp</option>
+                  </select>
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="p-0">
@@ -188,9 +253,10 @@ const ArticleManagement = () => {
               data={filteredArticles}
               loading={loading}
               emptyMessage="Không tìm thấy bài viết nào phù hợp"
+              onRowClick={(row) => navigate(`/admin/articles/edit/${row.id}`)}
               rowKey="id"
               striped={false}
-              rowClassName={(row) => row.status === 'published' ? 'bg-emerald-50/80 !font-semibold border-l-4 border-l-emerald-500 shadow-sm relative z-10' : ''}
+              rowClassName={(row) => getNormalizedStatus(row.status) === 'published' ? 'bg-emerald-50/80 !font-semibold border-l-4 border-l-emerald-500 shadow-sm relative z-10' : ''}
               className="border-0 shadow-none rounded-none"
             />
           </div>
@@ -202,7 +268,7 @@ const ArticleManagement = () => {
         onClose={closeModal}
         type={modal.type}
         item={modal.item}
-        onConfirm={() => { alert('Thao tác thành công!'); closeModal(); }}
+        onConfirm={handleDelete}
       />
     </AdminLayout>
   );

@@ -1,4 +1,4 @@
-import {  useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { generateSlug } from '../../../utils/stringUtils';
 import { RichTextEditor, ImageUpload, TagInput, FormHeader } from '../../../components/admin';
@@ -14,32 +14,53 @@ const ArticleForm = () => {
     title: '',
     slug: '',
     content: '',
-    status: 'Bản thảo',
+    status: 'draft',
     publishedAt: '',
     tags: [],
+    author: 'Admin',
     thumbnailUrl: null,
     thumbnailPreview: null
   });
+  const [originalData, setOriginalData] = useState({});
 
   useEffect(() => {
     if (isEdit) {
       const fetchData = async () => {
         try {
-          const response = await fetch('/api/user_article_detail.json');
-          if (response.ok) {
-            const data = await response.json();
-            const mockContent = data.content?.map(c => c.text).join('<br/><br/>') || '';
+          let foundArticle = null;
+
+          // 1. Check custom articles in localStorage
+          const newArticlesStr = localStorage.getItem('admin_new_articles');
+          if (newArticlesStr) {
+            const newArticles = JSON.parse(newArticlesStr);
+            foundArticle = newArticles.find(a => String(a.id) === String(id));
+          }
+
+          // 2. If not found, check static articles list
+          if (!foundArticle) {
+            const response = await fetch('/api/admin_articles.json');
+            if (response.ok) {
+              const data = await response.json();
+              foundArticle = data.articles?.find(a => String(a.id) === String(id));
+            }
+          }
+
+          if (foundArticle) {
+            setOriginalData(foundArticle);
             setForm(prev => ({
               ...prev,
-              title: data.title || '',
-              slug: generateSlug(data.title || ''),
-              content: mockContent,
-              status: 'Đã xuất bản',
-              publishedAt: data.publishedAt || '',
-              tags: data.tags || ['Bình Ngô Đại Cáo'],
+              title: foundArticle.title || '',
+              slug: foundArticle.slug || generateSlug(foundArticle.title || ''),
+              content: foundArticle.content || '',
+              status: (foundArticle.status === 'published' || !foundArticle.status || foundArticle.status === 'Công khai') ? 'published' : 'draft',
+              publishedAt: foundArticle.publishedAt || '',
+              tags: foundArticle.tags ? (Array.isArray(foundArticle.tags) ? foundArticle.tags : [foundArticle.tags]) : (foundArticle.period ? [foundArticle.period] : []),
+              author: foundArticle.author || 'Admin',
               thumbnailUrl: null,
-              thumbnailPreview: data.heroImage || null
+              thumbnailPreview: foundArticle.image || foundArticle.thumbnailUrl || null
             }));
+          } else {
+            console.error('Không tìm thấy bài viết với ID:', id);
           }
         } catch (error) {
           console.error('Lỗi tải dữ liệu bài viết:', error);
@@ -53,11 +74,11 @@ const ArticleForm = () => {
         const response = await fetch('/api/admin_metadata.json');
         if (response.ok) {
           const data = await response.json();
-          if (data.tags) {
-            setPredefinedTags(data.tags.map(t => ({
+          if (data.periods) {
+            setPredefinedTags(data.periods.map(t => ({
               id: t.id,
               label: t.name,
-              category: t.type || 'Phân loại'
+              category: 'Triều đại'
             })));
           }
         }
@@ -87,15 +108,43 @@ const ArticleForm = () => {
     setForm(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tagToRemove) }));
   };
 
+  const handleSave = () => {
+    const newArticles = JSON.parse(localStorage.getItem('admin_new_articles') || '[]');
+
+    const articleData = {
+      ...originalData,
+      id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('article_' + Date.now()),
+      title: form.title,
+      slug: form.slug,
+      content: form.content,
+      status: form.status === 'published' ? 'published' : 'draft',
+      publishedAt: form.publishedAt || new Date().toISOString().split('T')[0],
+      tags: form.tags,
+      period: form.tags && form.tags.length > 0 ? form.tags[0] : 'Chưa cập nhật', // Use first tag as period
+      author: form.author,
+      thumbnailUrl: form.thumbnailPreview || null
+    };
+
+    const existingIndex = newArticles.findIndex(a => String(a.id) === String(articleData.id));
+    if (existingIndex >= 0) {
+      newArticles[existingIndex] = { ...newArticles[existingIndex], ...articleData };
+    } else {
+      newArticles.push(articleData);
+    }
+
+    localStorage.setItem('admin_new_articles', JSON.stringify(newArticles));
+    navigate('/admin/articles');
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 font-body">
-      <FormHeader 
+      <FormHeader
         title={isEdit ? 'Hiệu đính Sử liệu' : 'Soạn thảo Bài viết Mới'}
         subtitle='"Ghi chép ngàn năm, lưu truyền vạn thế"'
         icon="history_edu"
         isEdit={isEdit}
         onCancel={() => navigate('/admin/articles')}
-        onSave={() => {}}
+        onSave={handleSave}
         saveText="Xuất bản"
       />
 
@@ -173,8 +222,8 @@ const ArticleForm = () => {
                         onChange={e => setForm({ ...form, status: e.target.value })}
                         className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-sm font-bold text-on-surface outline-none cursor-pointer hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
                       >
-                        <option>Bản thảo</option>
-                        <option>Đã xuất bản</option>
+                        <option value="draft">Bản nháp</option>
+                        <option value="published">Công khai</option>
                       </select>
                       <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
                     </div>
@@ -196,6 +245,7 @@ const ArticleForm = () => {
                 availableTags={predefinedTags}
                 onAddTag={handleAddTag}
                 onRemoveTag={handleRemoveTag}
+                label="Triều đại"
               />
 
               <ImageUpload

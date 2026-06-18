@@ -1,4 +1,4 @@
-import {  useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const MemberForm = () => {
@@ -16,22 +16,34 @@ const MemberForm = () => {
     if (isEdit) {
       const fetchData = async () => {
         try {
-          const response = await fetch('/api/admin_members.json');
-          if (response.ok) {
-            const data = await response.json();
-            const member = data.members?.find(m => m.id === id) || data.members?.[0];
-            if (member) {
-              setForm(prev => ({
-                ...prev,
-                fullName: member.name || '',
-                username: member.username || member.name?.toLowerCase().replace(/\s+/g, '') || '',
-                password: '',
-                confirmPassword: '',
-                bio: member.specialty || '',
-                role: member.role === 'Quản trị viên' ? 'admin' : member.role === 'Học giả' ? 'scholar' : 'member',
-                status: member.status || 'active'
-              }));
+          let member = null;
+
+          // Check custom members in localStorage
+          const newMembersStr = localStorage.getItem('admin_new_members');
+          if (newMembersStr) {
+            const newMembers = JSON.parse(newMembersStr);
+            member = newMembers.find(m => String(m.id) === String(id));
+          }
+
+          if (!member) {
+            const response = await fetch('/api/admin_members.json');
+            if (response.ok) {
+              const data = await response.json();
+              member = data.members?.find(m => String(m.id) === String(id));
             }
+          }
+
+          if (member) {
+            setForm(prev => ({
+              ...prev,
+              fullName: member.name || member.fullName || '',
+              username: member.username || member.name?.toLowerCase().replace(/\s+/g, '') || '',
+              password: '',
+              confirmPassword: '',
+              bio: member.specialty || member.bio || '',
+              role: (member.role === 'Quản trị viên' || member.role === 'admin') ? 'admin' : (member.role === 'Học giả' || member.role === 'scholar') ? 'scholar' : 'member',
+              status: member.status || 'active'
+            }));
           }
         } catch (error) {
           console.error('Error fetching member:', error);
@@ -44,7 +56,28 @@ const MemberForm = () => {
   const handleChange = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
 
   const handleSave = () => {
-    console.log("SAVE MEMBER:", form);
+    const newMembers = JSON.parse(localStorage.getItem('admin_new_members') || '[]');
+
+    const memberData = {
+      id: id ? id : ('member_' + Date.now()),
+      name: form.fullName,
+      fullName: form.fullName,
+      username: form.username,
+      specialty: form.bio,
+      bio: form.bio,
+      role: form.role,
+      status: form.status,
+      joinDate: new Date().toLocaleDateString('vi-VN')
+    };
+
+    const existingIndex = newMembers.findIndex(m => String(m.id) === String(memberData.id));
+    if (existingIndex >= 0) {
+      newMembers[existingIndex] = { ...newMembers[existingIndex], ...memberData };
+    } else {
+      newMembers.push(memberData);
+    }
+
+    localStorage.setItem('admin_new_members', JSON.stringify(newMembers));
     alert("Đã lưu hồ sơ thành viên!");
     navigate('/admin/members');
   };
@@ -55,7 +88,7 @@ const MemberForm = () => {
 
   return (
     <div className="p-8 max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500 font-body">
-      
+
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-end border-b border-outline-variant/40 pb-6 mb-8 gap-4">
         <div>
@@ -91,7 +124,7 @@ const MemberForm = () => {
             <div className="absolute -bottom-10 -right-10 opacity-[0.03] text-primary pointer-events-none">
               <span className="material-symbols-outlined text-[200px]">history_edu</span>
             </div>
-            
+
             <h3 className="font-body text-xs font-bold text-on-surface uppercase tracking-widest border-b border-outline-variant/60 pb-3 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-[18px]">account_box</span>
               Thông tin cơ bản
@@ -100,23 +133,23 @@ const MemberForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
               <div className="md:col-span-2 space-y-2">
                 <label className="font-body text-[11px] font-bold uppercase tracking-widest text-on-surface-variant block">Họ và tên *</label>
-                <input 
-                  type="text" 
-                  value={form.fullName} 
+                <input
+                  type="text"
+                  value={form.fullName}
                   onChange={(e) => handleChange('fullName', e.target.value)}
-                  className="w-full bg-transparent border-0 border-b border-outline-variant/60 focus:border-primary py-3 font-headline text-2xl text-on-surface font-bold outline-none transition-all placeholder:text-outline-variant/60" 
-                  placeholder="Vd: Nguyễn Văn A..." 
+                  className="w-full bg-transparent border-0 border-b border-outline-variant/60 focus:border-primary py-3 font-headline text-2xl text-on-surface font-bold outline-none transition-all placeholder:text-outline-variant/60"
+                  placeholder="Vd: Nguyễn Văn A..."
                 />
               </div>
 
               <div className="md:col-span-2 space-y-2">
                 <label className="font-body text-[11px] font-bold uppercase tracking-widest text-on-surface-variant block">Tên đăng nhập *</label>
-                <input 
-                  type="text" 
-                  value={form.username} 
+                <input
+                  type="text"
+                  value={form.username}
                   onChange={(e) => handleChange('username', e.target.value)}
-                  className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 text-sm font-bold text-on-surface outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:font-normal" 
-                  placeholder="nva_scholar" 
+                  className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 text-sm font-bold text-on-surface outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:font-normal"
+                  placeholder="nva_scholar"
                 />
               </div>
 
@@ -125,14 +158,14 @@ const MemberForm = () => {
                   Mật khẩu {isEdit && <span className="opacity-60 lowercase font-normal italic">(bỏ trống)</span>}
                 </label>
                 <div className="relative">
-                  <input 
-                    type={showPassword ? "text" : "password"} 
+                  <input
+                    type={showPassword ? "text" : "password"}
                     value={form.password}
                     onChange={(e) => handleChange('password', e.target.value)}
-                    placeholder="••••••••" 
-                    className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 pr-12 text-sm font-bold text-on-surface outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:font-normal" 
+                    placeholder="••••••••"
+                    className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 pr-12 text-sm font-bold text-on-surface outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:font-normal"
                   />
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors focus:outline-none"
@@ -147,14 +180,14 @@ const MemberForm = () => {
                   Xác nhận mật khẩu
                 </label>
                 <div className="relative">
-                  <input 
-                    type={showConfirmPassword ? "text" : "password"} 
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
                     value={form.confirmPassword}
                     onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                    placeholder="••••••••" 
-                    className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 pr-12 text-sm font-bold text-on-surface outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:font-normal" 
+                    placeholder="••••••••"
+                    className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 pr-12 text-sm font-bold text-on-surface outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:font-normal"
                   />
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors focus:outline-none"
@@ -166,12 +199,12 @@ const MemberForm = () => {
 
               <div className="md:col-span-2 space-y-2">
                 <label className="font-body text-[11px] font-bold uppercase tracking-widest text-on-surface-variant block">Tiểu sử & Giới thiệu</label>
-                <textarea 
-                  rows="4" 
-                  value={form.bio} 
+                <textarea
+                  rows="4"
+                  value={form.bio}
                   onChange={(e) => handleChange('bio', e.target.value)}
-                  className="w-full bg-surface-low/50 border border-outline-variant/60 p-4 rounded-xl text-sm italic leading-relaxed outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" 
-                  placeholder="Mô tả sơ lược về thành viên, chuyên môn, lĩnh vực nghiên cứu..." 
+                  className="w-full bg-surface-low/50 border border-outline-variant/60 p-4 rounded-xl text-sm italic leading-relaxed outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                  placeholder="Mô tả sơ lược về thành viên, chuyên môn, lĩnh vực nghiên cứu..."
                 />
               </div>
             </div>
@@ -187,16 +220,16 @@ const MemberForm = () => {
             </h4>
             <div className="space-y-3">
               {roles.map(role => (
-                <label 
-                  key={role.id} 
+                <label
+                  key={role.id}
                   className={`flex items-start gap-4 p-4 rounded-2xl border cursor-pointer transition-all duration-300 ${form.role === role.id ? 'bg-primary/5 border-primary shadow-sm ring-1 ring-primary/20' : 'bg-surface-low/50 border-outline-variant/60 hover:border-primary/40'}`}
                 >
-                  <input 
-                    type="radio" 
-                    name="role" 
-                    className="hidden" 
-                    checked={form.role === role.id} 
-                    onChange={() => handleChange('role', role.id)} 
+                  <input
+                    type="radio"
+                    name="role"
+                    className="hidden"
+                    checked={form.role === role.id}
+                    onChange={() => handleChange('role', role.id)}
                   />
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${form.role === role.id ? 'bg-primary text-white shadow-md' : 'bg-white border border-outline-variant text-on-surface-variant shadow-sm'}`}>
                     <span className="material-symbols-outlined text-[20px]">{role.icon}</span>
@@ -217,15 +250,15 @@ const MemberForm = () => {
               Trạng thái truy cập
             </h4>
             <div className="flex items-center gap-4 p-5 bg-surface-low/50 rounded-2xl border border-outline-variant/60 transition-all hover:border-primary/40">
-               <div className={`w-14 h-7 rounded-full flex items-center p-1 cursor-pointer transition-colors duration-300 ${form.status === 'active' ? 'bg-emerald-500 justify-end shadow-inner' : 'bg-rose-500 justify-start shadow-inner'}`}
-                    onClick={() => handleChange('status', form.status === 'active' ? 'locked' : 'active')}
-               >
-                 <div className="w-5 h-5 bg-white rounded-full shadow-md"></div>
-               </div>
-               <div>
-                 <p className={`font-bold text-[15px] ${form.status === 'active' ? 'text-emerald-700' : 'text-rose-700'}`}>{form.status === 'active' ? 'Đang hoạt động' : 'Tạm khóa'}</p>
-                 <p className="text-[11px] text-on-surface-variant mt-0.5">{form.status === 'active' ? 'Có quyền đăng nhập bình thường.' : 'Tài khoản bị cấm truy cập.'}</p>
-               </div>
+              <div className={`w-14 h-7 rounded-full flex items-center p-1 cursor-pointer transition-colors duration-300 ${form.status === 'active' ? 'bg-emerald-500 justify-end shadow-inner' : 'bg-rose-500 justify-start shadow-inner'}`}
+                onClick={() => handleChange('status', form.status === 'active' ? 'locked' : 'active')}
+              >
+                <div className="w-5 h-5 bg-white rounded-full shadow-md"></div>
+              </div>
+              <div>
+                <p className={`font-bold text-[15px] ${form.status === 'active' ? 'text-emerald-700' : 'text-rose-700'}`}>{form.status === 'active' ? 'Đang hoạt động' : 'Tạm khóa'}</p>
+                <p className="text-[11px] text-on-surface-variant mt-0.5">{form.status === 'active' ? 'Có quyền đăng nhập bình thường.' : 'Tài khoản bị cấm truy cập.'}</p>
+              </div>
             </div>
           </section>
         </div>
