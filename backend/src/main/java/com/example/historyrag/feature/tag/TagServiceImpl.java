@@ -1,11 +1,11 @@
 package com.example.historyrag.feature.tag;
 
+import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.exception.ConflictException;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.exception.InvalidRequestException;
 import com.example.historyrag.feature.tag.dto.TagRequest;
 import com.example.historyrag.feature.tag.dto.TagResponse;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,8 +56,8 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public Page<TagResponse> getAllTags(Pageable pageable) {
-        return tagRepository.findAll(pageable).map(TagResponse::fromEntity);
+    public ResultPaginationDTO getAllTags(Pageable pageable) {
+        return ResultPaginationDTO.fromPage(tagRepository.findAll(pageable).map(TagResponse::fromEntity));
     }
 
     @Override
