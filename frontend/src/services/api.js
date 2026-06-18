@@ -30,5 +30,6 @@ export const API_ENDPOINTS = {
   USER_LOCATIONS: `${BASE_URL}/api/user_locations.json`,
   USER_PERIODS: `${BASE_URL}/api/user_periods.json`,
   USER_PROFILE_HISTORY: `${BASE_URL}/api/user_profile_history.json`,
-  USER_RECORDS: `${BASE_URL}/api/user_records.json`
+  USER_RECORDS: `${BASE_URL}/api/user_records.json`,
+  RAG_CHAT: import.meta.env.VITE_RAG_CHAT_URL || 'http://localhost:8001/rag/chat'
 };

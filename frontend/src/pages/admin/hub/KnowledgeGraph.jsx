@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ForceGraph2D from 'react-force-graph-2d';
+import PageHeader from '../../../components/admin/PageHeader';
 
 const KnowledgeGraph = () => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const KnowledgeGraph = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
       const [charsRes, evtsRes, locsRes] = await Promise.all([
@@ -198,11 +199,11 @@ const KnowledgeGraph = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, []);
 
   const handleDeleteRelation = (linkId) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa mối quan hệ này không?")) {
@@ -273,25 +274,25 @@ const KnowledgeGraph = () => {
     fetchData();
   };
 
-  const handleZoomIn = () => {
+  const handleZoomIn = useCallback(() => {
     if (graphRef.current) {
       const currentZoom = graphRef.current.zoom();
       graphRef.current.zoom(currentZoom * 1.5, 400);
     }
-  };
+  }, []);
 
-  const handleZoomOut = () => {
+  const handleZoomOut = useCallback(() => {
     if (graphRef.current) {
       const currentZoom = graphRef.current.zoom();
       graphRef.current.zoom(currentZoom / 1.5, 400);
     }
-  };
+  }, []);
 
-  const handleFitCenter = () => {
+  const handleFitCenter = useCallback(() => {
     if (graphRef.current) {
       graphRef.current.zoomToFit(600, 50);
     }
-  };
+  }, []);
 
   // Custom node rendering on canvas
   const drawNode = useCallback((node, ctx, globalScale) => {
@@ -337,36 +338,32 @@ const KnowledgeGraph = () => {
 
   return (
     <div className="flex flex-col h-screen bg-surface font-body overflow-hidden">
-      {/* 1. TOP ACTION BAR */}
-      <header className="h-16 border-b border-outline-variant px-8 flex items-center justify-between bg-white/80 backdrop-blur z-20">
-        <div>
-          <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">Mạng lưới Tri thức</h2>
-          <p className="text-[10px] text-on-surface-variant italic leading-none">Minh họa các mối quan hệ đa chiều trong sử liệu Việt Nam</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => setIsModalOpen(true)} 
-            className="px-4 py-1.5 bg-primary hover:bg-primary-container text-white text-[10px] font-bold rounded-lg transition-all shadow-md flex items-center gap-1.5 hover:-translate-y-0.5 active:scale-95 cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-sm">add_circle</span>
-            THÊM QUAN HỆ
-          </button>
-          <div className="flex items-center bg-surface-low border border-outline-variant p-1 rounded-lg">
-            <button onClick={handleZoomIn} className="p-1.5 hover:bg-white rounded transition-all"><span className="material-symbols-outlined text-sm">zoom_in</span></button>
-            <button onClick={handleZoomOut} className="p-1.5 hover:bg-white rounded transition-all"><span className="material-symbols-outlined text-sm">zoom_out</span></button>
-            <div className="w-px h-4 bg-outline-variant mx-1"></div>
-            <button onClick={handleFitCenter} className="p-1.5 hover:bg-white rounded transition-all text-[10px] font-bold px-3">TỰ ĐỘNG CĂN CHỈNH</button>
-          </div>
-        </div>
-      </header>
+      {/* 1. TOP ACTION BAR - Consistent with other admin pages */}
+      <div className="px-8 max-w-[1600px] mx-auto w-full pt-8 pb-4">
+        <PageHeader
+          title="Mạng lưới Tri thức"
+          subtitle="Minh họa các mối quan hệ đa chiều trong sử liệu Việt Nam"
+          actionLabel="THÊM QUAN HỆ"
+          actionIcon="add_circle"
+          onActionClick={() => setIsModalOpen(true)}
+        />
+      </div>
 
       <main className="flex-1 flex overflow-hidden relative">
         {/* 2. KHÔNG GIAN SƠ ĐỒ (GRAPH CANVAS) */}
-        <section ref={containerRef} className="flex-1 relative bg-[#FDFBF0]">
+        <section ref={containerRef} className="flex-1 relative bg-surface">
           <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#89716f 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
 
+          {/* Zoom controls */}
+          <div className="absolute top-4 right-4 z-20 flex items-center gap-1 bg-white/90 border border-outline-variant p-1 rounded-lg shadow-lg">
+            <button onClick={handleZoomIn} className="p-1.5 hover:bg-primary/10 rounded transition-all" title="Phóng to"><span className="material-symbols-outlined text-sm">zoom_in</span></button>
+            <button onClick={handleZoomOut} className="p-1.5 hover:bg-primary/10 rounded transition-all" title="Thu nhỏ"><span className="material-symbols-outlined text-sm">zoom_out</span></button>
+            <div className="w-px h-4 bg-outline-variant mx-1"></div>
+            <button onClick={handleFitCenter} className="p-1.5 hover:bg-primary/10 rounded transition-all text-[10px] font-bold px-3" title="Tự động căn chỉnh">TỰ ĐỘNG CĂN CHỈNH</button>
+          </div>
+
           {loading ? (
-            <div className="absolute inset-0 flex items-center justify-center font-body text-primary z-50 bg-[#FDFBF0]/80 backdrop-blur-sm">
+            <div className="absolute inset-0 flex items-center justify-center font-body text-primary z-50 bg-surface/80 backdrop-blur-sm">
               Đang nạp dữ liệu và tính toán lực hấp dẫn...
             </div>
           ) : (
@@ -393,7 +390,7 @@ const KnowledgeGraph = () => {
           )}
 
           {/* Chú giải góc trái */}
-          <div className="absolute bottom-6 left-6 bg-white/90 p-4 rounded-lg border border-outline-variant shadow-xl text-[10px] font-body space-y-2 pointer-events-none">
+          <div className="absolute bottom-6 left-6 bg-surface/90 p-4 rounded-lg border border-outline-variant shadow-xl text-[10px] font-body space-y-2 pointer-events-none">
             <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-primary"></span> Nhân vật</div>
             <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-accent"></span> Địa danh</div>
             <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary"></span> Sự kiện</div>
@@ -401,7 +398,7 @@ const KnowledgeGraph = () => {
         </section>
 
         {/* 3. SIDE PANEL CHI TIẾT (Right Sidebar) */}
-        <aside className={`w-[350px] bg-white border-l border-outline-variant transition-transform duration-500 overflow-y-auto custom-scrollbar absolute right-0 top-0 bottom-0 z-30 ${selectedEntity ? 'translate-x-0' : 'translate-x-full'}`}>
+        <aside className={`w-[350px] bg-surface border-l border-outline-variant transition-transform duration-500 overflow-y-auto custom-scrollbar absolute right-0 top-0 bottom-0 z-30 ${selectedEntity ? 'translate-x-0' : 'translate-x-full'}`}>
           {selectedEntity && (
             <div className="p-8 space-y-8">
               <div className="flex justify-between items-start">
@@ -500,7 +497,7 @@ const KnowledgeGraph = () => {
       {/* 4. MODAL THÊM MỐI QUAN HỆ */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2rem] border border-outline-variant shadow-2xl max-w-md w-full p-8 space-y-6 relative animate-in fade-in zoom-in duration-300">
+          <div className="bg-surface rounded-[2rem] border border-outline-variant shadow-2xl max-w-md w-full p-8 space-y-6 relative animate-in fade-in zoom-in duration-300">
             <button 
               onClick={() => setIsModalOpen(false)} 
               className="absolute top-6 right-6 material-symbols-outlined text-on-surface-variant hover:text-red-500 transition-colors cursor-pointer"

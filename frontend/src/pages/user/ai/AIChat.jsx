@@ -1,36 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useAIChat } from '../../../hooks/useAIChat';
 
 const AIChat = () => {
-  const [messages, setMessages] = useState([
+  const { messages, loading, sendMessage } = useAIChat([
     {
       role: 'ai',
       content: 'Kính chào quý học giả. Tôi là Trợ lý AI được huấn luyện từ kho tàng Đại Việt Sử Ký. Bạn muốn tìm hiểu sâu hơn về triều đại hay sự kiện nào?',
       sources: []
-    },
-    {
-      role: 'user',
-      content: 'Cho tôi biết về vai trò của Lý Thường Kiệt trong kháng chiến chống Tống và bài thơ Nam Quốc Sơn Hà.',
-      sources: []
-    },
-    {
-      role: 'ai',
-      content: 'Lý Thường Kiệt (1019–1105) là vị đại tướng quân tài ba, người đã chủ động thực hiện chiến lược "Tiên phát chế nhân". Đặc biệt, tại phòng tuyến sông Như Nguyệt, ông đã sử dụng bài thơ "Nam quốc sơn hà" như một vũ khí tâm lý chiến sắc bén...',
-      quote: 'Nam quốc sơn hà Nam đế cư / Tiệt nhiên định phận tại thiên thư...',
-      sources: [
-        { title: 'Đại Việt Sử Ký Toàn Thư', detail: 'Bản kỷ, Quyển III, Kỷ Nhà Lý' },
-        { title: 'Việt Sử Lược', detail: 'Quyển II, Giai đoạn Thái Ninh' }
-      ]
     }
   ]);
   
   const [input, setFormInput] = useState('');
   const chatEndRef = useRef(null);
 
+  const handleSend = () => {
+    if (!input.trim() || loading) return;
+    sendMessage(input);
+    setFormInput('');
+  };
+
   // Tự động cuộn xuống cuối chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, loading]);
 
   return (
     <div className="max-w-[1440px] mx-auto px-12 py-8 font-body">
@@ -107,22 +100,56 @@ const AIChat = () => {
                        <p className="font-body text-[9px] font-bold text-secondary uppercase tracking-widest flex items-center gap-1">
                          <span className="material-symbols-outlined text-xs">link</span> Trích dẫn nguồn
                        </p>
-                       <div className="grid grid-cols-1 gap-2">
-                         {msg.sources.map((src, sIdx) => (
-                           <div key={sIdx} className="p-3 bg-surface-low border border-outline-variant/30 rounded-lg flex items-center justify-between hover:border-primary/50 transition-all cursor-pointer group">
-                             <div>
-                               <p className="text-[11px] font-bold text-primary font-headline italic">{src.title}</p>
-                               <p className="text-[9px] text-on-surface-variant font-body">{src.detail}</p>
-                             </div>
-                             <span className="material-symbols-outlined text-xs opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
-                           </div>
-                         ))}
-                       </div>
+                        <div className="grid grid-cols-1 gap-2">
+                          {msg.sources.map((src, sIdx) => {
+                            const cardContent = (
+                              <div className="p-3 bg-surface-low border border-outline-variant/30 rounded-lg flex items-center justify-between hover:border-primary/50 transition-all cursor-pointer group w-full text-left">
+                                <div>
+                                  <p className="text-[11px] font-bold text-primary font-headline italic">{src.title}</p>
+                                  <p className="text-[9px] text-on-surface-variant font-body">{src.detail}</p>
+                                </div>
+                                {src.url && (
+                                  <span className="material-symbols-outlined text-xs opacity-0 group-hover:opacity-100 transition-opacity text-primary">open_in_new</span>
+                                )}
+                              </div>
+                            );
+
+                            if (!src.url) {
+                              return <div key={sIdx}>{cardContent}</div>;
+                            }
+
+                            if (src.url.startsWith('http')) {
+                              return (
+                                <a key={sIdx} href={src.url} target="_blank" rel="noopener noreferrer" className="block no-underline">
+                                  {cardContent}
+                                </a>
+                              );
+                            }
+
+                            return (
+                              <Link key={sIdx} to={src.url} className="block no-underline">
+                                {cardContent}
+                              </Link>
+                            );
+                          })}
+                        </div>
                     </div>
                   )}
                 </div>
               </div>
             ))}
+            {loading && (
+              <div className="flex justify-start items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-secondary shrink-0 flex items-center justify-center text-white">
+                  <span className="material-symbols-outlined text-sm">menu_book</span>
+                </div>
+                <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-outline-variant/20 shadow-sm flex items-center gap-1.5 h-[42px] px-5">
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"></span>
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></span>
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></span>
+                </div>
+              </div>
+            )}
             <div ref={chatEndRef} />
           </div>
 
@@ -131,10 +158,17 @@ const AIChat = () => {
              <div className="relative bg-surface-low rounded-full flex items-center px-6 py-1 shadow-inner border border-outline-variant/30">
                 <input 
                   type="text" 
+                  value={input}
+                  onChange={(e) => setFormInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                   className="bg-transparent border-none focus:ring-0 text-on-surface flex-1 font-body text-sm italic placeholder:opacity-50 py-3" 
                   placeholder="Hỏi về nhân vật, sự kiện hoặc điển tích..." 
                 />
-                <button className="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
+                <button 
+                  onClick={handleSend}
+                  disabled={loading || !input.trim()}
+                  className="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
+                >
                   <span className="material-symbols-outlined">send</span>
                 </button>
              </div>

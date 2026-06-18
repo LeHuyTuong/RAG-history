@@ -4,6 +4,7 @@ import com.example.historyrag.feature.source.ReliabilityLevel;
 import com.example.historyrag.feature.source.SourceType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record CreateSourceRequest(
@@ -15,6 +16,7 @@ public record CreateSourceRequest(
         SourceType sourceType,
 
         @Size(max = 1000, message = "Source URL must not exceed 1000 characters")
+        @Pattern(regexp = "^(https?://.+)?$", message = "Source URL must start with http:// or https://")
         String sourceUrl,
 
         @Size(max = 1000, message = "File path must not exceed 1000 characters")
