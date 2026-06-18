@@ -29,6 +29,14 @@ const Login = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#2b0504] px-4 py-10 flex items-center justify-center">
+      {/* Nút Back to Home */}
+      <Link 
+        to="/" 
+        className="absolute top-6 left-6 md:top-10 md:left-10 z-50 flex items-center gap-2 text-[#fff7df]/80 hover:text-[#f7d78a] hover:-translate-x-1 transition-all group"
+      >
+        <span className="material-symbols-outlined text-[24px]">arrow_back</span>
+        <span className="font-body font-bold text-[13px] uppercase tracking-widest hidden md:block">Về trang chủ</span>
+      </Link>
       {/* Background giống Home */}
       <div className="absolute inset-0 z-0">
         <img

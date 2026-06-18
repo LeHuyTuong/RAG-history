@@ -8,6 +8,7 @@ const Modal = ({
   confirmLabel = 'XÁC NHẬN',
   cancelLabel = 'HỦY BỎ',
   confirmColor = 'bg-red-600 hover:bg-red-700',
+  borderColor = 'border-red-600',
   onConfirm,
   children,
   size = 'md'
@@ -25,7 +26,7 @@ const Modal = ({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="fixed inset-0" onClick={onClose}></div>
-      <div className={`relative bg-white w-full ${sizeClasses[size]} rounded-xl shadow-2xl border-t-4 border-red-600 p-8 text-center animate-in fade-in zoom-in duration-300`}>
+      <div className={`relative bg-white w-full ${sizeClasses[size]} rounded-xl shadow-2xl border-t-4 ${borderColor} p-8 text-center animate-in fade-in zoom-in duration-300`}>
         {icon && (
           <span className={`material-symbols-outlined ${iconColor} text-5xl mb-4`}>
             {icon}
@@ -80,14 +81,29 @@ const ActionModal = ({
   const defaultConfirmColor = isDelete ? 'bg-red-600 hover:bg-red-700' : isArchive ? 'bg-primary hover:bg-primary-container' : isLock ? 'bg-red-600 hover:bg-red-700' : 'bg-primary hover:bg-primary-container';
   const defaultConfirmLabel = isDelete ? 'XÓA NGAY' : isArchive ? 'LƯU TRỮ' : isLock ? 'KHÓA' : 'XÁC NHẬN';
 
+  const defaultBorderColor = isDelete ? 'border-red-600' : isArchive ? 'border-primary' : isLock ? 'border-red-600' : 'border-primary';
+
+  const renderDescription = () => {
+    if (description) return description;
+    
+    return (
+      <>
+        Bạn chắc chắn muốn {isDelete ? 'xóa' : isArchive ? 'lưu trữ' : isLock ? 'khóa' : 'thực hiện'} <br/>
+        <strong className="text-primary italic text-base mt-2 inline-block">&quot;{item?.name || item?.title || item?.label || item?.itemName || 'bản ghi này'}&quot;</strong>?
+        {isDelete && <><br/><span className="text-xs opacity-70 mt-2 inline-block">Dữ liệu này không thể khôi phục.</span></>}
+      </>
+    );
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={title || (isDelete ? 'Xác nhận xóa vĩnh viễn?' : isArchive ? 'Xác nhận đưa vào lưu trữ?' : isLock ? 'Khóa tài khoản?' : 'Xác nhận thao tác?')}
-      description={description || `Bạn có chắc chắn muốn ${isDelete ? 'xóa' : isArchive ? 'lưu trữ' : isLock ? 'khóa' : 'thực hiện'} ${item?.name || item?.title || 'bản ghi này'}?`}
+      description={renderDescription()}
       icon={icon || defaultIcon}
       iconColor={defaultIconColor}
+      borderColor={defaultBorderColor}
       confirmLabel={defaultConfirmLabel}
       confirmColor={defaultConfirmColor}
       onConfirm={onConfirm}

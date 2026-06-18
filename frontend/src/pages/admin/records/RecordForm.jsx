@@ -11,24 +11,41 @@ const RecordForm = () => {
   const [form, setForm] = useState({
     title: '', slug: '', author: '', publicationYear: '', sourceType: 'Bộ chính sử', content: '', reliabilityScore: ''
   });
+  const [originalData, setOriginalData] = useState({});
   const [filePath, setFilePath] = useState(null);
 
   useEffect(() => {
     if (isEdit) {
       const fetchData = async () => {
         try {
-          const response = await fetch('/api/user_record_detail.json');
-          if (response.ok) {
-            const data = await response.json();
+          let record = null;
+          
+          // Check custom records in localStorage
+          const newRecordsStr = localStorage.getItem('admin_new_records');
+          if (newRecordsStr) {
+            const newRecords = JSON.parse(newRecordsStr);
+            record = newRecords.find(r => String(r.id) === String(id));
+          }
+
+          if (!record) {
+            const response = await fetch('/api/user_record_detail.json');
+            if (response.ok) {
+              const data = await response.json();
+              record = data; // Assuming detail endpoint returns the specific record
+            }
+          }
+
+          if (record) {
+            setOriginalData(record);
             setForm(prev => ({
               ...prev,
-              title: data.title || '',
-              slug: generateSlug(data.title || ''),
-              author: data.author || '',
-              publicationYear: data.stats?.find(s => s.label === 'Năm ra đời')?.value || '',
-              sourceType: data.metadata?.find(m => m.label === 'Loại hình')?.value || 'Bộ chính sử',
-              reliabilityScore: '9',
-              content: data.translations?.[0]?.content?.map(c => c.text).join('<br/><br/>') || ''
+              title: record.title || '',
+              slug: record.slug || generateSlug(record.title || ''),
+              author: record.author || '',
+              publicationYear: record.publicationYear || record.stats?.find(s => s.label === 'Năm ra đời')?.value || '',
+              sourceType: record.sourceType || record.metadata?.find(m => m.label === 'Loại hình')?.value || 'Bộ chính sử',
+              reliabilityScore: record.reliabilityScore || '9',
+              content: record.content || record.translations?.[0]?.content?.map(c => c.text).join('<br/><br/>') || ''
             }));
           }
         } catch (error) {
@@ -38,6 +55,32 @@ const RecordForm = () => {
       fetchData();
     }
   }, [id, isEdit]);
+
+  const handleSave = () => {
+    const newRecords = JSON.parse(localStorage.getItem('admin_new_records') || '[]');
+    
+    const recordData = {
+      ...originalData,
+      id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('record_' + Date.now()),
+      title: form.title,
+      slug: form.slug,
+      author: form.author,
+      publicationYear: form.publicationYear,
+      sourceType: form.sourceType,
+      reliabilityScore: form.reliabilityScore,
+      content: form.content
+    };
+
+    const existingIndex = newRecords.findIndex(r => String(r.id) === String(recordData.id));
+    if (existingIndex >= 0) {
+      newRecords[existingIndex] = { ...newRecords[existingIndex], ...recordData };
+    } else {
+      newRecords.push(recordData);
+    }
+    
+    localStorage.setItem('admin_new_records', JSON.stringify(newRecords));
+    navigate('/admin/records');
+  };
 
   return (
     <div className="flex-grow bg-surface min-h-screen font-body">
@@ -49,7 +92,7 @@ const RecordForm = () => {
           icon="menu_book"
           isEdit={isEdit}
           onCancel={() => navigate('/admin/records')}
-          onSave={() => {}}
+          onSave={handleSave}
         />
 
         <div className="grid grid-cols-12 gap-8 items-start">

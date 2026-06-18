@@ -5,6 +5,7 @@ import LogoutModal from './LogoutModal';
 const AdminLayout = () => {
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [siteName, setSiteName] = useState('Sử Việt');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -19,6 +20,28 @@ const AdminLayout = () => {
       }
     }
   }, [navigate]);
+
+  useEffect(() => {
+    const customSettings = JSON.parse(localStorage.getItem('admin_new_settings') || '[]');
+    const siteNameParam = customSettings.find(p => p.key === 'site_name');
+    if (siteNameParam) {
+      setSiteName(siteNameParam.value);
+    } else {
+      fetch('/api/admin_settings.json')
+        .then(res => res.json())
+        .then(data => {
+          const defaultSiteName = data.parameters?.find(p => p.key === 'site_name')?.value;
+          if (defaultSiteName) {
+            setSiteName(defaultSiteName);
+          }
+        })
+        .catch(err => console.error('Error loading settings:', err));
+    }
+  }, []);
+
+  useEffect(() => {
+    document.title = siteName + ' - Quản trị';
+  }, [siteName]);
 
   const menuItems = [
     { icon: 'dashboard', label: 'Tổng quan', path: '/admin' },
@@ -39,6 +62,7 @@ const AdminLayout = () => {
     navigate('/login');
   };
 
+
   return (
     <div className="flex min-h-screen bg-surface">
       <div className="grain-overlay pointer-events-none fixed inset-0 z-0 opacity-5"></div>
@@ -47,10 +71,10 @@ const AdminLayout = () => {
         <div className={`mb-8 cursor-pointer flex items-center ${isSidebarOpen ? 'px-8 justify-start' : 'justify-center'} transition-all`} onClick={() => navigate('/admin')}>
           <h1 className="font-headline text-3xl text-[#f7d78a] font-bold tracking-wider hover:opacity-80 transition drop-shadow-md flex items-center gap-2">
             <span className="material-symbols-outlined text-[28px] text-[#f7d78a] shrink-0">account_balance</span>
-            {isSidebarOpen && <span className="whitespace-nowrap transition-opacity duration-300">Sử Việt</span>}
+            {isSidebarOpen && <span className="whitespace-nowrap transition-opacity duration-300">{siteName}</span>}
           </h1>
         </div>
-        
+
         <nav className="flex-1 flex flex-col gap-0.5 overflow-y-auto custom-scrollbar px-3">
           {menuItems.map((item) => (
             <NavLink key={item.path} to={item.path} end={item.path === '/admin'} title={!isSidebarOpen ? item.label : undefined}

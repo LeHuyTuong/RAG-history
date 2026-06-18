@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 
+import { API_ENDPOINTS } from '../../../services/api';
 const RecordDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const RecordDetail = () => {
   useEffect(() => {
     const fetchRecord = async () => {
       try {
-        const response = await fetch('/api/user_record_detail.json');
+        const response = await fetch(API_ENDPOINTS.USER_RECORD_DETAIL);
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
         setRecord(data);

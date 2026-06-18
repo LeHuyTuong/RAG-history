@@ -1,6 +1,7 @@
 import {  useState, useEffect  } from 'react';
 import { StatsGrid } from '../../../components/admin';
 
+import { API_ENDPOINTS } from '../../../services/api';
 const AiManagement = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [data, setData] = useState({ stats: [], history: [] });
@@ -9,7 +10,7 @@ const AiManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/admin_ai.json');
+        const response = await fetch(API_ENDPOINTS.ADMIN_AI);
         if (!response.ok) throw new Error('Network response was not ok');
         const result = await response.json();
         setData(result);

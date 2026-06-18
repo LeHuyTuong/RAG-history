@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
+import { API_ENDPOINTS } from '../../../services/api';
 const UserPeriods = () => {
   const navigate = useNavigate();
 
@@ -12,12 +13,12 @@ const UserPeriods = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/user_periods.json');
+        const response = await fetch(API_ENDPOINTS.USER_PERIODS);
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
         setPeriodsData(data);
         if (data.length > 0) {
-          setActivePeriod(data[0].id);
+          setActivePeriod(data[0].period_id);
         }
       } catch (error) {
         console.error('Error fetching periods:', error);
@@ -29,16 +30,17 @@ const UserPeriods = () => {
   }, []);
 
   useEffect(() => {
+    if (periodsData.length === 0) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
-        // Chỉ lấy entry đang được nhìn thấy rành mạch nhất (nếu có nhiều entry cùng lúc)
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setActivePeriod(entry.target.id);
+            setActivePeriod(Number(entry.target.id));
           }
         });
       },
-      { rootMargin: '-30% 0px -60% 0px' }
+      { rootMargin: '-35% 0px -45% 0px' }
     );
 
     Object.values(sectionRefs.current).forEach((ref) => {
@@ -46,21 +48,22 @@ const UserPeriods = () => {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [periodsData]);
 
   const scrollToPeriod = (id) => {
     setActivePeriod(id);
     const element = sectionRefs.current[id];
     if (element) {
-      // Offset scroll manually or use scrollIntoView
-      const yOffset = -100; // Để chừa header nếu có
+      const yOffset = -100;
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
   };
 
+  const displayedPeriods = periodsData;
+
   return (
-    <div className="bg-[#fbf6e8] min-h-screen font-body selection:bg-[#d99b4a]/20">
+    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
 
       {/* 1. HERO SECTION */}
       <section className="relative h-[450px] flex items-center justify-center overflow-hidden border-b border-[#d99b4a]/30">
@@ -81,8 +84,11 @@ const UserPeriods = () => {
         </div>
       </section>
 
+      
+
+  
       {/* 2. TIMELINE CONTENT & SIDEBAR */}
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-16 lg:py-24 flex flex-col lg:flex-row gap-12 relative">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 pb-16 lg:pb-24 pt-4 lg:pt-8 flex flex-col lg:flex-row gap-12 relative">
         
         {/* Left Sidebar (Sticky) */}
         <aside className="w-full lg:w-[320px] shrink-0 lg:sticky lg:top-24 self-start z-20">
@@ -98,19 +104,19 @@ const UserPeriods = () => {
             </div>
             
             <ul className="py-2">
-              {periodsData.map(p => (
-                <li key={p.id}>
+              {displayedPeriods.map(p => (
+                <li key={p.period_id}>
                   <button 
-                    onClick={() => scrollToPeriod(p.id)}
+                    onClick={() => scrollToPeriod(p.period_id)}
                     className={`w-full text-left px-6 py-4 font-body text-[15px] transition-all border-l-4 group ${
-                      activePeriod === p.id 
+                      activePeriod === p.period_id 
                       ? 'bg-[#d99b4a]/10 border-[#6b0f0d] text-[#6b0f0d] font-bold shadow-inner' 
                       : 'border-transparent text-[#2b1a16] hover:bg-[#fcf9ee] hover:text-[#6b0f0d]'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span>{p.name}</span>
-                      <span className={`material-symbols-outlined text-[18px] transition-transform ${activePeriod === p.id ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>east</span>
+                      <span>{p.category && p.category.includes('Nhà') ? p.category.replace('Nhà ', 'Triều ') : p.name}</span>
+                      <span className={`material-symbols-outlined text-[18px] transition-transform ${activePeriod === p.period_id ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>east</span>
                     </div>
                   </button>
                 </li>
@@ -125,38 +131,46 @@ const UserPeriods = () => {
           <div className="absolute left-[11px] lg:left-[23px] top-4 bottom-0 w-[2px] bg-gradient-to-b from-[#6b0f0d] via-[#d99b4a]/60 to-transparent"></div>
 
           <div className="space-y-20 lg:space-y-32">
-            {periodsData.map((p, idx) => (
+            {displayedPeriods.map((p, idx) => (
               <section 
-                key={p.id} 
-                id={p.id} 
-                ref={(el) => (sectionRefs.current[p.id] = el)} 
+                key={p.period_id} 
+                id={p.period_id} 
+                ref={(el) => (sectionRefs.current[p.period_id] = el)} 
                 className="relative pl-10 lg:pl-16 group"
               >
                 {/* Timeline Node */}
-                <div className="absolute left-0 lg:left-[12px] top-6 w-6 h-6 rounded-full bg-[#fbf6e8] border-[4px] border-[#6b0f0d] shadow-[0_0_15px_rgba(107,15,13,0.4)] z-10 group-hover:bg-[#6b0f0d] group-hover:scale-125 transition-all duration-300"></div>
+                <div className={`absolute left-0 lg:left-[12px] top-6 w-6 h-6 rounded-full border-[4px] shadow-[0_0_15px_rgba(107,15,13,0.4)] z-10 transition-all duration-500 ${
+                  activePeriod === p.period_id 
+                  ? 'bg-[#6b0f0d] border-[#d99b4a] scale-125' 
+                  : 'bg-[#fbf6e8] border-[#6b0f0d] group-hover:bg-[#6b0f0d] group-hover:scale-125'
+                }`}></div>
 
                 {/* Card */}
-                <div className="bg-[#fffdf8] border border-[#d99b4a]/40 p-8 lg:p-12 shadow-xl hover:shadow-[0_20px_50px_rgba(43,5,4,0.08)] transition-all duration-500 relative group/card">
+                <div className={`shadow-xl hover:shadow-[0_20px_50px_rgba(43,5,4,0.08)] transition-all duration-500 relative group/card border-2 p-8 lg:p-12 ${
+                  activePeriod === p.period_id 
+                  ? 'bg-[#fffcf3] border-[#6b0f0d] shadow-2xl scale-[1.01]' 
+                  : 'bg-[#fffdf8] border-[#d99b4a]/40'
+                }`}>
                   {/* Decorative */}
-                  <div className="absolute top-1 left-1 w-2 h-2 border-t-2 border-l-2 border-[#d99b4a] opacity-50"></div>
-                  <div className="absolute top-1 right-1 w-2 h-2 border-t-2 border-r-2 border-[#d99b4a] opacity-50"></div>
-                  <div className="absolute bottom-1 left-1 w-2 h-2 border-b-2 border-l-2 border-[#d99b4a] opacity-50"></div>
-                  <div className="absolute bottom-1 right-1 w-2 h-2 border-b-2 border-r-2 border-[#d99b4a] opacity-50"></div>
+                  <div className={`absolute top-1 left-1 w-2 h-2 border-t-2 border-l-2 opacity-50 transition-colors ${activePeriod === p.period_id ? 'border-[#6b0f0d]' : 'border-[#d99b4a]'}`}></div>
+                  <div className={`absolute top-1 right-1 w-2 h-2 border-t-2 border-r-2 opacity-50 transition-colors ${activePeriod === p.period_id ? 'border-[#6b0f0d]' : 'border-[#d99b4a]'}`}></div>
+                  <div className={`absolute bottom-1 left-1 w-2 h-2 border-b-2 border-l-2 opacity-50 transition-colors ${activePeriod === p.period_id ? 'border-[#6b0f0d]' : 'border-[#d99b4a]'}`}></div>
+                  <div className={`absolute bottom-1 right-1 w-2 h-2 border-b-2 border-r-2 opacity-50 transition-colors ${activePeriod === p.period_id ? 'border-[#6b0f0d]' : 'border-[#d99b4a]'}`}></div>
 
                   <div className="flex flex-col xl:flex-row gap-10 items-start">
                     {/* Text content */}
                     <div className="flex-1 space-y-6">
                       <div className="flex items-center gap-4">
-                        <span className="bg-[#6b0f0d] text-[#ffe7b0] font-body text-[10px] font-bold px-3 py-1.5 uppercase tracking-widest">{p.category}</span>
+                        <span className={`font-body text-[10px] font-bold px-3 py-1.5 uppercase tracking-widest transition-colors duration-500 ${activePeriod === p.period_id ? 'bg-[#ffe7b0] text-[#6b0f0d]' : 'bg-[#6b0f0d] text-[#ffe7b0]'}`}>{p.category && p.category.includes('Nhà') ? p.category.replace('Nhà', 'Triều') : p.category}</span>
                         <span className="font-headline text-[#d99b4a] font-bold text-lg">{p.range}</span>
                       </div>
                       
-                      <h3 className="font-headline text-3xl md:text-4xl text-[#2b0504] font-bold tracking-tight group-hover/card:text-[#6b0f0d] transition-colors">{p.name}</h3>
+                      <h3 className={`font-headline text-3xl md:text-4xl font-bold tracking-tight transition-colors duration-500 ${activePeriod === p.period_id ? 'text-[#6b0f0d]' : 'text-[#2b0504] group-hover/card:text-[#6b0f0d]'}`}>{p.name}</h3>
                       
-                      <p className="font-body text-[15px] text-[#2b1a16]/80 leading-relaxed pt-2">"{p.desc}"</p>
+                      <p className="font-body text-[15px] text-[#2b1a16]/80 leading-relaxed pt-2">"{p.description}"</p>
                       
                       <div className="space-y-3 py-4 border-t border-b border-[#d99b4a]/20">
-                        {p.details.map(detail => (
+                        {(p.details || []).map(detail => (
                           <div key={detail} className="flex items-center gap-3 text-[#2b1a16]">
                             <div className="w-1 h-1 rotate-45 bg-[#6b0f0d]"></div>
                             <span className="font-body text-[14px] text-[#4a2a22] font-semibold">{detail}</span>
@@ -165,7 +179,7 @@ const UserPeriods = () => {
                       </div>
 
                       <Link
-                        to={`/periods/${p.id}`}
+                        to={`/periods/${p.period_id}`}
                         className="inline-flex items-center gap-2 font-body text-[11px] font-bold uppercase tracking-[0.2em] text-[#6b0f0d] border border-[#d99b4a] px-6 py-3 hover:bg-[#6b0f0d] hover:text-[#ffe7b0] transition-colors group/btn"
                       >
                         Khám phá thời kỳ <span className="material-symbols-outlined text-[16px] group-hover/btn:translate-x-1 transition-transform">east</span>

@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 
 const UserCharacters = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [activePeriod, setActivePeriod] = useState('Tất cả thời kỳ');
+  const [activePeriod, setActivePeriod] = useState('');
   const [characters, setCharacters] = useState([]);
-  const [periods, setPeriods] = useState(['Tất cả thời kỳ']);
+  const [periods, setPeriods] = useState(['Triều Lý', 'Triều Trần', 'Triều Lê Sơ', 'Triều Nguyễn', 'Triều Hồ']);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,7 +15,7 @@ const UserCharacters = () => {
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
         setCharacters(data.characters || []);
-        setPeriods(data.periods || ['Tất cả thời kỳ']);
+        // Giữ nguyên periods cứng thay vì lấy từ api để đồng bộ với các trang khác
       } catch (error) {
         console.error('Error fetching characters:', error);
       } finally {
@@ -27,59 +27,68 @@ const UserCharacters = () => {
 
   const filteredCharacters = characters.filter(char => {
     const matchesSearch = char.name.toLowerCase().includes(searchTerm.toLowerCase()) || char.realName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesPeriod = activePeriod === 'Tất cả thời kỳ' || char.dynasty.includes(activePeriod);
+    const matchesPeriod = activePeriod === '' || activePeriod === 'Tất cả thời kỳ' || char.dynasty.includes(activePeriod.replace('Triều ', ''));
     return matchesSearch && matchesPeriod;
   });
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-24 relative overflow-hidden">
-
-      {/* Background Texture for Cinematic feel */}
-      <div className="absolute top-0 left-0 right-0 h-[400px] bg-gradient-to-b from-[#fcf9ee] to-transparent pointer-events-none"></div>
-
-      <div className="max-w-[1280px] mx-auto px-6 md:px-12 py-16 relative z-10 animate-in fade-in slide-in-from-bottom-10 duration-700">
-
-        {/* HEADER SECTION */}
-        <header className="mb-14 flex flex-col items-center text-center">
-          <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tight mb-4 text-[#6b0f0d] drop-shadow-sm">
-            Nhân vật lịch sử Việt Nam
-          </h1>
-          <p className="font-body text-[#2b1a16]/80 text-lg max-w-2xl italic">
+    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
+      {/* HERO SECTION */}
+      <section className="relative h-[450px] flex items-center justify-center overflow-hidden border-b border-[#d99b4a]/30">
+        <div className="absolute inset-0 z-0 bg-[#2b0504]">
+          <img
+            className="w-full h-full object-cover grayscale-[30%] sepia-[40%] brightness-[0.4] animate-ken-burns origin-center"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9vO8Wl8R-Z9n81m-O0H1yK80Sj377X5qQoV10Q4gA-fN2mO_R9_mS9fM-M-0xP2yGg0_5N9j5sNlB2R1hK1J8f5mG9Q3r9g8_H4gM8rD6Y5qJ2Q5n8vR1v8h_2k2lJ5wW2gQ8xP4gJ7n_0"
+            alt="Characters Hero"
+            onError={(e) => { e.target.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2" }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#2b0504]/90 via-[#2b0504]/40 to-[#fbf6e8] pointer-events-none"></div>
+        </div>
+        <div className="relative z-10 text-center space-y-4 max-w-4xl px-12 mt-10">
+          <span className="text-[#d9c7a7] font-body text-[11px] font-bold uppercase tracking-[0.4em] mb-4 block drop-shadow-md">Tinh Hoa Đại Việt</span>
+          <h1 className="font-headline text-5xl md:text-6xl lg:text-[72px] text-[#f7d78a] font-semibold tracking-tight drop-shadow-lg mb-4">Nhân Vật Lịch Sử</h1>
+          <p className="font-body text-sm md:text-base lg:text-lg text-[#f8ead0]/90 max-w-2xl mx-auto leading-relaxed drop-shadow-md italic">
             "Tuy mạnh yếu từng lúc khác nhau, song hào kiệt đời nào cũng có."
-            <span className="block mt-2 text-[11px] not-italic uppercase tracking-widest text-[#d99b4a] font-bold">— Bình Ngô Đại Cáo —</span>
+            <span className="block mt-2 text-[11px] not-italic uppercase tracking-widest text-[#d9c7a7] font-bold">— Bình Ngô Đại Cáo —</span>
           </p>
-        </header>
+        </div>
+      </section>
 
-        {/* SEARCH & FILTER BAR */}
-        <div className="bg-[#fffdf8]/90 backdrop-blur-md rounded-xl shadow-md border border-[#d99b4a]/40 p-4 mb-12 flex flex-col md:flex-row gap-4 items-center justify-between relative z-20">
-          <div className="relative w-full md:w-[40%]">
+      {/* SEARCH AND FILTER */}
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 -mt-8 relative z-20 mb-8">
+        <div className="bg-[#fffdf8]/90 backdrop-blur-md rounded-xl shadow-md border border-[#d99b4a]/40 p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div className="relative flex-1 w-full">
             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#6b0f0d]/60">search</span>
             <input
               type="text"
               placeholder="Tìm kiếm theo tên nhân vật..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-[#fcf9ee]/50 border border-[#d99b4a]/30 rounded-lg text-[15px] font-body text-[#2b1a16] placeholder-[#6b0f0d]/40 focus:outline-none focus:ring-1 focus:ring-[#6b0f0d]/20 focus:border-[#6b0f0d]/60 transition-all shadow-inner"
+              className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] placeholder-[#6b0f0d]/40 rounded-lg py-3 pl-12 pr-4 outline-none focus:border-[#6b0f0d]/60 transition-colors font-body shadow-inner"
             />
           </div>
 
-          <div className="relative w-full md:w-[30%]">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#6b0f0d]/60">filter_alt</span>
-            <select
-              value={activePeriod}
-              onChange={(e) => setActivePeriod(e.target.value)}
-              className="w-full pl-12 pr-10 py-3 bg-[#fcf9ee]/50 border border-[#d99b4a]/30 rounded-lg text-[15px] font-body text-[#2b1a16] appearance-none focus:outline-none focus:ring-1 focus:ring-[#6b0f0d]/20 focus:border-[#6b0f0d]/60 transition-all cursor-pointer shadow-inner">
-              {periods.map(p => <option key={p} value={p}>{p}</option>)}
-            </select>
-            <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#6b0f0d]/60 pointer-events-none">expand_more</span>
-          </div>
+          <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+            <div className="relative md:w-56 w-full">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#6b0f0d]/60">filter_alt</span>
+              <select
+                value={activePeriod}
+                onChange={(e) => setActivePeriod(e.target.value)}
+                className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] rounded-lg py-3 pl-12 pr-10 appearance-none outline-none focus:border-[#6b0f0d]/60 transition-colors font-body cursor-pointer shadow-inner">
+                <option value="">Tất cả thời kỳ</option>
+                {periods.map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
+              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#6b0f0d]/60 pointer-events-none">expand_more</span>
+            </div>
 
-          <div className="w-full md:w-auto flex items-center justify-end text-[14px] text-[#2b1a16]/70 gap-2 font-medium font-body uppercase tracking-wider text-[11px]">
-            <span className="material-symbols-outlined text-[16px] text-[#d99b4a]">sort</span>
-            Đang hiển thị {filteredCharacters.length} / {characters.length} nhân vật
+            <div className="w-full md:w-auto flex items-center justify-center px-4 bg-[#fcf9ee]/50 border border-[#d99b4a]/30 rounded-lg py-3 text-[13px] text-[#6b0f0d] font-bold font-body uppercase tracking-wider shadow-inner">
+              <span className="material-symbols-outlined text-[16px] mr-2">sort</span>
+              {filteredCharacters.length} / {characters.length}
+            </div>
           </div>
         </div>
 
+        <div className="max-w-[1440px] mx-auto px-6 md:px-12 mt-8 mb-20 animate-in fade-in duration-700 relative z-10">
         {/* GALLERY GRID */}
         {filteredCharacters.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
@@ -96,7 +105,7 @@ const UserCharacters = () => {
 
                   {/* Dynasty badge */}
                   <div className="absolute top-4 right-4 bg-[#6b0f0d]/95 backdrop-blur-sm border border-[#d99b4a]/40 text-[#ffe7b0] text-[10px] font-bold px-4 py-1.5 rounded-full z-10 shadow-lg uppercase tracking-widest">
-                    {char.dynasty}
+                    {char.dynasty && char.dynasty.includes('Nhà') ? char.dynasty.replace('Nhà', 'Triều') : char.dynasty}
                   </div>
 
                   {/* Gradient overlay for bottom text */}
@@ -108,7 +117,7 @@ const UserCharacters = () => {
                       {char.name}
                     </h2>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[16px] opacity-90 font-medium font-body text-[#f7d78a]">({char.realName})</span>
+                      {(char.realName || char.title) && <span className="text-[16px] opacity-90 font-medium font-body text-[#f7d78a]">({char.realName || char.title})</span>}
                       <span className="w-1.5 h-1.5 rounded-full bg-[#d99b4a] opacity-80"></span>
                       <span className="text-[13px] opacity-80 font-medium tracking-widest">{char.years}</span>
                     </div>
@@ -154,6 +163,7 @@ const UserCharacters = () => {
         )}
 
       </div>
+    </div>
     </div>
   );
 };

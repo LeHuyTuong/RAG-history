@@ -72,7 +72,7 @@ const DataTable = ({
           {data.map((row, idx) => (
             <tr
               key={row[rowKey] || idx}
-              className={`${striped && idx % 2 !== 0 ? 'bg-surface-low/30' : ''} ${hoverable ? 'hover:bg-surface-variant/20 transition-all group' : ''} ${typeof rowClassName === 'function' ? rowClassName(row, idx) : rowClassName || ''}`}
+              className={`${striped && idx % 2 !== 0 ? 'bg-surface-low/30' : ''} ${hoverable ? 'hover:bg-surface-variant/20 transition-all group' : ''} ${onRowClick ? 'cursor-pointer' : ''} ${typeof rowClassName === 'function' ? rowClassName(row, idx) : rowClassName || ''}`}
               onClick={() => onRowClick?.(row)}
             >
               {columns.map((col, colIdx) => (
