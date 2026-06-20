@@ -108,32 +108,65 @@ const ArticleForm = () => {
     setForm(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tagToRemove) }));
   };
 
-  const handleSave = () => {
-    const newArticles = JSON.parse(localStorage.getItem('admin_new_articles') || '[]');
+  const handleSave = async () => {
+    try {
+      const { default: apiClient } = await import('../../../services/apiClient');
+      const { API_ENDPOINTS } = await import('../../../services/api');
 
-    const articleData = {
-      ...originalData,
-      id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('article_' + Date.now()),
-      title: form.title,
-      slug: form.slug,
-      content: form.content,
-      status: form.status === 'published' ? 'published' : 'draft',
-      publishedAt: form.publishedAt || new Date().toISOString().split('T')[0],
-      tags: form.tags,
-      period: form.tags && form.tags.length > 0 ? form.tags[0] : 'Chưa cập nhật', // Use first tag as period
-      author: form.author,
-      thumbnailUrl: form.thumbnailPreview || null
-    };
+      // Prepare payload to match backend CreatePostRequest/UpdatePostRequest
+      let publishedInstant = null;
+      if (form.publishedAt) {
+        publishedInstant = new Date(form.publishedAt).toISOString();
+      } else {
+        publishedInstant = new Date().toISOString();
+      }
 
-    const existingIndex = newArticles.findIndex(a => String(a.id) === String(articleData.id));
-    if (existingIndex >= 0) {
-      newArticles[existingIndex] = { ...newArticles[existingIndex], ...articleData };
-    } else {
-      newArticles.push(articleData);
+      const payload = {
+        title: form.title,
+        slug: form.slug,
+        summary: form.content ? form.content.substring(0, 150).replace(/<[^>]+>/g, '') + '...' : '',
+        content: form.content,
+        status: form.status === 'published' || form.status === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT',
+        publishedAt: publishedInstant,
+        // Optional thumbnail url mapping
+        thumbnailUrl: typeof form.thumbnailPreview === 'string' && form.thumbnailPreview.startsWith('http') ? form.thumbnailPreview : null
+      };
+
+      if (isEdit && !isNaN(Number(id))) {
+        await apiClient.put(API_ENDPOINTS.ADMIN_ARTICLES, { ...payload, id: Number(id) });
+      } else {
+        await apiClient.post(API_ENDPOINTS.ADMIN_ARTICLES, payload);
+      }
+
+      // Also save to localStorage for mock fallback
+      const newArticles = JSON.parse(localStorage.getItem('admin_new_articles') || '[]');
+      const articleData = {
+        ...originalData,
+        id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('article_' + Date.now()),
+        title: form.title,
+        slug: form.slug,
+        content: form.content,
+        status: form.status === 'published' ? 'published' : 'draft',
+        publishedAt: form.publishedAt || new Date().toISOString().split('T')[0],
+        tags: form.tags,
+        period: form.tags && form.tags.length > 0 ? form.tags[0] : 'Chưa cập nhật',
+        author: form.author,
+        thumbnailUrl: form.thumbnailPreview || null
+      };
+
+      const existingIndex = newArticles.findIndex(a => String(a.id) === String(articleData.id));
+      if (existingIndex >= 0) {
+        newArticles[existingIndex] = { ...newArticles[existingIndex], ...articleData };
+      } else {
+        newArticles.push(articleData);
+      }
+
+      localStorage.setItem('admin_new_articles', JSON.stringify(newArticles));
+      navigate('/admin/articles');
+    } catch (error) {
+      console.error('Lỗi khi lưu bài viết:', error);
+      alert('Có lỗi xảy ra khi lưu bài viết!');
     }
-
-    localStorage.setItem('admin_new_articles', JSON.stringify(newArticles));
-    navigate('/admin/articles');
   };
 
   return (

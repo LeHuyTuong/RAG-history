@@ -18,7 +18,7 @@ const UserEvents = () => {
         const response = await fetch(API_ENDPOINTS.USER_EVENTS);
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
-        setEvents(data);
+        setEvents(data.events || data || []);
       } catch (error) {
         console.error('Error fetching events data:', error);
       } finally {
@@ -32,8 +32,8 @@ const UserEvents = () => {
   // Filter events
   const filteredEvents = events.filter(e => {
     const matchSearch = (e.name || "").toLowerCase().includes(searchTerm.toLowerCase()) || (e.description || "").toLowerCase().includes(searchTerm.toLowerCase());
-    const matchYear = searchYear ? (e.year || "").includes(searchYear) : true;
-    const matchPeriod = selectedPeriods.length > 0 ? selectedPeriods.some(p => e.category.includes(p)) : true;
+    const matchYear = searchYear ? String(e.year || "").includes(searchYear) : true;
+    const matchPeriod = selectedPeriods.length > 0 ? selectedPeriods.some(p => (e.category || "").includes(p)) : true;
     return matchSearch && matchYear && matchPeriod;
   });
 
@@ -97,7 +97,7 @@ const UserEvents = () => {
                 className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] rounded-lg py-3 pl-12 pr-10 appearance-none outline-none focus:border-[#6b0f0d]/60 transition-colors font-body cursor-pointer shadow-inner"
               >
                 <option value="">Tất cả thời kỳ</option>
-                {['Triều Lý', 'Triều Trần', 'Triều Lê Sơ', 'Triều Nguyễn', 'Triều Hồ'].map(t => (
+                {[...new Set(events.map(e => e.category).filter(Boolean))].map(t => (
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>
@@ -147,7 +147,7 @@ const UserEvents = () => {
 
                     {/* Content */}
                     <div className="p-6 space-y-4 flex-grow relative z-10 flex flex-col">
-                      <span className="font-body text-[9px] font-bold text-[#6b0f0d] uppercase tracking-widest block border-b border-[#d99b4a]/30 pb-2">{event.category && event.category.includes('Nhà') ? event.category.replace('Nhà', 'Triều') : event.category}</span>
+                      <span className="font-body text-[9px] font-bold text-[#6b0f0d] uppercase tracking-widest block border-b border-[#d99b4a]/30 pb-2">{(event.category || "").includes('Nhà') ? (event.category || "").replace('Nhà', 'Triều') : (event.category || "Chưa rõ")}</span>
                       <h3 className="font-headline text-2xl text-[#2b0504] font-semibold tracking-tight leading-tight group-hover:text-[#6b0f0d] transition-colors">{event.name}</h3>
                       <p className="font-body text-[14px] text-[#2b1a16]/80 leading-relaxed line-clamp-3">
                         {event.description}

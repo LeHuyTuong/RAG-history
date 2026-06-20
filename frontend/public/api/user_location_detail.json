@@ -1,76 +1,66 @@
 {
   "location_id": 1,
-  "name": "Cố đô Huế",
-  "slug": "co-do-hue",
-  "location_type": "Kinh đô cổ",
-  "category": "Kinh đô cổ",
-  "latitude": 16.4637,
-  "longitude": 107.5905,
-  "heroImg": "https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2",
-  "description": "Quần thể di tích Cố đô Huế là những di tích lịch sử - văn hóa do triều Nguyễn chủ trương xây dựng trong khoảng thời gian từ đầu thế kỷ 19 đến nửa đầu thế kỷ 20 trên địa bàn kinh đô Huế xưa.",
+  "name": "Phú Thọ",
+  "slug": "phu-tho",
+  "location_type": "REGION",
+  "latitude": 21.268443,
+  "longitude": 105.204557,
+  "description": "Vùng đất gắn với truyền thuyết các vua Hùng.",
+  "type": "REGION",
+  "period": "Thời Văn Lang",
+  "coordinates": [
+    105.204557,
+    21.268443
+  ],
+  "x": 41.95347297297294,
+  "y": 14.305751677852333,
   "importance": [
-    "Cố đô Huế từng là thủ phủ của các chúa Nguyễn từ năm 1558 đến 1777, sau đó trở thành kinh đô của triều đại Tây Sơn từ năm 1788 đến 1801, và cuối cùng là quốc đô của triều đại nhà Nguyễn từ 1802 đến 1945.",
-    "Quần thể di tích này không chỉ mang giá trị to lớn về kiến trúc mà còn là kho tàng vô giá về lịch sử, nghệ thuật và văn hóa của Việt Nam trong giai đoạn phong kiến cuối cùng.",
-    "Ngày 11 tháng 12 năm 1993, Quần thể di tích Cố đô Huế được UNESCO công nhận là Di sản Văn hóa Thế giới, trở thành di sản thế giới đầu tiên của Việt Nam."
+    "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+    "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
   ],
   "stats": [
     {
-      "label": "Năm xây dựng",
-      "value": "1804"
+      "label": "Năm thành lập",
+      "value": "Thế kỷ 1"
     },
     {
-      "label": "Diện tích",
-      "value": "520 ha"
+      "label": "Quy mô",
+      "value": "Đặc biệt"
     },
     {
-      "label": "Di tích",
-      "value": "140+"
+      "label": "Bảo tồn",
+      "value": "Cấp Quốc gia"
     }
   ],
   "timeline": [
     {
-      "year": "1802",
-      "title": "Định đô Phú Xuân",
-      "desc": "Vua Gia Long thống nhất đất nước, chính thức chọn Phú Xuân (Huế) làm kinh đô nước Việt Nam."
+      "year": "Sơ kỳ",
+      "title": "Khởi dựng",
+      "desc": "Giai đoạn đầu hình thành và phát triển của Phú Thọ."
     },
     {
-      "year": "1804",
-      "title": "Khởi công xây dựng Kinh thành",
-      "desc": "Kinh thành Huế bắt đầu được xây dựng quy mô lớn dưới sự chỉ đạo của Vua Gia Long và các đại thần."
+      "year": "Trung kỳ",
+      "title": "Phát triển",
+      "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
     },
     {
-      "year": "1833",
-      "title": "Hoàn thiện hệ thống cung điện",
-      "desc": "Vua Minh Mạng hoàn tất hệ thống cung điện tráng lệ nhất, quy hoạch lại toàn bộ kiến trúc Hoàng thành."
-    },
-    {
-      "year": "1945",
-      "title": "Lễ thoái vị của vua Bảo Đại",
-      "desc": "Vua Bảo Đại trao ấn kiếm cho phái đoàn chính phủ Cách mạng lâm thời, kết thúc hàng ngàn năm chế độ quân chủ."
+      "year": "Hiện đại",
+      "title": "Bảo tồn",
+      "desc": "Được công nhận là di tích lịch sử và văn hóa."
     }
   ],
-  "location": {
-    "lat": 16.4637,
-    "lng": 107.5905,
-    "quote": "\"Huế là hiện thân của một vương triều đã lùi vào dĩ vãng, nhưng hồn thiêng sông núi và vẻ đẹp kiến trúc vẫn còn mãi với thời gian.\""
-  },
-  "figures": [
+  "famousCharacters": [
     {
-      "name": "Gia Long",
-      "role": "Vua sáng lập triều Nguyễn",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Emperor_Gia_Long.jpg/220px-Emperor_Gia_Long.jpg"
+      "name": "Lê Lợi",
+      "role": "Anh hùng dân tộc",
+      "img": "/images/home.png"
     },
     {
-      "name": "Minh Mạng",
-      "role": "Vua thứ hai triều Nguyễn",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Minh_Mang.jpg/220px-Minh_Mang.jpg"
-    },
-    {
-      "name": "Bảo Đại",
-      "role": "Vị vua cuối cùng",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Bao_Dai.jpg/220px-Bao_Dai.jpg"
+      "name": "Nguyễn Trãi",
+      "role": "Danh nhân văn hóa",
+      "img": "/images/home.png"
     }
   ],
-  "created_at": "2023-10-14T00:00:00Z",
-  "updated_at": "2023-10-14T00:00:00Z"
+  "image": "/images/home.png",
+  "heroImg": "/images/home.png"
 }

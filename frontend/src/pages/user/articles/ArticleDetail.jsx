@@ -47,11 +47,24 @@ const ArticleDetail = () => {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.USER_ARTICLE_DETAIL);
+        const response = await fetch(API_ENDPOINTS.USER_ARTICLES);
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
-        setArticle(data);
-        setLikes(data.likes || 0);
+        // data.articles if it's wrapped, but actually sync_mock.cjs writes an array of articles to user_articles.json
+        // Wait, sync_mock.cjs writes an array to `public/api/user_articles.json`? Let's verify.
+        // I'll parse it safely.
+        const articles = Array.isArray(data) ? data : (data.articles || []);
+        const foundArticle = articles.find(a => a.id.toString() === slug || a.slug === slug);
+        
+        if (foundArticle) {
+          setArticle(foundArticle);
+          setLikes(foundArticle.likes || 0);
+          if (foundArticle.commentsList) {
+            setComments(foundArticle.commentsList);
+          } else {
+            setComments([]);
+          }
+        }
       } catch (error) {
         console.error('Error fetching article:', error);
       } finally {

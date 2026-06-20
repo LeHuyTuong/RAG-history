@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import com.example.historyrag.feature.period.Period;
 import java.time.LocalDate;
 
 @Getter
@@ -38,6 +39,10 @@ public class Event extends BaseEntity {
     @Lob
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "period_id")
+    private Period period;
 
     @Column(name = "start_year")
     private Integer startYear;

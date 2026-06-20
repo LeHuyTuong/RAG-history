@@ -134,47 +134,57 @@ const CharacterForm = () => {
     setForm(prev => ({ ...prev, tags: [...new Set([...(prev.tags || []), tagName])] }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Validation
     if (!form.name || !form.slug) {
       alert('Vui lòng điền các trường bắt buộc (*)');
       return;
     }
 
-    const newChars = JSON.parse(localStorage.getItem('admin_new_characters') || '[]');
-    
-    const charData = {
-      ...originalData,
-      id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('char_' + Date.now()),
-      name: form.name,
-      slug: form.slug,
-      realName: form.realName,
-      title: form.title,
-      role: form.title,
-      years: form.years,
-      dynasties: form.tags,
-      dynasty: form.tags && form.tags.length > 0 ? form.tags[0] : 'Khác',
-      period: form.tags && form.tags.length > 0 ? form.tags[0] : 'Khác',
-      avatar: form.avatar,
-      biography: form.biography,
-      content: form.biography,
-      relatedLocations: form.relatedLocations,
-      relatedCharacters: form.relatedCharacters,
-      parents: form.parents,
-      siblings: form.siblings,
-      family: form.family,
-      status: form.status === 'published' ? 'published' : 'draft'
-    };
+    try {
+      const { default: apiClient } = await import('../../../services/apiClient');
+      const { API_ENDPOINTS } = await import('../../../services/api');
 
-    const existingIndex = newChars.findIndex(c => String(c.id) === String(charData.id));
-    if (existingIndex >= 0) {
-      newChars[existingIndex] = { ...newChars[existingIndex], ...charData };
-    } else {
-      newChars.push(charData);
+      const payload = {
+        name: form.name,
+        slug: form.slug,
+        alias: form.title || '',
+        biography: form.biography || ''
+      };
+
+      if (isEdit && !isNaN(Number(id))) {
+        await apiClient.put(`${API_ENDPOINTS.ADMIN_CHARACTERS}/${id}`, payload);
+      } else {
+        await apiClient.post(API_ENDPOINTS.ADMIN_CHARACTERS, payload);
+      }
+
+      // Also save to localStorage as a fallback for unsupported fields in frontend mock
+      const newChars = JSON.parse(localStorage.getItem('admin_new_characters') || '[]');
+      const charData = {
+        ...originalData,
+        id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('char_' + Date.now()),
+        ...form,
+        role: form.title,
+        dynasties: form.tags,
+        dynasty: form.tags && form.tags.length > 0 ? form.tags[0] : 'Khác',
+        period: form.tags && form.tags.length > 0 ? form.tags[0] : 'Khác',
+        content: form.biography,
+        status: form.status === 'published' ? 'published' : 'draft'
+      };
+
+      const existingIndex = newChars.findIndex(c => String(c.id) === String(charData.id));
+      if (existingIndex >= 0) {
+        newChars[existingIndex] = { ...newChars[existingIndex], ...charData };
+      } else {
+        newChars.push(charData);
+      }
+      localStorage.setItem('admin_new_characters', JSON.stringify(newChars));
+
+      navigate('/admin/characters');
+    } catch (error) {
+      console.error('Lỗi khi lưu nhân vật:', error);
+      alert('Có lỗi xảy ra khi lưu nhân vật. Vui lòng thử lại.');
     }
-    
-    localStorage.setItem('admin_new_characters', JSON.stringify(newChars));
-    navigate('/admin/characters');
   };
 
   const handleImageUpload = (e) => {

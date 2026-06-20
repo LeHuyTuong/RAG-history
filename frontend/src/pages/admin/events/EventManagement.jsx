@@ -38,20 +38,16 @@ const EventManagement = () => {
 
     setData(prev => {
       const nextEvents = prev.events.filter(e => String(e.id) !== String(deleteId));
-      const baseTotal = 4200;
-      const basePublished = 3850;
-      const newEventsCount = newEvents.length;
       const deletedCount = deletedIds.length;
-      const newPublishedCount = newEvents.filter(e => {
-        const s = e.status || '';
-        return s.toLowerCase() === 'published' || s.toLowerCase() === 'công khai';
-      }).length;
 
       return {
         ...prev,
         stats: {
-          total: (baseTotal + newEventsCount - deletedCount).toLocaleString(),
-          published: (basePublished + newPublishedCount - deletedCount).toLocaleString()
+          total: (nextEvents.length).toLocaleString(),
+          published: (nextEvents.filter(e => {
+            const s = e.status || '';
+            return s.toLowerCase() === 'published' || s.toLowerCase() === 'công khai';
+          }).length).toLocaleString()
         },
         events: nextEvents
       };
@@ -63,13 +59,18 @@ const EventManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const eventRes = await fetch(API_ENDPOINTS.ADMIN_EVENTS);
-        if (!eventRes.ok) throw new Error('Events fetch failed');
-        const eventResult = await eventRes.json();
+        const { default: apiClient } = await import('../../../services/apiClient');
+        const eventRes = await apiClient.get(API_ENDPOINTS.ADMIN_EVENTS, { params: { page: 0, size: 500 } });
+        const content = eventRes.data?.data?.result || eventRes.data?.data?.content || [];
 
-        eventResult.events = eventResult.events.map(e => ({
+        const eventResult = { events: [], stats: { total: '0', published: '0' } };
+        
+        eventResult.events = content.map(e => ({
           ...e,
-          status: e.status || 'published'
+          time: `${e.startYear || '?'} - ${e.endYear || '?'}`,
+          dynasty: e.periodName || 'Chưa rõ',
+          status: e.status || 'published',
+          sub: e.description || ''
         }));
 
         // Merge new events from localStorage
@@ -98,22 +99,13 @@ const EventManagement = () => {
           eventResult.events = eventResult.events.filter(e => !deletedSet.has(String(e.id)));
         }
 
-        // Calculate stats dynamically based on base stats from JSON and updates in localStorage
-        const baseTotal = parseInt(eventResult.stats?.total?.replace(/,/g, '') || '4200') || 4200;
-        const basePublished = parseInt(eventResult.stats?.published?.replace(/,/g, '') || '3850') || 3850;
-
-        const newEventsCount = newEventsStr ? JSON.parse(newEventsStr).length : 0;
-        const deletedCount = deletedIds.length;
-        
-        const newEventsList = newEventsStr ? JSON.parse(newEventsStr) : [];
-        const newPublishedCount = newEventsList.filter(e => {
-          const s = e.status || '';
-          return s.toLowerCase() === 'published' || s.toLowerCase() === 'công khai';
-        }).length;
-
+        // Calculate stats dynamically based on actual data
         eventResult.stats = {
-          total: (baseTotal + newEventsCount - deletedCount).toLocaleString(),
-          published: (basePublished + newPublishedCount - deletedCount).toLocaleString()
+          total: eventResult.events.length.toLocaleString(),
+          published: eventResult.events.filter(e => {
+            const s = e.status || '';
+            return s.toLowerCase() === 'published' || s.toLowerCase() === 'công khai';
+          }).length.toLocaleString()
         };
 
         setData(eventResult);

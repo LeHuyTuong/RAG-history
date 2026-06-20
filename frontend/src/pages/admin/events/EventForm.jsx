@@ -1,4 +1,4 @@
-import {  useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { generateSlug } from '../../../utils/stringUtils';
 import { RichTextEditor, EntityRelationInput, FormHeader, TagInput } from '../../../components/admin';
@@ -138,7 +138,7 @@ const EventForm = () => {
     }
 
     const newEvents = JSON.parse(localStorage.getItem('admin_new_events') || '[]');
-    
+
     const eventData = {
       ...originalData,
       id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('evt_' + Date.now()),
@@ -164,7 +164,7 @@ const EventForm = () => {
     } else {
       newEvents.push(eventData);
     }
-    
+
     localStorage.setItem('admin_new_events', JSON.stringify(newEvents));
     navigate('/admin/events');
   };
@@ -173,7 +173,7 @@ const EventForm = () => {
     <div className="flex-grow bg-surface min-h-screen animate-in fade-in duration-500 pb-20">
       <main className="p-8 max-w-7xl mx-auto space-y-8 font-body">
 
-        <FormHeader 
+        <FormHeader
           title={isEdit ? 'Chỉnh sửa Sự kiện (v1.1)' : 'Thêm Sự kiện Mới'}
           subtitle="Cập nhật chi tiết diễn biến, kết quả và ý nghĩa của sự kiện lịch sử."
           icon="event_note"

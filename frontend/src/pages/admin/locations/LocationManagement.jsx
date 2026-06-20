@@ -13,6 +13,8 @@ import {
   VietnamMap
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
+import { API_ENDPOINTS } from '../../../services/api';
+import apiClient from '../../../services/apiClient';
 
 const LocationManagement = () => {
   const navigate = useNavigate();
@@ -23,26 +25,18 @@ const LocationManagement = () => {
   const [typeColors, setTypeColors] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteModal.id === null || deleteModal.id === undefined) return;
 
-    // Remove from new locations if it's there
-    let newLocations = JSON.parse(localStorage.getItem('admin_new_locations') || '[]');
-    newLocations = newLocations.filter(item => String(item.id) !== String(deleteModal.id));
-    localStorage.setItem('admin_new_locations', JSON.stringify(newLocations));
-
-    // Add to deleted ids list (for static data)
-    const deletedIds = JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]');
-    if (!deletedIds.includes(String(deleteModal.id))) {
-      deletedIds.push(String(deleteModal.id));
-      localStorage.setItem('admin_deleted_ids', JSON.stringify(deletedIds));
+    try {
+      await apiClient.delete(`${API_ENDPOINTS.ADMIN_LOCATIONS}/${deleteModal.id}`);
+      setData(prev => ({
+        ...prev,
+        locations: prev.locations.filter(loc => String(loc.id) !== String(deleteModal.id))
+      }));
+    } catch (error) {
+      console.error('Error deleting location:', error);
     }
-
-    // Update local state
-    setData(prev => ({
-      ...prev,
-      locations: prev.locations.filter(loc => String(loc.id) !== String(deleteModal.id))
-    }));
 
     setDeleteModal({ open: false, name: '', id: null });
   };
@@ -50,41 +44,31 @@ const LocationManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
+        
+        // Cùng lúc lấy locations và colors mock
         const [locRes, typeColorRes] = await Promise.all([
-          fetch('/api/admin_locations.json'),
-          fetch('/api/location_type_colors.json')
+          apiClient.get(API_ENDPOINTS.ADMIN_LOCATIONS, { params: { page: 0, size: 500 } }),
+          fetch(API_ENDPOINTS.LOCATION_TYPE_COLORS)
         ]);
 
-        if (!locRes.ok) throw new Error('Locations fetch failed');
-        const locResult = await locRes.json();
+        const payload = locRes.data?.data || locRes.data;
+        const locations = payload.result || [];
 
-        // Merge new locations from localStorage
-        const newLocationsStr = localStorage.getItem('admin_new_locations');
-        if (newLocationsStr) {
-          try {
-            const newLocationsRaw = JSON.parse(newLocationsStr);
-            const newLocations = newLocationsRaw.map(l => ({
-              ...l,
-              period: l.period || "Chưa cập nhật",
-              status: l.status === 'published' ? 'published' : 'draft'
-            }));
-
-            const newLocationIds = new Set(newLocations.map(l => String(l.id)));
-            const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]'));
-            locResult.locations = [
-              ...newLocations,
-              ...locResult.locations.filter(l => !newLocationIds.has(String(l.id)) && !deletedIds.has(String(l.id)))
-            ];
-          } catch (e) { console.error('Error parsing new locations', e); }
-        } else {
-          const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]'));
-          locResult.locations = locResult.locations.map(l => ({
-            ...l,
-            status: l.status || 'published'
-          })).filter(l => !deletedIds.has(String(l.id)));
-        }
-
-        setData(locResult);
+        setData({
+          stats: [
+            { id: 1, label: 'Tổng số địa danh', value: payload.meta?.total || locations.length, icon: 'location_on', color: 'text-emerald-600' }
+          ],
+          locations: locations.map(l => ({
+            id: l.id,
+            name: l.name,
+            type: l.locationType || 'UNKNOWN',
+            coords: `${l.latitude || 0}, ${l.longitude || 0}`,
+            period: 'Chưa cập nhật',
+            dynasties: [],
+            status: 'PUBLISHED' // Bảng Location không có status, mock mặc định
+          }))
+        });
 
         if (typeColorRes.ok) {
           const typeColorResult = await typeColorRes.json();
