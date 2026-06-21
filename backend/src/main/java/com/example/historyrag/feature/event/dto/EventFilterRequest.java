@@ -1,12 +1,12 @@
 package com.example.historyrag.feature.event.dto;
 
-import lombok.Data;
+import com.example.historyrag.feature.event.EventCertaintyLevel;
 
-@Data
-public class EventFilterRequest {
-    private String keyword;
-    private Long periodId;
-    private Integer fromYear;
-    private Integer toYear;
-    private String certaintyLevel;
-}
+public record EventFilterRequest(
+        String keyword,
+        Long periodId,
+        Long locationId,
+        EventCertaintyLevel certaintyLevel,
+        Integer startYearFrom,
+        Integer startYearTo
+) {}
