@@ -36,19 +36,9 @@ management:
       exposure:
         include: health,info,metrics,prometheus
 
-observability:
-  enabled: ${OBSERVABILITY_ENABLED:true}
-  service-name: ${OBSERVABILITY_SERVICE_NAME:history-rag-backend}
-  http:
-    enabled: ${OBSERVABILITY_HTTP_ENABLED:true}
-    inbound:
-      enabled: ${OBSERVABILITY_HTTP_INBOUND_ENABLED:true}
-    outbound:
-      enabled: ${OBSERVABILITY_HTTP_OUTBOUND_ENABLED:true}
-
 logging:
   pattern:
-    level: "%5p [${observability.service-name},%X{traceId},%X{spanId}]"
+    level: "%5p [history-rag-backend,%X{traceId},%X{spanId}]"
 
 app:
   rag:
