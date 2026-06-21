@@ -1,6 +1,6 @@
 # Project Status
 
-> Last updated: 2026-06-18 | By: Codex | Session: #12
+> Last updated: 2026-06-19 | By: Codex | Session: #13
 >
 > AI: update this file at the end of every session when asked.
 > Follow this exact format. Keep it concise — under 80 lines.
@@ -32,6 +32,7 @@
 - Fixed post keyword filtering by casting searchable fields before `ilike`, avoiding Hibernate CLOB `lower()` errors on `summary` and `content`.
 - Added admin CRUD Location backend API with enum location types, ResultPaginationDTO filtering, validation, service/controller tests, and API docs.
 - Added admin CRUD Source backend API with source/reliability enums, ResultPaginationDTO filtering, validation, service/controller tests, and API docs.
+- Added admin CRUD Participation backend API with Event-Person mapping, enum roles, duplicate logical-key checks, ResultPaginationDTO filtering, validation, service/controller tests, and API docs.
 
 ## In Progress
 _Nothing._

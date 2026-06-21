@@ -2,9 +2,9 @@ package com.example.historyrag.feature.participation;
 
 import com.example.historyrag.common.BaseEntity;
 import com.example.historyrag.feature.event.Event;
+import com.example.historyrag.feature.person.Person;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,9 +34,15 @@ public class Participation extends BaseEntity {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
-    @Size(max = 100)
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "person_id", nullable = false)
+    private Person person;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "role", length = 100)
-    private String role;
+    private ParticipationRole role;
 
     @Lob
     @Column(name = "note", columnDefinition = "TEXT")
