@@ -1,5 +1,6 @@
 package com.example.historyrag.config;
 
+import com.faker.observability.core.metrics.EndpointSnapshot;
 import com.faker.observability.core.metrics.MetricsCollector;
 import com.faker.observability.core.trace.Span;
 import io.micrometer.core.instrument.Counter;
@@ -7,6 +8,8 @@ import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.Timer;
+
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import org.springframework.context.annotation.Bean;
@@ -52,6 +55,11 @@ public class ObservabilityMetricsConfig {
 
             recordSize("historyrag.observability.span.request.size", span.requestSize(), tags);
             recordSize("historyrag.observability.span.response.size", span.responseSize(), tags);
+        }
+
+        @Override
+        public List<EndpointSnapshot> endpointSnapshots() {
+            return List.of();
         }
 
         private void recordSize(String metricName, long size, Tags tags) {
