@@ -1,6 +1,7 @@
 package com.example.historyrag.feature.event;
 
 import com.example.historyrag.common.BaseEntity;
+import com.example.historyrag.feature.period.Period;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -10,8 +11,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.example.historyrag.feature.period.Period;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -56,8 +58,11 @@ public class Event extends BaseEntity {
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @Size(max = 20)
+    @Enumerated(EnumType.STRING)
     @Column(name = "certainty_level", length = 20)
-    private String certaintyLevel;
+    private EventCertaintyLevel certaintyLevel;
 
+    @Builder.Default
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<EventLocation> eventLocations = new ArrayList<>();
 }

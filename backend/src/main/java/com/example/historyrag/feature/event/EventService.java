@@ -8,9 +8,14 @@ import com.example.historyrag.feature.event.dto.UpdateEventRequest;
 import org.springframework.data.domain.Pageable;
 
 public interface EventService {
-    ResultPaginationDTO filter(EventFilterRequest filter, Pageable pageable);
-    EventResponse getById(Long id);
+
     EventResponse create(CreateEventRequest request);
+
     EventResponse update(Long id, UpdateEventRequest request);
+
+    EventResponse getById(Long id);
+
+    ResultPaginationDTO filter(EventFilterRequest filter, Pageable pageable);
+
     void delete(Long id);
 }
