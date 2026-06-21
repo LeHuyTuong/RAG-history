@@ -11,6 +11,7 @@ import com.example.historyrag.feature.post.dto.CreatePostRequest;
 import com.example.historyrag.feature.post.dto.PostFilterRequest;
 import com.example.historyrag.feature.post.dto.PostResponse;
 import com.example.historyrag.feature.post.dto.UpdatePostRequest;
+import com.example.historyrag.feature.rag.RagService;
 import com.example.historyrag.feature.tag.Tag;
 import com.example.historyrag.feature.tag.TagRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,11 +50,14 @@ class PostServiceImplTest {
     @Mock
     private TagRepository tagRepository;
 
+    @Mock
+    private RagService ragService;
+
     private PostServiceImpl postService;
 
     @BeforeEach
     void setUp() {
-        postService = new PostServiceImpl(postRepository, adminRepository, eventRepository, tagRepository);
+        postService = new PostServiceImpl(postRepository, adminRepository, eventRepository, tagRepository, ragService);
     }
 
     @Test

@@ -71,7 +71,9 @@ export const callRagChatApi = async (question, options = {}) => {
     throw new Error(`Server returned status ${response.status}`);
   }
 
-  return response.json();
+  const json = await response.json();
+  // Spring Boot wraps all responses in ApiResponse<T> — unwrap .data
+  return json.data ?? json;
 };
 
 export const transformCitationsToSources = (citations) => {

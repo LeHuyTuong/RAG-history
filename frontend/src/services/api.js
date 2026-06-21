@@ -37,5 +37,5 @@ export const API_ENDPOINTS = {
   USER_PERIODS: `/api/user_periods.json`,
   USER_PROFILE_HISTORY: `/api/user_profile_history.json`,
   USER_RECORDS: `/api/user_records.json`,
-  RAG_CHAT: import.meta.env.VITE_RAG_CHAT_URL || 'http://localhost:8001/rag/chat'
+  RAG_CHAT: import.meta.env.VITE_RAG_CHAT_URL || '/api/v1/rag/chat'
 };
