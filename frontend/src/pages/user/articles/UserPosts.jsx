@@ -45,8 +45,8 @@ const UserPosts = () => {
     setCurrentPage(1);
   }, [searchTerm, filterPeriod]);
 
-  // Danh sách các triều đại cố định để đồng bộ với các trang khác
-  const periods = ['Triều Lý', 'Triều Trần', 'Triều Lê Sơ', 'Triều Nguyễn', 'Triều Hồ'];
+  // Danh sách các triều đại để đồng bộ với data
+  const periods = [...new Set(articles.map(a => a.dynasty).filter(Boolean))];
 
   return (
     <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">

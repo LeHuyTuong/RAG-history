@@ -1,4 +1,4 @@
-import {  useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { generateSlug } from '../../../utils/stringUtils';
 import { RichTextEditor, FormHeader } from '../../../components/admin';
@@ -19,7 +19,7 @@ const RecordForm = () => {
       const fetchData = async () => {
         try {
           let record = null;
-          
+
           // Check custom records in localStorage
           const newRecordsStr = localStorage.getItem('admin_new_records');
           if (newRecordsStr) {
@@ -58,7 +58,7 @@ const RecordForm = () => {
 
   const handleSave = () => {
     const newRecords = JSON.parse(localStorage.getItem('admin_new_records') || '[]');
-    
+
     const recordData = {
       ...originalData,
       id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('record_' + Date.now()),
@@ -77,7 +77,7 @@ const RecordForm = () => {
     } else {
       newRecords.push(recordData);
     }
-    
+
     localStorage.setItem('admin_new_records', JSON.stringify(newRecords));
     navigate('/admin/records');
   };
@@ -85,8 +85,8 @@ const RecordForm = () => {
   return (
     <div className="flex-grow bg-surface min-h-screen font-body">
       <main className="p-8 max-w-7xl mx-auto space-y-8">
-        
-        <FormHeader 
+
+        <FormHeader
           title={isEdit ? 'Chỉnh sửa Sử liệu' : 'Thêm Sử liệu Mới'}
           subtitle="Quản lý kho sử liệu, văn bản cổ, chính sử và tài liệu nghiên cứu lịch sử."
           icon="menu_book"
@@ -102,35 +102,35 @@ const RecordForm = () => {
               <h3 className="font-headline text-xl text-primary font-bold border-l-4 border-primary pl-4 mb-8">Thông tin Chính văn</h3>
               <div className="space-y-1">
                 <label className="font-body text-[10px] font-bold uppercase text-on-surface-variant">Tiêu đề bản thảo *</label>
-                <input 
-                  type="text" value={form.title} 
+                <input
+                  type="text" value={form.title}
                   onChange={e => {
                     const newTitle = e.target.value;
-                    setForm({...form, title: newTitle, slug: generateSlug(newTitle)});
+                    setForm({ ...form, title: newTitle, slug: generateSlug(newTitle) });
                   }}
-                  className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 font-headline text-2xl text-on-surface outline-none transition-all" 
-                  placeholder="Ví dụ: Đại Việt Sử Ký Toàn Thư..." 
+                  className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 font-headline text-2xl text-on-surface outline-none transition-all"
+                  placeholder="Ví dụ: Đại Việt Sử Ký Toàn Thư..."
                 />
               </div>
               <div className="flex items-center gap-2 text-on-surface-variant font-body text-[11px] mb-4">
                 <span className="opacity-50 lowercase tracking-normal italic">suviet.vn/su-lieu/</span>
-                <input 
+                <input
                   type="text" value={form.slug} readOnly
-                  className="flex-1 bg-surface-low px-2 py-1 rounded outline-none text-on-surface-variant font-bold cursor-not-allowed opacity-70" 
+                  className="flex-1 bg-surface-low px-2 py-1 rounded outline-none text-on-surface-variant font-bold cursor-not-allowed opacity-70"
                 />
               </div>
               <div className="grid grid-cols-2 gap-8">
                 <div className="space-y-1">
                   <label className="font-body text-[10px] font-bold uppercase text-on-surface-variant">Tác giả / Chủ biên</label>
-                  <input type="text" value={form.author} onChange={e => setForm({...form, author: e.target.value})} className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 outline-none" placeholder="Vd: Ngô Sĩ Liên" />
+                  <input type="text" value={form.author} onChange={e => setForm({ ...form, author: e.target.value })} className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 outline-none" placeholder="Vd: Ngô Sĩ Liên" />
                 </div>
                 <div className="space-y-1">
                   <label className="font-body text-[10px] font-bold uppercase text-on-surface-variant">Năm xuất bản/khởi soạn</label>
-                  <input type="number" value={form.publicationYear} onChange={e => setForm({...form, publicationYear: e.target.value})} className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 outline-none" placeholder="Vd: 1479" />
+                  <input type="number" value={form.publicationYear} onChange={e => setForm({ ...form, publicationYear: e.target.value })} className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 outline-none" placeholder="Vd: 1479" />
                 </div>
                 <div className="space-y-1">
                   <label className="font-body text-[10px] font-bold uppercase text-on-surface-variant">Độ tin cậy (1-10)</label>
-                  <input type="number" min="1" max="10" value={form.reliabilityScore} onChange={e => setForm({...form, reliabilityScore: e.target.value})} className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 outline-none" placeholder="Vd: 9" />
+                  <input type="number" min="1" max="10" value={form.reliabilityScore} onChange={e => setForm({ ...form, reliabilityScore: e.target.value })} className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 outline-none" placeholder="Vd: 9" />
                 </div>
               </div>
             </section>
@@ -139,7 +139,7 @@ const RecordForm = () => {
             <section className="bg-white border border-outline-variant shadow-sm rounded-sm">
               <RichTextEditor
                 value={form.content}
-                onChange={(content) => setForm({...form, content})}
+                onChange={(content) => setForm({ ...form, content })}
                 placeholder="Nhập nội dung sử liệu hoặc bản dịch tại đây..."
                 className="min-h-[500px]"
               />
@@ -167,13 +167,13 @@ const RecordForm = () => {
             </div>
 
             <div className="bg-primary/90 text-white p-6 rounded shadow-xl">
-                <h4 className="font-body text-[10px] font-bold uppercase tracking-widest border-b border-white/20 pb-2 mb-4 italic">Loại hình lưu trữ</h4>
-                <select value={form.sourceType} onChange={e => setForm({...form, sourceType: e.target.value})} className="w-full bg-white/10 border border-white/20 rounded p-2 text-sm outline-none">
-                  <option className="text-black">Chính sử (Quốc sử)</option>
-                  <option className="text-black">Dã sử</option>
-                  <option className="text-black">Thần tích</option>
-                </select>
-             </div>
+              <h4 className="font-body text-[10px] font-bold uppercase tracking-widest border-b border-white/20 pb-2 mb-4 italic">Loại hình lưu trữ</h4>
+              <select value={form.sourceType} onChange={e => setForm({ ...form, sourceType: e.target.value })} className="w-full bg-white/10 border border-white/20 rounded p-2 text-sm outline-none">
+                <option className="text-black">Chính sử (Quốc sử)</option>
+                <option className="text-black">Dã sử</option>
+                <option className="text-black">Thần tích</option>
+              </select>
+            </div>
           </div>
         </div>
       </main>

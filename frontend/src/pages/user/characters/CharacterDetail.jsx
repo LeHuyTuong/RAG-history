@@ -135,7 +135,7 @@ const CharacterDetail = () => {
               <p className="font-body text-[#2b1a16]/80 leading-relaxed">
                 Bia Vĩnh Lăng do Nguyễn Trãi soạn, khắc trên đá nguyên khối đặt tại Lam Kinh. Đây là bảo vật quốc gia ghi nhận công đức to lớn của Lê Thái Tổ trong sự nghiệp bình Ngô kiến quốc, mang giá trị văn chương và lịch sử vô giá.
               </p>
-              <button 
+              <button
                 onClick={() => navigate('/locations')}
                 className="text-[#ffe7b0] bg-[#6b0f0d] px-6 py-2.5 font-body text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#2b0504] transition-colors shadow-md"
               >
@@ -151,13 +151,13 @@ const CharacterDetail = () => {
         {/* 5. NEXT NAVIGATION */}
         <section className="border-t border-[#d99b4a]/30 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex gap-4">
-            <button 
+            <button
               onClick={() => navigate('/characters')}
               className="flex items-center gap-3 px-8 py-3 border border-[#d99b4a]/60 text-[#6b0f0d] font-body text-[10px] font-bold uppercase tracking-widest hover:bg-[#d99b4a]/10 transition-all bg-[#fffdf8]"
             >
               <span className="material-symbols-outlined text-[14px]">arrow_back</span> Nhân vật trước
             </button>
-            <button 
+            <button
               onClick={() => navigate('/characters')}
               className="flex items-center gap-3 px-8 py-3 bg-[#6b0f0d] text-[#ffe7b0] font-body text-[10px] font-bold uppercase tracking-widest hover:bg-[#2b0504] transition-all shadow-md"
             >

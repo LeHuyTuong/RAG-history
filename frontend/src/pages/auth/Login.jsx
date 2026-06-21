@@ -1,29 +1,63 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import apiClient from "../../services/apiClient";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      const user = JSON.parse(savedUser);
-      if (user.role === 'admin') navigate('/admin');
-      else navigate('/');
-    }
+    const checkUser = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        try {
+          const res = await apiClient.get('/api/v1/auth/me');
+          const user = res.data?.data || res.data;
+          localStorage.setItem("user", JSON.stringify(user));
+          if (user.role === 'ROLE_ADMIN') navigate('/admin');
+          else navigate('/');
+        } catch (err) {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("user");
+        }
+      }
+    };
+    checkUser();
   }, [navigate]);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const role = username.toLowerCase().includes('admin') ? 'admin' : 'user';
-    localStorage.setItem('user', JSON.stringify({ username: username || 'Khách', role }));
-    
-    if (role === 'admin') {
-      navigate("/admin");
-    } else {
-      navigate("/"); // Navigate to user layout/home
+    setError("");
+    setLoading(true);
+    try {
+      const loginRes = await apiClient.post('/api/v1/auth/login', { email, password });
+      const { accessToken } = loginRes.data?.data || loginRes.data;
+      
+      localStorage.setItem("accessToken", accessToken);
+
+      const meRes = await apiClient.get('/api/v1/auth/me');
+      const user = meRes.data?.data || meRes.data;
+      localStorage.setItem("user", JSON.stringify(user));
+
+      if (user.role === 'ROLE_ADMIN') {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      if (err.response?.status === 401) {
+        setError("Email hoặc mật khẩu không chính xác.");
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Có lỗi xảy ra, vui lòng thử lại.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,21 +96,27 @@ const Login = () => {
             </p>
           </div>
 
+          {error && (
+            <div className="mb-4 text-[#6b0000] text-sm font-bold font-body bg-[#6b0000]/10 p-3 rounded text-center border border-[#6b0000]/20">
+              {error}
+            </div>
+          )}
+
           <form className="space-y-5" onSubmit={handleLogin}>
             <div className="space-y-1.5">
               <label className="font-body text-[11px] text-[#2b1a16] uppercase tracking-wider font-bold">
-                Tên đăng nhập
+                Email đăng nhập
               </label>
               <div className="relative group">
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#2b1a16]/40 group-focus-within:text-[#6b0000] transition-colors">
-                  person
+                  email
                 </span>
                 <input
-                  type="text"
-                  placeholder="Nhập tên đăng nhập (có chữ 'admin' để test Admin)"
+                  type="email"
+                  placeholder="Nhập email của bạn"
                   className="w-full bg-white/90 border border-[#d9c7a7] focus:border-[#6b0000] py-3.5 pl-12 pr-4 text-sm outline-none font-body transition-colors text-[#2b1a16]"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
@@ -94,6 +134,8 @@ const Login = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   className="w-full bg-white/90 border border-[#d9c7a7] focus:border-[#6b0000] py-3.5 pl-12 pr-12 text-sm outline-none font-body transition-colors text-[#2b1a16]"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                 />
                 <button
@@ -111,12 +153,15 @@ const Login = () => {
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full bg-[#6b0000] text-[#fff7df] h-[52px] font-body font-bold uppercase tracking-wide text-sm hover:bg-[#8b1512] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg"
+                disabled={loading}
+                className="w-full bg-[#6b0000] text-[#fff7df] h-[52px] font-body font-bold uppercase tracking-wide text-sm hover:bg-[#8b1512] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                <span>Tiến bước</span>
-                <span className="material-symbols-outlined text-[20px]">
-                  login
-                </span>
+                <span>{loading ? "Đang xử lý..." : "Tiến bước"}</span>
+                {!loading && (
+                  <span className="material-symbols-outlined text-[20px]">
+                    login
+                  </span>
+                )}
               </button>
             </div>
           </form>

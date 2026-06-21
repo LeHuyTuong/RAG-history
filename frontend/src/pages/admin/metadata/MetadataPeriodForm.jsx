@@ -141,9 +141,7 @@ const MetadataPeriodForm = () => {
     setForm({ ...form, emperors: form.emperors.filter(e => e.id !== empId) });
   };
 
-  const handleSave = () => {
-    const newPeriods = JSON.parse(localStorage.getItem('admin_new_periods') || '[]');
-
+  const handleSave = async () => {
     let sY = parseInt(form.startYear, 10);
     let eY = parseInt(form.endYear, 10);
     if (isNaN(sY)) sY = 0;
@@ -152,37 +150,62 @@ const MetadataPeriodForm = () => {
     const startVal = form.eraTypeStart === 'TCN' ? -sY : sY;
     const endVal = form.eraTypeEnd === 'TCN' ? -eY : eY;
 
-    let finalStartStr = `${form.startYear}${form.eraTypeStart === 'TCN' ? ' TCN' : ''}`;
-    let finalEndStr = `${form.endYear}${form.eraTypeEnd === 'TCN' ? ' TCN' : ''}`;
-
     if (startVal > endVal) {
       alert('Lỗi hợp lệ: Năm bắt đầu phải nhỏ hơn hoặc bằng năm kết thúc.');
       return;
     }
 
-    const periodData = {
-      ...originalData,
-      id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('period_' + Date.now()),
-      name: form.name,
-      range: `${finalStartStr} - ${finalEndStr}`,
-      philosophy: form.philosophy,
-      desc: form.description,
-      emperors: form.emperors,
-      coverImg: "https://upload.wikimedia.org/wikipedia/commons/d/df/Trong_dong_Ngoc_Lu.jpg"
-    };
+    try {
+      const { default: apiClient } = await import('../../../services/apiClient');
+      const { API_ENDPOINTS } = await import('../../../services/api');
+      const { generateSlug } = await import('../../../utils/stringUtils');
 
-    const existingIndex = newPeriods.findIndex(p => p.id === periodData.id || p.id === id);
-    if (existingIndex >= 0) {
-      newPeriods[existingIndex] = { ...newPeriods[existingIndex], ...periodData };
-    } else {
-      newPeriods.push(periodData);
+      const payload = {
+        name: form.name,
+        slug: generateSlug(form.name),
+        startYear: startVal,
+        endYear: endVal,
+        description: form.description
+      };
+
+      if (isEdit && !isNaN(Number(id))) {
+        await apiClient.put(`${API_ENDPOINTS.ADMIN_PERIODS}/${id}`, payload);
+      } else {
+        await apiClient.post(API_ENDPOINTS.ADMIN_PERIODS, payload);
+      }
+
+      // Also save to localStorage for unsupported features like emperors
+      let finalStartStr = `${form.startYear}${form.eraTypeStart === 'TCN' ? ' TCN' : ''}`;
+      let finalEndStr = `${form.endYear}${form.eraTypeEnd === 'TCN' ? ' TCN' : ''}`;
+
+      const newPeriods = JSON.parse(localStorage.getItem('admin_new_periods') || '[]');
+      const periodData = {
+        ...originalData,
+        id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('period_' + Date.now()),
+        name: form.name,
+        range: `${finalStartStr} - ${finalEndStr}`,
+        philosophy: form.philosophy,
+        desc: form.description,
+        emperors: form.emperors,
+        coverImg: "https://upload.wikimedia.org/wikipedia/commons/d/df/Trong_dong_Ngoc_Lu.jpg"
+      };
+
+      const existingIndex = newPeriods.findIndex(p => p.id === periodData.id || p.id === id);
+      if (existingIndex >= 0) {
+        newPeriods[existingIndex] = { ...newPeriods[existingIndex], ...periodData };
+      } else {
+        newPeriods.push(periodData);
+      }
+      localStorage.setItem('admin_new_periods', JSON.stringify(newPeriods));
+
+      setShowSuccess(true);
+      setTimeout(() => {
+        navigate('/admin/metadata');
+      }, 1500);
+    } catch (error) {
+      console.error('Lỗi lưu kỷ nguyên:', error);
+      alert('Có lỗi xảy ra khi lưu Kỷ nguyên!');
     }
-    localStorage.setItem('admin_new_periods', JSON.stringify(newPeriods));
-
-    setShowSuccess(true);
-    setTimeout(() => {
-      navigate('/admin/metadata');
-    }, 1500);
   };
 
   return (

@@ -7,7 +7,7 @@
       "years": "1385 - 1433",
       "dynasty": "Nhà Lê Sơ",
       "desc": "Người khởi xướng khởi nghĩa Lam Sơn, đánh đuổi quân Minh và thành lập nhà Hậu Lê, mở ra thời kỳ độc lập tự chủ lâu dài cho dân tộc.",
-      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDkXCL0ZlfPvy43z13A0y1bG_eAez20SasQjlbmMYN0ksU6u2mv7H7wD2kxlQgr5TVFjQXQIMB18PYpL0LebO68DVPdFgMGK1agh4KI4EyQ4Me3ooBfg3K1JiZq7cmSnu-1GzPq8ZGlH-VSmNdibOhBNI1pOIAdA-TqjbomhMxBCsnmpa0JmnR7PFbba9_7Bb2hR96-_FaIwMv6EGVpO58GxtObun-s6BQINyccTPHf67jr-DfzH_Qpx755igURlGi5zCpsjNp-WJmX"
+      "image": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
     },
     {
       "id": 3,
@@ -16,7 +16,7 @@
       "years": "1228 - 1300",
       "dynasty": "Nhà Trần",
       "desc": "Vị tướng thiên tài ba lần lãnh đạo quân dân nhà Trần đánh bại quân xâm lược Nguyên Mông hùng mạnh nhất thế giới lúc bấy giờ.",
-      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBKuKKuKjwQFwNQohxy16nvgPodBX9xYlr_xfJyAOLcN1j3ReQY_2BJIBSqRQtNXYZyclOHFwkPeYLBnlikMDpNgGR6cMx-daUsK6HcblyL3JgmceKk24uLN64Cfwy0NVVPHqpaRNc2ly-EJQCL2iinxOqCCI4hauJSNHNDnEmU16YR5iLpog0SXF2T9R7VNsaXlSQwNrxQLlQhE8SG5hIpLchfYvsEBVJJeX4Ez0p4Lm6E2u-PzMPRPc8CC7_NspWPQZhmSiLo2qBr_9H"
+      "image": "https://upload.wikimedia.org/wikipedia/commons/e/e8/T%C6%B0%E1%BB%A3ng_%C4%91%E1%BB%93ng_Tr%E1%BA%A7n_H%C6%B0ng_%C4%90%E1%BA%A1o_t%E1%BA%A1i_%C4%91%E1%BB%81n_Ki%E1%BA%BFp_B%E1%BA%A1c.jpg"
     },
     {
       "id": 5,
@@ -25,7 +25,7 @@
       "years": "1772 - 1822",
       "dynasty": "Tây Sơn / Nguyễn",
       "desc": "\"Bà chúa thơ Nôm\" với những tác phẩm độc đáo, táo bạo, mang đậm tinh thần nhân văn và đấu tranh cho nữ quyền.",
-      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBEqU9ughoF8Lb1OyIIdd3TMKkvgBGcLAxEbaSsQ0yk_XWi3GKPZwQQ1zlkZb73LawSDjLW9iQCar6TFU7XAZE-nA1ykBJhawTohOTraQtXMRjqvh7xfJF7dyIjyId4Xvg8wean3yJ3KpLUg9SP2NqYS-FK9CLXTW5YCS8Ib9Dcgs2UXn25GQNlY8Ssp5rr255X5-r0tZDrr2Gli3VAHxvLjE3qFIR8xoiIsQsTLTto-9iYz9aMrVq4eOgy_XJ_n5qxBrHfX-3TZ8wa"
+      "image": "https://upload.wikimedia.org/wikipedia/commons/0/05/Ho_Xuan_Huong.png"
     }
   ],
   "recentPosts": [
@@ -45,12 +45,36 @@
     }
   ],
   "periods": [
-    { "name": "Đinh", "years": "968 - 980", "icon": "shield" },
-    { "name": "Tiền Lê", "years": "980 - 1009", "icon": "swords" },
-    { "name": "Lý", "years": "1009 - 1225", "icon": "temple_buddhist" },
-    { "name": "Trần", "years": "1225 - 1400", "icon": "military_tech" },
-    { "name": "Hậu Lê", "years": "1428 - 1789", "icon": "menu_book" },
-    { "name": "Nguyễn", "years": "1802 - 1945", "icon": "account_balance" }
+    {
+      "name": "Đinh",
+      "years": "968 - 980",
+      "icon": "shield"
+    },
+    {
+      "name": "Tiền Lê",
+      "years": "980 - 1009",
+      "icon": "swords"
+    },
+    {
+      "name": "Lý",
+      "years": "1009 - 1225",
+      "icon": "temple_buddhist"
+    },
+    {
+      "name": "Trần",
+      "years": "1225 - 1400",
+      "icon": "military_tech"
+    },
+    {
+      "name": "Hậu Lê",
+      "years": "1428 - 1789",
+      "icon": "menu_book"
+    },
+    {
+      "name": "Nguyễn",
+      "years": "1802 - 1945",
+      "icon": "account_balance"
+    }
   ],
   "events": [
     {

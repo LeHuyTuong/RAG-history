@@ -47,9 +47,26 @@ const CharacterManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const charRes = await fetch(API_ENDPOINTS.ADMIN_CHARACTERS);
-        if (!charRes.ok) throw new Error('Characters fetch failed');
-        const charResult = await charRes.json();
+        const { default: apiClient } = await import('../../../services/apiClient');
+        const charRes = await apiClient.get(API_ENDPOINTS.ADMIN_CHARACTERS, { params: { page: 0, size: 500 } });
+        const content = charRes.data?.data?.result || charRes.data?.data?.content || [];
+        
+        const mappedContent = content.map(c => ({
+          ...c,
+          title: c.alias || '',
+          years: `${c.birthDate ? new Date(c.birthDate).getFullYear() : '?'} - ${c.deathDate ? new Date(c.deathDate).getFullYear() : '?'}`,
+          dynasty: c.dynasty || 'Chưa rõ',
+          status: c.status || 'published'
+        }));
+
+        const charResult = {
+          characters: mappedContent,
+          stats: [
+            { label: "Tổng số", value: mappedContent.length, trend: "+0", isPositive: true },
+            { label: "Công khai", value: mappedContent.filter(c => c.status === 'published' || c.status === 'công khai').length, trend: "+0", isPositive: true },
+            { label: "Bản nháp", value: mappedContent.filter(c => c.status === 'draft' || c.status === 'bản nháp').length, trend: "-0", isPositive: false }
+          ]
+        };
 
         // Merge new characters from localStorage
         const newCharsStr = localStorage.getItem('admin_new_characters');
@@ -72,10 +89,7 @@ const CharacterManagement = () => {
           } catch (e) { console.error('Error parsing new characters', e); }
         } else {
           const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]'));
-          charResult.characters = charResult.characters.map(c => ({
-            ...c,
-            status: c.status || 'published'
-          })).filter(c => !deletedIds.has(String(c.id)));
+          charResult.characters = charResult.characters.filter(c => !deletedIds.has(String(c.id)));
         }
 
         setData(charResult);

@@ -12,6 +12,8 @@ import {
   TableActions
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
+import { API_ENDPOINTS } from '../../../services/api';
+import apiClient from '../../../services/apiClient';
 
 const ArticleManagement = () => {
   const navigate = useNavigate();
@@ -21,24 +23,19 @@ const ArticleManagement = () => {
   const [filters, setFilters] = useState({ search: '', status: '', period: '', author: '' });
   const { periodColors, getPeriodStyle } = usePeriodColors();
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!modal.item || modal.item.id === null || modal.item.id === undefined) return;
     const deleteId = modal.item.id;
 
-    let newArticles = JSON.parse(localStorage.getItem('admin_new_articles') || '[]');
-    newArticles = newArticles.filter(item => String(item.id) !== String(deleteId));
-    localStorage.setItem('admin_new_articles', JSON.stringify(newArticles));
-
-    const deletedIds = JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]');
-    if (!deletedIds.includes(String(deleteId))) {
-      deletedIds.push(String(deleteId));
-      localStorage.setItem('admin_deleted_ids', JSON.stringify(deletedIds));
+    try {
+      await apiClient.delete(`${API_ENDPOINTS.ADMIN_ARTICLES}/${deleteId}`);
+      setData(prev => ({
+        ...prev,
+        articles: prev.articles.filter(a => String(a.id) !== String(deleteId))
+      }));
+    } catch (error) {
+      console.error('Error deleting article:', error);
     }
-
-    setData(prev => ({
-      ...prev,
-      articles: prev.articles.filter(a => String(a.id) !== String(deleteId))
-    }));
 
     closeModal();
   };
@@ -46,30 +43,30 @@ const ArticleManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const articleRes = await fetch('/api/admin_articles.json');
-        if (!articleRes.ok) throw new Error('Articles fetch failed');
-        const articleResult = await articleRes.json();
-
-        // Merge new articles from localStorage
-        const newArticlesStr = localStorage.getItem('admin_new_articles');
-        if (newArticlesStr) {
-          try {
-            const newArticles = JSON.parse(newArticlesStr);
-            const newArticleIds = new Set(newArticles.map(a => String(a.id)));
-            const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]'));
-            articleResult.articles = [
-              ...newArticles,
-              ...articleResult.articles.filter(a => !newArticleIds.has(String(a.id)) && !deletedIds.has(String(a.id)))
-            ];
-          } catch (e) {
-            console.error('Error parsing new articles', e);
-          }
-        } else {
-          const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]'));
-          articleResult.articles = articleResult.articles.filter(a => !deletedIds.has(String(a.id)));
-        }
-
-        setData(articleResult);
+        setLoading(true);
+        // Using pagination / filter params can be added here
+        const response = await apiClient.get(API_ENDPOINTS.ADMIN_ARTICLES, {
+          params: { page: 0, size: 500 } // Spring Data JPA page is 0-indexed
+        });
+        
+        const payload = response.data?.data || response.data;
+        const posts = payload.result || [];
+        
+        setData({
+          stats: [
+            { id: 1, label: 'Tổng số bài viết', value: payload.meta?.total || posts.length, icon: 'article', color: 'text-primary' },
+            { id: 2, label: 'Đã xuất bản', value: posts.filter(p => p.status === 'PUBLISHED').length, icon: 'check_circle', color: 'text-emerald-600' }
+          ],
+          articles: posts.map(p => ({
+            id: p.id,
+            title: p.title,
+            slug: p.slug,
+            summary: p.summary,
+            period: '', // Backend EventResponse hiện tại chưa include period
+            author: p.author?.fullName || p.author?.username || 'Admin',
+            status: p.status
+          }))
+        });
       } catch (error) {
         console.error('Error fetching articles data:', error);
       } finally {

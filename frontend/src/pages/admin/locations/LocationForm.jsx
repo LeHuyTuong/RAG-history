@@ -96,35 +96,70 @@ setForm({
     setForm(prev => ({ ...prev, dynasty: prev.dynasty.filter(t => t !== tag) }));
   };
 
-  const handleSave = () => {
-    const newLocations = JSON.parse(localStorage.getItem('admin_new_locations') || '[]');
-    
-    const locationData = {
-      ...originalData,
-      id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('loc_' + Date.now()),
-      name: form.name,
-      slug: form.slug,
-      type: form.locationType,
-      lat: form.latitude,
-      lng: form.longitude,
-      coords: (form.latitude && form.longitude) ? `${form.latitude}, ${form.longitude}` : '',
-      shortDesc: form.description,
-      description: form.description,
-      dynasties: form.dynasty,
-      dynasty: form.dynasty.length > 0 ? form.dynasty[0] : 'Khác',
-      period: form.dynasty.length > 0 ? form.dynasty[0] : 'Khác',
-      status: form.status === 'published' ? 'published' : 'draft'
-    };
+  const handleSave = async () => {
+    try {
+      const { default: apiClient } = await import('../../../services/apiClient');
+      const { API_ENDPOINTS } = await import('../../../services/api');
 
-    const existingIndex = newLocations.findIndex(l => String(l.id) === String(locationData.id));
-    if (existingIndex >= 0) {
-      newLocations[existingIndex] = { ...newLocations[existingIndex], ...locationData };
-    } else {
-      newLocations.push(locationData);
+      // Map frontend location type to backend enum
+      let backendType = 'CITY';
+      const typeMap = {
+        'Cố đô / Thành quách': 'CAPITAL',
+        'Cố đô/Thành quách': 'CAPITAL',
+        'Ải / Chiến trường': 'BATTLEFIELD',
+        'Di tích tôn giáo': 'TEMPLE',
+        'Làng nghề truyền thống': 'PROVINCE'
+      };
+      if (typeMap[form.locationType]) {
+        backendType = typeMap[form.locationType];
+      }
+
+      const payload = {
+        name: form.name,
+        slug: form.slug,
+        locationType: backendType,
+        latitude: form.latitude ? parseFloat(form.latitude) : null,
+        longitude: form.longitude ? parseFloat(form.longitude) : null,
+        description: form.description
+      };
+
+      if (isEdit && !isNaN(Number(id))) {
+        await apiClient.put(`${API_ENDPOINTS.ADMIN_LOCATIONS}/${id}`, payload);
+      } else {
+        await apiClient.post(API_ENDPOINTS.ADMIN_LOCATIONS, payload);
+      }
+
+      // Keep localStorage as fallback for unsupported properties
+      const newLocations = JSON.parse(localStorage.getItem('admin_new_locations') || '[]');
+      const locationData = {
+        ...originalData,
+        id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('loc_' + Date.now()),
+        name: form.name,
+        slug: form.slug,
+        type: form.locationType,
+        lat: form.latitude,
+        lng: form.longitude,
+        coords: (form.latitude && form.longitude) ? `${form.latitude}, ${form.longitude}` : '',
+        shortDesc: form.description,
+        description: form.description,
+        dynasties: form.dynasty,
+        dynasty: form.dynasty.length > 0 ? form.dynasty[0] : 'Khác',
+        period: form.dynasty.length > 0 ? form.dynasty[0] : 'Khác',
+        status: form.status === 'published' ? 'published' : 'draft'
+      };
+
+      const existingIndex = newLocations.findIndex(l => String(l.id) === String(locationData.id));
+      if (existingIndex >= 0) {
+        newLocations[existingIndex] = { ...newLocations[existingIndex], ...locationData };
+      } else {
+        newLocations.push(locationData);
+      }
+      localStorage.setItem('admin_new_locations', JSON.stringify(newLocations));
+      navigate('/admin/locations');
+    } catch (error) {
+      console.error('Lỗi khi lưu địa danh:', error);
+      alert('Có lỗi xảy ra khi lưu địa danh!');
     }
-    
-    localStorage.setItem('admin_new_locations', JSON.stringify(newLocations));
-    navigate('/admin/locations');
   };
 
   return (

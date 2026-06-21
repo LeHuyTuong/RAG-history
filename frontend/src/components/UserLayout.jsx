@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate, NavLink } from "react-router-dom";
 import LogoutModal from "./LogoutModal";
 import ChatBox from "./ChatBox";
+import apiClient from "../services/apiClient";
 
 const HEADER_HEIGHT = 80;
 
@@ -42,12 +43,19 @@ const UserLayout = () => {
     document.title = siteName;
   }, [siteName]);
 
-  const handleConfirmLogout = () => {
-    localStorage.removeItem("user");
-    setIsLogoutOpen(false);
-    setUser(null);
-    navigate("/");
-    window.location.reload();
+  const handleConfirmLogout = async () => {
+    try {
+      await apiClient.post('/api/v1/auth/logout');
+    } catch (error) {
+      console.error("Logout error", error);
+    } finally {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      setIsLogoutOpen(false);
+      setUser(null);
+      navigate("/login");
+      window.location.reload();
+    }
   };
 
 
