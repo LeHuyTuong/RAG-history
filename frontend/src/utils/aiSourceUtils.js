@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from '../services/api';
+import apiClient from '../services/apiClient';
 
 const MAX_LINKS = 20;
 const URL_REGEX = /^https?:\/\/.+/i;
@@ -54,26 +55,16 @@ export const extractSourcesFromCitations = (citations) => {
 };
 
 export const callRagChatApi = async (question, options = {}) => {
-  const response = await fetch(API_ENDPOINTS.RAG_CHAT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      question,
-      topK: options.topK || 5,
-      useGraph: options.useGraph || false,
-      sourceIds: options.sourceIds || [],
-      tagIds: options.tagIds || [],
-      temperature: options.temperature || 0.2,
-    }),
+  const { data } = await apiClient.post(API_ENDPOINTS.RAG_CHAT, {
+    question,
+    topK: options.topK || 5,
+    useGraph: options.useGraph || false,
+    sourceIds: options.sourceIds || [],
+    tagIds: options.tagIds || [],
+    temperature: options.temperature || 0.2,
   });
-
-  if (!response.ok) {
-    throw new Error(`Server returned status ${response.status}`);
-  }
-
-  const json = await response.json();
-  // Spring Boot wraps all responses in ApiResponse<T> — unwrap .data
-  return json.data ?? json;
+  // axios response.data = ApiResponse<RagChatResponse> — unwrap .data field
+  return data.data ?? data;
 };
 
 export const transformCitationsToSources = (citations) => {
