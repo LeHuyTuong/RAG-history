@@ -107,10 +107,10 @@ const SystemSettings = () => {
         const response = await fetch(API_ENDPOINTS.ADMIN_SETTINGS);
         if (!response.ok) throw new Error('Network response was not ok');
         const result = await response.json();
-        
+
         // Merge with local storage
         const customSettings = JSON.parse(localStorage.getItem('admin_new_settings') || '[]');
-        
+
         let mergedParams = [...(result.parameters || [])];
         customSettings.forEach(customParam => {
           const index = mergedParams.findIndex(p => p.key === customParam.key);
@@ -164,7 +164,7 @@ const SystemSettings = () => {
     localStorage.setItem('admin_new_settings', JSON.stringify(customSettings));
 
     setModalState({ open: false, editData: null });
-    
+
     // Show success toast
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);

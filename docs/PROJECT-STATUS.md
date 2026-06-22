@@ -1,6 +1,6 @@
 # Project Status
 
-> Last updated: 2026-06-16 | By: Codex | Session: #9
+> Last updated: 2026-06-21 | By: Codex | Session: #14
 >
 > AI: update this file at the end of every session when asked.
 > Follow this exact format. Keep it concise — under 80 lines.
@@ -30,6 +30,12 @@
 - Fixed login refresh-token persistence by removing premature Bean Validation from Hibernate-managed `RefreshToken.createdAt`.
 - Added OpenAI-style chat SSE design docs, FastAPI `/rag/chat/stream`, and Spring Boot `/api/v1/rag/chat/stream` SSE gateway.
 - Integrated local Viettel Java Foundation observability starter with Micrometer metrics bridge for backend tracing/metrics.
+- Added admin CRUD Post backend API with ResultPaginationDTO filtering, JWT admin author resolution, Post-Tag mapping, service/controller tests, and API docs.
+- Fixed post keyword filtering by casting searchable fields before `ilike`, avoiding Hibernate CLOB `lower()` errors on `summary` and `content`.
+- Added admin CRUD Location backend API with enum location types, ResultPaginationDTO filtering, validation, service/controller tests, and API docs.
+- Added admin CRUD Source backend API with source/reliability enums, ResultPaginationDTO filtering, validation, service/controller tests, and API docs.
+- Added admin CRUD Participation backend API with Event-Person mapping, enum roles, duplicate logical-key checks, ResultPaginationDTO filtering, validation, service/controller tests, and API docs.
+- Added admin CRUD Event backend API with Event-Period mapping, Event-Location relation replacement preserving relation type, certainty enum, filtering, validation, service/controller tests, and API docs.
 
 ## In Progress
 _Nothing._

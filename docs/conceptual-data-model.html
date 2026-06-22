@@ -1,0 +1,313 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Conceptual Data Model — Lịch Sử Việt Nam RAG</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; padding: 32px 16px; }
+  h1 { text-align: center; font-size: 1.5rem; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+  .subtitle { text-align: center; font-size: 0.85rem; color: #64748b; margin-bottom: 36px; }
+
+  .canvas { position: relative; width: 100%; max-width: 1100px; margin: 0 auto; }
+
+  /* --- LEGEND --- */
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-bottom: 28px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: #94a3b8; }
+  .dot { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* --- SECTIONS --- */
+  .section-label {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #475569; margin-bottom: 10px; padding-left: 4px;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; align-items: flex-start; }
+  .col { display: flex; flex-direction: column; gap: 16px; }
+
+  /* --- ENTITY CARD --- */
+  .entity {
+    border-radius: 10px; padding: 14px 16px; min-width: 180px;
+    border: 1px solid transparent; transition: box-shadow 0.15s;
+  }
+  .entity:hover { box-shadow: 0 0 0 2px #3b82f6; }
+  .entity-name { font-size: 0.9rem; font-weight: 700; margin-bottom: 8px; }
+  .entity-fields { list-style: none; }
+  .entity-fields li { font-size: 0.72rem; color: #94a3b8; padding: 2px 0; border-top: 1px solid rgba(255,255,255,0.05); }
+  .entity-fields li:first-child { border-top: none; }
+  .pk { color: #fbbf24 !important; font-weight: 600; }
+  .fk { color: #a78bfa !important; }
+
+  /* colours by domain */
+  .c-content  { background: #1e293b; border-color: #334155; }
+  .c-content .entity-name  { color: #38bdf8; }
+
+  .c-history  { background: #1a1f2e; border-color: #2d3748; }
+  .c-history .entity-name  { color: #34d399; }
+
+  .c-user     { background: #1e1a2e; border-color: #312e5e; }
+  .c-user .entity-name     { color: #c084fc; }
+
+  .c-social   { background: #1e1e1e; border-color: #2d2d2d; }
+  .c-social .entity-name   { color: #fb923c; }
+
+  .c-rag      { background: #1a2318; border-color: #2d4a25; }
+  .c-rag .entity-name      { color: #86efac; }
+
+  /* --- RELATIONSHIP LINES (SVG overlay) --- */
+  .svg-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+
+  /* --- RELATIONSHIP TABLE --- */
+  .rel-section { max-width: 1100px; margin: 28px auto 0; }
+  .rel-section h2 { font-size: 0.9rem; font-weight: 600; color: #94a3b8; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  th { text-align: left; padding: 8px 12px; background: #1e293b; color: #64748b; font-weight: 600; border-bottom: 1px solid #334155; }
+  td { padding: 8px 12px; border-bottom: 1px solid #1e293b; color: #cbd5e1; }
+  tr:hover td { background: #1e293b; }
+  .badge { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 600; }
+  .b-1n  { background: #1e3a5f; color: #60a5fa; }
+  .b-n1  { background: #3b1f5e; color: #a78bfa; }
+  .b-nm  { background: #1f3b2a; color: #6ee7b7; }
+  .b-11  { background: #3b2a1f; color: #fb923c; }
+
+  /* --- NOTE BOX --- */
+  .note { max-width: 1100px; margin: 20px auto 0; background: #1e293b; border-left: 3px solid #3b82f6; border-radius: 0 8px 8px 0; padding: 12px 16px; font-size: 0.78rem; color: #94a3b8; line-height: 1.6; }
+  .note strong { color: #e2e8f0; }
+</style>
+
+<h1>Conceptual Data Model</h1>
+<p class="subtitle">Hệ thống Lịch Sử Việt Nam — RAG Chatbot &nbsp;|&nbsp; Chỉ thể hiện khái niệm, không phụ thuộc DB cụ thể</p>
+
+<div class="canvas">
+
+  <!-- ── DOMAIN: CONTENT (bài viết, nguồn tài liệu) ── -->
+  <div class="section-label">📄 Nội dung &amp; Tài liệu</div>
+  <div class="row">
+
+    <div class="entity c-content" id="e-post">
+      <div class="entity-name">Post (Bài viết)</div>
+      <ul class="entity-fields">
+        <li class="pk">id</li>
+        <li>title, slug</li>
+        <li>summary, content</li>
+        <li>thumbnailUrl</li>
+        <li>status (DRAFT/PUBLISHED)</li>
+        <li>publishedAt</li>
+        <li class="fk">→ Admin (tác giả)</li>
+        <li class="fk">→ Event (liên quan)</li>
+      </ul>
+    </div>
+
+    <div class="entity c-content" id="e-source">
+      <div class="entity-name">Source (Tài liệu)</div>
+      <ul class="entity-fields">
+        <li class="pk">id</li>
+        <li>title, sourceType</li>
+        <li>sourceUrl, filePath</li>
+        <li>author, publicationYear</li>
+        <li>reliabilityLevel</li>
+        <li style="color:#64748b; font-style:italic">↔ Tag (gắn nhãn)</li>
+        <li style="color:#64748b; font-style:italic">→ Qdrant (chunks)</li>
+      </ul>
+    </div>
+
+    <div class="entity c-content" id="e-tag">
+      <div class="entity-name">Tag (Nhãn)</div>
+      <ul class="entity-fields">
+        <li class="pk">id</li>
+        <li>name (unique)</li>
+        <li>slug (unique)</li>
+        <li>description</li>
+        <li style="color:#64748b; font-style:italic">↔ Source (M:N)</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ── DOMAIN: HISTORY ── -->
+  <div class="section-label">🏛️ Thực thể Lịch sử</div>
+  <div class="row">
+
+    <div class="entity c-history" id="e-period">
+      <div class="entity-name">Period (Thời kỳ)</div>
+      <ul class="entity-fields">
+        <li class="pk">id</li>
+        <li>name (unique), slug</li>
+        <li>startYear, endYear</li>
+        <li>description</li>
+        <li style="color:#64748b; font-style:italic">→ Event (1:N)</li>
+      </ul>
+    </div>
+
+    <div class="entity c-history" id="e-event">
+      <div class="entity-name">Event (Sự kiện)</div>
+      <ul class="entity-fields">
+        <li class="pk">id</li>
+        <li>name, slug</li>
+        <li>description</li>
+        <li>startYear, endYear</li>
+        <li>certaintyLevel</li>
+        <li class="fk">← Period (thuộc)</li>
+        <li style="color:#64748b; font-style:italic">↔ Person qua Participation</li>
+        <li style="color:#64748b; font-style:italic">↔ Location (M:N)</li>
+      </ul>
+    </div>
+
+    <div class="entity c-history" id="e-person">
+      <div class="entity-name">Person (Nhân vật)</div>
+      <ul class="entity-fields">
+        <li class="pk">id</li>
+        <li>name, slug, alias</li>
+        <li>birthDate, deathDate</li>
+        <li>biography</li>
+        <li style="color:#64748b; font-style:italic">↔ Event qua Participation</li>
+      </ul>
+    </div>
+
+    <div class="entity c-history" id="e-location">
+      <div class="entity-name">Location (Địa điểm)</div>
+      <ul class="entity-fields">
+        <li class="pk">id</li>
+        <li>name, slug</li>
+        <li>locationType</li>
+        <li>latitude, longitude</li>
+        <li>description</li>
+        <li style="color:#64748b; font-style:italic">↔ Event (M:N)</li>
+      </ul>
+    </div>
+
+    <div class="entity c-history" id="e-part">
+      <div class="entity-name">Participation</div>
+      <ul class="entity-fields">
+        <li class="pk">id</li>
+        <li>role, note</li>
+        <li>confidence</li>
+        <li class="fk">→ Event</li>
+        <li class="fk">→ Person</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ── DOMAIN: USER ── -->
+  <div class="section-label">👤 Người dùng &amp; Xác thực</div>
+  <div class="row">
+
+    <div class="entity c-user" id="e-admin">
+      <div class="entity-name">Admin</div>
+      <ul class="entity-fields">
+        <li class="pk">id</li>
+        <li>username, email</li>
+        <li>passwordHash, fullName</li>
+        <li>status</li>
+        <li style="color:#64748b; font-style:italic">→ Post (1:N)</li>
+        <li style="color:#64748b; font-style:italic">→ RefreshToken (1:N)</li>
+      </ul>
+    </div>
+
+    <div class="entity c-user" id="e-member">
+      <div class="entity-name">Member (Thành viên)</div>
+      <ul class="entity-fields">
+        <li class="pk">id</li>
+        <li>username, email</li>
+        <li>passwordHash, fullName</li>
+        <li>status (ACTIVE/BANNED…)</li>
+        <li style="color:#64748b; font-style:italic">→ Engagement (1:N)</li>
+        <li style="color:#64748b; font-style:italic">→ RefreshToken (1:N)</li>
+      </ul>
+    </div>
+
+    <div class="entity c-user" id="e-token">
+      <div class="entity-name">RefreshToken</div>
+      <ul class="entity-fields">
+        <li class="pk">id</li>
+        <li>tokenHash, expiresAt</li>
+        <li>revoked</li>
+        <li>deviceInfo, ipAddress</li>
+        <li class="fk">→ Member (hoặc)</li>
+        <li class="fk">→ Admin</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ── DOMAIN: SOCIAL ── -->
+  <div class="section-label">💬 Tương tác xã hội</div>
+  <div class="row">
+
+    <div class="entity c-social" id="e-engage">
+      <div class="entity-name">Engagement (Tương tác)</div>
+      <ul class="entity-fields">
+        <li class="pk">id</li>
+        <li>engagementType (LIKE/COMMENT/RATE)</li>
+        <li>commentContent, commentStatus</li>
+        <li>ratingValue</li>
+        <li class="fk">→ Member</li>
+        <li class="fk">→ Engagement (parent, self-ref)</li>
+        <li style="color:#64748b; font-style:italic">→ Post (chưa implement)</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ── DOMAIN: RAG ── -->
+  <div class="section-label">🤖 RAG Pipeline (Qdrant Cloud — ngoài MySQL)</div>
+  <div class="row">
+
+    <div class="entity c-rag" id="e-chunk">
+      <div class="entity-name">Chunk (Vector Point)</div>
+      <ul class="entity-fields">
+        <li class="pk">qdrantPointId (UUID5)</li>
+        <li>chunkText, chunkIndex</li>
+        <li>pageNumber</li>
+        <li>vector[768] (Gemini Embedding)</li>
+        <li class="fk">sourceId → Source</li>
+        <li class="fk">tagIds[] → Tag</li>
+        <li style="color:#64748b; font-style:italic">articleId, documentId</li>
+      </ul>
+    </div>
+
+    <div class="entity c-rag" id="e-chat">
+      <div class="entity-name">Chat Session (stateless)</div>
+      <ul class="entity-fields">
+        <li style="color:#94a3b8">Không lưu DB</li>
+        <li>question → embed → Qdrant</li>
+        <li>topK chunks → Gemma 4</li>
+        <li>answer + citations</li>
+        <li>SSE stream</li>
+      </ul>
+    </div>
+
+  </div>
+
+</div><!-- /canvas -->
+
+<!-- RELATIONSHIP TABLE -->
+<div class="rel-section">
+  <h2>Quan hệ giữa các thực thể</h2>
+  <table>
+    <tr>
+      <th>Từ</th><th>Đến</th><th>Kiểu</th><th>Ý nghĩa</th>
+    </tr>
+    <tr><td>Period</td><td>Event</td><td><span class="badge b-1n">1:N</span></td><td>Một thời kỳ có nhiều sự kiện</td></tr>
+    <tr><td>Event</td><td>Person</td><td><span class="badge b-nm">N:M</span></td><td>Qua bảng Participation (có role, confidence)</td></tr>
+    <tr><td>Event</td><td>Location</td><td><span class="badge b-nm">N:M</span></td><td>Sự kiện xảy ra ở nhiều địa điểm</td></tr>
+    <tr><td>Event</td><td>Post</td><td><span class="badge b-1n">1:N</span></td><td>Một sự kiện có thể có nhiều bài viết về nó</td></tr>
+    <tr><td>Admin</td><td>Post</td><td><span class="badge b-1n">1:N</span></td><td>Admin viết nhiều bài</td></tr>
+    <tr><td>Source</td><td>Tag</td><td><span class="badge b-nm">N:M</span></td><td>Tài liệu được gắn nhiều nhãn</td></tr>
+    <tr><td>Source</td><td>Chunk</td><td><span class="badge b-1n">1:N</span></td><td>1 source được chia thành nhiều chunk trong Qdrant</td></tr>
+    <tr><td>Member</td><td>Engagement</td><td><span class="badge b-1n">1:N</span></td><td>Thành viên like/comment/rate</td></tr>
+    <tr><td>Engagement</td><td>Engagement</td><td><span class="badge b-n1">N:1</span></td><td>Reply (self-referencing, comment lồng nhau)</td></tr>
+    <tr><td>Member/Admin</td><td>RefreshToken</td><td><span class="badge b-1n">1:N</span></td><td>Mỗi user có nhiều session (đa thiết bị)</td></tr>
+    <tr><td>Chunk</td><td>Tag</td><td><span class="badge b-nm">N:M</span></td><td>tagIds[] trong payload Qdrant để filter khi search</td></tr>
+  </table>
+</div>
+
+<!-- NOTES -->
+<div class="note">
+  <strong>Lưu ý thiết kế:</strong>
+  <ul style="margin-top: 8px; padding-left: 16px; line-height: 1.8;">
+    <li><strong>Participation</strong> là "associative entity" giữa Person và Event — cho phép ghi thêm thuộc tính (role: vua/tướng/…, confidence: chắc chắn/nghi ngờ)</li>
+    <li><strong>Engagement</strong> chưa có FK đến Post trong JPA — cần bổ sung để biết tương tác thuộc bài nào</li>
+    <li><strong>Chunk</strong> sống trong Qdrant Cloud (không phải MySQL) — được liên kết với MySQL qua <code>sourceId</code> (denormalized trong payload)</li>
+    <li><strong>Chat session</strong> stateless — không lưu lịch sử chat vào DB (có thể thêm sau nếu cần)</li>
+    <li><strong>D003, D007</strong> thiếu trong dataset — extraction benchmark fail với 2 PDF lớn ~250MB</li>
+  </ul>
+</div>

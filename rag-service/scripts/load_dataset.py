@@ -172,31 +172,34 @@ def _parse_retry_delay(exc: Exception) -> float | None:
     return float(match.group(1)) + 3 if match else None  # +3s buffer
 
 
-def _is_daily_quota(exc: Exception) -> bool:
-    """True nếu 429 do hết quota NGÀY (không có retryDelay) — không thể retry trong ngày."""
+def _is_hard_daily_quota(exc: Exception) -> bool:
+    """True khi Google API xác nhận hết quota ngày (RPD) qua QuotaFailure metric."""
     msg = str(exc)
-    return "RESOURCE_EXHAUSTED" in msg and "retry in" not in msg
+    return "RESOURCE_EXHAUSTED" in msg and (
+        "PerDay" in msg or "per-day" in msg or "requests-per-day" in msg
+        or "free_tier_requests" in msg
+    )
 
 
-def embed_with_retry(embed_documents, texts: list[str], retries: int = 6, backoff: float = 30.0):
+def embed_with_retry(embed_documents, texts: list[str], retries: int = 10, backoff: float = 60.0):
     for attempt in range(1, retries + 1):
         try:
             return embed_documents(texts)
         except Exception as exc:  # noqa: BLE001
-            if _is_daily_quota(exc):
+            if _is_hard_daily_quota(exc):
                 print(
                     "\n  ✗ HẾT QUOTA NGÀY (RPD) — không thể tiếp tục hôm nay.\n"
                     "    Giải pháp:\n"
-                    "      1. Chờ đến 07:00 sáng mai (VN) rồi chạy lại.\n"
-                    "      2. Bật billing tại aistudio.google.com → Settings → Billing\n"
-                    "         (toàn bộ 7425 chunk ~$0.24, không bị giới hạn RPD).",
+                    "      1. Chờ đến 14:00 hôm nay hoặc 14:00 ngày mai (VN) rồi chạy lại.\n"
+                    "      2. Bật billing tại aistudio.google.com → Settings → Billing.",
                     file=sys.stderr,
                 )
                 raise
             if attempt == retries:
+                print(f"\n  ✗ Đã thử {retries} lần vẫn lỗi — bỏ cuộc.", file=sys.stderr)
                 raise
-            wait = _parse_retry_delay(exc) or (backoff * attempt)
-            print(f"    ! embed lỗi (lần {attempt}/{retries}): 429 rate limit/phút -> chờ {wait:.0f}s",
+            wait = _parse_retry_delay(exc) or backoff
+            print(f"    ! embed 429 (lần {attempt}/{retries}): TPM/RPM limit -> chờ {wait:.0f}s",
                   file=sys.stderr)
             time.sleep(wait)
 
@@ -218,6 +221,8 @@ def main() -> int:
     parser.add_argument("--env-file", default=None, help="chỉ định file .env (mặc định tự dò).")
     parser.add_argument("--recreate", action="store_true",
                         help="XÓA và tạo lại collection trước khi nạp (mất toàn bộ data cũ).")
+    parser.add_argument("--resume", action="store_true",
+                        help="Bỏ qua chunk đã có trong Qdrant (dùng khi bị gián đoạn giữa chừng).")
     parser.add_argument("--dry-run", action="store_true",
                         help="chỉ đếm + in kế hoạch, KHÔNG gọi embedding/Qdrant.")
     args = parser.parse_args()
@@ -288,46 +293,82 @@ def main() -> int:
         file_path = meta.get("file_path")
         print(f"\n>> D{sid:03d} | {title}")
 
-        # idempotent: xóa vector cũ của source này trước khi nạp lại
-        delete_by_source_id(collection, sid)
+        if args.resume:
+            print(f"   (resume mode: giữ chunk cũ, chỉ embed chunk còn thiếu)")
+        else:
+            # idempotent: xóa vector cũ của source này trước khi nạp lại
+            delete_by_source_id(collection, sid)
 
         chunk_index = 0
         batch_texts: list[str] = []
         batch_pages: list[int | None] = []
 
-        def flush() -> int:
+        def flush() -> tuple[int, int]:
+            """Trả về (số chunk embed mới, số chunk bỏ qua vì đã có)."""
             nonlocal chunk_index
             if not batch_texts:
-                return 0
-            vectors = embed_with_retry(embed_documents, batch_texts)
-            ids, payloads = [], []
-            for page, text in zip(batch_pages, batch_texts):
-                ids.append(point_id(sid, chunk_index))
-                payloads.append(build_payload(sid, title, file_path, chunk_index, page, text, created_at))
-                chunk_index += 1
-            upsert(collection, ids, vectors, payloads)
-            n = len(batch_texts)
+                return 0, 0
+
+            # Gán index tuyệt đối cho từng chunk trong batch
+            items = list(zip(range(chunk_index, chunk_index + len(batch_texts)), batch_pages, batch_texts))
+            chunk_index += len(batch_texts)
             batch_texts.clear()
             batch_pages.clear()
-            return n
+
+            if args.resume:
+                all_ids = [point_id(sid, idx) for idx, _, _ in items]
+                existing = {str(p.id) for p in get_client().retrieve(
+                    collection_name=collection, ids=all_ids,
+                    with_payload=False, with_vectors=False,
+                )}
+                to_process = [(idx, page, text) for idx, page, text in items
+                              if point_id(sid, idx) not in existing]
+                n_skip = len(items) - len(to_process)
+            else:
+                to_process = items
+                n_skip = 0
+
+            if not to_process:
+                return 0, n_skip
+
+            indices, pages, texts = zip(*to_process)
+            vectors = embed_with_retry(embed_documents, list(texts))
+            ids = [point_id(sid, idx) for idx in indices]
+            payloads = [build_payload(sid, title, file_path, idx, page, text, created_at)
+                        for idx, page, text in to_process]
+            upsert(collection, ids, vectors, payloads)
+            return len(to_process), n_skip
 
         doc_count = 0
+        skipped = 0
         try:
             for page, text in iter_doc_chunks(chunks_csv, sid, args.min_chars, args.limit_chunks):
                 batch_texts.append(text)
                 batch_pages.append(page)
                 if len(batch_texts) >= args.embed_batch:
-                    doc_count += flush()
-                    print(f"   ... đã nạp {doc_count} chunk", end="\r", flush=True)
-                    time.sleep(args.batch_sleep)  # throttle tránh 429
-            doc_count += flush()
+                    n_new, n_skip = flush()
+                    doc_count += n_new
+                    skipped += n_skip
+                    label = f"   ... đã nạp {doc_count} chunk"
+                    if skipped:
+                        label += f" (bỏ qua {skipped} chunk đã có)"
+                    print(label, end="\r", flush=True)
+                    if n_new > 0:
+                        time.sleep(args.batch_sleep)  # throttle tránh 429
+            n_new, n_skip = flush()
+            doc_count += n_new
+            skipped += n_skip
         except Exception as exc:  # noqa: BLE001
             print(f"\n   ERROR khi nạp D{sid:03d}: {exc}", file=sys.stderr)
-            print("   (chạy lại script để nạp lại tập này — idempotent theo sourceId)", file=sys.stderr)
+            hint = "--resume" if not args.resume else "lại"
+            print(f"   (chạy lại với {hint} để tiếp tục từ chunk còn thiếu)", file=sys.stderr)
             return 1
 
         grand_total += doc_count
-        print(f"   ✓ D{sid:03d}: {doc_count} chunk -> Qdrant")
+        summary = f"   ✓ D{sid:03d}: {doc_count} chunk -> Qdrant"
+        if skipped:
+            summary += f"  ({skipped} chunk đã có, bỏ qua)"
+        print(summary)
 
     elapsed = time.time() - t_start
     print(f"\n== XONG: {grand_total} chunk vào collection '{collection}' trong {elapsed:.0f}s ==")

@@ -29,32 +29,53 @@ const MetadataTagForm = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [deleteModal, setDeleteModal] = useState({ open: false, id: null, label: '' });
 
-  const handleSave = () => {
-    const newTags = JSON.parse(localStorage.getItem('admin_new_tags') || '[]');
-    const categoryName = categories.find(c => c.id === category)?.label || 'Khác';
+  const handleSave = async () => {
+    try {
+      const { default: apiClient } = await import('../../../services/apiClient');
+      const { API_ENDPOINTS } = await import('../../../services/api');
 
-    const tagData = {
-      ...originalData,
-      id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('tag_' + Date.now()),
-      name: tagName,
-      slug: generateSlug(tagName),
-      type: categoryName,
-      count: id ? originalData.count : 0,
-      usage: id ? originalData.usage : 0
-    };
+      const payload = {
+        name: tagName,
+        slug: generateSlug(tagName),
+        description: `Type: ${categories.find(c => c.id === category)?.label || 'Khác'}`
+      };
 
-    const existingIndex = newTags.findIndex(t => String(t.id) === String(id));
-    if (existingIndex >= 0) {
-      newTags[existingIndex] = { ...newTags[existingIndex], ...tagData };
-    } else {
-      newTags.push(tagData);
+      if (id && !isNaN(Number(id))) {
+        await apiClient.put(`${API_ENDPOINTS.ADMIN_TAG_CATEGORIES}/${id}`, payload);
+      } else {
+        await apiClient.post(API_ENDPOINTS.ADMIN_TAG_CATEGORIES, payload);
+      }
+
+      // Keep localStorage logic as fallback
+      const newTags = JSON.parse(localStorage.getItem('admin_new_tags') || '[]');
+      const categoryName = categories.find(c => c.id === category)?.label || 'Khác';
+
+      const tagData = {
+        ...originalData,
+        id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('tag_' + Date.now()),
+        name: tagName,
+        slug: generateSlug(tagName),
+        type: categoryName,
+        count: id ? originalData.count : 0,
+        usage: id ? originalData.usage : 0
+      };
+
+      const existingIndex = newTags.findIndex(t => String(t.id) === String(id));
+      if (existingIndex >= 0) {
+        newTags[existingIndex] = { ...newTags[existingIndex], ...tagData };
+      } else {
+        newTags.push(tagData);
+      }
+      localStorage.setItem('admin_new_tags', JSON.stringify(newTags));
+
+      setShowSuccess(true);
+      setTimeout(() => {
+        navigate('/admin/metadata');
+      }, 1500);
+    } catch(e) {
+      console.error('Lỗi khi lưu thẻ metadata:', e);
+      alert('Có lỗi xảy ra khi lưu thẻ metadata!');
     }
-    localStorage.setItem('admin_new_tags', JSON.stringify(newTags));
-
-    setShowSuccess(true);
-    setTimeout(() => {
-      navigate('/admin/metadata');
-    }, 1500);
   };
 
   const handleAddCategory = () => {

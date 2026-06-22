@@ -1,10 +1,12 @@
 {
   "period_id": 1,
-  "name": "Thời đại Hùng Vương (Hồng Bàng)",
-  "slug": "ly",
-  "start_year": 1009,
-  "end_year": 1225,
-  "description": "Thời đại sơ khai của dân tộc với truyền thuyết Hùng Vương dựng nước Văn Lang.",
-  "created_at": "2023-10-14T00:00:00Z",
-  "updated_at": "2023-10-14T00:00:00Z"
+  "name": "Thời Văn Lang",
+  "slug": "thoi-van-lang",
+  "start_year": -2879,
+  "end_year": -258,
+  "description": "Giai đoạn truyền thuyết gắn với các vua Hùng và nền văn minh sông Hồng.",
+  "range": "2879 TCN - 258 TCN",
+  "category": "Thời Văn Lang",
+  "details": [],
+  "image": "/images/home.png"
 }

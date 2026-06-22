@@ -1,28 +1,54 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import apiClient from "../../services/apiClient";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       setError("Mật khẩu xác nhận không khớp!");
       return;
     }
     setError("");
-    const role = username.toLowerCase().includes('admin') ? 'admin' : 'user';
-    localStorage.setItem('user', JSON.stringify({ username: username || 'Người Dùng Mới', role }));
-    if (role === 'admin') {
-      navigate("/admin");
-    } else {
-      navigate("/");
+    setLoading(true);
+
+    try {
+      await apiClient.post('/api/v1/auth/register', { name, email, password });
+      
+      // Auto login after register
+      const loginRes = await apiClient.post('/api/v1/auth/login', { email, password });
+      const { accessToken } = loginRes.data?.data || loginRes.data;
+      localStorage.setItem("accessToken", accessToken);
+
+      const meRes = await apiClient.get('/api/v1/auth/me');
+      const user = meRes.data?.data || meRes.data;
+      localStorage.setItem("user", JSON.stringify(user));
+
+      if (user.role === 'ROLE_ADMIN') {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      if (err.response?.data?.details) {
+        setError(err.response.data.details.join(", "));
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Có lỗi xảy ra khi đăng ký. Vui lòng thử lại.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -75,6 +101,8 @@ const Register = () => {
                   type="text"
                   placeholder="Nhập họ và tên"
                   className="w-full bg-white/90 border border-[#d9c7a7] focus:border-[#6b0000] py-3 pl-12 pr-4 text-sm outline-none font-body transition-colors text-[#2b1a16]"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   required
                 />
               </div>
@@ -82,18 +110,18 @@ const Register = () => {
 
             <div className="space-y-1.5">
               <label className="font-body text-[11px] text-[#2b1a16] uppercase tracking-wider font-bold">
-                Tên đăng nhập
+                Email
               </label>
               <div className="relative group">
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#2b1a16]/40 group-focus-within:text-[#6b0000] transition-colors text-[20px]">
-                  badge
+                  email
                 </span>
                 <input
-                  type="text"
-                  placeholder="Nhập tên đăng nhập"
+                  type="email"
+                  placeholder="Nhập địa chỉ email"
                   className="w-full bg-white/90 border border-[#d9c7a7] focus:border-[#6b0000] py-3 pl-12 pr-4 text-sm outline-none font-body transition-colors text-[#2b1a16]"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
@@ -170,12 +198,15 @@ const Register = () => {
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full bg-[#6b0000] text-[#fff7df] h-[52px] font-body font-bold uppercase tracking-wide text-sm hover:bg-[#8b1512] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg"
+                disabled={loading}
+                className="w-full bg-[#6b0000] text-[#fff7df] h-[52px] font-body font-bold uppercase tracking-wide text-sm hover:bg-[#8b1512] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                <span>Tạo tài khoản</span>
-                <span className="material-symbols-outlined text-[20px]">
-                  person_add
-                </span>
+                <span>{loading ? "Đang xử lý..." : "Tạo tài khoản"}</span>
+                {!loading && (
+                  <span className="material-symbols-outlined text-[20px]">
+                    person_add
+                  </span>
+                )}
               </button>
             </div>
           </form>

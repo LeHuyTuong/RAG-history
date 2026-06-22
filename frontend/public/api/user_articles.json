@@ -1,111 +1,1250 @@
 [
   {
+    "id": 1,
+    "article_id": 1,
     "post_id": 1,
-    "admin_id": 1,
-    "event_id": null,
-    "title": "Kiến trúc Cung điện Thăng Long: Biểu tượng Quyền lực và Văn hóa",
-    "slug": "kien-truc-thang-long",
-    "summary": "Phân tích sự giao thoa kiến trúc giữa các triều đại và ảnh hưởng của Nho giáo trong quy hoạch cung đình thời Lê Sơ.",
-    "content": "[]",
-    "thumbnail_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuDiaBD8cV4iBRP9zjbZQw4_Vj_gsiyTIWMdR0dlYOaEfq1Tf9vcfZhm8SOPhu08iK2P2g79gUtu3PEuojk3AOkK43P4MqTIm6kTwhOA0QhjPAbFDNXw72IDZPOD5qNp6ECqBwYv9FKtMsXJtePf5TCDDTBGSTJXGWiWrCnD-jpiLs5Tqq_GV4D-YSJ8CdBc1wnXnteLTUzZ7KMqdXAGAHN3W8srpGGpNjPxygJXs3VUub5dW0qljkAR0wd_lTzL--nkhQRPukBdw208",
+    "title": "Văn Lang trong ký ức lịch sử",
+    "slug": "van-lang-trong-ky-uc-lich-su",
+    "summary": "Tóm lược nguồn gốc Văn Lang và truyền thống Hùng Vương.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Bài viết giới thiệu bối cảnh hình thành nhà nước Văn Lang, các truyền thuyết Hùng Vương và giá trị văn hóa còn lưu lại."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/van-lang.jpg",
     "status": "PUBLISHED",
-    "published_at": "2023-10-14T00:00:00Z",
-    "created_at": "2023-10-14T00:00:00Z",
-    "updated_at": "2023-10-14T00:00:00Z",
-    "dynasty": "Hậu Lê (1428–1527)",
-    "likes": "1.2k",
-    "comments": 42,
-    "readTime": "15 phút đọc",
+    "published_at": "2026-07-01 09:00:00",
+    "dynasty": "Thời Văn Lang",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-01 09:00:00",
+    "tags": [
+      "Thời Văn Lang",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
     "featured": true,
     "post_tags": [
       {
-        "post_id": 1,
-        "tag_id": 1,
-        "created_at": "2023-10-14T00:00:00Z",
-        "tag_name": "Kiến trúc",
-        "tag_slug": "tag-slug-0"
+        "tag_name": "Lịch sử"
       }
-    ]
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
   },
   {
+    "id": 2,
+    "article_id": 2,
     "post_id": 2,
-    "admin_id": 1,
-    "event_id": null,
-    "title": "Chiến thuật quân sự thời Trần: Nghệ thuật lấy yếu thắng mạnh",
-    "slug": "chien-thuat-quan-su-tran",
-    "summary": "Phân tích chuyên sâu về kế sách 'Vườn không nhà trống' và cách thức huy động sức mạnh toàn dân trong ba lần kháng chiến chống Nguyên Mông...",
-    "content": "[]",
-    "thumbnail_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuD3a77zZzYMUsdTOHvAF9_PiEOkVKvj0_uWPBw0XOjIvwzLpkJ1bUAXzyWp8_UF2OoVT8k932oFMseFCy-5WElGsQZUPqSjs4cz-sryMw2jgxC2j81tklVq5cl9HbymrSqz16aPc5EeYXQFV2w2wyIRd-LUU3opyR7oP7QiQxI88NqZe49bjFSLhEh0FHPNxXaLoc_9r9aYOGlE559Q0AW8TXozYq5w3xDE-ufs8aR2yX7oj3hoMwzNjXOzMJwUJX2PVVtTK7PLam7Q",
+    "title": "Cổ Loa và dấu ấn Âu Lạc",
+    "slug": "co-loa-va-dau-an-au-lac",
+    "summary": "Khám phá vai trò của Cổ Loa trong thời Âu Lạc.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Cổ Loa là một trung tâm quyền lực cổ với cấu trúc thành lũy đặc biệt và nhiều lớp truyền thuyết lịch sử."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/co-loa.jpg",
     "status": "PUBLISHED",
-    "published_at": "2023-10-14T00:00:00Z",
-    "created_at": "2023-10-14T00:00:00Z",
-    "updated_at": "2023-10-14T00:00:00Z",
-    "dynasty": "Nhà Trần (1225–1400)",
-    "likes": "1.2k",
-    "comments": 84,
-    "readTime": "12 phút đọc",
+    "published_at": "2026-07-02 09:00:00",
+    "dynasty": "Thời Âu Lạc",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-02 09:00:00",
+    "tags": [
+      "Thời Âu Lạc",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
     "post_tags": [
       {
-        "post_id": 2,
-        "tag_id": 2,
-        "created_at": "2023-10-14T00:00:00Z",
-        "tag_name": "Quân sự",
-        "tag_slug": "tag-slug-1"
+        "tag_name": "Lịch sử"
       }
-    ]
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
   },
   {
+    "id": 3,
+    "article_id": 3,
     "post_id": 3,
-    "admin_id": 1,
-    "event_id": null,
-    "title": "Ngoại giao thời Lê Sơ: Bản lĩnh cương nhu của một quốc gia độc lập",
-    "slug": "ngoai-giao-le-so",
-    "summary": "Nghiên cứu về các văn bản bang giao giữa Đại Việt và nhà Minh, khẳng định chủ quyền lãnh thổ thông qua luận điểm chính nghĩa...",
-    "content": "[]",
-    "thumbnail_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuBOs5npR0CdWtGFo-0OPI7dJyYo42tKGWhiEl5t2xrEoV-z84zKAZhyz3WqtGk7m8XfCsCgePy_TMtk0tGl9vZjcNBGWiTlwmqbLQv2ufC937Dd5W2WT7OZmi1m4gGyHBvqTK__w2AKvJKcCUm8jzGK4eEwRlnXk4u2xMrlnryCfvnFmDtiUYGIodWC6GKcmmuMmZMgZI1YTvMVXIwb-ezJJBXztHaAnLp_Du1F2cGDnJr9KVi3Muv_Cbvoua1gw_cp2UnhYIw9Zy01",
+    "title": "Âu Lạc sau năm 179 trước Công nguyên",
+    "slug": "au-lac-sau-nam-179-truoc-cong-nguyen",
+    "summary": "Bối cảnh Âu Lạc rơi vào quyền kiểm soát của Nam Việt.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Bài viết phân tích sự kiện Triệu Đà thôn tính Âu Lạc và hệ quả chính trị trong khu vực."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/au-lac.jpg",
     "status": "PUBLISHED",
-    "published_at": "2023-10-14T00:00:00Z",
-    "created_at": "2023-10-14T00:00:00Z",
-    "updated_at": "2023-10-14T00:00:00Z",
-    "dynasty": "Nhà Lê Sơ (1428–1527)",
-    "likes": "856",
-    "comments": 42,
-    "readTime": "18 phút đọc",
+    "published_at": "2026-07-03 09:00:00",
+    "dynasty": "Bắc thuộc lần thứ nhất",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-03 09:00:00",
+    "tags": [
+      "Bắc thuộc lần thứ nhất",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
     "post_tags": [
       {
-        "post_id": 3,
-        "tag_id": 3,
-        "created_at": "2023-10-14T00:00:00Z",
-        "tag_name": "Ngoại giao",
-        "tag_slug": "tag-slug-2"
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
+  },
+  {
+    "id": 4,
+    "article_id": 4,
+    "post_id": 4,
+    "title": "Hai Bà Trưng và khát vọng tự chủ",
+    "slug": "hai-ba-trung-va-khat-vong-tu-chu",
+    "summary": "Cuộc khởi nghĩa năm 40 trong mạch lịch sử chống đô hộ.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Hai Bà Trưng trở thành biểu tượng của tinh thần tự chủ và vai trò phụ nữ trong lịch sử Việt Nam."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/hai-ba-trung.jpg",
+    "status": "PUBLISHED",
+    "published_at": "2026-07-04 09:00:00",
+    "dynasty": "Khởi nghĩa Hai Bà Trưng",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-04 09:00:00",
+    "tags": [
+      "Khởi nghĩa Hai Bà Trưng",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
+  },
+  {
+    "id": 5,
+    "article_id": 5,
+    "post_id": 5,
+    "title": "Bà Triệu trong thế kỷ III",
+    "slug": "ba-trieu-trong-the-ky-iii",
+    "summary": "Nhìn lại cuộc khởi nghĩa chống Đông Ngô.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Bài viết trình bày bối cảnh, diễn biến và hình tượng Bà Triệu trong ký ức dân gian."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/ba-trieu.jpg",
+    "status": "PUBLISHED",
+    "published_at": "2026-07-05 09:00:00",
+    "dynasty": "Nhà Tiền Lý và Vạn Xuân",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-05 09:00:00",
+    "tags": [
+      "Nhà Tiền Lý và Vạn Xuân",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": [
+      {
+        "engagement_id": 5,
+        "member_id": 5,
+        "post_id": 5,
+        "parent_engagement_id": null,
+        "engagement_type": "COMMENT",
+        "comment_content": "Bài viết giúp mình hiểu rõ hơn về bối cảnh thế kỷ III.",
+        "comment_status": "VISIBLE",
+        "rating_value": null,
+        "created_at": "2026-11-05 08:00:00",
+        "updated_at": "2026-11-05 08:00:00",
+        "member_name": "Người dùng 5"
       }
     ]
   },
   {
-    "post_id": 4,
-    "admin_id": 1,
-    "event_id": null,
-    "title": "Lễ nhạc cung đình Huế: Di sản tinh thần của vương triều cuối cùng",
-    "slug": "le-nhac-cung-dinh-hue",
-    "summary": "Tìm hiểu về Nhã nhạc cung đình Huế - kiệt tác truyền khẩu và phi vật thể của nhân loại, biểu trưng cho sự hài hòa giữa con người...",
-    "content": "[]",
-    "thumbnail_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuAfz81rCs9YqMYEFHI-wcQUH5rmc9bQpaGpVvfTGlSANJRXJi_GeiPpYGWIj4iIAGMp34nxm-8L4HFl03NFvuRNYTuk7yOwMTwHz2fmpSlhl1P5dJpJWAxZsejXAAlxjlKptb52C8Iyl8RgrjGlw3mAMcL210xSm6AjYBShvpuv9-wcLnDYvFE9oHyKNSFn3EzgDDc2CnF_hPgs0vLkmQLeVzutLzT4YVI3NhEnaP5U-ZzLINNVzLIipX6j1EIG2ajvWNigBvp1O5L7",
+    "id": 6,
+    "article_id": 6,
+    "post_id": 6,
+    "title": "Vạn Xuân và tuyên ngôn độc lập sớm",
+    "slug": "van-xuan-va-tuyen-ngon-doc-lap-som",
+    "summary": "Lý Bí lập nước Vạn Xuân trong thế kỷ VI.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Sự kiện Lý Bí lập nước Vạn Xuân phản ánh nỗ lực xây dựng một chính quyền độc lập."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/van-xuan.jpg",
     "status": "PUBLISHED",
-    "published_at": "2023-10-14T00:00:00Z",
-    "created_at": "2023-10-14T00:00:00Z",
-    "updated_at": "2023-10-14T00:00:00Z",
-    "dynasty": "Nhà Nguyễn (1802–1945)",
-    "likes": "2.1k",
-    "comments": 156,
-    "readTime": "25 phút đọc",
+    "published_at": "2026-07-06 09:00:00",
+    "dynasty": "Họ Khúc - họ Dương",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-06 09:00:00",
+    "tags": [
+      "Họ Khúc - họ Dương",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
     "post_tags": [
       {
-        "post_id": 4,
-        "tag_id": 4,
-        "created_at": "2023-10-14T00:00:00Z",
-        "tag_name": "Văn hóa",
-        "tag_slug": "tag-slug-3"
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
+  },
+  {
+    "id": 7,
+    "article_id": 7,
+    "post_id": 7,
+    "title": "Họ Khúc và nền tự chủ",
+    "slug": "ho-khuc-va-nen-tu-chu",
+    "summary": "Vai trò của Khúc Thừa Dụ trong quá trình giành tự chủ.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Họ Khúc đặt nền móng quan trọng cho quyền tự chủ trước chiến thắng Bạch Đằng."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/ho-khuc.jpg",
+    "status": "PUBLISHED",
+    "published_at": "2026-07-07 09:00:00",
+    "dynasty": "Nhà Ngô",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-07 09:00:00",
+    "tags": [
+      "Nhà Ngô",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
+  },
+  {
+    "id": 8,
+    "article_id": 8,
+    "post_id": 8,
+    "title": "Bạch Đằng 938",
+    "slug": "bach-dang-938",
+    "summary": "Chiến thắng của Ngô Quyền và bước ngoặt độc lập.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Trận Bạch Đằng năm 938 mở ra kỷ nguyên độc lập lâu dài cho dân tộc Việt."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/bach-dang-938.jpg",
+    "status": "PUBLISHED",
+    "published_at": "2026-07-08 09:00:00",
+    "dynasty": "Nhà Đinh",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-08 09:00:00",
+    "tags": [
+      "Nhà Đinh",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
+  },
+  {
+    "id": 9,
+    "article_id": 9,
+    "post_id": 9,
+    "title": "Đinh Bộ Lĩnh và công cuộc thống nhất",
+    "slug": "dinh-bo-linh-va-cong-cuoc-thong-nhat",
+    "summary": "Dẹp loạn mười hai sứ quân và lập Đại Cồ Việt.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Đinh Bộ Lĩnh thống nhất đất nước, đặt nền tảng cho nhà nước quân chủ độc lập."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/dinh-bo-linh.jpg",
+    "status": "PUBLISHED",
+    "published_at": "2026-07-09 09:00:00",
+    "dynasty": "Nhà Tiền Lê",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-09 09:00:00",
+    "tags": [
+      "Nhà Tiền Lê",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
+  },
+  {
+    "id": 10,
+    "article_id": 10,
+    "post_id": 10,
+    "title": "Lê Hoàn và cuộc chiến năm 981",
+    "slug": "le-hoan-va-cuoc-chien-981",
+    "summary": "Kháng chiến chống Tống dưới thời Tiền Lê.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Cuộc kháng chiến năm 981 củng cố vị thế Đại Cồ Việt trong khu vực."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/le-hoan.jpg",
+    "status": "PUBLISHED",
+    "published_at": "2026-07-10 09:00:00",
+    "dynasty": "Nhà Lý",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-10 09:00:00",
+    "tags": [
+      "Nhà Lý",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": [
+      {
+        "engagement_id": 10,
+        "member_id": 10,
+        "post_id": 10,
+        "parent_engagement_id": null,
+        "engagement_type": "COMMENT",
+        "comment_content": "Phần diễn biến kháng chiến chống Tống rất dễ theo dõi.",
+        "comment_status": "VISIBLE",
+        "rating_value": null,
+        "created_at": "2026-11-10 08:00:00",
+        "updated_at": "2026-11-10 08:00:00",
+        "member_name": "Người dùng 10"
       }
     ]
+  },
+  {
+    "id": 11,
+    "article_id": 11,
+    "post_id": 11,
+    "title": "Thăng Long từ Chiếu dời đô",
+    "slug": "thang-long-tu-chieu-doi-do",
+    "summary": "Lý Thái Tổ và quyết định dời đô năm 1010.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Việc dời đô ra Thăng Long đánh dấu tầm nhìn chiến lược trong xây dựng quốc gia Đại Việt."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/thang-long.jpg",
+    "status": "PUBLISHED",
+    "published_at": "2026-07-11 09:00:00",
+    "dynasty": "Nhà Trần",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-11 09:00:00",
+    "tags": [
+      "Nhà Trần",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
+  },
+  {
+    "id": 12,
+    "article_id": 12,
+    "post_id": 12,
+    "title": "Phòng tuyến Như Nguyệt",
+    "slug": "phong-tuyen-nhu-nguyet",
+    "summary": "Lý Thường Kiệt trong kháng chiến chống Tống.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Phòng tuyến Như Nguyệt là một dấu mốc quân sự quan trọng thời Lý."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/nhu-nguyet.jpg",
+    "status": "PUBLISHED",
+    "published_at": "2026-07-12 09:00:00",
+    "dynasty": "Nhà Hồ",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-12 09:00:00",
+    "tags": [
+      "Nhà Hồ",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
+  },
+  {
+    "id": 13,
+    "article_id": 13,
+    "post_id": 13,
+    "title": "Nhà Trần trước thử thách Nguyên Mông",
+    "slug": "nha-tran-truoc-thu-thach-nguyen-mong",
+    "summary": "Cuộc kháng chiến năm 1258 và kinh nghiệm phòng thủ.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Nhà Trần vận dụng kế sách linh hoạt để đẩy lui quân Nguyên trong lần xâm lược đầu tiên."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/tran-1258.jpg",
+    "status": "PUBLISHED",
+    "published_at": "2026-07-13 09:00:00",
+    "dynasty": "Bắc thuộc lần thứ tư",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-13 09:00:00",
+    "tags": [
+      "Bắc thuộc lần thứ tư",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
+  },
+  {
+    "id": 14,
+    "article_id": 14,
+    "post_id": 14,
+    "title": "Bạch Đằng 1288",
+    "slug": "bach-dang-1288",
+    "summary": "Trận quyết chiến dưới sự chỉ huy của Trần Hưng Đạo.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Chiến thắng Bạch Đằng năm 1288 kết thúc thắng lợi cuộc kháng chiến chống Nguyên Mông."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/bach-dang-1288.jpg",
+    "status": "PUBLISHED",
+    "published_at": "2026-07-14 09:00:00",
+    "dynasty": "Nhà Hậu Lê",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-14 09:00:00",
+    "tags": [
+      "Nhà Hậu Lê",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
+  },
+  {
+    "id": 15,
+    "article_id": 15,
+    "post_id": 15,
+    "title": "Cải cách thời Hồ Quý Ly",
+    "slug": "cai-cach-thoi-ho-quy-ly",
+    "summary": "Nhìn lại triều Hồ và những cải cách gây tranh luận.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Nhà Hồ tồn tại ngắn ngủi nhưng để lại nhiều vấn đề nghiên cứu về cải cách nhà nước."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/nha-ho.jpg",
+    "status": "DRAFT",
+    "published_at": null,
+    "dynasty": "Nhà Mạc",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": null,
+    "tags": [
+      "Nhà Mạc",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
+  },
+  {
+    "id": 16,
+    "article_id": 16,
+    "post_id": 16,
+    "title": "Lam Sơn từ khởi nghĩa đến thắng lợi",
+    "slug": "lam-son-tu-khoi-nghia-den-thang-loi",
+    "summary": "Hành trình chống Minh của nghĩa quân Lam Sơn.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Khởi nghĩa Lam Sơn đi từ căn cứ địa Thanh Hóa đến thắng lợi giải phóng đất nước."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/lam-son.jpg",
+    "status": "PUBLISHED",
+    "published_at": "2026-07-16 09:00:00",
+    "dynasty": "Trịnh - Nguyễn phân tranh",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-16 09:00:00",
+    "tags": [
+      "Trịnh - Nguyễn phân tranh",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
+  },
+  {
+    "id": 17,
+    "article_id": 17,
+    "post_id": 17,
+    "title": "Bình Ngô đại cáo và ý thức quốc gia",
+    "slug": "binh-ngo-dai-cao-va-y-thuc-quoc-gia",
+    "summary": "Tác phẩm chính luận sau thắng lợi Lam Sơn.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Bình Ngô đại cáo khẳng định nền độc lập và tư tưởng chính nghĩa trong lịch sử Đại Việt."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/binh-ngo-dai-cao.jpg",
+    "status": "PUBLISHED",
+    "published_at": "2026-07-17 09:00:00",
+    "dynasty": "Phong trào Tây Sơn",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-17 09:00:00",
+    "tags": [
+      "Phong trào Tây Sơn",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
+  },
+  {
+    "id": 18,
+    "article_id": 18,
+    "post_id": 18,
+    "title": "Ngọc Hồi - Đống Đa mùa xuân 1789",
+    "slug": "ngoc-hoi-dong-da-mua-xuan-1789",
+    "summary": "Chiến thắng của Quang Trung trước quân Thanh.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Chiến dịch thần tốc mùa xuân Kỷ Dậu là đỉnh cao quân sự của phong trào Tây Sơn."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/dong-da.jpg",
+    "status": "PUBLISHED",
+    "published_at": "2026-07-18 09:00:00",
+    "dynasty": "Nhà Nguyễn",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-18 09:00:00",
+    "tags": [
+      "Nhà Nguyễn",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
+  },
+  {
+    "id": 19,
+    "article_id": 19,
+    "post_id": 19,
+    "title": "Đà Nẵng 1858 và bước ngoặt cận đại",
+    "slug": "da-nang-1858-va-buoc-ngoat-can-dai",
+    "summary": "Sự kiện mở đầu quá trình Pháp xâm lược Việt Nam.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Cuộc tấn công Đà Nẵng năm 1858 mở ra một thời kỳ biến động sâu sắc."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/da-nang-1858.jpg",
+    "status": "ARCHIVED",
+    "published_at": "2026-07-19 09:00:00",
+    "dynasty": "Thời Pháp thuộc",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-19 09:00:00",
+    "tags": [
+      "Thời Pháp thuộc",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
+  },
+  {
+    "id": 20,
+    "article_id": 20,
+    "post_id": 20,
+    "title": "Điện Biên Phủ trong lịch sử hiện đại",
+    "slug": "dien-bien-phu-trong-lich-su-hien-dai",
+    "summary": "Chiến thắng năm 1954 và ý nghĩa quốc tế.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Điện Biên Phủ là thắng lợi quân sự quyết định, dẫn tới Hiệp định Genève năm 1954."
+      },
+      {
+        "type": "heading",
+        "text": "Bối cảnh lịch sử"
+      },
+      {
+        "type": "paragraph",
+        "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
+      },
+      {
+        "type": "blockquote",
+        "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
+      }
+    ],
+    "thumbnail_url": "/images/home.png",
+    "image": "/images/posts/dien-bien-phu.jpg",
+    "status": "PUBLISHED",
+    "published_at": "2026-07-20 09:00:00",
+    "dynasty": "Việt Nam hiện đại",
+    "readTime": "5 phút đọc",
+    "author": "Admin",
+    "publishedDate": "2026-07-20 09:00:00",
+    "tags": [
+      "Việt Nam hiện đại",
+      "Lịch sử"
+    ],
+    "relatedEntities": [
+      {
+        "title": "Nhân vật liên quan",
+        "type": "Nhân vật",
+        "icon": "person",
+        "link": "/characters"
+      },
+      {
+        "title": "Di tích liên quan",
+        "type": "Di tích",
+        "icon": "account_balance",
+        "link": "/locations"
+      }
+    ],
+    "featured": false,
+    "post_tags": [
+      {
+        "tag_name": "Lịch sử"
+      }
+    ],
+    "likes": 0,
+    "comments": 0,
+    "commentsList": []
   }
 ]

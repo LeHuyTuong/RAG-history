@@ -14,8 +14,12 @@ const UserCharacters = () => {
         const response = await fetch('/api/user_characters.json');
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
-        setCharacters(data.characters || []);
-        // Giữ nguyên periods cứng thay vì lấy từ api để đồng bộ với các trang khác
+        const chars = data.characters || [];
+        setCharacters(chars);
+
+        // Trích xuất tự động danh sách các thời kỳ từ data nhân vật
+        const uniquePeriods = [...new Set(chars.map(c => c.dynasty).filter(Boolean))];
+        setPeriods(uniquePeriods);
       } catch (error) {
         console.error('Error fetching characters:', error);
       } finally {
@@ -89,81 +93,81 @@ const UserCharacters = () => {
         </div>
 
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 mt-8 mb-20 animate-in fade-in duration-700 relative z-10">
-        {/* GALLERY GRID */}
-        {filteredCharacters.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {filteredCharacters.map((char) => (
-              <div key={char.id} className="bg-[#fffdf8] rounded-xl shadow-[0_4px_20px_rgba(43,5,4,0.06)] border border-[#d99b4a]/30 overflow-hidden flex flex-col group hover:shadow-[0_12px_30px_rgba(107,15,13,0.12)] transition-all duration-500 transform hover:-translate-y-1">
+          {/* GALLERY GRID */}
+          {filteredCharacters.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+              {filteredCharacters.map((char) => (
+                <div key={char.id} className="bg-[#fffdf8] rounded-xl shadow-[0_4px_20px_rgba(43,5,4,0.06)] border border-[#d99b4a]/30 overflow-hidden flex flex-col group hover:shadow-[0_12px_30px_rgba(107,15,13,0.12)] transition-all duration-500 transform hover:-translate-y-1">
 
-                {/* Image section */}
-                <div className="relative h-[300px] w-full overflow-hidden shrink-0 border-b-2 border-[#d99b4a]/20">
-                  <img
-                    src={char.image}
-                    alt={char.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 sepia-[0.1]"
-                  />
+                  {/* Image section */}
+                  <div className="relative h-[300px] w-full overflow-hidden shrink-0 border-b-2 border-[#d99b4a]/20">
+                    <img
+                      src={char.image}
+                      alt={char.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 sepia-[0.1]"
+                    />
 
-                  {/* Dynasty badge */}
-                  <div className="absolute top-4 right-4 bg-[#6b0f0d]/95 backdrop-blur-sm border border-[#d99b4a]/40 text-[#ffe7b0] text-[10px] font-bold px-4 py-1.5 rounded-full z-10 shadow-lg uppercase tracking-widest">
-                    {char.dynasty && char.dynasty.includes('Nhà') ? char.dynasty.replace('Nhà', 'Triều') : char.dynasty}
+                    {/* Dynasty badge */}
+                    <div className="absolute top-4 right-4 bg-[#6b0f0d]/95 backdrop-blur-sm border border-[#d99b4a]/40 text-[#ffe7b0] text-[10px] font-bold px-4 py-1.5 rounded-full z-10 shadow-lg uppercase tracking-widest">
+                      {char.dynasty && char.dynasty.includes('Nhà') ? char.dynasty.replace('Nhà', 'Triều') : char.dynasty}
+                    </div>
+
+                    {/* Gradient overlay for bottom text */}
+                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#1a0201] via-[#1a0201]/50 to-transparent pointer-events-none"></div>
+
+                    {/* Name and years */}
+                    <div className="absolute bottom-5 left-5 right-5 text-[#ffe7b0] z-10">
+                      <h2 className="font-headline text-[30px] font-bold tracking-wide leading-tight drop-shadow-md">
+                        {char.name}
+                      </h2>
+                      <div className="flex items-center gap-2 mt-1">
+                        {(char.realName || char.title) && <span className="text-[16px] opacity-90 font-medium font-body text-[#f7d78a]">({char.realName || char.title})</span>}
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#d99b4a] opacity-80"></span>
+                        <span className="text-[13px] opacity-80 font-medium tracking-widest">{char.years}</span>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Gradient overlay for bottom text */}
-                  <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#1a0201] via-[#1a0201]/50 to-transparent pointer-events-none"></div>
+                  {/* Content section */}
+                  <div className="p-6 flex flex-col flex-grow relative bg-[#fffdf8] dong-son-pattern-subtle">
+                    <p className="text-[#2b1a16]/80 text-[14px] leading-relaxed mb-6 line-clamp-3 font-body relative z-10">
+                      {char.desc}
+                    </p>
 
-                  {/* Name and years */}
-                  <div className="absolute bottom-5 left-5 right-5 text-[#ffe7b0] z-10">
-                    <h2 className="font-headline text-[30px] font-bold tracking-wide leading-tight drop-shadow-md">
-                      {char.name}
-                    </h2>
-                    <div className="flex items-center gap-2 mt-1">
-                      {(char.realName || char.title) && <span className="text-[16px] opacity-90 font-medium font-body text-[#f7d78a]">({char.realName || char.title})</span>}
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#d99b4a] opacity-80"></span>
-                      <span className="text-[13px] opacity-80 font-medium tracking-widest">{char.years}</span>
+                    <div className="mb-6 relative z-10">
+                      <h3 className="text-[#6b0f0d] font-bold text-[14px] mb-4 flex items-center gap-2 uppercase tracking-wider text-[11px] border-b border-[#d99b4a]/20 pb-2">
+                        <span className="material-symbols-outlined text-[18px] text-[#d99b4a]">military_tech</span> Chi Tiết Tiêu Biểu:
+                      </h3>
+                      <ul className="space-y-3">
+                        {char.achievements.map((ach, idx) => (
+                          <li key={idx} className="flex items-start gap-3 text-[14px] text-[#2b1a16]/90 font-body">
+                            <span className="w-1.5 h-1.5 rounded-sm bg-[#d99b4a] mt-2 shrink-0 shadow-sm border border-[#6b0f0d]/20"></span>
+                            <span className="leading-snug">{ach}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="mt-auto pt-4 flex border-t border-[#d99b4a]/20 relative z-10">
+                      <Link to={`/characters/${char.id}`} className="text-[#6b0f0d] font-bold text-[13px] uppercase tracking-widest flex items-center gap-1 hover:text-[#d99b4a] transition-colors group/link">
+                        Xem chi tiết
+                        <span className="material-symbols-outlined text-[18px] group-hover/link:translate-x-1 transition-transform">chevron_right</span>
+                      </Link>
                     </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 bg-[#fffdf8]/60 backdrop-blur-sm rounded-xl border border-[#d99b4a]/30 shadow-sm">
+              <span className="material-symbols-outlined text-6xl text-[#6b0f0d]/40 mb-4">search_off</span>
+              <h3 className="text-xl font-headline text-[#6b0f0d] font-bold mb-2">Không tìm thấy nhân vật</h3>
+              <p className="text-[#2b1a16]/70 font-body">Vui lòng thử lại với từ khóa hoặc bộ lọc khác.</p>
+            </div>
+          )}
 
-                {/* Content section */}
-                <div className="p-6 flex flex-col flex-grow relative bg-[#fffdf8] dong-son-pattern-subtle">
-                  <p className="text-[#2b1a16]/80 text-[14px] leading-relaxed mb-6 line-clamp-3 font-body relative z-10">
-                    {char.desc}
-                  </p>
-
-                  <div className="mb-6 relative z-10">
-                    <h3 className="text-[#6b0f0d] font-bold text-[14px] mb-4 flex items-center gap-2 uppercase tracking-wider text-[11px] border-b border-[#d99b4a]/20 pb-2">
-                      <span className="material-symbols-outlined text-[18px] text-[#d99b4a]">military_tech</span> Chi Tiết Tiêu Biểu:
-                    </h3>
-                    <ul className="space-y-3">
-                      {char.achievements.map((ach, idx) => (
-                        <li key={idx} className="flex items-start gap-3 text-[14px] text-[#2b1a16]/90 font-body">
-                          <span className="w-1.5 h-1.5 rounded-sm bg-[#d99b4a] mt-2 shrink-0 shadow-sm border border-[#6b0f0d]/20"></span>
-                          <span className="leading-snug">{ach}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="mt-auto pt-4 flex border-t border-[#d99b4a]/20 relative z-10">
-                    <Link to={`/characters/${char.id}`} className="text-[#6b0f0d] font-bold text-[13px] uppercase tracking-widest flex items-center gap-1 hover:text-[#d99b4a] transition-colors group/link">
-                      Xem chi tiết
-                      <span className="material-symbols-outlined text-[18px] group-hover/link:translate-x-1 transition-transform">chevron_right</span>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20 bg-[#fffdf8]/60 backdrop-blur-sm rounded-xl border border-[#d99b4a]/30 shadow-sm">
-            <span className="material-symbols-outlined text-6xl text-[#6b0f0d]/40 mb-4">search_off</span>
-            <h3 className="text-xl font-headline text-[#6b0f0d] font-bold mb-2">Không tìm thấy nhân vật</h3>
-            <p className="text-[#2b1a16]/70 font-body">Vui lòng thử lại với từ khóa hoặc bộ lọc khác.</p>
-          </div>
-        )}
-
+        </div>
       </div>
-    </div>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import { useState, useEffect, Fragment } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation, Link } from 'react-router-dom';
+import apiClient from '../services/apiClient';
 import LogoutModal from './LogoutModal';
 
 const AdminLayout = () => {
@@ -15,7 +16,7 @@ const AdminLayout = () => {
       navigate('/login');
     } else {
       const user = JSON.parse(savedUser);
-      if (user.role !== 'admin') {
+      if (user.role !== 'ROLE_ADMIN') {
         navigate('/');
       }
     }
@@ -56,10 +57,17 @@ const AdminLayout = () => {
     { icon: 'group', label: 'Thành viên', path: '/admin/members' },
   ];
 
-  const handleConfirmLogout = () => {
-    localStorage.removeItem('user');
-    setIsLogoutOpen(false);
-    navigate('/login');
+  const handleConfirmLogout = async () => {
+    try {
+      await apiClient.post('/api/v1/auth/logout');
+    } catch (error) {
+      console.error("Logout error", error);
+    } finally {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
+      setIsLogoutOpen(false);
+      navigate('/login');
+    }
   };
 
 

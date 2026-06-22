@@ -1,74 +1,61 @@
 {
+  "id": 1,
+  "article_id": 1,
   "post_id": 1,
-  "admin_id": 1,
-  "event_id": null,
-  "title": "Kiến trúc Cung điện Thăng Long qua các triều đại Lý-Trần",
-  "slug": "kien-truc-cung-dien-thang-long",
-  "summary": "Phối cảnh 3D Điện Kính Thiên thời Lê Sơ dựa trên các hiện vật khảo cổ học tìm thấy tại khu di tích Hoàng thành Thăng Long.",
+  "title": "Văn Lang trong ký ức lịch sử",
+  "slug": "van-lang-trong-ky-uc-lich-su",
+  "summary": "Tóm lược nguồn gốc Văn Lang và truyền thống Hùng Vương.",
   "content": [
     {
       "type": "paragraph",
-      "text": "Thăng Long, kinh đô ngàn năm văn hiến, không chỉ là trung tâm chính trị mà còn là biểu tượng rực rỡ nhất của nền kiến trúc Đại Việt. Dưới thời Lý và Trần, việc xây dựng cung điện không chỉ đáp ứng nhu cầu nghi lễ mà còn thể hiện tư duy vũ trụ luận sâu sắc và niềm tự hào tự chủ của dân tộc sau nghìn năm Bắc thuộc."
+      "text": "Bài viết giới thiệu bối cảnh hình thành nhà nước Văn Lang, các truyền thuyết Hùng Vương và giá trị văn hóa còn lưu lại."
     },
     {
       "type": "heading",
-      "text": "Cấu trúc đa tầng và nghệ thuật chạm khắc"
+      "text": "Bối cảnh lịch sử"
     },
     {
       "type": "paragraph",
-      "text": "Đặc điểm nổi bật của kiến trúc cung điện thời Lý chính là sự kết hợp nhuần nhuyễn giữa phong cách Phật giáo và tính chất cung đình. Các cột gỗ lim khổng lồ đặt trên chân tảng đá chạm khắc hoa sen, mây tản là minh chứng cho sự tinh xảo bậc nhất. Hệ thống đấu củng - một thành tựu kỹ thuật phức tạp - giúp nâng đỡ những bộ mái chồng diêm đồ sộ."
+      "text": "Những diễn biến xoay quanh bối cảnh của sự kiện này..."
     },
     {
       "type": "blockquote",
-      "text": "Kinh đô Thăng Long dưới thời Lý là một kiệt tác của sự hòa hợp giữa con người và thiên nhiên, giữa quyền uy đế chế và tinh thần từ bi của đạo Phật."
-    },
-    {
-      "type": "paragraph",
-      "text": "Bước sang thời Trần, mặc dù kế thừa những tinh hoa từ thời Lý, kiến trúc cung điện bắt đầu dịch chuyển sang vẻ đẹp khỏe khoắn, thực dụng hơn, phản ánh tinh thần thượng võ của một dân tộc vừa trải qua ba cuộc kháng chiến chống Nguyên - Mông oanh liệt."
+      "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
     }
   ],
-  "thumbnail_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuAVaoTt7OmvfdX-z3YyqFqAX4Y1Ihkjvs5emJRmKGgOo_V6KXn2TDBUhtjxjWpdefmw2UYxcc_dGVKRTPpQx97q5bU8-ZHl88UUpDGcWY0yc0p91hGp4TLMwXj3Eo0X9m6jm4Ur6KjP6l6YR6Z-NPrix-C_2iLcQK89e0crl9yF_2yxjOETGgWJEiB_h6rEWBU-9uW1uLjoc5SpY7pGCmiyVL6pXDP1ZGb6DtJ2atbMIOtuGYVFZqRsdxH_-D9zlp5p05W4fuv1p9ft",
+  "thumbnail_url": "/images/home.png",
+  "image": "/images/posts/van-lang.jpg",
   "status": "PUBLISHED",
-  "published_at": "14 Tháng 10, 2023",
-  "created_at": "2023-10-14T00:00:00Z",
-  "updated_at": "2023-10-14T00:00:00Z",
-  "author": "Học giả Trần Duy Hùng",
-  "authorRole": "Viện Nghiên cứu Kinh thành",
-  "authorImg": "https://lh3.googleusercontent.com/aida-public/AB6AXuCMHcdTOW_dxMtuwmxyW--OBFFCWbw1pKW6o872X-BC7wFqD-Aj2QfeGlztAlrOX6LWdwjTT3qIn-ieBA5v27gxwMY9PxkgRWcUWg3-PZSNcRwmQFJtnrt2XLelaJ-t0G8QB38Me2u3YcCyEowczw7cRzGYHPTpbEWpNN3lyEfrPrxyLX0mkEOCJT_be9zdImqCPMR-puG43GYWbpnqO15H5i6jecJLQ_FkJYy7KCRzb-57sQ7zfQnZ6ql98Ks24ceEcGRROhLPKDgY",
-  "readingTime": "15 phút đọc",
-  "likes": 345,
+  "published_at": "2026-07-01 09:00:00",
+  "dynasty": "Thời Văn Lang",
+  "readTime": "5 phút đọc",
+  "author": "Admin",
+  "publishedDate": "2026-07-01 09:00:00",
+  "tags": [
+    "Thời Văn Lang",
+    "Lịch sử"
+  ],
   "relatedEntities": [
     {
-      "icon": "history_edu",
-      "title": "Nhà Lý (1009–1225)",
-      "type": "Triều đại",
-      "link": "/periods/nha-ly"
-    },
-    {
-      "icon": "map",
-      "title": "Kinh thành Thăng Long",
-      "type": "Địa danh",
-      "link": "/locations/1"
-    },
-    {
-      "icon": "person",
-      "title": "Lý Thái Tổ",
+      "title": "Nhân vật liên quan",
       "type": "Nhân vật",
-      "link": "/characters/1"
+      "icon": "person",
+      "link": "/characters"
+    },
+    {
+      "title": "Di tích liên quan",
+      "type": "Di tích",
+      "icon": "account_balance",
+      "link": "/locations"
     }
   ],
-  "citations": [
+  "featured": true,
+  "post_tags": [
     {
-      "title": "Đại Việt Sử Ký Toàn Thư",
-      "author": "Ngô Sĩ Liên, Thế kỷ XV"
-    },
-    {
-      "title": "Việt Sử Lược",
-      "author": "Khuyết danh, Thế kỷ XIV"
-    },
-    {
-      "title": "Khảo cổ học 18 Hoàng Diệu",
-      "author": "Viện Hàn lâm KHXH, 2004"
+      "tag_name": "Lịch sử"
     }
-  ]
+  ],
+  "likes": 0,
+  "comments": 0,
+  "commentsList": []
 }

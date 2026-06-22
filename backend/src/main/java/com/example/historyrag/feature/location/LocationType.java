@@ -5,5 +5,10 @@ public enum LocationType {
     PROVINCE,
     BATTLEFIELD,
     CAPITAL,
-    TEMPLE
+    TEMPLE,
+    REGION,
+    CITADEL,
+    MOUNTAIN,
+    PALACE,
+    BASE
 }

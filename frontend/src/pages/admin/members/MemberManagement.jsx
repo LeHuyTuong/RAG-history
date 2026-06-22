@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AdminLayout, PageHeader, DataTable, StatsGrid, FilterBar, FilterInput, FilterSelect, ActionModal } from '../../../components/admin';
 
 import { API_ENDPOINTS } from '../../../services/api';
+import apiClient from '../../../services/apiClient';
 const MemberManagement = () => {
   const navigate = useNavigate();
   // State quản lý các loại Modal
@@ -25,37 +26,27 @@ const MemberManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.ADMIN_MEMBERS);
-        if (!response.ok) throw new Error('Network response was not ok');
-        const result = await response.json();
-        // Merge new members from localStorage
-        const newMembersStr = localStorage.getItem('admin_new_members');
-        if (newMembersStr) {
-          try {
-            const newMembersRaw = JSON.parse(newMembersStr);
-            const newMembers = newMembersRaw.map(m => ({
-              id: m.id,
-              name: m.fullName || m.name,
-              email: m.username + '@suviet.vn', // Dummy email for display
-              role: m.role === 'admin' ? 'Quản trị viên' : m.role === 'scholar' ? 'Học giả' : 'Thành viên',
-              joinDate: m.joinDate || new Date().toLocaleDateString('vi-VN'),
-              contributions: 0,
-              status: m.status
-            }));
+        setLoading(true);
+        const response = await apiClient.get(API_ENDPOINTS.ADMIN_MEMBERS, { params: { page: 0, size: 500 } });
+        
+        const payload = response.data?.data || response.data;
+        const membersList = payload.result || [];
 
-            const newMemberIds = new Set(newMembers.map(m => String(m.id)));
-            const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_members') || '[]'));
-            result.members = [
-              ...newMembers,
-              ...result.members.filter(m => !newMemberIds.has(String(m.id)) && !deletedIds.has(String(m.id)))
-            ];
-          } catch (e) { console.error('Error parsing new members', e); }
-        } else {
-          const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_members') || '[]'));
-          result.members = result.members.filter(m => !deletedIds.has(String(m.id)));
-        }
-
-        setData(result);
+        setData({
+          stats: [
+            { id: 1, label: 'Tổng số thành viên', value: payload.meta?.total || membersList.length, icon: 'group', color: 'text-indigo-600' },
+            { id: 2, label: 'Thành viên đang khóa', value: membersList.filter(m => m.status === 'LOCKED').length, icon: 'lock', color: 'text-rose-600' }
+          ],
+          members: membersList.map(m => ({
+            id: m.id,
+            name: m.fullName || m.username,
+            email: m.email || '',
+            role: 'Thành viên',
+            joinDate: m.createdAt ? new Date(m.createdAt).toLocaleDateString('vi-VN') : '',
+            status: m.status === 'LOCKED' ? 'locked' : 'active',
+            raw: m
+          }))
+        });
       } catch (error) {
         console.error('Error fetching members data:', error);
       } finally {
@@ -67,47 +58,62 @@ const MemberManagement = () => {
 
   const closeModal = () => setActiveModal({ type: null, data: null });
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!activeModal.data || activeModal.data.id === null || activeModal.data.id === undefined) return;
     const deleteId = activeModal.data.id;
 
-    const deletedIds = JSON.parse(localStorage.getItem('admin_deleted_members') || '[]');
-    if (!deletedIds.includes(String(deleteId))) {
-      deletedIds.push(String(deleteId));
-      localStorage.setItem('admin_deleted_members', JSON.stringify(deletedIds));
+    try {
+      await apiClient.delete(`${API_ENDPOINTS.ADMIN_MEMBERS}/${deleteId}`);
+
+      setData(prev => ({
+        ...prev,
+        members: prev.members.filter(m => String(m.id) !== String(deleteId))
+      }));
+    } catch (error) {
+      console.error('Error deleting member:', error);
+      alert('Có lỗi xảy ra khi xóa thành viên!');
+    } finally {
+      closeModal();
     }
-
-    setData(prev => ({
-      ...prev,
-      members: prev.members.filter(m => String(m.id) !== String(deleteId))
-    }));
-
-    closeModal();
   };
 
-  const handleLock = () => {
+  const handleLock = async () => {
     if (!activeModal.data || activeModal.data.id === null || activeModal.data.id === undefined) return;
     const lockId = activeModal.data.id;
     
     const currentStatus = activeModal.data.status;
-    const newStatus = currentStatus === 'active' ? 'locked' : 'active';
+    const newStatus = currentStatus === 'active' ? 'LOCKED' : 'ACTIVE';
+    const rawMember = activeModal.data.raw;
     
-    // Save to localStorage
-    const newMembers = JSON.parse(localStorage.getItem('admin_new_members') || '[]');
-    const existingIndex = newMembers.findIndex(m => String(m.id) === String(lockId));
-    if (existingIndex >= 0) {
-      newMembers[existingIndex].status = newStatus;
-    } else {
-      newMembers.push({ ...activeModal.data, status: newStatus });
-    }
-    localStorage.setItem('admin_new_members', JSON.stringify(newMembers));
-    
-    setData(prev => ({
-      ...prev,
-      members: prev.members.map(m => String(m.id) === String(lockId) ? { ...m, status: newStatus } : m)
-    }));
+    try {
+      const payload = {
+        username: rawMember.username,
+        email: rawMember.email,
+        fullName: rawMember.fullName,
+        status: newStatus
+      };
 
-    closeModal();
+      await apiClient.put(`${API_ENDPOINTS.ADMIN_MEMBERS}/${lockId}`, payload);
+      
+      setData(prev => ({
+        ...prev,
+        members: prev.members.map(m => {
+          if (String(m.id) === String(lockId)) {
+            return {
+              ...m,
+              status: newStatus === 'LOCKED' ? 'locked' : 'active',
+              raw: { ...m.raw, status: newStatus }
+            };
+          }
+          return m;
+        })
+      }));
+    } catch (error) {
+      console.error('Error locking/unlocking member:', error);
+      alert('Có lỗi xảy ra khi thay đổi trạng thái thành viên!');
+    } finally {
+      closeModal();
+    }
   };
 
   const columns = [

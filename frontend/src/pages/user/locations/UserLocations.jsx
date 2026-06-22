@@ -23,9 +23,10 @@ export default function UserLocations() {
         const response = await fetch(API_ENDPOINTS.USER_LOCATIONS);
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
-        setLocations(data);
-        if (data.length > 0) {
-          setSelectedSite(data[0]);
+        const locs = data.locations || data || [];
+        setLocations(locs);
+        if (locs.length > 0) {
+          setSelectedSite(locs[0]);
         }
       } catch (error) {
         console.error('Error fetching locations:', error);
@@ -51,8 +52,8 @@ export default function UserLocations() {
     );
   }
 
-  // Lấy các triều đại cố định để đồng bộ với các trang khác
-  const dynasties = ['Triều Lý', 'Triều Trần', 'Triều Lê Sơ', 'Triều Nguyễn', 'Triều Hồ'];
+  // Lấy các triều đại để đồng bộ với data
+  const dynasties = [...new Set(locations.map(l => l.period).filter(Boolean))];
 
   return (
     <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20 relative">
@@ -104,7 +105,7 @@ export default function UserLocations() {
           </div>
         </div>
       </div>
-      
+
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 mt-8">
         {/* VIEW MODE TOGGLE */}
         <div className="flex justify-end mb-6 relative z-10">
@@ -272,9 +273,14 @@ export default function UserLocations() {
                           <span className="material-symbols-outlined text-[16px]">history_edu</span> Nhân vật liên quan
                         </p>
                         <div className="flex flex-wrap gap-2">
-                          {selectedSite.famousCharacters.map(char => (
-                            <span key={char} className="px-3 py-1.5 bg-white text-gray-700 text-[11px] font-bold rounded-md shadow-sm border border-gray-200">{char}</span>
-                          ))}
+                          {selectedSite.famousCharacters.map((char, idx) => {
+                            const charName = typeof char === 'string' ? char : char.name;
+                            return (
+                              <span key={idx} className="px-3 py-1.5 bg-white text-gray-700 text-[11px] font-bold rounded-md shadow-sm border border-gray-200">
+                                {charName}
+                              </span>
+                            );
+                          })}
                         </div>
                       </div>
                     )}

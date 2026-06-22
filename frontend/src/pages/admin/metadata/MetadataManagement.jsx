@@ -102,11 +102,41 @@ const MetadataManagement = () => {
             }));
             json.categories = filterRecursive(json.categories);
           }
-          if (json.tags) {
-            json.tags = json.tags.filter(t => !deletedIds.has(String(t.id)));
+          try {
+            const { default: apiClient } = await import('../../../services/apiClient');
+            const { API_ENDPOINTS } = await import('../../../services/api');
+            const tagRes = await apiClient.get(API_ENDPOINTS.ADMIN_TAG_CATEGORIES, { params: { size: 500 } });
+            const tData = tagRes.data?.data?.result || tagRes.data?.data || [];
+            json.tags = tData.map(t => ({
+              id: t.id,
+              name: t.name,
+              slug: t.slug,
+              count: 0
+            }));
+          } catch(e) {
+            console.error('Lỗi khi fetch ADMIN_TAGS:', e);
+            if (json.tags) {
+              json.tags = json.tags.filter(t => !deletedIds.has(String(t.id)));
+            }
           }
-          if (json.periods) {
-            json.periods = json.periods.filter(p => !deletedIds.has(String(p.id)));
+
+          try {
+            const { default: apiClient } = await import('../../../services/apiClient');
+            const { API_ENDPOINTS } = await import('../../../services/api');
+            const periodRes = await apiClient.get(API_ENDPOINTS.ADMIN_PERIODS, { params: { size: 500 } });
+            const pData = periodRes.data?.data?.result || periodRes.data?.data || [];
+            json.periods = pData.map(p => ({
+              id: p.id,
+              name: p.name,
+              range: `${p.startYear} - ${p.endYear}`,
+              slug: p.slug,
+              description: p.description
+            }));
+          } catch(e) {
+            console.error('Lỗi khi fetch ADMIN_PERIODS:', e);
+            if (json.periods) {
+              json.periods = json.periods.filter(p => !deletedIds.has(String(p.id)));
+            }
           }
 
           // Merge tags
