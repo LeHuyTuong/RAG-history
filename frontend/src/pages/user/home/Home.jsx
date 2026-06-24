@@ -1,7 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+    periodService,
+    personService,
+    eventService,
+    postService,
+    mockClient
+} from '../../../services';
 
-import { API_ENDPOINTS } from '../../../services/api';
+const DEFAULT_PERIOD_ICONS = ['hourglass_empty', 'history', 'person', 'account_balance', 'map', 'auto_stories'];
+const DEFAULT_CHAR_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg';
+
 const Home = () => {
     const navigate = useNavigate();
     const [data, setData] = useState({ featuredCharacters: [], recentPosts: [], periods: [], events: [] });
@@ -10,20 +19,201 @@ const Home = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(API_ENDPOINTS.USER_HOME);
-                if (!response.ok) throw new Error('Network error');
-                const result = await response.json();
-                setData(result);
+                // Fetch real APIs in parallel via the service layer
+                let dbPeriods = [];
+                let dbPersons = [];
+                let dbEvents = [];
+                let dbPosts = [];
+
+                try {
+                    const [periodsRes, personsRes, eventsRes, postsRes] = await Promise.all([
+                        periodService.filter({ size: 6, sort: 'startYear,asc' }).catch(err => {
+                            console.error('Failed to fetch periods:', err);
+                            return { items: [] };
+                        }),
+                        personService.filter({ size: 3 }).catch(err => {
+                            console.error('Failed to fetch persons:', err);
+                            return { items: [] };
+                        }),
+                        eventService.filter({ size: 4 }).catch(err => {
+                            console.error('Failed to fetch events:', err);
+                            return { items: [] };
+                        }),
+                        postService.filter({ size: 2 }).catch(err => {
+                            console.error('Failed to fetch posts:', err);
+                            return { items: [] };
+                        }),
+                    ]);
+                    dbPeriods = periodsRes?.items || [];
+                    dbPersons = personsRes?.items || [];
+                    dbEvents = eventsRes?.items || [];
+                    dbPosts = postsRes?.items || [];
+                } catch (apiErr) {
+                    console.error('Failed to fetch home data from API, using mock:', apiErr);
+                }
+
+                // Always fetch mock data to merge/fallback
+                let mockHome = { periods: [], featuredCharacters: [], events: [], recentPosts: [] };
+                try {
+                    const mockRes = await mockClient.get('/api/user_home.json');
+                    mockHome = mockRes.data || mockHome;
+                } catch (mockErr) {
+                    console.error('Failed to fetch mock home data:', mockErr);
+                }
+
+                // Merge periods
+                let mergedPeriods = [];
+                if (dbPeriods.length > 0) {
+                    mergedPeriods = dbPeriods.slice(0, 6).map((p, idx) => ({
+                        ...p,
+                        years: p.startYear !== undefined && p.endYear !== undefined
+                            ? `${Math.abs(p.startYear)} ${p.startYear < 0 ? 'TCN' : ''} - ${p.endYear ? Math.abs(p.endYear) + (p.endYear < 0 ? ' TCN' : '') : 'Nay'}`
+                            : '',
+                        icon: DEFAULT_PERIOD_ICONS[idx % DEFAULT_PERIOD_ICONS.length],
+                    }));
+                } else {
+                    mergedPeriods = (mockHome.periods || []).map((p, idx) => ({
+                        ...p,
+                        id: p.id || idx + 1,
+                        years: p.years || '',
+                        icon: p.icon || DEFAULT_PERIOD_ICONS[idx % DEFAULT_PERIOD_ICONS.length],
+                    }));
+                }
+
+                // Apply custom period order if exists in localStorage
+                const periodOrderStr = localStorage.getItem('home_period_order') || localStorage.getItem('admin_period_order');
+                if (periodOrderStr) {
+                    try {
+                        const savedOrder = JSON.parse(periodOrderStr);
+                        const orderMap = new Map(savedOrder.map((id, idx) => [String(id), idx]));
+                        mergedPeriods.sort((a, b) => {
+                            const indexA = orderMap.has(String(a.id)) ? orderMap.get(String(a.id)) : 999999;
+                            const indexB = orderMap.has(String(b.id)) ? orderMap.get(String(b.id)) : 999999;
+                            return indexA - indexB;
+                        });
+                    } catch (e) {
+                        console.error('Error sorting home periods by custom order', e);
+                    }
+                }
+
+                // Merge characters
+                let mergedCharacters = [];
+                if (dbPersons.length > 0) {
+                    mergedCharacters = dbPersons.slice(0, 3).map(c => {
+                        const mockChar = (mockHome.featuredCharacters || []).find(m => m.slug === c.slug) || {};
+                        return {
+                            ...mockChar,
+                            ...c,
+                            years: c.birthDate || c.deathDate
+                                ? `${c.birthDate ? c.birthDate : '?'} - ${c.deathDate ? c.deathDate : '?'}`
+                                : mockChar.years || '',
+                            desc: (c.biography || '').replace(/<[^>]*>/g, '') || mockChar.desc || '',
+                            image: c.image || mockChar.image || DEFAULT_CHAR_IMAGE,
+                        };
+                    });
+                } else {
+                    mergedCharacters = (mockHome.featuredCharacters || []).map(c => ({
+                        ...c,
+                        image: c.image || DEFAULT_CHAR_IMAGE,
+                    }));
+                }
+
+                // Merge events
+                let mergedEvents = [];
+                if (dbEvents.length > 0) {
+                    mergedEvents = dbEvents.slice(0, 4).map(e => {
+                        const mockEv = (mockHome.events || []).find(m => m.slug === e.slug) || {};
+                        return {
+                            ...mockEv,
+                            ...e,
+                            date: e.startYear !== undefined
+                                ? `${Math.abs(e.startYear)} ${e.startYear < 0 ? 'TCN' : ''}`
+                                : mockEv.date || '',
+                            desc: (e.description || '').replace(/<[^>]*>/g, '') || mockEv.desc || '',
+                            title: e.name || mockEv.title || '',
+                        };
+                    });
+                } else {
+                    mergedEvents = (mockHome.events || []).map(e => ({
+                        ...e,
+                    }));
+                }
+
+                // Merge posts
+                let mergedPosts = [];
+                if (dbPosts.length > 0) {
+                    mergedPosts = dbPosts.slice(0, 2).map(p => {
+                        const mockPost = (mockHome.recentPosts || []).find(m => m.slug === p.slug) || {};
+                        return {
+                            ...mockPost,
+                            ...p,
+                            date: p.publishedAt || p.createdAt
+                                ? new Date(p.publishedAt || p.createdAt).toLocaleDateString('vi-VN')
+                                : mockPost.date || '',
+                            desc: p.summary || mockPost.desc || '',
+                            category: p.tags?.[0]?.name || mockPost.category || 'Nghiên cứu',
+                        };
+                    });
+                } else {
+                    mergedPosts = (mockHome.recentPosts || []).map(p => ({
+                        ...p,
+                    }));
+                }
+
+                setData({
+                    periods: mergedPeriods,
+                    featuredCharacters: mergedCharacters,
+                    events: mergedEvents,
+                    recentPosts: mergedPosts,
+                });
             } catch (error) {
                 console.error('Error fetching home data:', error);
             } finally {
+                setData(prev => ({
+                    ...prev,
+                    periods: prev.periods || [],
+                    featuredCharacters: prev.featuredCharacters || [],
+                    events: prev.events || [],
+                    recentPosts: prev.recentPosts || [],
+                }));
                 setLoading(false);
             }
         };
         fetchData();
     }, []);
 
-    const { featuredCharacters, recentPosts, periods, events } = data;
+    const { featuredCharacters = [], recentPosts = [], periods = [], events = [] } = data;
+
+    const handlePeriodDragStart = (e, index) => {
+        e.dataTransfer.setData('text/plain', String(index));
+    };
+
+    const handlePeriodDragOver = (e) => {
+        e.preventDefault();
+    };
+
+    const handlePeriodDrop = (e, dropIndex) => {
+        e.preventDefault();
+        const dragIndexStr = e.dataTransfer.getData('text/plain');
+        if (dragIndexStr === '') return;
+        const dragIndex = parseInt(dragIndexStr, 10);
+        if (dragIndex === dropIndex) return;
+
+        const updatedPeriods = [...periods];
+        const [draggedItem] = updatedPeriods.splice(dragIndex, 1);
+        updatedPeriods.splice(dropIndex, 0, draggedItem);
+
+        setData(prev => ({
+            ...prev,
+            periods: updatedPeriods
+        }));
+
+        const newOrder = updatedPeriods.map(p => String(p.id));
+        localStorage.setItem('home_period_order', JSON.stringify(newOrder));
+        localStorage.setItem('admin_period_order', JSON.stringify(newOrder));
+    };
+
+    if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải trang chủ...</div>;
 
     return (
         <div className="animate-in fade-in duration-1000 font-body bg-[#fbf6e8] parchment-texture">
@@ -130,7 +320,7 @@ const Home = () => {
                     {recentPosts.map((post, i) => (
                         <div
                             key={post.id}
-                            onClick={() => navigate('/posts')}
+                            onClick={() => navigate(`/articles/${post.id}`)}
                             className="flex flex-col sm:flex-row gap-6 p-6 bg-[#fffdf8] border border-[#d99b4a]/20 rounded-xl hover:shadow-md hover:border-[#d99b4a]/60 transition-all cursor-pointer group"
                         >
                             <div className="w-full sm:w-1/3 h-[180px] sm:h-auto rounded-lg bg-[#2b0504] relative overflow-hidden shrink-0">
@@ -156,7 +346,7 @@ const Home = () => {
                                 <p className="font-body text-[14px] text-[#2b1a16]/70 leading-relaxed italic line-clamp-2 border-l-2 border-[#d99b4a]/30 pl-3">
                                     {post.desc}
                                 </p>
-                                <div 
+                                <div
                                     className="mt-5 text-[#d99b4a] font-bold text-[12px] uppercase tracking-widest flex items-center gap-1 group-hover:translate-x-2 transition-transform w-fit cursor-pointer"
                                     onClick={(e) => { e.stopPropagation(); navigate(`/articles/${post.id || i + 1}`); }}
                                 >
@@ -193,8 +383,12 @@ const Home = () => {
                     {periods.map((d, index) => (
                         <div
                             key={index}
-                            onClick={() => navigate('/periods')}
-                            className="p-8 bg-[#fffdf8] border border-[#d99b4a]/30 rounded-xl hover:-translate-y-2 transition-all cursor-pointer group shadow-sm flex flex-col items-center justify-center relative overflow-hidden z-10"
+                            draggable="true"
+                            onDragStart={(e) => handlePeriodDragStart(e, index)}
+                            onDragOver={handlePeriodDragOver}
+                            onDrop={(e) => handlePeriodDrop(e, index)}
+                            onClick={() => navigate(`/periods/${d.id}`)}
+                            className="p-8 bg-[#fffdf8] border border-[#d99b4a]/30 rounded-xl hover:-translate-y-2 cursor-move transition-all group shadow-sm flex flex-col items-center justify-center relative overflow-hidden z-10"
                         >
                             <div className="absolute inset-0 bg-gradient-to-t from-[#8b1512] to-[#6b0f0d] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             <div className="absolute inset-0 dong-son-pattern mix-blend-overlay opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>

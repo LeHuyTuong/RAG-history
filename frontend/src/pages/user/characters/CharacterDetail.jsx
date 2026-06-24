@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 
 import { API_ENDPOINTS } from '../../../services/api';
+import apiClient, { mockClient } from '../../../services/apiClient';
 
 const CharacterDetail = () => {
   const { id } = useParams();
@@ -17,10 +18,33 @@ const CharacterDetail = () => {
   useEffect(() => {
     const fetchCharacter = async () => {
       try {
-        const response = await fetch('/api/user_character_detail.json');
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        setCharacter(data);
+        let dbPerson = null;
+        try {
+          const response = await apiClient.get(`${API_ENDPOINTS.USER_CHARACTER_DETAIL}/${id}`);
+          dbPerson = response.data?.data || response.data;
+        } catch (apiErr) {
+          console.error('Failed to fetch character detail from API, trying mock:', apiErr);
+        }
+
+        let mockItem = null;
+        try {
+          const mockRes = await mockClient.get('/api/user_characters.json');
+          const mockChars = mockRes.data?.characters || [];
+          mockItem = mockChars.find(m => (m.id && m.id.toString() === id) || (m.slug && m.slug === id) || (m.person_id && m.person_id.toString() === id));
+        } catch (err) {
+          console.error('Error fetching mock characters:', err);
+        }
+
+        if (dbPerson || mockItem) {
+          setCharacter({
+            portrait: mockItem?.image || mockItem?.portrait || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+            ...mockItem,
+            ...dbPerson,
+            person_id: dbPerson?.id || mockItem?.id || mockItem?.person_id,
+            biography: dbPerson?.biography || mockItem?.biography || '',
+            description: dbPerson?.biography || mockItem?.biography || mockItem?.description || '',
+          });
+        }
       } catch (error) {
         console.error('Error fetching character details:', error);
       } finally {
@@ -70,9 +94,10 @@ const CharacterDetail = () => {
                 {character.quote}
               </p>
             </div>
-            <p className="font-body text-lg text-[#2b1a16]/80 leading-loose">
-              {character.description}
-            </p>
+            <div 
+              className="font-body text-lg text-[#2b1a16]/90 leading-loose border-l-4 border-[#d99b4a] pl-6 space-y-4 ql-editor"
+              dangerouslySetInnerHTML={{ __html: character.description }}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
               <ActionCard icon="auto_stories" title="Gia thế & Xuất thân" desc="Chi tiết về dòng tộc Lê ở Lam Sơn và lý do dấy binh." />
@@ -90,7 +115,7 @@ const CharacterDetail = () => {
           </div>
 
           <div className="max-w-4xl mx-auto relative border-l border-[#d99b4a]/40 pl-10 space-y-16">
-            {character.milestones.map((m, i) => (
+            {(character.milestones || []).map((m, i) => (
               <div key={i} className="relative group">
                 {/* Nút tròn mốc thời gian */}
                 <div className={`absolute -left-[44.5px] top-0 w-3 h-3 rounded-full z-10 transition-transform group-hover:scale-150 ${m.isSpecial ? 'bg-[#6b0f0d] shadow-[0_0_15px_rgba(107,15,13,0.4)]' : 'bg-[#fffdf8] border-2 border-[#d99b4a]'}`}></div>

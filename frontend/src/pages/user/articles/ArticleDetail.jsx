@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { API_ENDPOINTS } from '../../../services/api';
+import apiClient, { mockClient } from '../../../services/apiClient';
 
 const ArticleDetail = () => {
   const { slug } = useParams();
   const [likes, setLikes] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
+  const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [expandedSourceId, setExpandedSourceId] = useState(null);
 
-  const [comments, setComments] = useState([
+  const [comments, setComments] = useState(() => [
     {
       engagement_id: 1,
       member_id: 101,
@@ -47,20 +50,51 @@ const ArticleDetail = () => {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.USER_ARTICLES);
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        // data.articles if it's wrapped, but actually sync_mock.cjs writes an array of articles to user_articles.json
-        // Wait, sync_mock.cjs writes an array to `public/api/user_articles.json`? Let's verify.
-        // I'll parse it safely.
-        const articles = Array.isArray(data) ? data : (data.articles || []);
-        const foundArticle = articles.find(a => a.id.toString() === slug || a.slug === slug);
-        
-        if (foundArticle) {
-          setArticle(foundArticle);
-          setLikes(foundArticle.likes || 0);
-          if (foundArticle.commentsList) {
-            setComments(foundArticle.commentsList);
+        let dbPost = null;
+        const isNumeric = /^\d+$/.test(slug);
+
+        if (isNumeric) {
+          try {
+            const res = await apiClient.get(`${API_ENDPOINTS.USER_ARTICLE_DETAIL}/${slug}`);
+            dbPost = res.data?.data || res.data;
+          } catch (err) {
+            console.error('Failed to fetch article by ID, falling back to search', err);
+          }
+        }
+
+        if (!dbPost) {
+          try {
+            const response = await apiClient.get(`${API_ENDPOINTS.USER_ARTICLES}?size=100`);
+            const posts = response.data?.data?.result || response.data?.data || [];
+            dbPost = posts.find(a => (a.id && a.id.toString() === slug) || a.slug === slug);
+          } catch (err) {
+            console.error('Failed to fetch user articles from api:', err);
+          }
+        }
+
+        let mockItem = null;
+        try {
+          const mockRes = await mockClient.get('/api/user_articles.json');
+          const mockPosts = mockRes.data || [];
+          mockItem = mockPosts.find(m => (m.slug && m.slug === slug) || (m.id && m.id.toString() === slug) || (m.post_id && m.post_id.toString() === slug));
+        } catch (err) {
+          console.error('Error fetching mock articles:', err);
+        }
+
+        if (dbPost || mockItem) {
+          const merged = {
+            ...mockItem,
+            ...dbPost,
+            thumbnail_url: dbPost?.thumbnailUrl || mockItem?.thumbnail_url || "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg",
+            dynasty: dbPost?.tags?.[0]?.name || mockItem?.dynasty || 'Lịch sử',
+            content: dbPost?.content || mockItem?.content || '',
+            summary: dbPost?.summary || mockItem?.summary || '',
+          };
+
+          setArticle(merged);
+          setLikes(merged.likes || 0);
+          if (merged.commentsList) {
+            setComments(merged.commentsList);
           } else {
             setComments([]);
           }
@@ -126,6 +160,12 @@ const ArticleDetail = () => {
               </div>
             </div>
           </header>
+          {/* Summary Lead section with Gold Border */}
+          {article.summary && (
+            <p className="font-body text-[18px] text-[#2b1a16]/90 border-l-4 border-[#d99b4a] pl-6 py-2 leading-relaxed mb-12 italic">
+              {article.summary}
+            </p>
+          )}
 
           {/* Hero Image Section */}
           <figure className="mb-16 group relative">
@@ -136,45 +176,135 @@ const ArticleDetail = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201]/40 to-transparent opacity-60 mix-blend-overlay"></div>
               </div>
             </div>
-            <figcaption className="mt-8 text-center text-[#2b1a16]/80 font-body text-sm leading-relaxed border-l-2 border-[#d99b4a] pl-6 max-w-2xl mx-auto">
-              {article.summary || article.imageCaption}
-            </figcaption>
+            {article.imageCaption && (
+              <figcaption className="mt-6 text-center text-[#2b1a16]/70 font-body text-xs leading-relaxed max-w-2xl mx-auto">
+                {article.imageCaption}
+              </figcaption>
+            )}
           </figure>
 
-          <div className="prose max-w-none prose-lg prose-p:text-[#2b1a16]/90 prose-headings:text-[#6b0f0d]">
-            {(article.content || []).map((block, i) => {
-              if (block.type === 'paragraph' && i === 0) {
-                return (
-                  <p key={i} className="font-body text-[17px] leading-loose text-[#2b1a16]/90 mb-8 drop-cap first-letter:text-7xl first-letter:font-headline first-letter:text-[#6b0f0d] first-letter:mr-4 first-letter:float-left first-letter:leading-none">
-                    {block.text}
-                  </p>
-                );
-              }
-              if (block.type === 'paragraph') {
-                return <p key={i} className="font-body text-[17px] leading-loose text-[#2b1a16]/90 mb-8">{block.text}</p>;
-              }
-              if (block.type === 'heading') {
-                return (
-                  <h2 key={i} className="font-headline text-3xl text-[#6b0f0d] font-semibold mt-16 mb-8 flex items-center gap-4">
-                    <span className="w-8 h-px bg-[#d99b4a]"></span>
-                    {block.text}
-                  </h2>
-                );
-              }
-              if (block.type === 'blockquote') {
-                return (
-                  <blockquote key={i} className="my-16 p-12 bg-[#fffdf8] border border-[#d99b4a]/40 relative overflow-hidden shadow-sm">
-                    <div className="absolute inset-0 bg-[#fcf9ee] opacity-40 dong-son-pattern pointer-events-none"></div>
-                    <div className="absolute top-0 right-0 p-6 opacity-10"><span className="material-symbols-outlined text-8xl text-[#6b0f0d]">format_quote</span></div>
-                    <p className="font-headline text-2xl text-[#2b0504] font-medium leading-loose relative z-10">
-                      "{block.text}"
+          <div className="prose max-w-none prose-lg prose-p:text-[#2b1a16]/90 prose-headings:text-[#6b0f0d] user-content-container">
+            {Array.isArray(article.content) ? (
+              article.content.map((block, i) => {
+                if (block.type === 'paragraph' && i === 0) {
+                  return (
+                    <p key={i} className="font-body text-[17px] leading-loose text-[#2b1a16]/90 mb-8 drop-cap first-letter:text-7xl first-letter:font-headline first-letter:text-[#6b0f0d] first-letter:mr-4 first-letter:float-left first-letter:leading-none">
+                      {block.text}
                     </p>
-                  </blockquote>
-                );
-              }
-              return null;
-            })}
+                  );
+                }
+                if (block.type === 'paragraph') {
+                  return <p key={i} className="font-body text-[17px] leading-loose text-[#2b1a16]/90 mb-8">{block.text}</p>;
+                }
+                if (block.type === 'heading') {
+                  return (
+                    <h2 key={i} className="font-headline text-3xl text-[#6b0f0d] font-semibold mt-16 mb-8 flex items-center gap-4">
+                      <span className="w-8 h-px bg-[#d99b4a]"></span>
+                      {block.text}
+                    </h2>
+                  );
+                }
+                if (block.type === 'blockquote') {
+                  return (
+                    <blockquote key={i} className="my-16 p-12 bg-[#fffdf8] border border-[#d99b4a]/40 relative overflow-hidden shadow-sm">
+                      <div className="absolute inset-0 bg-[#fcf9ee] opacity-40 dong-son-pattern pointer-events-none"></div>
+                      <div className="absolute top-0 right-0 p-6 opacity-10"><span className="material-symbols-outlined text-8xl text-[#6b0f0d]">format_quote</span></div>
+                      <p className="font-headline text-2xl text-[#2b0504] font-medium leading-loose relative z-10">
+                        "{block.text}"
+                      </p>
+                    </blockquote>
+                  );
+                }
+                return null;
+              })
+            ) : typeof article.content === 'string' ? (
+              <div className="font-body text-[17px] leading-loose text-[#2b1a16]/90 space-y-6" dangerouslySetInnerHTML={{ __html: article.content }} />
+            ) : null}
           </div>
+
+          {/* --- NGUỒN THAM KHẢO / SỬ LIỆU CHỨNG MINH --- */}
+          {article.sources && article.sources.length > 0 && (
+            <section className="mt-16 bg-[#fffdf8] border border-[#d99b4a]/40 shadow-md relative overflow-hidden transition-all duration-300">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#6b0f0d] via-[#d99b4a] to-[#6b0f0d]"></div>
+
+              <button
+                onClick={() => setSourcesOpen(!sourcesOpen)}
+                className="w-full text-left p-6 flex items-center justify-between hover:bg-[#fcf9ee] transition-colors group cursor-pointer border-none outline-none focus:outline-none"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-[#6b0f0d] text-2xl group-hover:scale-110 transition-transform">menu_book</span>
+                  <div>
+                    <h3 className="font-headline text-xl text-[#6b0f0d] font-bold">Nguồn tham khảo ({article.sources.length})</h3>
+                    <p className="text-[10px] uppercase tracking-widest text-[#2b1a16]/60 mt-0.5">Các tư liệu lịch sử được sử dụng làm bằng chứng</p>
+                  </div>
+                </div>
+                <span className={`material-symbols-outlined text-[#6b0f0d] text-2xl transition-transform duration-300 ${sourcesOpen ? 'rotate-180' : ''}`}>
+                  expand_more
+                </span>
+              </button>
+
+              {sourcesOpen && (
+                <div className="border-t border-[#d99b4a]/20 p-6 space-y-4 bg-[#fcf9ee]/30 animate-in fade-in duration-300">
+                  {(article.sources || []).filter(Boolean).map((src, idx) => {
+                    const isExcerptOpen = expandedSourceId === src.id;
+                    return (
+                      <div
+                        key={src.id || idx}
+                        className={`border border-[#d99b4a]/20 bg-[#fffdf8] rounded p-4 hover:shadow-sm transition-all duration-300 ${isExcerptOpen ? 'border-l-4 border-l-[#d99b4a] pl-3' : ''
+                          }`}
+                      >
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                          <div className="space-y-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#6b0f0d]/10 text-[#6b0f0d] border border-[#6b0f0d]/20">
+                                {src.sourceType || src.type || 'Tư liệu'}
+                              </span>
+                            </div>
+                            <h4 className="font-headline font-bold text-[#2b0504] text-base leading-snug">{src.title}</h4>
+                            <p className="font-body text-xs text-[#2b1a16]/75">
+                              {src.author && <span>Tác giả: <strong className="text-[#6b0f0d]">{src.author}</strong></span>}
+                              {src.publicationYear && <span> — Năm khởi soạn/xuất bản: <strong>{src.publicationYear}</strong></span>}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2 shrink-0">
+                            {src.content && (
+                              <button
+                                onClick={() => setExpandedSourceId(isExcerptOpen ? null : src.id)}
+                                className="flex items-center gap-1 bg-[#fffdf8] text-[#2b1a16]/80 hover:text-[#6b0f0d] hover:bg-[#fcf9ee] border border-[#d99b4a]/40 px-3 py-1.5 rounded-sm font-body text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                              >
+                                <span className="material-symbols-outlined text-sm">{isExcerptOpen ? 'visibility_off' : 'visibility'}</span>
+                                {isExcerptOpen ? 'Ẩn trích dẫn' : 'Xem trích dẫn'}
+                              </button>
+                            )}
+
+                            {src.sourceUrl && (
+                              <a
+                                href={src.sourceUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 bg-[#6b0f0d] text-[#ffe7b0] hover:bg-[#2b0504] px-3 py-1.5 rounded-sm font-body text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm"
+                              >
+                                <span className="material-symbols-outlined text-sm">open_in_new</span>
+                                Xem liên kết
+                              </a>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Collapsible Source Content/Excerpt Excerpt */}
+                        {isExcerptOpen && src.content && (
+                          <div className="mt-4 p-4 bg-[#fcf9ee] border-l-2 border-[#6b0f0d] font-body text-sm text-[#2b1a16]/90 leading-relaxed italic animate-in slide-in-from-top-2 duration-300">
+                            "{src.content}"
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+          )}
 
           {/* Engagement Section */}
           <section className="py-12 border-t border-[#d99b4a]/40 mt-20">
@@ -216,13 +346,13 @@ const ArticleDetail = () => {
                     <button
                       onClick={() => {
                         if (newComment.trim()) {
-                          setComments([...comments, { 
-                            engagement_id: Date.now(), 
+                          setComments([...comments, {
+                            engagement_id: Date.now(),
                             member_id: 999, // ID của user hiện tại
                             post_id: parseInt(slug) || 1,
                             parent_engagement_id: null,
                             engagement_type: 'COMMENT',
-                            comment_content: newComment, 
+                            comment_content: newComment,
                             comment_status: 'VISIBLE',
                             rating_value: null,
                             created_at: new Date().toISOString(),

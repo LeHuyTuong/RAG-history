@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
 import { API_ENDPOINTS } from '../../../services/api';
+import apiClient, { mockClient } from '../../../services/apiClient';
 const PeriodDetail = () => {
   const { id } = useParams();
 
@@ -27,10 +28,33 @@ const PeriodDetail = () => {
   useEffect(() => {
     const fetchPeriod = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.USER_PERIOD_DETAIL);
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        setPeriod(data);
+        let dbPeriod = null;
+        try {
+          const response = await apiClient.get(`${API_ENDPOINTS.USER_PERIOD_DETAIL}/${id}`);
+          dbPeriod = response.data?.data || response.data;
+        } catch (apiErr) {
+          console.error('Failed to fetch period detail from API, trying mock:', apiErr);
+        }
+
+        let mockItem = null;
+        try {
+          const mockRes = await mockClient.get('/api/user_periods.json');
+          const mockPeriods = mockRes.data || [];
+          mockItem = mockPeriods.find(m => (m.id && m.id.toString() === id) || (m.slug && m.slug === id) || (m.period_id && m.period_id.toString() === id));
+        } catch (err) {
+          console.error('Error fetching mock periods:', err);
+        }
+
+        if (dbPeriod || mockItem) {
+          setPeriod({
+            ...mockItem,
+            ...dbPeriod,
+            period_id: dbPeriod?.id || mockItem?.id || mockItem?.period_id,
+            start_year: dbPeriod?.startYear !== undefined ? dbPeriod.startYear : mockItem?.start_year,
+            end_year: dbPeriod?.endYear !== undefined ? dbPeriod.endYear : mockItem?.end_year,
+            description: dbPeriod?.description || mockItem?.description || '',
+          });
+        }
       } catch (error) {
         console.error('Error fetching period:', error);
       } finally {
@@ -40,10 +64,23 @@ const PeriodDetail = () => {
 
     const fetchEvents = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.USER_EVENTS);
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        setRelatedEvents(data.slice(0, 3)); 
+        let eventList = [];
+        try {
+          const response = await apiClient.get(API_ENDPOINTS.USER_EVENTS);
+          eventList = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
+        } catch (apiErr) {
+          console.error('Failed to fetch user events, trying mock:', apiErr);
+        }
+
+        if (eventList.length === 0) {
+          try {
+            const mockRes = await mockClient.get('/api/user_events.json');
+            eventList = mockRes.data?.events || mockRes.data || [];
+          } catch (err) {
+            console.error('Error fetching mock events:', err);
+          }
+        }
+        setRelatedEvents(eventList.slice(0, 3)); 
       } catch (error) {
         console.error('Error fetching events:', error);
       }
@@ -80,7 +117,7 @@ const PeriodDetail = () => {
             </h1>
             <div className="h-1 w-24 bg-[#d99b4a]"></div>
             
-            <p className="font-body text-[16px] leading-loose text-[#2b1a16]/90 pt-4 drop-cap whitespace-pre-line">
+            <p className="font-body text-[16px] leading-loose text-[#2b1a16]/90 pt-4 drop-cap whitespace-pre-line border-l-4 border-[#d99b4a] pl-6">
               {period.description || "Nội dung tổng quan đang được cập nhật..."}
             </p>
           </div>
@@ -106,7 +143,7 @@ const PeriodDetail = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {relatedEvents.map((evt, idx) => (
-                <Link to={`/events/${evt.event_id}`} key={idx} className="bg-[#fffdf8] border border-[#d99b4a]/30 rounded-xl overflow-hidden hover:shadow-[0_12px_30px_rgba(107,15,13,0.12)] transition-all duration-500 transform hover:-translate-y-1 group flex flex-col">
+                <Link to={`/events/${evt.id}`} key={idx} className="bg-[#fffdf8] border border-[#d99b4a]/30 rounded-xl overflow-hidden hover:shadow-[0_12px_30px_rgba(107,15,13,0.12)] transition-all duration-500 transform hover:-translate-y-1 group flex flex-col">
                   <div className="h-48 relative overflow-hidden border-b border-[#d99b4a]/20">
                     <img src={evt.image || "/images/home.png"} alt={evt.name} className="w-full h-full object-cover grayscale-[0.3] sepia-[0.2] group-hover:scale-105 transition-transform duration-700" />
                     <div className="absolute top-3 right-3 bg-[#6b0f0d]/90 backdrop-blur-sm text-[#ffe7b0] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest border border-[#d99b4a]/40 z-10 shadow-lg">

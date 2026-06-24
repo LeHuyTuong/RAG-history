@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { memberService, extractErrorMessage } from '../../../services';
 
 const MemberForm = () => {
   const { id } = useParams();
@@ -16,33 +17,17 @@ const MemberForm = () => {
     if (isEdit) {
       const fetchData = async () => {
         try {
-          let member = null;
-
-          // Check custom members in localStorage
-          const newMembersStr = localStorage.getItem('admin_new_members');
-          if (newMembersStr) {
-            const newMembers = JSON.parse(newMembersStr);
-            member = newMembers.find(m => String(m.id) === String(id));
-          }
-
-          if (!member) {
-            const response = await fetch('/api/admin_members.json');
-            if (response.ok) {
-              const data = await response.json();
-              member = data.members?.find(m => String(m.id) === String(id));
-            }
-          }
-
+          const member = await memberService.getById(id);
           if (member) {
             setForm(prev => ({
               ...prev,
-              fullName: member.name || member.fullName || '',
-              username: member.username || member.name?.toLowerCase().replace(/\s+/g, '') || '',
+              fullName: member.fullName || member.username || '',
+              username: member.username || '',
               password: '',
               confirmPassword: '',
-              bio: member.specialty || member.bio || '',
-              role: (member.role === 'Quản trị viên' || member.role === 'admin') ? 'admin' : (member.role === 'Học giả' || member.role === 'scholar') ? 'scholar' : 'member',
-              status: member.status || 'active'
+              bio: member.bio || '',
+              role: member.role === 'ADMIN' ? 'admin' : member.role === 'SCHOLAR' ? 'scholar' : 'member',
+              status: member.status === 'LOCKED' ? 'locked' : 'active'
             }));
           }
         } catch (error) {
@@ -55,31 +40,30 @@ const MemberForm = () => {
 
   const handleChange = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
 
-  const handleSave = () => {
-    const newMembers = JSON.parse(localStorage.getItem('admin_new_members') || '[]');
+  const handleSave = async () => {
+    try {
+      const payload = {
+        username: form.username.trim(),
+        fullName: form.fullName.trim(),
+        status: form.status === 'locked' ? 'LOCKED' : 'ACTIVE',
+      };
+      if (form.password) {
+        payload.password = form.password;
+      }
 
-    const memberData = {
-      id: id ? id : ('member_' + Date.now()),
-      name: form.fullName,
-      fullName: form.fullName,
-      username: form.username,
-      specialty: form.bio,
-      bio: form.bio,
-      role: form.role,
-      status: form.status,
-      joinDate: new Date().toLocaleDateString('vi-VN')
-    };
+      if (isEdit) {
+        await memberService.update(id, payload);
+      } else {
+        await memberService.create(payload);
+      }
 
-    const existingIndex = newMembers.findIndex(m => String(m.id) === String(memberData.id));
-    if (existingIndex >= 0) {
-      newMembers[existingIndex] = { ...newMembers[existingIndex], ...memberData };
-    } else {
-      newMembers.push(memberData);
+      alert("Đã lưu hồ sơ thành viên!");
+      navigate('/admin/members');
+    } catch (error) {
+      console.error('Lỗi khi lưu hồ sơ thành viên:', error);
+      const errMsg = extractErrorMessage(error, 'Có lỗi xảy ra khi lưu hồ sơ thành viên!');
+      alert(errMsg);
     }
-
-    localStorage.setItem('admin_new_members', JSON.stringify(newMembers));
-    alert("Đã lưu hồ sơ thành viên!");
-    navigate('/admin/members');
   };
 
   const roles = [

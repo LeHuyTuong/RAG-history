@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { API_ENDPOINTS } from '../../../services/api';
+import apiClient, { mockClient } from '../../../services/apiClient';
 const UserProfile = () => {
   const [activeTab, setActiveTab] = useState('history');
   const [user, setUser] = useState(() => {
@@ -34,19 +35,29 @@ const UserProfile = () => {
   };
 
   const [mockHistory, setMockHistory] = useState([]);
-  const [loadingHistory, setLoadingHistory] = useState(true);
 
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.USER_PROFILE_HISTORY);
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        setMockHistory(data);
+        let historyData = [];
+        try {
+          const response = await apiClient.get('/api/v1/members/me/history');
+          historyData = response.data?.data || response.data || [];
+        } catch (apiErr) {
+          console.error('Failed to fetch profile history from API, falling back to mock:', apiErr);
+        }
+
+        if (!Array.isArray(historyData) || historyData.length === 0) {
+          try {
+            const mockRes = await mockClient.get('/api/user_profile_history.json');
+            historyData = mockRes.data || [];
+          } catch (mockErr) {
+            console.error('Failed to fetch mock profile history:', mockErr);
+          }
+        }
+        setMockHistory(Array.isArray(historyData) ? historyData : []);
       } catch (error) {
         console.error('Error fetching history:', error);
-      } finally {
-        setLoadingHistory(false);
       }
     };
     fetchHistory();

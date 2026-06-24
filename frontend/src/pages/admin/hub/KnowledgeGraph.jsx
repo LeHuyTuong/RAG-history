@@ -1,577 +1,562 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ForceGraph2D from 'react-force-graph-2d';
-import PageHeader from '../../../components/admin/PageHeader';
+import {
+  AdminLayout,
+  PageHeader,
+  StatsGrid,
+  DataTable,
+  ActionModal,
+  TableActions,
+} from '../../../components/admin';
+import { hubService } from '../../../services';
+import {
+  ENTITY_GROUPS,
+  RELATION_TYPE_META,
+  linksToRelations,
+} from '../../../utils/hubRelationsUtils';
+import { getRelationLabel } from '../../../utils/relationUtils';
+
+const EntityBadge = ({ group }) => {
+  const meta = ENTITY_GROUPS[group] || { label: group, icon: 'category' };
+  const colorClass =
+    group === 'character'
+      ? 'text-primary bg-primary/10 border-primary/20'
+      : group === 'location'
+        ? 'text-accent bg-accent/10 border-accent/20'
+        : 'text-secondary bg-secondary/10 border-secondary/20';
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${colorClass}`}
+    >
+      <span className="material-symbols-outlined text-[12px]">{meta.icon}</span>
+      {meta.label}
+    </span>
+  );
+};
 
 const KnowledgeGraph = () => {
   const navigate = useNavigate();
   const graphRef = useRef();
+  const containerRef = useRef();
 
-  const [selectedEntity, setSelectedEntity] = useState(null);
-  const [graphData, setGraphData] = useState({ nodes: [], links: [] });
+  const [viewMode, setViewMode] = useState('table');
+  const [nodes, setNodes] = useState([]);
+  const [links, setLinks] = useState([]);
+  const [relations, setRelations] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // States for creating a new relationship
+  const [filters, setFilters] = useState({ search: '', type: '', entityGroup: '' });
+  const [deleteModal, setDeleteModal] = useState({ open: false, relation: null });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sourceNode, setSourceNode] = useState('');
   const [targetNode, setTargetNode] = useState('');
   const [relationText, setRelationText] = useState('');
+  const [selectedEntity, setSelectedEntity] = useState(null);
+  const [dimensions, setDimensions] = useState({ width: 800, height: 500 });
 
-  // Manage dimensions for the graph canvas
-  const containerRef = useRef();
-  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  const graphData = { nodes, links };
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (containerRef.current) {
-        setDimensions({
-          width: containerRef.current.clientWidth,
-          height: containerRef.current.clientHeight
-        });
-      }
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const fetchData = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const [charsRes, evtsRes, locsRes] = await Promise.all([
-        fetch('/api/admin_characters.json').then(r => r.json()),
-        fetch('/api/admin_events.json').then(r => r.json()),
-        fetch('/api/admin_locations.json').then(r => r.json())
-      ]);
-
-      const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]'));
-
-      // 1. Load and merge characters
-      let baseChars = charsRes.characters || [];
-      const localNewChars = JSON.parse(localStorage.getItem('admin_new_characters') || '[]');
-      let mergedChars = [...baseChars];
-      localNewChars.forEach(localChar => {
-        const idx = mergedChars.findIndex(c => String(c.id) === String(localChar.id));
-        if (idx >= 0) {
-          mergedChars[idx] = localChar;
-        } else {
-          mergedChars.push(localChar);
-        }
-      });
-      mergedChars = mergedChars.filter(c => !deletedIds.has(String(c.id)));
-
-      // 2. Load and merge events
-      let baseEvents = evtsRes.events || [];
-      const localNewEvents = JSON.parse(localStorage.getItem('admin_new_events') || '[]');
-      let mergedEvents = [...baseEvents];
-      localNewEvents.forEach(localEvent => {
-        const idx = mergedEvents.findIndex(e => String(e.id) === String(localEvent.id));
-        if (idx >= 0) {
-          mergedEvents[idx] = localEvent;
-        } else {
-          mergedEvents.push(localEvent);
-        }
-      });
-      mergedEvents = mergedEvents.filter(e => !deletedIds.has(String(e.id)));
-
-      // 3. Load and merge locations
-      let baseLocations = locsRes.locations || [];
-      const localNewLocations = JSON.parse(localStorage.getItem('admin_new_locations') || '[]');
-      let mergedLocations = [...baseLocations];
-      localNewLocations.forEach(localLoc => {
-        const idx = mergedLocations.findIndex(l => String(l.id) === String(localLoc.id));
-        if (idx >= 0) {
-          mergedLocations[idx] = localLoc;
-        } else {
-          mergedLocations.push(localLoc);
-        }
-      });
-      mergedLocations = mergedLocations.filter(l => !deletedIds.has(String(l.id)));
-
-      const newNodes = [];
-      const newLinks = [];
-
-      // Process Characters
-      mergedChars.forEach(c => {
-        newNodes.push({
-          id: c.id,
-          name: c.name,
-          group: 'character',
-          type: 'Nhân vật',
-          dynasty: c.dynasty,
-          desc: (c.title || c.role || '') + ' (' + (c.years || '') + ')'
-        });
-      });
-
-      // Process Events
-      mergedEvents.forEach(e => {
-        newNodes.push({
-          id: e.id,
-          name: e.name,
-          group: 'event',
-          type: 'Sự kiện',
-          dynasty: e.dynasty,
-          desc: (e.sub || e.shortDesc || '') + ' (' + (e.time || '') + ')'
-        });
-      });
-
-      // Process Locations
-      mergedLocations.forEach(l => {
-        newNodes.push({
-          id: l.id,
-          name: l.name,
-          group: 'location',
-          type: 'Địa danh',
-          dynasties: l.dynasties || (l.dynasty ? [l.dynasty] : []), // Array
-          desc: (l.type || '') + ' (' + (l.coords || '') + ')'
-        });
-      });
-
-      // Generate Auto Links based on dynasty overlap and hardcoded lore
-      const allNodes = newNodes;
-      for (let i = 0; i < allNodes.length; i++) {
-        for (let j = i + 1; j < allNodes.length; j++) {
-          const n1 = allNodes[i];
-          const n2 = allNodes[j];
-
-          // Check overlapping dynasty
-          let hasOverlap = false;
-          const dyn1 = n1.dynasties || [n1.dynasty];
-          const dyn2 = n2.dynasties || [n2.dynasty];
-
-          for (let d1 of dyn1) {
-            for (let d2 of dyn2) {
-              if (d1 === d2 && d1 && d1 !== 'Khác') {
-                hasOverlap = true;
-                break;
-              }
-            }
-            if (hasOverlap) break;
-          }
-
-          const isLoreLink = (n1.name === 'Lê Lợi' && n2.name === 'Khởi nghĩa Lam Sơn') ||
-            (n1.name === 'Lê Lợi' && n2.name === 'Ải Chi Lăng') ||
-            (n1.name === 'Trần Hưng Đạo' && n2.name === 'Trận Hàm Tử') ||
-            (n1.name === 'Trần Hưng Đạo' && n2.name === 'Bạch Đằng Giang');
-
-          if (hasOverlap || isLoreLink) {
-            newLinks.push({
-              source: n1.id,
-              target: n2.id,
-              value: isLoreLink ? 3 : 1
-            });
-          }
-        }
-      }
-
-      // Generate Custom Links from localCustomRelations
-      const localCustomRelations = JSON.parse(localStorage.getItem('admin_custom_relations') || '[]');
-      localCustomRelations.forEach(rel => {
-        const sourceExists = newNodes.some(n => String(n.id) === String(rel.sourceId));
-        const targetExists = newNodes.some(n => String(n.id) === String(rel.targetId));
-        if (sourceExists && targetExists) {
-          // Check if link already exists, if so enrich it instead of duplicating
-          const existingLink = newLinks.find(lk => 
-            (String(lk.source) === String(rel.sourceId) && String(lk.target) === String(rel.targetId)) ||
-            (String(lk.source) === String(rel.targetId) && String(lk.target) === String(rel.sourceId))
-          );
-          if (existingLink) {
-            existingLink.id = rel.id;
-            existingLink.relation = rel.relation;
-            existingLink.isCustom = true;
-            existingLink.value = 4;
-          } else {
-            newLinks.push({
-              id: rel.id,
-              source: rel.sourceId,
-              target: rel.targetId,
-              value: 4,
-              relation: rel.relation,
-              isCustom: true
-            });
-          }
-        }
-      });
-
-      setGraphData({ nodes: newNodes, links: newLinks });
+      const { nodes: newNodes, links: newLinks } = await hubService.fetchGraph();
+      const mergedLinks = [...newLinks];
+      const newRelations = linksToRelations(mergedLinks, newNodes);
+      setNodes(newNodes);
+      setLinks(mergedLinks);
+      setRelations(newRelations);
     } catch (error) {
-      console.error('Error fetching graph data:', error);
+      console.error('Error fetching relation data:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    loadData();
   }, []);
 
-  const handleDeleteRelation = (linkId) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa mối quan hệ này không?")) {
-      const localCustomRelations = JSON.parse(localStorage.getItem('admin_custom_relations') || '[]');
-      const filtered = localCustomRelations.filter(rel => String(rel.id) !== String(linkId));
-      localStorage.setItem('admin_custom_relations', JSON.stringify(filtered));
-      
-      // Reset selected selection to update details
-      setSelectedEntity(null);
-      
-      // Reload graph data
-      fetchData();
+  useEffect(() => {
+    if (viewMode !== 'graph') return undefined;
+    const handleResize = () => {
+      if (containerRef.current) {
+        setDimensions({
+          width: containerRef.current.clientWidth,
+          height: containerRef.current.clientHeight,
+        });
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [viewMode]);
+
+  const participationCount = relations.filter((r) => r.type === 'participation').length;
+  const eventLocationCount = relations.filter((r) => r.type === 'event_location').length;
+  const customCount = relations.filter((r) => r.type === 'custom').length;
+  const stats = {
+    total: relations.length.toLocaleString(),
+    participation: participationCount.toLocaleString(),
+    eventLocation: eventLocationCount.toLocaleString(),
+    custom: customCount.toLocaleString(),
+  };
+
+  const filteredRelations = relations.filter((row) => {
+    const q = filters.search.toLowerCase();
+    const matchSearch =
+      !q ||
+      row.sourceName?.toLowerCase().includes(q) ||
+      row.targetName?.toLowerCase().includes(q) ||
+      row.relation?.toLowerCase().includes(q);
+    const matchType = filters.type ? row.type === filters.type : true;
+    const matchGroup = filters.entityGroup
+      ? row.sourceGroup === filters.entityGroup || row.targetGroup === filters.entityGroup
+      : true;
+    return matchSearch && matchType && matchGroup;
+  });
+
+  let previewGraphData = graphData;
+  if (selectedEntity) {
+    const neighborIds = new Set([String(selectedEntity.id)]);
+    links.forEach((l) => {
+      const sId = typeof l.source === 'object' ? l.source.id : l.source;
+      const tId = typeof l.target === 'object' ? l.target.id : l.target;
+      if (String(sId) === String(selectedEntity.id)) neighborIds.add(String(tId));
+      if (String(tId) === String(selectedEntity.id)) neighborIds.add(String(sId));
+    });
+    previewGraphData = {
+      nodes: nodes.filter((n) => neighborIds.has(String(n.id))),
+      links: links.filter((l) => {
+        const sId = typeof l.source === 'object' ? l.source.id : l.source;
+        const tId = typeof l.target === 'object' ? l.target.id : l.target;
+        return neighborIds.has(String(sId)) && neighborIds.has(String(tId));
+      }),
+    };
+  }
+
+  const handleDelete = async () => {
+    if (!deleteModal.relation?.link) return;
+    try {
+      setLoading(true);
+      await hubService.deleteRelation(deleteModal.relation.link);
+      setDeleteModal({ open: false, relation: null });
+      await loadData();
+    } catch (error) {
+      console.error('Lỗi khi xóa mối quan hệ:', error);
+      alert('Có lỗi xảy ra khi xóa mối quan hệ.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSaveRelation = (e) => {
+  const handleSaveRelation = async (e) => {
     e.preventDefault();
     if (!sourceNode.trim() || !targetNode.trim() || !relationText.trim()) {
-      alert("Vui lòng nhập đầy đủ thông tin.");
+      alert('Vui lòng nhập đầy đủ thông tin.');
       return;
     }
 
-    const sNodeObj = graphData.nodes.find(n => n.name.toLowerCase() === sourceNode.trim().toLowerCase());
-    const tNodeObj = graphData.nodes.find(n => n.name.toLowerCase() === targetNode.trim().toLowerCase());
-
-    if (!sNodeObj) {
-      alert(`Không tìm thấy thực thể thứ nhất: "${sourceNode}"`);
-      return;
-    }
-    if (!tNodeObj) {
-      alert(`Không tìm thấy thực thể thứ hai: "${targetNode}"`);
-      return;
-    }
-    if (sNodeObj.id === tNodeObj.id) {
-      alert("Không thể tạo mối quan hệ của một thực thể với chính nó.");
-      return;
-    }
-
-    const localCustomRelations = JSON.parse(localStorage.getItem('admin_custom_relations') || '[]');
-    
-    // Check duplication
-    const exists = localCustomRelations.some(rel => 
-      (String(rel.sourceId) === String(sNodeObj.id) && String(rel.targetId) === String(tNodeObj.id)) ||
-      (String(rel.sourceId) === String(tNodeObj.id) && String(rel.targetId) === String(sNodeObj.id))
+    const sNodeObj = nodes.find(
+      (n) => n.name.toLowerCase() === sourceNode.trim().toLowerCase()
+    );
+    const tNodeObj = nodes.find(
+      (n) => n.name.toLowerCase() === targetNode.trim().toLowerCase()
     );
 
+    const exists = relations.some(
+      (r) =>
+        (String(r.sourceId) === String(sNodeObj?.id) &&
+          String(r.targetId) === String(tNodeObj?.id)) ||
+        (String(r.targetId) === String(sNodeObj?.id) &&
+          String(r.sourceId) === String(tNodeObj?.id))
+    );
     if (exists) {
-      alert("Mối quan hệ giữa hai thực thể này đã tồn tại.");
+      alert('Mối quan hệ giữa hai thực thể này đã tồn tại.');
       return;
     }
 
-    const newRelation = {
-      id: 'rel_' + Date.now(),
-      sourceId: sNodeObj.id,
-      sourceName: sNodeObj.name,
-      targetId: tNodeObj.id,
-      targetName: tNodeObj.name,
-      relation: relationText.trim()
-    };
+    try {
+      setLoading(true);
+      const isPersonAndEvent =
+        (sNodeObj?.group === 'character' && tNodeObj?.group === 'event') ||
+        (sNodeObj?.group === 'event' && tNodeObj?.group === 'character');
+      const isEventAndLocation =
+        (sNodeObj?.group === 'event' && tNodeObj?.group === 'location') ||
+        (sNodeObj?.group === 'location' && tNodeObj?.group === 'event');
 
-    localCustomRelations.push(newRelation);
-    localStorage.setItem('admin_custom_relations', JSON.stringify(localCustomRelations));
-
-    setSourceNode('');
-    setTargetNode('');
-    setRelationText('');
-    setIsModalOpen(false);
-    fetchData();
+      if (isPersonAndEvent || isEventAndLocation) {
+        await hubService.createRelation({
+          sourceNode: sNodeObj,
+          targetNode: tNodeObj,
+          relationText,
+        });
+      } else {
+        throw new Error('UNSUPPORTED_RELATION_TYPE');
+      }
+      setSourceNode('');
+      setTargetNode('');
+      setRelationText('');
+      setIsModalOpen(false);
+      await loadData();
+    } catch (error) {
+      const msg = error.message || '';
+      if (msg === 'UNSUPPORTED_RELATION_TYPE') {
+        alert('Hệ thống hiện tại chỉ hỗ trợ liên kết Nhân vật – Sự kiện và Sự kiện – Địa danh.');
+      } else if (msg.startsWith('NOT_FOUND_SOURCE:')) {
+        alert(`Không tìm thấy thực thể: "${msg.split(':')[1]}"`);
+      } else if (msg.startsWith('NOT_FOUND_TARGET:')) {
+        alert(`Không tìm thấy thực thể: "${msg.split(':')[1]}"`);
+      } else if (msg === 'SELF_RELATION') {
+        alert('Không thể tạo mối quan hệ của một thực thể với chính nó.');
+      } else {
+        console.error('Lỗi khi lưu mối quan hệ:', error);
+        alert('Có lỗi xảy ra khi tạo mối quan hệ.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleZoomIn = useCallback(() => {
-    if (graphRef.current) {
-      const currentZoom = graphRef.current.zoom();
-      graphRef.current.zoom(currentZoom * 1.5, 400);
-    }
+    if (graphRef.current) graphRef.current.zoom(graphRef.current.zoom() * 1.5, 400);
   }, []);
 
   const handleZoomOut = useCallback(() => {
-    if (graphRef.current) {
-      const currentZoom = graphRef.current.zoom();
-      graphRef.current.zoom(currentZoom / 1.5, 400);
-    }
+    if (graphRef.current) graphRef.current.zoom(graphRef.current.zoom() / 1.5, 400);
   }, []);
 
   const handleFitCenter = useCallback(() => {
-    if (graphRef.current) {
-      graphRef.current.zoomToFit(600, 50);
-    }
+    if (graphRef.current) graphRef.current.zoomToFit(600, 50);
   }, []);
 
-  // Custom node rendering on canvas
-  const drawNode = useCallback((node, ctx, globalScale) => {
-    const label = node.name;
-    const fontSize = 14 / globalScale;
-
-    // Node styling by group
-    const colors = {
-      character: '#312b2a', // Primary
-      location: '#89716f', // Accent
-      event: '#a29583'    // Secondary
-    };
-    const nodeColor = colors[node.group] || '#999';
-    const radius = 6;
-
-    // Draw circle
-    ctx.beginPath();
-    ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI, false);
-    ctx.fillStyle = nodeColor;
-    ctx.fill();
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    // Draw text
-    ctx.font = `bold ${fontSize}px Inter, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#1c1b1b';
-
-    // Slight offset below the circle
-    ctx.fillText(label, node.x, node.y + radius + (8 / globalScale));
-
-    // Hover / selection effect
-    if (selectedEntity && selectedEntity.id === node.id) {
+  const drawNode = useCallback(
+    (node, ctx, globalScale) => {
+      const colors = { character: '#312b2a', location: '#89716f', event: '#a29583' };
+      const radius = 6;
       ctx.beginPath();
-      ctx.arc(node.x, node.y, radius + 4, 0, 2 * Math.PI, false);
-      ctx.strokeStyle = '#ff5722';
-      ctx.lineWidth = 2 / globalScale;
+      ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI, false);
+      ctx.fillStyle = colors[node.group] || '#999';
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1;
       ctx.stroke();
-    }
-  }, [selectedEntity]);
+      ctx.font = `bold ${14 / globalScale}px Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#1c1b1b';
+      ctx.fillText(node.name, node.x, node.y + radius + (8 / globalScale));
+      if (selectedEntity && selectedEntity.id === node.id) {
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius + 4, 0, 2 * Math.PI, false);
+        ctx.strokeStyle = '#ff5722';
+        ctx.lineWidth = 2 / globalScale;
+        ctx.stroke();
+      }
+    },
+    [selectedEntity]
+  );
+
+  const columns = [
+    {
+      key: 'source',
+      header: 'Thực thể nguồn',
+      render: (row) => (
+        <div className="flex items-center gap-3 py-1">
+          <div className="min-w-0">
+            <div className="font-headline font-bold text-on-surface truncate">{row.sourceName}</div>
+            <EntityBadge group={row.sourceGroup} />
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'relation',
+      header: 'Mối quan hệ',
+      render: (row) => (
+        <span className="inline-flex items-center gap-1 text-sm font-bold text-primary bg-primary/5 px-3 py-1 rounded-full border border-primary/10">
+          <span className="material-symbols-outlined text-[14px]">sync_alt</span>
+          {getRelationLabel(row.relation)}
+        </span>
+      ),
+    },
+    {
+      key: 'target',
+      header: 'Thực thể đích',
+      render: (row) => (
+        <div className="flex items-center gap-3 py-1">
+          <div className="min-w-0">
+            <div className="font-headline font-bold text-on-surface truncate">{row.targetName}</div>
+            <EntityBadge group={row.targetGroup} />
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'type',
+      header: 'Loại',
+      align: 'center',
+      render: (row) => {
+        const meta = RELATION_TYPE_META[row.type] || RELATION_TYPE_META.custom;
+        return (
+          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${meta.badgeClass}`}>
+            {meta.label}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'actions',
+      header: 'Thao tác',
+      align: 'right',
+      render: (row) => (
+        <TableActions
+          onEdit={() => navigate(`/admin/hub/edit/${row.sourceId}`)}
+          onDelete={() => setDeleteModal({ open: true, relation: row })}
+        />
+      ),
+    },
+  ];
 
   return (
-    <div className="flex flex-col h-screen bg-surface font-body overflow-hidden">
-      {/* 1. TOP ACTION BAR - Consistent with other admin pages */}
-      <div className="px-8 max-w-[1600px] mx-auto w-full pt-8 pb-4">
+    <AdminLayout>
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <PageHeader
-          title="Mạng lưới Tri thức"
-          subtitle="Minh họa các mối quan hệ đa chiều trong sử liệu Việt Nam"
-          actionLabel="THÊM QUAN HỆ"
-          actionIcon="add_circle"
+          title="Quản lý Mối quan hệ"
+          subtitle="Quản trị liên kết giữa nhân vật, sự kiện và địa danh trong hệ thống."
+          actionLabel="Thêm quan hệ"
+          actionIcon="add"
           onActionClick={() => setIsModalOpen(true)}
         />
-      </div>
 
-      <main className="flex-1 flex overflow-hidden relative">
-        {/* 2. KHÔNG GIAN SƠ ĐỒ (GRAPH CANVAS) */}
-        <section ref={containerRef} className="flex-1 relative bg-surface">
-          <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#89716f 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+        <StatsGrid
+          loading={loading}
+          stats={[
+            { label: 'Tổng quan hệ', value: stats.total, icon: 'hub' },
+            { label: 'Nhân vật – Sự kiện', value: stats.participation, icon: 'person' },
+            { label: 'Sự kiện – Địa danh', value: stats.eventLocation, icon: 'location_on' },
+            { label: 'Tùy chỉnh', value: stats.custom, icon: 'link' },
+          ]}
+        />
 
-          {/* Zoom controls */}
-          <div className="absolute top-4 right-4 z-20 flex items-center gap-1 bg-white/90 border border-outline-variant p-1 rounded-lg shadow-lg">
-            <button onClick={handleZoomIn} className="p-1.5 hover:bg-primary/10 rounded transition-all" title="Phóng to"><span className="material-symbols-outlined text-sm">zoom_in</span></button>
-            <button onClick={handleZoomOut} className="p-1.5 hover:bg-primary/10 rounded transition-all" title="Thu nhỏ"><span className="material-symbols-outlined text-sm">zoom_out</span></button>
-            <div className="w-px h-4 bg-outline-variant mx-1"></div>
-            <button onClick={handleFitCenter} className="p-1.5 hover:bg-primary/10 rounded transition-all text-[10px] font-bold px-3" title="Tự động căn chỉnh">TỰ ĐỘNG CĂN CHỈNH</button>
-          </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setViewMode('table')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${viewMode === 'table'
+              ? 'bg-primary text-white shadow-md'
+              : 'bg-surface-low border border-outline-variant text-on-surface-variant hover:border-primary/30'
+              }`}
+          >
+            <span className="material-symbols-outlined text-sm align-middle mr-1">table_rows</span>
+            Bảng dữ liệu
+          </button>
+          <button
+            onClick={() => setViewMode('graph')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${viewMode === 'graph'
+              ? 'bg-primary text-white shadow-md'
+              : 'bg-surface-low border border-outline-variant text-on-surface-variant hover:border-primary/30'
+              }`}
+          >
+            <span className="material-symbols-outlined text-sm align-middle mr-1">account_tree</span>
+            Sơ đồ xem trước
+          </button>
+        </div>
 
-          {loading ? (
-            <div className="absolute inset-0 flex items-center justify-center font-body text-primary z-50 bg-surface/80 backdrop-blur-sm">
-              Đang nạp dữ liệu và tính toán lực hấp dẫn...
-            </div>
-          ) : (
-            <ForceGraph2D
-              ref={graphRef}
-              width={dimensions.width}
-              height={dimensions.height}
-              graphData={graphData}
-              nodeLabel={() => ''}
-              nodeCanvasObject={drawNode}
-              onNodeClick={(node) => setSelectedEntity(node)}
-              linkDirectionalParticles={2}
-              linkDirectionalParticleSpeed={d => d.value * 0.005}
-              linkColor={() => 'rgba(75, 0, 4, 0.15)'}
-              linkWidth={d => d.value || 1.5}
-              linkLabel={link => {
-                const sName = typeof link.source === 'object' ? link.source.name : (graphData.nodes.find(n => n.id === link.source)?.name || link.source);
-                const tName = typeof link.target === 'object' ? link.target.name : (graphData.nodes.find(n => n.id === link.target)?.name || link.target);
-                const relation = link.relation || 'Liên kết lịch sử';
-                return `<div style="background: rgba(30, 41, 59, 0.95); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 11px; border: 1px solid rgba(255,255,255,0.15); font-family: sans-serif; font-weight: bold; pointer-events: none;">${sName} ➔ ${relation} ➔ ${tName}</div>`;
-              }}
-              d3VelocityDecay={0.3}
-            />
-          )}
-
-          {/* Chú giải góc trái */}
-          <div className="absolute bottom-6 left-6 bg-surface/90 p-4 rounded-lg border border-outline-variant shadow-xl text-[10px] font-body space-y-2 pointer-events-none">
-            <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-primary"></span> Nhân vật</div>
-            <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-accent"></span> Địa danh</div>
-            <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary"></span> Sự kiện</div>
-          </div>
-        </section>
-
-        {/* 3. SIDE PANEL CHI TIẾT (Right Sidebar) */}
-        <aside className={`w-[350px] bg-surface border-l border-outline-variant transition-transform duration-500 overflow-y-auto custom-scrollbar absolute right-0 top-0 bottom-0 z-30 ${selectedEntity ? 'translate-x-0' : 'translate-x-full'}`}>
-          {selectedEntity && (
-            <div className="p-8 space-y-8">
-              <div className="flex justify-between items-start">
-                <span className="bg-primary/10 text-primary px-3 py-1 rounded text-[9px] font-bold uppercase tracking-widest">{selectedEntity.type}</span>
-                <button onClick={() => setSelectedEntity(null)} className="material-symbols-outlined text-sm opacity-30 hover:opacity-100 cursor-pointer">close</button>
-              </div>
-              <div>
-                <h3 className="font-headline text-3xl text-primary font-bold leading-tight">{selectedEntity.name}</h3>
-                <p className="text-on-surface-variant text-sm italic mt-2">{selectedEntity.desc}</p>
-                {selectedEntity.dynasty && (
-                  <div className="mt-3 inline-block bg-surface-low border border-outline px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded">
-                    {selectedEntity.dynasty}
-                  </div>
-                )}
-                {selectedEntity.dynasties && (
-                  <div className="mt-3 flex gap-2 flex-wrap">
-                    {selectedEntity.dynasties.map(d => (
-                      <span key={d} className="bg-surface-low border border-outline px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded">{d}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-4">
-                <h4 className="font-body text-[10px] font-bold uppercase border-b pb-2">Liên kết đã phân tích</h4>
-                <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
-                  {graphData.links
-                    .filter(l => {
-                      const sId = typeof l.source === 'object' ? l.source.id : l.source;
-                      const tId = typeof l.target === 'object' ? l.target.id : l.target;
-                      return String(sId) === String(selectedEntity.id) || String(tId) === String(selectedEntity.id);
-                    })
-                    .map((l, idx) => {
-                      const sId = typeof l.source === 'object' ? l.source.id : l.source;
-                      const otherNode = String(sId) === String(selectedEntity.id) ? l.target : l.source;
-                      return (
-                        <div key={idx} onClick={() => setSelectedEntity(otherNode)} className="flex items-center justify-between p-2 hover:bg-surface-low rounded transition-all cursor-pointer text-sm border border-transparent hover:border-outline-variant group">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <span className={`material-symbols-outlined text-sm shrink-0 ${otherNode.group === 'character' ? 'text-primary' : otherNode.group === 'location' ? 'text-accent' : 'text-secondary'}`}>
-                              {otherNode.group === 'character' ? 'person' : otherNode.group === 'location' ? 'location_on' : 'event'}
-                            </span>
-                            <span className="font-bold truncate">{otherNode.name}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                            {l.relation && (
-                              <span className="text-[9px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10">
-                                {l.relation}
-                              </span>
-                            )}
-                            {l.isCustom && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteRelation(l.id);
-                                }}
-                                className="material-symbols-outlined text-xs text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-red-50 rounded"
-                                title="Xóa mối quan hệ"
-                              >
-                                delete
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })
-                  }
-                  {graphData.links.filter(l => {
-                    const sId = typeof l.source === 'object' ? l.source.id : l.source;
-                    const tId = typeof l.target === 'object' ? l.target.id : l.target;
-                    return String(sId) === String(selectedEntity.id) || String(tId) === String(selectedEntity.id);
-                  }).length === 0 && (
-                    <p className="text-[10px] text-on-surface-variant italic py-2">Chưa có mối liên kết nào.</p>
-                  )}
+        {viewMode === 'table' ? (
+          <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">
+            <div className="p-4 border-b border-outline-variant bg-surface-low/50">
+              <div className="flex flex-col lg:flex-row gap-4">
+                <div className="relative flex-1">
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                  <input
+                    type="text"
+                    placeholder="Tìm theo tên thực thể hoặc loại quan hệ..."
+                    value={filters.search}
+                    onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}
+                    className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface"
+                  />
+                </div>
+                <div className="flex gap-3 flex-wrap">
+                  <select
+                    value={filters.type}
+                    onChange={(e) => setFilters((prev) => ({ ...prev, type: e.target.value }))}
+                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary min-w-[180px]"
+                  >
+                    <option value="">Tất cả loại quan hệ</option>
+                    <option value="participation">Nhân vật – Sự kiện</option>
+                    <option value="event_location">Sự kiện – Địa danh</option>
+                    <option value="custom">Tùy chỉnh</option>
+                  </select>
+                  <select
+                    value={filters.entityGroup}
+                    onChange={(e) => setFilters((prev) => ({ ...prev, entityGroup: e.target.value }))}
+                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary min-w-[160px]"
+                  >
+                    <option value="">Tất cả thực thể</option>
+                    <option value="character">Nhân vật</option>
+                    <option value="event">Sự kiện</option>
+                    <option value="location">Địa danh</option>
+                  </select>
                 </div>
               </div>
-
-              <div className="flex flex-col gap-2">
+            </div>
+            <div className="p-0">
+              <DataTable
+                columns={columns}
+                data={filteredRelations}
+                loading={loading}
+                emptyMessage="Chưa có mối quan hệ nào. Nhấn «Thêm quan hệ» để bắt đầu."
+                rowKey="id"
+                onRowClick={(row) => {
+                  setSelectedEntity(nodes.find((n) => String(n.id) === String(row.sourceId)) || null);
+                  setViewMode('graph');
+                }}
+                striped={false}
+                className="border-0 shadow-none rounded-none"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-outline-variant bg-surface-low/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <p className="font-headline font-bold text-on-surface">
+                  {selectedEntity ? `Quan hệ quanh: ${selectedEntity.name}` : 'Toàn bộ mạng lưới quan hệ'}
+                </p>
+                <p className="text-[11px] text-on-surface-variant mt-0.5">
+                  {selectedEntity
+                    ? 'Chỉ hiển thị các liên kết trực tiếp. Click bảng dữ liệu để chọn trung tâm.'
+                    : `${relations.length} quan hệ có thể quản trị`}
+                </p>
+              </div>
+              {selectedEntity && (
                 <button
-                  onClick={() => navigate(`/admin/hub/edit/${selectedEntity.id}`)}
-                  className="w-full py-3 bg-primary hover:bg-primary-container text-white font-headline font-bold uppercase text-xs tracking-widest shadow-lg active:scale-95 transition-all rounded-xl cursor-pointer"
+                  onClick={() => setSelectedEntity(null)}
+                  className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest border border-outline-variant rounded-lg hover:bg-surface-low transition-all"
                 >
-                  Thiết lập mối liên kết
+                  Xem toàn bộ
                 </button>
-                <button
-                  onClick={() => navigate(`/admin/${selectedEntity.group}s/edit/${selectedEntity.id}`)}
-                  className="w-full py-3 border border-primary/30 text-primary hover:bg-primary/5 font-headline font-bold uppercase text-xs tracking-widest active:scale-95 transition-all rounded-xl cursor-pointer animate-none"
-                >
-                  Sửa thông tin chi tiết
+              )}
+            </div>
+            <div ref={containerRef} className="relative h-[520px] bg-surface">
+              <div className="absolute top-4 right-4 z-20 flex items-center gap-1 bg-white/90 border border-outline-variant p-1 rounded-lg shadow-lg">
+                <button onClick={handleZoomIn} className="p-1.5 hover:bg-primary/10 rounded transition-all" title="Phóng to">
+                  <span className="material-symbols-outlined text-sm">zoom_in</span>
+                </button>
+                <button onClick={handleZoomOut} className="p-1.5 hover:bg-primary/10 rounded transition-all" title="Thu nhỏ">
+                  <span className="material-symbols-outlined text-sm">zoom_out</span>
+                </button>
+                <div className="w-px h-4 bg-outline-variant mx-1" />
+                <button onClick={handleFitCenter} className="p-1.5 hover:bg-primary/10 rounded transition-all text-[10px] font-bold px-3">
+                  Căn chỉnh
                 </button>
               </div>
+              {loading ? (
+                <div className="absolute inset-0 flex items-center justify-center text-on-surface-variant text-sm">
+                  Đang tải...
+                </div>
+              ) : (
+                <ForceGraph2D
+                  ref={graphRef}
+                  width={dimensions.width}
+                  height={dimensions.height}
+                  graphData={selectedEntity ? previewGraphData : graphData}
+                  nodeLabel={() => ''}
+                  nodeCanvasObject={drawNode}
+                  onNodeClick={(node) => setSelectedEntity(node)}
+                  linkDirectionalParticles={2}
+                  linkDirectionalParticleSpeed={(d) => (d.value || 2) * 0.005}
+                  linkColor={() => 'rgba(75, 0, 4, 0.2)'}
+                  linkWidth={(d) => d.value || 2}
+                  linkLabel={(link) => {
+                    const sName =
+                      typeof link.source === 'object'
+                        ? link.source.name
+                        : nodes.find((n) => n.id === link.source)?.name;
+                    const tName =
+                      typeof link.target === 'object'
+                        ? link.target.name
+                        : nodes.find((n) => n.id === link.target)?.name;
+                    return `<div style="background:rgba(30,41,59,0.95);color:#fff;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:bold;">${sName} → ${getRelationLabel(link.relation || 'Liên kết')} → ${tName}</div>`;
+                  }}
+                  d3VelocityDecay={0.3}
+                />
+              )}
             </div>
-          )}
-        </aside>
-      </main>
+          </div>
+        )}
+      </div>
 
-      {/* 4. MODAL THÊM MỐI QUAN HỆ */}
+      <ActionModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, relation: null })}
+        type="delete"
+        item={{ name: deleteModal.relation?.label }}
+        onConfirm={handleDelete}
+      />
+
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-surface rounded-[2rem] border border-outline-variant shadow-2xl max-w-md w-full p-8 space-y-6 relative animate-in fade-in zoom-in duration-300">
-            <button 
-              onClick={() => setIsModalOpen(false)} 
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-surface rounded-[2rem] border border-outline-variant shadow-2xl max-w-md w-full p-8 space-y-6 relative">
+            <button
+              onClick={() => setIsModalOpen(false)}
               className="absolute top-6 right-6 material-symbols-outlined text-on-surface-variant hover:text-red-500 transition-colors cursor-pointer"
             >
               close
             </button>
-            
             <div className="space-y-1">
-              <h3 className="font-headline text-2xl text-primary font-bold">Thêm Mối Quan Hệ Mới</h3>
-              <p className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest">Thiết lập mối liên kết giữa các thực thể lịch sử</p>
+              <h3 className="font-headline text-2xl text-primary font-bold">Thêm Mối Quan Hệ</h3>
+              <p className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest">
+                Nhân vật–Sự kiện và Sự kiện–Địa danh lưu vào DB; các loại khác lưu tùy chỉnh
+              </p>
             </div>
-
             <form onSubmit={handleSaveRelation} className="space-y-5">
               <div className="space-y-2">
-                <label className="block font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Thực thể thứ nhất</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    list="nodes-source"
-                    value={sourceNode}
-                    onChange={e => setSourceNode(e.target.value)}
-                    placeholder="Chọn nhân vật, địa danh, hoặc sự kiện..."
-                    className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 text-sm font-bold text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                  />
-                  <datalist id="nodes-source">
-                    {graphData.nodes.map(n => (
-                      <option key={n.id} value={n.name}>{n.type} - {n.dynasty || 'Khác'}</option>
-                    ))}
-                  </datalist>
-                </div>
+                <label className="block font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Thực thể nguồn</label>
+                <input
+                  type="text"
+                  list="nodes-source"
+                  value={sourceNode}
+                  onChange={(e) => setSourceNode(e.target.value)}
+                  placeholder="Nhân vật, sự kiện hoặc địa danh..."
+                  className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 text-sm font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                />
+                <datalist id="nodes-source">
+                  {nodes.map((n) => (
+                    <option key={n.id} value={n.name}>{n.type} - {n.dynasty || 'Khác'}</option>
+                  ))}
+                </datalist>
               </div>
-
               <div className="space-y-2">
-                <label className="block font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Thực thể thứ hai</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    list="nodes-target"
-                    value={targetNode}
-                    onChange={e => setTargetNode(e.target.value)}
-                    placeholder="Chọn nhân vật, địa danh, hoặc sự kiện..."
-                    className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 text-sm font-bold text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                  />
-                  <datalist id="nodes-target">
-                    {graphData.nodes.map(n => (
-                      <option key={n.id} value={n.name}>{n.type} - {n.dynasty || 'Khác'}</option>
-                    ))}
-                  </datalist>
-                </div>
+                <label className="block font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Thực thể đích</label>
+                <input
+                  type="text"
+                  list="nodes-target"
+                  value={targetNode}
+                  onChange={(e) => setTargetNode(e.target.value)}
+                  placeholder="Nhân vật, sự kiện hoặc địa danh..."
+                  className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 text-sm font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                />
+                <datalist id="nodes-target">
+                  {nodes.map((n) => (
+                    <option key={n.id} value={n.name}>{n.type} - {n.dynasty || 'Khác'}</option>
+                  ))}
+                </datalist>
               </div>
-
               <div className="space-y-2">
                 <label className="block font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Mối quan hệ</label>
                 <input
                   type="text"
                   value={relationText}
-                  onChange={e => setRelationText(e.target.value)}
-                  placeholder="Vd: Lãnh đạo, Phó tướng, Nơi diễn ra trận chiến..."
-                  className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 text-sm font-bold text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                  onChange={(e) => setRelationText(e.target.value)}
+                  placeholder="Vd: Tướng lĩnh, Nơi diễn ra trận chiến..."
+                  className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 text-sm font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </div>
-
-              <div className="pt-4 flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-5 py-2.5 border border-primary/30 text-primary hover:bg-primary/5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all cursor-pointer"
-                >
+              <div className="pt-2 flex justify-end gap-3">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 border border-primary/30 text-primary rounded-xl font-bold text-xs uppercase tracking-widest">
                   Hủy bỏ
                 </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer"
-                >
+                <button type="submit" className="px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-md">
                   Xác nhận
                 </button>
               </div>
@@ -579,7 +564,7 @@ const KnowledgeGraph = () => {
           </div>
         </div>
       )}
-    </div>
+    </AdminLayout>
   );
 };
 

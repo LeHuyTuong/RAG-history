@@ -24,7 +24,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/van-lang.jpg",
     "image": "/images/posts/van-lang.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-01 09:00:00",
@@ -85,7 +85,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/co-loa.jpg",
     "image": "/images/posts/co-loa.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-02 09:00:00",
@@ -146,7 +146,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/au-lac.jpg",
     "image": "/images/posts/au-lac.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-03 09:00:00",
@@ -207,7 +207,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/hai-ba-trung.jpg",
     "image": "/images/posts/hai-ba-trung.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-04 09:00:00",
@@ -268,7 +268,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/ba-trieu.jpg",
     "image": "/images/posts/ba-trieu.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-05 09:00:00",
@@ -343,7 +343,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/van-xuan.jpg",
     "image": "/images/posts/van-xuan.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-06 09:00:00",
@@ -404,7 +404,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/ho-khuc.jpg",
     "image": "/images/posts/ho-khuc.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-07 09:00:00",
@@ -465,7 +465,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/bach-dang-938.jpg",
     "image": "/images/posts/bach-dang-938.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-08 09:00:00",
@@ -526,7 +526,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/dinh-bo-linh.jpg",
     "image": "/images/posts/dinh-bo-linh.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-09 09:00:00",
@@ -587,7 +587,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/le-hoan.jpg",
     "image": "/images/posts/le-hoan.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-10 09:00:00",
@@ -662,7 +662,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/thang-long.jpg",
     "image": "/images/posts/thang-long.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-11 09:00:00",
@@ -723,7 +723,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/nhu-nguyet.jpg",
     "image": "/images/posts/nhu-nguyet.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-12 09:00:00",
@@ -784,7 +784,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/tran-1258.jpg",
     "image": "/images/posts/tran-1258.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-13 09:00:00",
@@ -845,7 +845,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/bach-dang-1288.jpg",
     "image": "/images/posts/bach-dang-1288.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-14 09:00:00",
@@ -906,7 +906,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/nha-ho.jpg",
     "image": "/images/posts/nha-ho.jpg",
     "status": "DRAFT",
     "published_at": null,
@@ -967,7 +967,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/lam-son.jpg",
     "image": "/images/posts/lam-son.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-16 09:00:00",
@@ -1028,7 +1028,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/binh-ngo-dai-cao.jpg",
     "image": "/images/posts/binh-ngo-dai-cao.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-17 09:00:00",
@@ -1089,7 +1089,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/dong-da.jpg",
     "image": "/images/posts/dong-da.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-18 09:00:00",
@@ -1150,7 +1150,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/da-nang-1858.jpg",
     "image": "/images/posts/da-nang-1858.jpg",
     "status": "ARCHIVED",
     "published_at": "2026-07-19 09:00:00",
@@ -1211,7 +1211,7 @@
         "text": "Ghi chép từ Đại Việt Sử Ký Toàn Thư."
       }
     ],
-    "thumbnail_url": "/images/home.png",
+    "thumbnail_url": "/images/posts/dien-bien-phu.jpg",
     "image": "/images/posts/dien-bien-phu.jpg",
     "status": "PUBLISHED",
     "published_at": "2026-07-20 09:00:00",

@@ -4,6 +4,8 @@ import LogoutModal from "./LogoutModal";
 import ChatBox from "./ChatBox";
 import apiClient from "../services/apiClient";
 
+import { mockClient } from "../services/apiClient";
+
 const HEADER_HEIGHT = 80;
 
 const UserLayout = () => {
@@ -27,10 +29,9 @@ const UserLayout = () => {
     if (siteNameParam) {
       setSiteName(siteNameParam.value);
     } else {
-      fetch('/api/admin_settings.json')
-        .then(res => res.json())
-        .then(data => {
-          const defaultSiteName = data.parameters?.find(p => p.key === 'site_name')?.value;
+      mockClient.get('/api/admin_settings.json')
+        .then(res => {
+          const defaultSiteName = res.data.parameters?.find(p => p.key === 'site_name')?.value;
           if (defaultSiteName) {
             setSiteName(defaultSiteName);
           }

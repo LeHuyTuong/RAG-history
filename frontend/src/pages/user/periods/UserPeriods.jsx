@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 
 import { API_ENDPOINTS } from '../../../services/api';
+import apiClient, { mockClient } from '../../../services/apiClient';
 const UserPeriods = () => {
-  const navigate = useNavigate();
 
   const [periodsData, setPeriodsData] = useState([]);
   const [activePeriod, setActivePeriod] = useState(null);
@@ -23,12 +23,62 @@ const UserPeriods = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.USER_PERIODS);
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        setPeriodsData(data);
-        if (data.length > 0) {
-          setActivePeriod(data[0].period_id);
+        let dbPeriods = [];
+        try {
+          const response = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
+          dbPeriods = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
+        } catch (apiErr) {
+          console.error('Lỗi gọi API kỷ nguyên, chuyển sang dùng mock:', apiErr);
+        }
+
+        let mockPeriods = [];
+        try {
+          const mockRes = await mockClient.get('/api/user_periods.json');
+          mockPeriods = mockRes.data || [];
+        } catch (err) {
+          console.error('Error fetching mock periods:', err);
+        }
+
+        let merged = [];
+        if (dbPeriods.length > 0) {
+          merged = dbPeriods.map(dbItem => {
+            const mockItem = mockPeriods.find(m => m.slug === dbItem.slug) || {};
+            return {
+              ...mockItem,
+              ...dbItem,
+              period_id: dbItem.id,
+              range: dbItem.startYear !== undefined && dbItem.endYear !== undefined
+                ? `${Math.abs(dbItem.startYear)} ${dbItem.startYear < 0 ? 'TCN' : ''} - ${dbItem.endYear ? Math.abs(dbItem.endYear) + (dbItem.endYear < 0 ? ' TCN' : '') : 'Nay'}`
+                : mockItem.range || ''
+            };
+          });
+        } else {
+          merged = mockPeriods.map(mockItem => ({
+            ...mockItem,
+            period_id: mockItem.id || mockItem.period_id,
+            range: mockItem.range || ''
+          }));
+        }
+
+        // Apply custom period order if exists
+        const periodOrderStr = localStorage.getItem('home_period_order') || localStorage.getItem('admin_period_order');
+        if (periodOrderStr) {
+          try {
+            const savedOrder = JSON.parse(periodOrderStr);
+            const orderMap = new Map(savedOrder.map((id, idx) => [String(id), idx]));
+            merged.sort((a, b) => {
+              const indexA = orderMap.has(String(a.id)) ? orderMap.get(String(a.id)) : 999999;
+              const indexB = orderMap.has(String(b.id)) ? orderMap.get(String(b.id)) : 999999;
+              return indexA - indexB;
+            });
+          } catch (e) {
+            console.error('Error sorting user periods by custom order', e);
+          }
+        }
+
+        setPeriodsData(merged);
+        if (merged.length > 0) {
+          setActivePeriod(merged[0].period_id);
         }
       } catch (error) {
         console.error('Error fetching periods:', error);
@@ -71,6 +121,8 @@ const UserPeriods = () => {
   };
 
   const displayedPeriods = periodsData;
+
+  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải triều đại...</div>;
 
   return (
     <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
@@ -140,7 +192,7 @@ const UserPeriods = () => {
           <div className="absolute left-[11px] lg:left-[23px] top-4 bottom-0 w-[2px] bg-gradient-to-b from-[#6b0f0d] via-[#d99b4a]/60 to-transparent"></div>
 
           <div className="space-y-20 lg:space-y-32">
-            {displayedPeriods.map((p, idx) => (
+            {displayedPeriods.map(p => (
               <section
                 key={p.period_id}
                 id={p.period_id}

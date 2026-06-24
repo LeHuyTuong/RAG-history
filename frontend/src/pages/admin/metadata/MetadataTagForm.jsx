@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { generateSlug } from '../../../utils/stringUtils';
 import { ActionModal } from '../../../components/admin';
+import { mockClient, apiClient, extractErrorMessage } from '../../../services/apiClient';
+import { API_ENDPOINTS } from '../../../services/api';
 
 const MetadataTagForm = () => {
   const navigate = useNavigate();
@@ -31,9 +33,6 @@ const MetadataTagForm = () => {
 
   const handleSave = async () => {
     try {
-      const { default: apiClient } = await import('../../../services/apiClient');
-      const { API_ENDPOINTS } = await import('../../../services/api');
-
       const payload = {
         name: tagName,
         slug: generateSlug(tagName),
@@ -46,35 +45,14 @@ const MetadataTagForm = () => {
         await apiClient.post(API_ENDPOINTS.ADMIN_TAG_CATEGORIES, payload);
       }
 
-      // Keep localStorage logic as fallback
-      const newTags = JSON.parse(localStorage.getItem('admin_new_tags') || '[]');
-      const categoryName = categories.find(c => c.id === category)?.label || 'Khác';
-
-      const tagData = {
-        ...originalData,
-        id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('tag_' + Date.now()),
-        name: tagName,
-        slug: generateSlug(tagName),
-        type: categoryName,
-        count: id ? originalData.count : 0,
-        usage: id ? originalData.usage : 0
-      };
-
-      const existingIndex = newTags.findIndex(t => String(t.id) === String(id));
-      if (existingIndex >= 0) {
-        newTags[existingIndex] = { ...newTags[existingIndex], ...tagData };
-      } else {
-        newTags.push(tagData);
-      }
-      localStorage.setItem('admin_new_tags', JSON.stringify(newTags));
-
       setShowSuccess(true);
       setTimeout(() => {
         navigate('/admin/metadata');
       }, 1500);
-    } catch(e) {
+    } catch (e) {
       console.error('Lỗi khi lưu thẻ metadata:', e);
-      alert('Có lỗi xảy ra khi lưu thẻ metadata!');
+      const errMsg = extractErrorMessage(e, 'Có lỗi xảy ra khi lưu thẻ metadata!');
+      alert(errMsg);
     }
   };
 
@@ -92,11 +70,6 @@ const MetadataTagForm = () => {
     setCategory(newCat.id);
     setIsAddingCategory(false);
     setNewCatName('');
-
-    // Save custom category to localStorage
-    const storedCustomCats = JSON.parse(localStorage.getItem('admin_new_tag_categories') || '[]');
-    storedCustomCats.push(newCat);
-    localStorage.setItem('admin_new_tag_categories', JSON.stringify(storedCustomCats));
   };
 
   const startEditCategory = (id, label, e) => {
@@ -114,27 +87,6 @@ const MetadataTagForm = () => {
       c.id === editingCategoryId ? { ...c, label: editCatName.trim() } : c
     );
     setCategories(updatedCategories);
-
-    // Save to localStorage: 
-    // If it's a custom cat, update it. If it's a default cat, we should logically add it to deleted and create a new custom one, OR just simplify and push to custom cats with the same ID.
-    // Let's add it to custom cats so it overrides the default one when loaded.
-    const customCats = JSON.parse(localStorage.getItem('admin_new_tag_categories') || '[]');
-    const existingIndex = customCats.findIndex(c => c.id === editingCategoryId);
-
-    const catToSave = updatedCategories.find(c => c.id === editingCategoryId);
-
-    if (existingIndex >= 0) {
-      customCats[existingIndex] = catToSave;
-    } else {
-      customCats.push(catToSave);
-      // Also add to deleted so we don't render the default one AND the custom one if our load logic isn't perfectly deduplicating by ID
-      const deletedCats = JSON.parse(localStorage.getItem('admin_deleted_tag_categories') || '[]');
-      if (!deletedCats.includes(editingCategoryId)) {
-        deletedCats.push(editingCategoryId);
-        localStorage.setItem('admin_deleted_tag_categories', JSON.stringify(deletedCats));
-      }
-    }
-    localStorage.setItem('admin_new_tag_categories', JSON.stringify(customCats));
 
     setEditingCategoryId(null);
     setEditCatName('');
@@ -157,18 +109,6 @@ const MetadataTagForm = () => {
       setCategory(updatedCategories.length > 0 ? updatedCategories[0].id : '');
     }
 
-    // Remove from local storage if it's a custom tag
-    const customCats = JSON.parse(localStorage.getItem('admin_new_tag_categories') || '[]');
-    const newCustomCats = customCats.filter(c => c.id !== id);
-    localStorage.setItem('admin_new_tag_categories', JSON.stringify(newCustomCats));
-
-    // Add to deleted tag categories (in case it's a default tag)
-    const deletedCats = JSON.parse(localStorage.getItem('admin_deleted_tag_categories') || '[]');
-    if (!deletedCats.includes(id)) {
-      deletedCats.push(id);
-      localStorage.setItem('admin_deleted_tag_categories', JSON.stringify(deletedCats));
-    }
-
     setDeleteModal({ open: false, id: null, label: '' });
   };
 
@@ -176,14 +116,9 @@ const MetadataTagForm = () => {
     const init = async () => {
       let loadedCategories = [];
       try {
-        const response = await fetch('/api/admin_tag_categories.json');
-        if (!response.ok) throw new Error('Network response was not ok');
-        const data = await response.json();
-
-        // Load custom categories from localStorage
-        const customCats = JSON.parse(localStorage.getItem('admin_new_tag_categories') || '[]');
-        const deletedCats = JSON.parse(localStorage.getItem('admin_deleted_tag_categories') || '[]');
-        loadedCategories = [...data, ...customCats].filter(c => !deletedCats.includes(c.id));
+        const response = await mockClient.get('/api/admin_tag_categories.json');
+        const data = response.data;
+        loadedCategories = data;
         setCategories(loadedCategories);
       } catch (error) {
         console.error('Error fetching tag categories:', error);
@@ -193,25 +128,18 @@ const MetadataTagForm = () => {
 
       if (id) {
         try {
-          const response = await fetch('/api/admin_metadata.json');
-          if (response.ok) {
-            const data = await response.json();
+          const response = await mockClient.get('/api/admin_metadata.json');
+          const data = response.data;
+          const allTags = data.tags || [];
 
-            // Lọc bỏ tag gốc nếu đã có tag custom đè lên
-            const customTags = JSON.parse(localStorage.getItem('admin_new_tags') || '[]');
-            const customIds = new Set(customTags.map(t => String(t.id)));
-            const filteredDataTags = (data.tags || []).filter(t => !customIds.has(String(t.id)));
-            const allTags = [...filteredDataTags, ...customTags];
-
-            const tag = allTags.find(t => String(t.id) === String(id));
-            if (tag) {
-              setOriginalData(tag);
-              setTagName(tag.name || '');
-              if (tag.type) {
-                // Dùng loadedCategories thay vì biến categories (chưa cập nhật kịp do bất đồng bộ)
-                const categoryMatch = loadedCategories.find(c => c.label.toLowerCase() === tag.type.toLowerCase());
-                if (categoryMatch) setCategory(categoryMatch.id);
-              }
+          const tag = allTags.find(t => String(t.id) === String(id));
+          if (tag) {
+            setOriginalData(tag);
+            setTagName(tag.name || '');
+            if (tag.type) {
+              // Dùng loadedCategories thay vì biến categories (chưa cập nhật kịp do bất đồng bộ)
+              const categoryMatch = loadedCategories.find(c => c.label.toLowerCase() === tag.type.toLowerCase());
+              if (categoryMatch) setCategory(categoryMatch.id);
             }
           }
         } catch (error) {
@@ -386,8 +314,8 @@ const MetadataTagForm = () => {
                           />
                           <div
                             className={`px-6 py-3 rounded-2xl font-body text-xs font-bold uppercase tracking-widest transition-all duration-300 flex items-center justify-center shadow-sm relative overflow-visible ${category === cat.id
-                                ? 'bg-gradient-to-r from-gray-900 to-indigo-600 text-white shadow-lg shadow-indigo-900/20 scale-105'
-                                : 'bg-amber-50/50 border border-amber-200/60 text-amber-900 hover:bg-amber-100 hover:border-amber-300'
+                              ? 'bg-gradient-to-r from-gray-900 to-indigo-600 text-white shadow-lg shadow-indigo-900/20 scale-105'
+                              : 'bg-amber-50/50 border border-amber-200/60 text-amber-900 hover:bg-amber-100 hover:border-amber-300'
                               }`}
                           >
                             {cat.label}

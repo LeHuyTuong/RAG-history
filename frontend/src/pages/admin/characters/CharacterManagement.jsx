@@ -12,8 +12,9 @@ import {
   TableActions
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
+import { getDynastyLabel } from '../../../utils/dynastyUtils';
 
-import { API_ENDPOINTS } from '../../../services/api';
+import { personService } from '../../../services';
 const CharacterManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, name: '', id: null });
@@ -22,18 +23,14 @@ const CharacterManagement = () => {
   const [filters, setFilters] = useState({ search: '', dynasty: '' });
   const { periodColors, getPeriodStyle: getDynastyStyle } = usePeriodColors();
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteModal.id === null || deleteModal.id === undefined) return;
     const deleteId = deleteModal.id;
 
-    let newChars = JSON.parse(localStorage.getItem('admin_new_characters') || '[]');
-    newChars = newChars.filter(item => String(item.id) !== String(deleteId));
-    localStorage.setItem('admin_new_characters', JSON.stringify(newChars));
-
-    const deletedIds = JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]');
-    if (!deletedIds.includes(String(deleteId))) {
-      deletedIds.push(String(deleteId));
-      localStorage.setItem('admin_deleted_ids', JSON.stringify(deletedIds));
+    try {
+      await personService.delete(deleteId);
+    } catch (error) {
+      console.error('Error deleting character:', error);
     }
 
     setData(prev => ({
@@ -47,10 +44,8 @@ const CharacterManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { default: apiClient } = await import('../../../services/apiClient');
-        const charRes = await apiClient.get(API_ENDPOINTS.ADMIN_CHARACTERS, { params: { page: 0, size: 500 } });
-        const content = charRes.data?.data?.result || charRes.data?.data?.content || [];
-        
+        const { items: content } = await personService.filter({ page: 0, size: 500 });
+
         const mappedContent = content.map(c => ({
           ...c,
           title: c.alias || '',
@@ -67,30 +62,6 @@ const CharacterManagement = () => {
             { label: "Bản nháp", value: mappedContent.filter(c => c.status === 'draft' || c.status === 'bản nháp').length, trend: "-0", isPositive: false }
           ]
         };
-
-        // Merge new characters from localStorage
-        const newCharsStr = localStorage.getItem('admin_new_characters');
-        if (newCharsStr) {
-          try {
-            const newCharsRaw = JSON.parse(newCharsStr);
-            const newChars = newCharsRaw.map(c => ({
-              ...c,
-              title: c.title || c.role,
-              dynasty: c.dynasty || c.period || "Chưa cập nhật",
-              status: c.status === 'published' ? 'published' : 'draft'
-            }));
-
-            const newCharIds = new Set(newChars.map(c => String(c.id)));
-            const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]'));
-            charResult.characters = [
-              ...newChars,
-              ...charResult.characters.filter(c => !newCharIds.has(String(c.id)) && !deletedIds.has(String(c.id)))
-            ];
-          } catch (e) { console.error('Error parsing new characters', e); }
-        } else {
-          const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]'));
-          charResult.characters = charResult.characters.filter(c => !deletedIds.has(String(c.id)));
-        }
 
         setData(charResult);
       } catch (error) {
@@ -128,7 +99,7 @@ const CharacterManagement = () => {
       case 'draft': return 'Bản nháp';
       default: return 'Bản nháp';
     }
-  };  const columns = [
+  }; const columns = [
     {
       key: 'name', header: 'HỌ VÀ TÊN', render: (row) => (
         <div className="flex items-center gap-4 py-2">
@@ -154,15 +125,15 @@ const CharacterManagement = () => {
     },
     {
       key: 'dynasty', header: 'TRIỀU ĐẠI', align: 'center', render: (row) => {
-        const dynasties = Array.isArray(row.dynasties) && row.dynasties.length > 0 
-          ? row.dynasties 
+        const dynasties = Array.isArray(row.dynasties) && row.dynasties.length > 0
+          ? row.dynasties
           : (row.dynasty ? (Array.isArray(row.dynasty) ? row.dynasty : [row.dynasty]) : []);
-          
+
         return (
           <div className="flex flex-wrap items-center justify-center gap-1 max-w-[200px] mx-auto">
             {dynasties.map((d, i) => (
-              <span key={i} className={`border px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider ${getDynastyStyle(d)}`}>
-                {d}
+              <span key={i} className={`border px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider ${getDynastyStyle(getDynastyLabel(d))}`}>
+                {getDynastyLabel(d)}
               </span>
             ))}
           </div>
@@ -171,8 +142,8 @@ const CharacterManagement = () => {
     },
     {
       key: 'status', header: 'TRẠNG THÁI', align: 'center', render: (row) => (
-        <span className={`px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider border ${getStatusStyle(row.status)}`}>
-          {getStatusLabel(row.status)}
+        <span className={`px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider border ${getStatusStyle(getNormalizedStatus(row.status))}`}>
+          {getStatusLabel(getNormalizedStatus(row.status))}
         </span>
       )
     },
@@ -213,48 +184,48 @@ const CharacterManagement = () => {
 
       <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col mt-6">
         <div className="p-4 border-b border-outline-variant bg-surface-low/50">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-            <input
-              type="text"
-              placeholder="Tìm kiếm nhân vật (Tên, vai trò)..."
-              value={filters.search}
-              onChange={(e) => handleFilterChange('search', e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
-            />
-          </div>
-          <div className="flex gap-4">
-            <div className="relative">
-              <select
-                value={filters.dynasty}
-                onChange={(e) => handleFilterChange('dynasty', e.target.value)}
-                className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-amber-500 hover:border-amber-500/50 transition-all min-w-[160px]"
-              >
-                <option value="">Tất cả triều đại</option>
-                <option value="Nhà Đinh - Tiền Lê">Nhà Đinh - Tiền Lê</option>
-                <option value="Nhà Lý">Nhà Lý</option>
-                <option value="Nhà Trần">Nhà Trần</option>
-                <option value="Nhà Hậu Lê">Nhà Hậu Lê</option>
-                <option value="Nhà Nguyễn">Nhà Nguyễn</option>
-              </select>
-              <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+              <input
+                type="text"
+                placeholder="Tìm kiếm nhân vật (Tên, vai trò)..."
+                value={filters.search}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
+              />
             </div>
+            <div className="flex gap-4">
+              <div className="relative">
+                <select
+                  value={filters.dynasty}
+                  onChange={(e) => handleFilterChange('dynasty', e.target.value)}
+                  className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-amber-500 hover:border-amber-500/50 transition-all min-w-[160px]"
+                >
+                  <option value="">Tất cả triều đại</option>
+                  <option value="Nhà Đinh - Tiền Lê">Nhà Đinh - Tiền Lê</option>
+                  <option value="Nhà Lý">Nhà Lý</option>
+                  <option value="Nhà Trần">Nhà Trần</option>
+                  <option value="Nhà Hậu Lê">Nhà Hậu Lê</option>
+                  <option value="Nhà Nguyễn">Nhà Nguyễn</option>
+                </select>
+                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+              </div>
 
-            <div className="relative">
-              <select
-                value={filters.status}
-                onChange={(e) => handleFilterChange('status', e.target.value)}
-                className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-amber-500 hover:border-amber-500/50 transition-all min-w-[150px]"
-              >
-                <option value="">Tất cả trạng thái</option>
-                <option value="published">Công khai</option>
-                <option value="draft">Bản nháp</option>
-              </select>
-              <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+              <div className="relative">
+                <select
+                  value={filters.status}
+                  onChange={(e) => handleFilterChange('status', e.target.value)}
+                  className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-amber-500 hover:border-amber-500/50 transition-all min-w-[150px]"
+                >
+                  <option value="">Tất cả trạng thái</option>
+                  <option value="published">Công khai</option>
+                  <option value="draft">Bản nháp</option>
+                </select>
+                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+              </div>
             </div>
           </div>
-        </div>
         </div>
 
         <DataTable

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import VietnamMap from '../../../components/VietnamMap';
 import { API_ENDPOINTS } from '../../../services/api';
+import apiClient, { mockClient } from '../../../services/apiClient';
 
 const LocationDetail = () => {
   const { id } = useParams();
@@ -17,10 +18,37 @@ const LocationDetail = () => {
   useEffect(() => {
     const fetchLocation = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.USER_LOCATION_DETAIL);
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        setLocation(data);
+        let dbLocation = null;
+        try {
+          const response = await apiClient.get(`${API_ENDPOINTS.USER_LOCATION_DETAIL}/${id}`);
+          dbLocation = response.data?.data || response.data;
+        } catch (apiErr) {
+          console.error('Failed to fetch location detail from API, trying mock:', apiErr);
+        }
+
+        let mockItem = null;
+        try {
+          const mockRes = await mockClient.get('/api/user_locations.json');
+          const mockLocations = mockRes.data?.locations || mockRes.data || [];
+          mockItem = mockLocations.find(m => (m.id && m.id.toString() === id) || (m.slug && m.slug === id) || (m.location_id && m.location_id.toString() === id));
+        } catch (err) {
+          console.error('Error fetching mock locations:', err);
+        }
+
+        if (dbLocation || mockItem) {
+          setLocation({
+            heroImg: mockItem?.heroImg || 'https://via.placeholder.com/800x400',
+            ...mockItem,
+            ...dbLocation,
+            location_id: dbLocation?.id || mockItem?.id || mockItem?.location_id,
+            location_type: dbLocation?.locationType || mockItem?.location_type || 'REGION',
+            description: dbLocation?.description || mockItem?.description || '',
+            x: mockItem?.x !== undefined ? mockItem.x : 50,
+            y: mockItem?.y !== undefined ? mockItem.y : 50,
+            province: mockItem?.province || 'Việt Nam',
+            period: dbLocation?.period?.name || mockItem?.period || '',
+          });
+        }
       } catch (error) {
         console.error('Error fetching location:', error);
       } finally {
@@ -51,7 +79,7 @@ const LocationDetail = () => {
             <h1 className="font-headline text-6xl md:text-8xl text-[#f7d78a] font-semibold tracking-tight mb-6">
               {location.name}
             </h1>
-            <p className="text-[#fcf9ee]/90 font-body text-[16px] max-w-2xl leading-relaxed">
+            <p className="text-[#fcf9ee]/90 font-body text-[16px] max-w-2xl leading-relaxed border-l-4 border-[#d99b4a] pl-6">
               {location.shortDesc || location.description}
             </p>
           </div>
@@ -70,9 +98,13 @@ const LocationDetail = () => {
                 Tầm quan trọng Lịch sử
               </h2>
               <div className="space-y-6 text-[#2b1a16]/80 text-[16px] leading-loose">
-                {(location.importance || []).map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
+                {Array.isArray(location.importance) ? (
+                  location.importance.map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))
+                ) : typeof location.importance === 'string' ? (
+                  <p>{location.importance}</p>
+                ) : null}
               </div>
 
               {/* Stats Grid */}

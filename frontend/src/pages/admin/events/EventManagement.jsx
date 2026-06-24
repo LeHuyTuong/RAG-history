@@ -12,8 +12,9 @@ import {
   TableActions
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
+import { getDynastyLabel } from '../../../utils/dynastyUtils';
 
-import { API_ENDPOINTS } from '../../../services/api';
+import { eventService } from '../../../services';
 const EventManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, itemName: '', id: null });
@@ -22,24 +23,18 @@ const EventManagement = () => {
   const [filters, setFilters] = useState({ search: '', dynasty: '', year: '', status: '' });
   const { periodColors, getPeriodStyle: getDynastyStyle } = usePeriodColors();
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteModal.id === null || deleteModal.id === undefined) return;
     const deleteId = deleteModal.id;
 
-    let newEvents = JSON.parse(localStorage.getItem('admin_new_events') || '[]');
-    newEvents = newEvents.filter(item => String(item.id) !== String(deleteId));
-    localStorage.setItem('admin_new_events', JSON.stringify(newEvents));
-
-    const deletedIds = JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]');
-    if (!deletedIds.includes(String(deleteId))) {
-      deletedIds.push(String(deleteId));
-      localStorage.setItem('admin_deleted_ids', JSON.stringify(deletedIds));
+    try {
+      await eventService.delete(deleteId);
+    } catch (error) {
+      console.error('Error deleting event:', error);
     }
 
     setData(prev => {
       const nextEvents = prev.events.filter(e => String(e.id) !== String(deleteId));
-      const deletedCount = deletedIds.length;
-
       return {
         ...prev,
         stats: {
@@ -59,45 +54,17 @@ const EventManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { default: apiClient } = await import('../../../services/apiClient');
-        const eventRes = await apiClient.get(API_ENDPOINTS.ADMIN_EVENTS, { params: { page: 0, size: 500 } });
-        const content = eventRes.data?.data?.result || eventRes.data?.data?.content || [];
+        const { items: content } = await eventService.filter({ page: 0, size: 500 });
 
         const eventResult = { events: [], stats: { total: '0', published: '0' } };
-        
+
         eventResult.events = content.map(e => ({
           ...e,
           time: `${e.startYear || '?'} - ${e.endYear || '?'}`,
-          dynasty: e.periodName || 'Chưa rõ',
+          dynasty: e.period?.name || 'Chưa rõ',
           status: e.status || 'published',
-          sub: e.description || ''
+          sub: e.description ? e.description.replace(/<[^>]*>/g, '') : ''
         }));
-
-        // Merge new events from localStorage
-        const newEventsStr = localStorage.getItem('admin_new_events');
-        const deletedIds = JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]');
-        if (newEventsStr) {
-          try {
-            const newEventsRaw = JSON.parse(newEventsStr);
-            const newEvents = newEventsRaw.map(e => ({
-              ...e,
-              name: e.name || e.title,
-              time: e.time || e.startDate || e.date,
-              dynasty: e.dynasty || e.period || "Chưa cập nhật",
-              status: e.status === 'published' ? 'published' : 'draft'
-            }));
-
-            const newEventIds = new Set(newEvents.map(e => String(e.id)));
-            const deletedSet = new Set(deletedIds.map(String));
-            eventResult.events = [
-              ...newEvents,
-              ...eventResult.events.filter(e => !newEventIds.has(String(e.id)) && !deletedSet.has(String(e.id)))
-            ];
-          } catch (e) { console.error('Error parsing new events', e); }
-        } else {
-          const deletedSet = new Set(deletedIds.map(String));
-          eventResult.events = eventResult.events.filter(e => !deletedSet.has(String(e.id)));
-        }
 
         // Calculate stats dynamically based on actual data
         eventResult.stats = {
@@ -186,8 +153,8 @@ const EventManagement = () => {
         return (
           <div className="flex flex-wrap items-center justify-center gap-1 max-w-[200px] mx-auto">
             {dynasties.map((d, i) => (
-              <span key={i} className={`border px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${getDynastyStyle(d)}`}>
-                {d}
+              <span key={i} className={`border px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${getDynastyStyle(getDynastyLabel(d))}`}>
+                {getDynastyLabel(d)}
               </span>
             ))}
           </div>
@@ -256,7 +223,7 @@ const EventManagement = () => {
                   >
                     <option value="">Tất cả triều đại</option>
                     {Array.from(new Set(data.events.map(e => e.dynasty))).filter(Boolean).map(d => (
-                      <option key={d} value={d}>{d}</option>
+                      <option key={d} value={d}>{getDynastyLabel(d)}</option>
                     ))}
                   </select>
                   <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>

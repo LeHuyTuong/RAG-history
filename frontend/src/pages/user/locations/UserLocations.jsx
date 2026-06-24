@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import VietnamMap from '../../../components/VietnamMap';
 
 import { API_ENDPOINTS } from '../../../services/api';
+import apiClient, { mockClient } from '../../../services/apiClient';
 export default function UserLocations() {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'map'
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,18 +21,55 @@ export default function UserLocations() {
     window.scrollTo(0, 0);
     const fetchData = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.USER_LOCATIONS);
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        const locs = data.locations || data || [];
-        setLocations(locs);
-        if (locs.length > 0) {
-          setSelectedSite(locs[0]);
+        let dbLocations = [];
+        try {
+          const response = await apiClient.get(API_ENDPOINTS.USER_LOCATIONS);
+          dbLocations = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
+        } catch (apiErr) {
+          console.error('Lỗi gọi API địa danh, chuyển sang dùng mock:', apiErr);
+        }
+
+        let mockLocations = [];
+        try {
+          const mockRes = await mockClient.get('/api/user_locations.json');
+          mockLocations = mockRes.data?.locations || mockRes.data || [];
+        } catch (err) {
+          console.error('Error fetching mock locations:', err);
+        }
+
+        let merged = [];
+        if (dbLocations.length > 0) {
+          merged = dbLocations.map(dbItem => {
+            const mockItem = mockLocations.find(m => m.slug === dbItem.slug) || {};
+            return {
+              ...mockItem,
+              ...dbItem,
+              location_id: dbItem.id,
+              location_type: dbItem.locationType || mockItem.location_type || 'REGION',
+              description: dbItem.description || mockItem.description || '',
+              x: mockItem.x !== undefined ? mockItem.x : 50,
+              y: mockItem.y !== undefined ? mockItem.y : 50,
+              province: mockItem.province || 'Việt Nam',
+              period: dbItem.period?.name || mockItem.period || '',
+            };
+          });
+        } else {
+          merged = mockLocations.map(mockItem => ({
+            ...mockItem,
+            location_id: mockItem.id || mockItem.location_id,
+            location_type: mockItem.location_type || 'REGION',
+            province: mockItem.province || 'Việt Nam',
+            period: mockItem.period || '',
+          }));
+        }
+
+        setLocations(merged);
+        if (merged.length > 0) {
+          setSelectedSite(merged[0]);
         }
       } catch (error) {
         console.error('Error fetching locations:', error);
       } finally {
-
         setLoading(false);
       }
     };
@@ -54,6 +92,8 @@ export default function UserLocations() {
 
   // Lấy các triều đại để đồng bộ với data
   const dynasties = [...new Set(locations.map(l => l.period).filter(Boolean))];
+
+  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải địa danh...</div>;
 
   return (
     <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20 relative">

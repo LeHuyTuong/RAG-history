@@ -1,7 +1,8 @@
-import {  useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { generateSlug } from '../../../utils/stringUtils';
 import { RichTextEditor, FormHeader, VietnamMap, TagInput } from '../../../components/admin';
+import { locationService, extractErrorMessage } from '../../../services';
 
 const LocationForm = () => {
   const { id } = useParams();
@@ -20,11 +21,15 @@ const LocationForm = () => {
         try {
           let foundLocation = null;
 
-          const newLocationsStr = localStorage.getItem('admin_new_locations');
-          if (newLocationsStr) {
-            const newLocations = JSON.parse(newLocationsStr);
-            foundLocation = newLocations.find(l => String(l.id) === String(id));
+          if (!isNaN(Number(id))) {
+            try {
+              foundLocation = await locationService.getById(Number(id));
+            } catch (err) {
+              console.error('Lỗi khi tải địa danh từ backend:', err);
+            }
           }
+
+          // Removed localStorage fallback check
 
           if (!foundLocation) {
             const response = await fetch('/api/admin_locations.json');
@@ -54,7 +59,7 @@ const LocationForm = () => {
               initialDynasties = Array.isArray(foundLocation.dynasty) ? foundLocation.dynasty : [foundLocation.dynasty];
             }
 
-setForm({
+            setForm({
               name: foundLocation.name || '',
               slug: foundLocation.slug || generateSlug(foundLocation.name || ''),
               locationType: foundLocation.type || foundLocation.locationType || 'Cố đô/Thành quách',
@@ -98,9 +103,6 @@ setForm({
 
   const handleSave = async () => {
     try {
-      const { default: apiClient } = await import('../../../services/apiClient');
-      const { API_ENDPOINTS } = await import('../../../services/api');
-
       // Map frontend location type to backend enum
       let backendType = 'CITY';
       const typeMap = {
@@ -124,41 +126,15 @@ setForm({
       };
 
       if (isEdit && !isNaN(Number(id))) {
-        await apiClient.put(`${API_ENDPOINTS.ADMIN_LOCATIONS}/${id}`, payload);
+        await locationService.update(Number(id), payload);
       } else {
-        await apiClient.post(API_ENDPOINTS.ADMIN_LOCATIONS, payload);
+        await locationService.create(payload);
       }
-
-      // Keep localStorage as fallback for unsupported properties
-      const newLocations = JSON.parse(localStorage.getItem('admin_new_locations') || '[]');
-      const locationData = {
-        ...originalData,
-        id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('loc_' + Date.now()),
-        name: form.name,
-        slug: form.slug,
-        type: form.locationType,
-        lat: form.latitude,
-        lng: form.longitude,
-        coords: (form.latitude && form.longitude) ? `${form.latitude}, ${form.longitude}` : '',
-        shortDesc: form.description,
-        description: form.description,
-        dynasties: form.dynasty,
-        dynasty: form.dynasty.length > 0 ? form.dynasty[0] : 'Khác',
-        period: form.dynasty.length > 0 ? form.dynasty[0] : 'Khác',
-        status: form.status === 'published' ? 'published' : 'draft'
-      };
-
-      const existingIndex = newLocations.findIndex(l => String(l.id) === String(locationData.id));
-      if (existingIndex >= 0) {
-        newLocations[existingIndex] = { ...newLocations[existingIndex], ...locationData };
-      } else {
-        newLocations.push(locationData);
-      }
-      localStorage.setItem('admin_new_locations', JSON.stringify(newLocations));
       navigate('/admin/locations');
     } catch (error) {
       console.error('Lỗi khi lưu địa danh:', error);
-      alert('Có lỗi xảy ra khi lưu địa danh!');
+      const errMsg = extractErrorMessage(error, 'Có lỗi xảy ra khi lưu địa danh!');
+      alert(errMsg);
     }
   };
 

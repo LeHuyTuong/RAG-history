@@ -15,8 +15,8 @@
   "eraName": "Không rõ",
   "reign": "? - ?",
   "quote": "Một câu nói nổi tiếng hoặc triết lý sống của nhân vật này.",
-  "portrait": "/images/home.png",
-  "steleImg": "/images/home.png",
+  "portrait": "https://upload.wikimedia.org/wikipedia/commons/c/c9/C%E1%BB%95ng_%C4%91%E1%BB%81n_H%C3%B9ng_%28Ph%C3%BA_Th%E1%BB%8D%29.jpg",
+  "steleImg": "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg",
   "milestones": [
     {
       "time": "Chưa rõ",
@@ -54,5 +54,5 @@
     "Lãnh đạo hoặc tham gia các sự kiện lịch sử mang tính bước ngoặt.",
     "Để lại di sản văn hóa, tư tưởng hoặc quân sự."
   ],
-  "image": "/images/home.png"
+  "image": "https://upload.wikimedia.org/wikipedia/commons/c/c9/C%E1%BB%95ng_%C4%91%E1%BB%81n_H%C3%B9ng_%28Ph%C3%BA_Th%E1%BB%8D%29.jpg"
 }

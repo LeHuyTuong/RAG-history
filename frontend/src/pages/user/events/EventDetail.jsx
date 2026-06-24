@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
 import { API_ENDPOINTS } from '../../../services/api';
+import apiClient, { mockClient } from '../../../services/apiClient';
 const EventDetail = () => {
   const { id } = useParams();
 
@@ -16,10 +17,55 @@ const EventDetail = () => {
   useEffect(() => {
     const fetchEventData = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.USER_EVENT_DETAIL);
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        setEventData(data);
+        let dbEvent = null;
+        try {
+          const response = await apiClient.get(`${API_ENDPOINTS.USER_EVENT_DETAIL}/${id}`);
+          dbEvent = response.data?.data || response.data;
+        } catch (apiErr) {
+          console.error('Failed to fetch event detail from API, trying mock:', apiErr);
+        }
+
+        let mockItem = null;
+        try {
+          const mockRes = await mockClient.get('/api/user_events.json');
+          const mockEvents = mockRes.data?.events || mockRes.data || [];
+          mockItem = mockEvents.find(m => (m.id && m.id.toString() === id) || (m.slug && m.slug === id) || (m.event_id && m.event_id.toString() === id));
+        } catch (err) {
+          console.error('Error fetching mock events:', err);
+        }
+
+        let dbParts = [];
+        try {
+          const partsRes = await apiClient.get('/api/v1/admin/participations', { params: { eventId: id } });
+          const rawParts = partsRes.data?.data?.result || partsRes.data?.data || [];
+          dbParts = rawParts.map(item => ({
+            person_id: item.person?.id,
+            person_name: item.person?.name,
+            role: item.role === 'LEADER' ? 'Lãnh đạo' : item.role === 'COMMANDER' ? 'Chỉ huy' : 'Tham chiến',
+            color: 'border-l-[#d99b4a]'
+          }));
+        } catch (err) {
+          console.error('Error fetching participations:', err);
+        }
+
+        if (dbEvent || mockItem) {
+          setEventData({
+            ...mockItem,
+            ...dbEvent,
+            event_id: dbEvent?.id || mockItem?.id || mockItem?.event_id,
+            title: dbEvent?.name || mockItem?.name || mockItem?.title || '',
+            description: dbEvent?.description || mockItem?.description || '',
+            time: dbEvent?.startYear !== undefined
+              ? `${Math.abs(dbEvent.startYear)} ${dbEvent.startYear < 0 ? 'TCN' : ''}`
+              : mockItem?.time || '',
+            participations: dbParts.length > 0 ? dbParts : (mockItem?.relatedFigures || []).map(f => ({
+              person_id: f.person_id || f.id,
+              person_name: f.name,
+              role: f.role || 'Tham chiến',
+              color: 'border-l-[#d99b4a]'
+            }))
+          });
+        }
       } catch (error) {
         console.error('Error fetching event data:', error);
       } finally {
@@ -54,9 +100,10 @@ const EventDetail = () => {
             <h1 className="font-headline text-5xl md:text-7xl text-[#6b0f0d] leading-tight font-semibold tracking-tight">
               {eventData.title || eventData.name}
             </h1>
-            <p className="font-body text-[16px] text-[#2b1a16]/80 max-w-2xl border-l-4 border-[#6b0f0d] pl-8 py-2 leading-relaxed">
-              "{eventData.subtitle || eventData.description}"
-            </p>
+            <div 
+              className="font-body text-[16px] text-[#2b1a16]/90 max-w-2xl border-l-4 border-[#d99b4a] pl-8 py-2 leading-relaxed space-y-4 ql-editor"
+              dangerouslySetInnerHTML={{ __html: eventData.subtitle || eventData.description }}
+            />
           </div>
           <div className="lg:col-span-5 relative group">
             <div className="absolute -inset-4 border border-[#d99b4a]/40 pointer-events-none dong-son-border"></div>
@@ -98,10 +145,10 @@ const EventDetail = () => {
             <h2 className="font-headline text-3xl text-[#6b0f0d] border-b border-[#d99b4a]/30 pb-4 font-semibold">Phục dựng bối cảnh</h2>
             <div className="grid grid-cols-2 gap-6">
               <div className="aspect-square overflow-hidden border border-[#d99b4a]/40 shadow-sm p-1 bg-[#fffdf8] group">
-                <img className="w-full h-full object-cover grayscale-[0.6] sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500" src={eventData.gallery[0]} alt="visual 1" />
+                <img className="w-full h-full object-cover grayscale-[0.6] sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500" src={eventData.gallery?.[0] || eventData.image || "/images/home.png"} alt="visual 1" />
               </div>
               <div className="aspect-square overflow-hidden border border-[#d99b4a]/40 shadow-sm p-1 bg-[#fffdf8] group">
-                <img className="w-full h-full object-cover grayscale-[0.6] sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500" src={eventData.gallery[1]} alt="visual 2" />
+                <img className="w-full h-full object-cover grayscale-[0.6] sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500" src={eventData.gallery?.[1] || eventData.image || "/images/home.png"} alt="visual 2" />
               </div>
             </div>
           </div>

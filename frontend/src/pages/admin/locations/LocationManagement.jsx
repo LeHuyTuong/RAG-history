@@ -13,8 +13,11 @@ import {
   VietnamMap
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient from '../../../services/apiClient';
+import { locationService } from '../../../services';
+import { getLocationLabel } from '../../../utils/locationTypeUtils';
+import { getDynastyLabel } from '../../../utils/dynastyUtils';
+// Static config (location type colors) - kept as a frontend constant
+import locationTypeColors from '../../../../public/api/location_type_colors.json';
 
 const LocationManagement = () => {
   const navigate = useNavigate();
@@ -29,7 +32,7 @@ const LocationManagement = () => {
     if (deleteModal.id === null || deleteModal.id === undefined) return;
 
     try {
-      await apiClient.delete(`${API_ENDPOINTS.ADMIN_LOCATIONS}/${deleteModal.id}`);
+      await locationService.delete(deleteModal.id);
       setData(prev => ({
         ...prev,
         locations: prev.locations.filter(loc => String(loc.id) !== String(deleteModal.id))
@@ -45,19 +48,11 @@ const LocationManagement = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
-        // Cùng lúc lấy locations và colors mock
-        const [locRes, typeColorRes] = await Promise.all([
-          apiClient.get(API_ENDPOINTS.ADMIN_LOCATIONS, { params: { page: 0, size: 500 } }),
-          fetch(API_ENDPOINTS.LOCATION_TYPE_COLORS)
-        ]);
-
-        const payload = locRes.data?.data || locRes.data;
-        const locations = payload.result || [];
+        const { items: locations, totalElements } = await locationService.filter({ page: 0, size: 500 });
 
         setData({
           stats: [
-            { id: 1, label: 'Tổng số địa danh', value: payload.meta?.total || locations.length, icon: 'location_on', color: 'text-emerald-600' }
+            { id: 1, label: 'Tổng số địa danh', value: totalElements || locations.length, icon: 'location_on', color: 'text-emerald-600' }
           ],
           locations: locations.map(l => ({
             id: l.id,
@@ -66,13 +61,12 @@ const LocationManagement = () => {
             coords: `${l.latitude || 0}, ${l.longitude || 0}`,
             period: 'Chưa cập nhật',
             dynasties: [],
-            status: 'PUBLISHED' // Bảng Location không có status, mock mặc định
+            status: 'PUBLISHED' // Bảng Location không có status, mặc định PUBLISHED
           }))
         });
 
-        if (typeColorRes.ok) {
-          const typeColorResult = await typeColorRes.json();
-          setTypeColors(typeColorResult);
+        if (locationTypeColors) {
+          setTypeColors(locationTypeColors);
         }
       } catch (error) {
         console.error('Error fetching locations data:', error);
@@ -141,7 +135,7 @@ const LocationManagement = () => {
     {
       key: 'type', header: 'Loại hình', render: (row) => (
         <span className={`border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getTypeStyle(row.type)}`}>
-          {row.type}
+          {getLocationLabel(row.type)}
         </span>
       )
     },
@@ -149,8 +143,8 @@ const LocationManagement = () => {
       key: 'dynasties', header: 'Triều đại', render: (row) => (
         <div className="flex flex-wrap gap-1">
           {row.dynasties?.map((dynasty, idx) => (
-            <span key={idx} className={`border px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider ${getDynastyStyle(dynasty)}`}>
-              {dynasty}
+            <span key={idx} className={`border px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider ${getDynastyStyle(getDynastyLabel(dynasty))}`}>
+              {getDynastyLabel(dynasty)}
             </span>
           ))}
         </div>
@@ -158,8 +152,8 @@ const LocationManagement = () => {
     },
     {
       key: 'status', header: 'Trạng thái', align: 'center', render: (row) => (
-        <span className={`px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider border ${getStatusStyle(row.status)}`}>
-          {getStatusLabel(row.status)}
+        <span className={`px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider border ${getStatusStyle(getNormalizedStatus(row.status))}`}>
+          {getStatusLabel(getNormalizedStatus(row.status))}
         </span>
       )
     },
@@ -218,7 +212,7 @@ const LocationManagement = () => {
                     >
                       <option value="">Tất cả loại hình</option>
                       {Array.from(new Set(data.locations.map(l => l.type))).filter(Boolean).map(t => (
-                        <option key={t} value={t}>{t}</option>
+                        <option key={t} value={t}>{getLocationLabel(t)}</option>
                       ))}
                     </select>
                     <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>

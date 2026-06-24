@@ -1,5 +1,6 @@
 import {  useState, useEffect, useRef  } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { mockClient } from '../../../services/apiClient';
 
 const CategoryTreeItem = ({ category, level = 0, onEdit }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -100,62 +101,10 @@ const MetadataCategoryForm = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('/api/admin_metadata.json');
-        if (response.ok) {
-          const data = await response.json();
-          let cats = data.categories || [];
-          
-          const customCatsStr = localStorage.getItem('admin_new_categories');
-          if (customCatsStr) {
-            try {
-              const customCats = JSON.parse(customCatsStr);
-              
-              const newTree = JSON.parse(JSON.stringify(cats));
-              const nodeMap = {};
-              const traverse = (nodes) => {
-                for (const node of nodes) {
-                  nodeMap[String(node.id)] = node;
-                  if (node.children) traverse(node.children);
-                }
-              };
-              traverse(newTree);
-              
-              const roots = [...newTree];
-              const newInsertions = [];
-              
-              for (const custom of customCats) {
-                if (nodeMap[String(custom.id)]) {
-                  Object.assign(nodeMap[String(custom.id)], custom);
-                } else {
-                  newInsertions.push(custom);
-                }
-              }
-              
-              // Pass 1: Add all new insertions to nodeMap
-              for (const custom of newInsertions) {
-                custom.children = custom.children || [];
-                nodeMap[String(custom.id)] = custom;
-              }
-
-              // Pass 2: Connect to parents or add to roots
-              for (const custom of newInsertions) {
-                if (custom.parentId) {
-                  const parent = nodeMap[String(custom.parentId)];
-                  if (parent) {
-                    parent.children = parent.children || [];
-                    parent.children.push(custom);
-                  } else {
-                    roots.push(custom);
-                  }
-                } else {
-                  roots.push(custom);
-                }
-              }
-              cats = roots;
-            } catch (e) { console.error(e); }
-          }
-          setCategories(cats);
-        }
+        const response = await mockClient.get('/api/admin_metadata.json');
+        const data = response.data;
+        let cats = data.categories || [];
+        setCategories(cats);
       } catch (error) {
         console.error('Error fetching categories:', error);
       }
@@ -165,25 +114,8 @@ const MetadataCategoryForm = () => {
     if (isEdit) {
       const fetchCategory = async () => {
         try {
-          const customCats = JSON.parse(localStorage.getItem('admin_new_categories') || '[]');
-          const localMatch = customCats.find(c => String(c.id) === String(id));
-
-          if (localMatch) {
-            setOriginalData(localMatch);
-            setForm({
-              name: localMatch.name || '',
-              slug: localMatch.slug || '',
-              parentId: localMatch.parentId || '',
-              description: localMatch.description || '',
-              image: localMatch.image || null
-            });
-            setImagePreview(localMatch.image || null);
-            return;
-          }
-
-          const response = await fetch('/api/admin_metadata.json');
-          if (!response.ok) throw new Error('Network error');
-          const data = await response.json();
+          const response = await mockClient.get('/api/admin_metadata.json');
+          const data = response.data;
           
           let foundCat = null;
           const searchTree = (nodes) => {
@@ -266,7 +198,7 @@ const MetadataCategoryForm = () => {
     if (value) newPath.push(value);
     
     setParentPath(newPath);
-    setForm({ ...form, parentId: newPath.length > 0 ? newPath[newPath.length - 1] : '' });
+    setForm(prev => ({ ...prev, parentId: newPath.length > 0 ? newPath[newPath.length - 1] : '' }));
   };
 
   const renderParentSelects = () => {
@@ -340,7 +272,7 @@ const MetadataCategoryForm = () => {
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
 
-    setForm({ ...form, image: file });
+    setForm(prev => ({ ...prev, image: file }));
   };
 
   const removeImage = (e) => {
@@ -348,7 +280,7 @@ const MetadataCategoryForm = () => {
     e.preventDefault();
     setImageFile(null);
     setImagePreview(null);
-    setForm({ ...form, image: null });
+    setForm(prev => ({ ...prev, image: null }));
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -364,36 +296,10 @@ const MetadataCategoryForm = () => {
 
   const handleNameChange = (e) => {
     const name = e.target.value;
-    setForm({ ...form, name, slug: generateSlug(name) });
+    setForm(prev => ({ ...prev, name, slug: generateSlug(name) }));
   };
 
   const handleSave = () => {
-    const newCats = JSON.parse(localStorage.getItem('admin_new_categories') || '[]');
-    
-    // We only save image reference string if possible, or null
-    // (If it was a real File object, we can't JSON stringify it easily, 
-    // so we just leave it out or save a mock URL if needed)
-    
-    const catData = {
-      ...originalData,
-      id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('cat_' + Date.now()),
-      name: form.name,
-      slug: form.slug || generateSlug(form.name),
-      parentId: form.parentId ? (!String(form.parentId).startsWith('cat_') ? parseInt(form.parentId) : form.parentId) : undefined,
-      description: form.description,
-      image: imagePreview || null,
-      children: [] // Root by default
-    };
-
-    const existingIndex = newCats.findIndex(c => String(c.id) === String(id));
-    if (existingIndex >= 0) {
-      newCats[existingIndex] = { ...newCats[existingIndex], ...catData };
-    } else {
-      newCats.push(catData);
-    }
-    
-    localStorage.setItem('admin_new_categories', JSON.stringify(newCats));
-
     setShowSuccess(true);
     setTimeout(() => {
       navigate('/admin/metadata');
@@ -484,7 +390,7 @@ const MetadataCategoryForm = () => {
                   <div className="space-y-2">
                     <label className="block font-body text-[11px] font-bold uppercase text-on-surface-variant tracking-widest">Mô tả (Không bắt buộc)</label>
                     <textarea 
-                      value={form.description} onChange={e => setForm({...form, description: e.target.value})}
+                    value={form.description} onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
                       rows={4}
                       className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-4 text-sm font-body text-on-surface outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline-variant/60 resize-none"
                       placeholder="Mô tả ngắn gọn về danh mục này..."

@@ -12,8 +12,7 @@ import {
   TableActions
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient from '../../../services/apiClient';
+import { postService } from '../../../services';
 
 const ArticleManagement = () => {
   const navigate = useNavigate();
@@ -28,7 +27,7 @@ const ArticleManagement = () => {
     const deleteId = modal.item.id;
 
     try {
-      await apiClient.delete(`${API_ENDPOINTS.ADMIN_ARTICLES}/${deleteId}`);
+      await postService.delete(deleteId);
       setData(prev => ({
         ...prev,
         articles: prev.articles.filter(a => String(a.id) !== String(deleteId))
@@ -44,17 +43,11 @@ const ArticleManagement = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Using pagination / filter params can be added here
-        const response = await apiClient.get(API_ENDPOINTS.ADMIN_ARTICLES, {
-          params: { page: 0, size: 500 } // Spring Data JPA page is 0-indexed
-        });
-        
-        const payload = response.data?.data || response.data;
-        const posts = payload.result || [];
-        
+        const { items: posts, totalElements } = await postService.filter({ page: 0, size: 500 });
+
         setData({
           stats: [
-            { id: 1, label: 'Tổng số bài viết', value: payload.meta?.total || posts.length, icon: 'article', color: 'text-primary' },
+            { id: 1, label: 'Tổng số bài viết', value: totalElements || posts.length, icon: 'article', color: 'text-primary' },
             { id: 2, label: 'Đã xuất bản', value: posts.filter(p => p.status === 'PUBLISHED').length, icon: 'check_circle', color: 'text-emerald-600' }
           ],
           articles: posts.map(p => ({
@@ -62,7 +55,7 @@ const ArticleManagement = () => {
             title: p.title,
             slug: p.slug,
             summary: p.summary,
-            period: '', // Backend EventResponse hiện tại chưa include period
+            period: p.tags && p.tags.length > 0 ? p.tags[0].name : 'Chưa rõ',
             author: p.author?.fullName || p.author?.username || 'Admin',
             status: p.status
           }))
@@ -89,15 +82,6 @@ const ArticleManagement = () => {
     return normalized === 'published' || normalized === 'công khai' ? 'published' : 'draft';
   };
 
-  const filteredArticles = data.articles.filter(article => {
-    const matchSearch = article.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-      article.slug.toLowerCase().includes(filters.search.toLowerCase());
-    const matchStatus = filters.status ? getNormalizedStatus(article.status) === filters.status : true;
-    const matchPeriod = filters.period ? article.period === filters.period : true;
-    const matchAuthor = filters.author ? article.author === filters.author : true;
-    return matchSearch && matchStatus && matchPeriod && matchAuthor;
-  });
-
   const getStatusStyle = (status) => {
     switch (status) {
       case 'published':
@@ -116,7 +100,14 @@ const ArticleManagement = () => {
     }
   };
 
-
+  const filteredArticles = data.articles.filter(article => {
+    const matchSearch = article.title.toLowerCase().includes(filters.search.toLowerCase()) ||
+      article.slug.toLowerCase().includes(filters.search.toLowerCase());
+    const matchStatus = filters.status ? getNormalizedStatus(article.status) === filters.status : true;
+    const matchPeriod = filters.period ? article.period === filters.period : true;
+    const matchAuthor = filters.author ? article.author === filters.author : true;
+    return matchSearch && matchStatus && matchPeriod && matchAuthor;
+  });
 
   const columns = [
     {
@@ -154,8 +145,8 @@ const ArticleManagement = () => {
     },
     {
       key: 'status', header: 'Trạng thái', align: 'center', render: (row) => (
-        <span className={`px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider border ${getStatusStyle(row.status)}`}>
-          {getStatusLabel(row.status)}
+        <span className={`px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider border ${getStatusStyle(getNormalizedStatus(row.status))}`}>
+          {getStatusLabel(getNormalizedStatus(row.status))}
         </span>
       )
     },

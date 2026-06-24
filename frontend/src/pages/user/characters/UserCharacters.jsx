@@ -1,24 +1,66 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { personService } from '../../../services';
+import { mockClient } from '../../../services/apiClient';
 
 const UserCharacters = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activePeriod, setActivePeriod] = useState('');
   const [characters, setCharacters] = useState([]);
-  const [periods, setPeriods] = useState(['Triều Lý', 'Triều Trần', 'Triều Lê Sơ', 'Triều Nguyễn', 'Triều Hồ']);
+  const [periods, setPeriods] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/user_characters.json');
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        const chars = data.characters || [];
-        setCharacters(chars);
+        let dbItems = [];
+        try {
+          const dbRes = await personService.filter({ size: 500 });
+          dbItems = dbRes.items || [];
+        } catch (apiErr) {
+          console.error('Lỗi gọi API nhân vật, chuyển sang dùng mock:', apiErr);
+        }
 
-        // Trích xuất tự động danh sách các thời kỳ từ data nhân vật
-        const uniquePeriods = [...new Set(chars.map(c => c.dynasty).filter(Boolean))];
+        let mockChars = [];
+        try {
+          const mockRes = await mockClient.get('/api/user_characters.json');
+          mockChars = mockRes.data?.characters || mockRes.data || [];
+        } catch (err) {
+          console.error('Error fetching mock characters:', err);
+        }
+
+        let merged = [];
+        if (dbItems.length > 0) {
+          merged = dbItems.map(dbItem => {
+            const mockItem = mockChars.find(m => m.slug === dbItem.slug) || {};
+            const rawDesc = dbItem.biography || mockItem.biography || mockItem.description || '';
+            const cleanDesc = rawDesc ? rawDesc.replace(/<[^>]*>/g, '') : '';
+            return {
+              ...mockItem,
+              ...dbItem,
+              person_id: dbItem.id,
+              realName: dbItem.alias || '',
+              desc: cleanDesc,
+              dynasty: dbItem.dynasty || mockItem.dynasty || 'Chưa rõ',
+              image: dbItem.avatar || mockItem.image || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+              achievements: mockItem.achievements || []
+            };
+          });
+        } else {
+          merged = mockChars.map(mockItem => ({
+            ...mockItem,
+            person_id: mockItem.id || mockItem.person_id,
+            realName: mockItem.realName || mockItem.alias || '',
+            desc: mockItem.biography || mockItem.description || '',
+            dynasty: mockItem.dynasty || 'Chưa rõ',
+            image: mockItem.image || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+            achievements: mockItem.achievements || []
+          }));
+        }
+
+        setCharacters(merged);
+
+        const uniquePeriods = [...new Set(merged.map(c => c.dynasty).filter(Boolean))];
         setPeriods(uniquePeriods);
       } catch (error) {
         console.error('Error fetching characters:', error);
@@ -34,6 +76,8 @@ const UserCharacters = () => {
     const matchesPeriod = activePeriod === '' || activePeriod === 'Tất cả thời kỳ' || char.dynasty.includes(activePeriod.replace('Triều ', ''));
     return matchesSearch && matchesPeriod;
   });
+
+  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải nhân vật...</div>;
 
   return (
     <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">

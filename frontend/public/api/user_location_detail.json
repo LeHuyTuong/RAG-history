@@ -53,14 +53,14 @@
     {
       "name": "Lê Lợi",
       "role": "Anh hùng dân tộc",
-      "img": "/images/home.png"
+      "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
     },
     {
       "name": "Nguyễn Trãi",
       "role": "Danh nhân văn hóa",
-      "img": "/images/home.png"
+      "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
     }
   ],
-  "image": "/images/home.png",
-  "heroImg": "/images/home.png"
+  "image": "https://upload.wikimedia.org/wikipedia/commons/c/c9/C%E1%BB%95ng_%C4%91%E1%BB%81n_H%C3%B9ng_%28Ph%C3%BA_Th%E1%BB%8D%29.jpg",
+  "heroImg": "https://upload.wikimedia.org/wikipedia/commons/c/c9/C%E1%BB%95ng_%C4%91%E1%BB%81n_H%C3%B9ng_%28Ph%C3%BA_Th%E1%BB%8D%29.jpg"
 }

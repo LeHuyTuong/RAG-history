@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, MessageSquare } from 'lucide-react';
 import Pagination from '../../../components/common/Pagination';
+import { API_ENDPOINTS } from '../../../services/api';
+import apiClient, { mockClient } from '../../../services/apiClient';
 
 const UserPosts = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -14,10 +16,45 @@ const UserPosts = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/user_articles.json');
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        setArticles(data);
+        let dbPosts = [];
+        try {
+          const response = await apiClient.get(API_ENDPOINTS.USER_ARTICLES);
+          dbPosts = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
+        } catch (apiErr) {
+          console.error('Lỗi gọi API bài viết, chuyển sang dùng mock:', apiErr);
+        }
+
+        let mockPosts = [];
+        try {
+          const mockRes = await mockClient.get('/api/user_articles.json');
+          mockPosts = mockRes.data || [];
+        } catch (err) {
+          console.error('Error fetching mock articles:', err);
+        }
+
+        let merged = [];
+        if (dbPosts.length > 0) {
+          merged = dbPosts.map((dbItem, index) => {
+            const mockItem = mockPosts.find(m => m.slug === dbItem.slug) || {};
+            return {
+              featured: index === 0,
+              ...mockItem,
+              ...dbItem,
+              thumbnail_url: dbItem.thumbnailUrl || mockItem.thumbnail_url || "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg",
+              dynasty: dbItem.tags?.[0]?.name || mockItem.dynasty || 'Lịch sử',
+            };
+          });
+        } else {
+          merged = mockPosts.map((mockItem, index) => ({
+            featured: index === 0,
+            ...mockItem,
+            id: mockItem.id || mockItem.post_id,
+            thumbnail_url: mockItem.thumbnail_url || "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg",
+            dynasty: mockItem.dynasty || 'Lịch sử',
+          }));
+        }
+
+        setArticles(merged);
       } catch (error) {
         console.error('Error fetching articles:', error);
       } finally {
@@ -40,13 +77,12 @@ const UserPosts = () => {
   const totalPages = Math.ceil(filteredArticles.length / ITEMS_PER_PAGE);
   const paginatedArticles = filteredArticles.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-  // Reset pagination
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, filterPeriod]);
+  // Reset pagination is now handled directly in input onChange handlers to satisfy eslint rules
 
   // Danh sách các triều đại để đồng bộ với data
   const periods = [...new Set(articles.map(a => a.dynasty).filter(Boolean))];
+
+  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải bài viết...</div>;
 
   return (
     <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
@@ -142,7 +178,10 @@ const UserPosts = () => {
                 type="text"
                 placeholder="Tìm kiếm bài viết..."
                 value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
+                onChange={e => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] placeholder-[#6b0f0d]/40 rounded-lg py-3 pl-12 pr-4 outline-none focus:border-[#6b0f0d]/60 transition-colors font-body shadow-inner"
               />
             </div>
@@ -150,7 +189,10 @@ const UserPosts = () => {
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#6b0f0d]/60">filter_alt</span>
               <select
                 value={filterPeriod}
-                onChange={e => setFilterPeriod(e.target.value)}
+                onChange={e => {
+                  setFilterPeriod(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] rounded-lg py-3 pl-12 pr-10 appearance-none outline-none focus:border-[#6b0f0d]/60 transition-colors font-body cursor-pointer shadow-inner"
               >
                 <option value="">Tất cả thời kỳ</option>
@@ -171,7 +213,7 @@ const UserPosts = () => {
         {/* 3. POST GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {paginatedArticles.map((art) => (
-            <article key={art.post_id} className="group bg-[#fffdf8] border border-[#d99b4a]/30 shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-500 flex flex-col relative overflow-hidden">
+            <article key={art.id || art.post_id} className="group bg-[#fffdf8] border border-[#d99b4a]/30 shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-500 flex flex-col relative overflow-hidden">
               {/* Lớp viền trong cùng */}
               <div className="border border-[#d99b4a]/30 relative flex flex-col h-full bg-[#fcf9ee] dong-son-pattern">
                 {/* Decorative corners */}

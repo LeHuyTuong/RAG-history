@@ -1,6 +1,6 @@
 import { useState, useEffect, Fragment } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation, Link } from 'react-router-dom';
-import apiClient from '../services/apiClient';
+import apiClient, { mockClient } from '../services/apiClient';
 import LogoutModal from './LogoutModal';
 
 const AdminLayout = () => {
@@ -28,10 +28,9 @@ const AdminLayout = () => {
     if (siteNameParam) {
       setSiteName(siteNameParam.value);
     } else {
-      fetch('/api/admin_settings.json')
-        .then(res => res.json())
-        .then(data => {
-          const defaultSiteName = data.parameters?.find(p => p.key === 'site_name')?.value;
+      mockClient.get('/api/admin_settings.json')
+        .then(res => {
+          const defaultSiteName = res.data.parameters?.find(p => p.key === 'site_name')?.value;
           if (defaultSiteName) {
             setSiteName(defaultSiteName);
           }

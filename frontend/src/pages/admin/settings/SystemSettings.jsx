@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ActionModal, TableActions } from '../../../components/admin';
+import { settingsService } from '../../../services';
 
-import { API_ENDPOINTS } from '../../../services/api';
 // --- COMPONENT CON 2: MODAL THÊM / SỬA THAM SỐ ---
 const ParamModal = ({ onClose, onSave, editData = null }) => {
   const [form, setForm] = useState(
@@ -90,7 +90,15 @@ const paramLabels = {
   'site_name': 'Tên hệ thống',
   'rag_threshold': 'Ngưỡng tương đồng RAG',
   'max_upload_size': 'Kích thước tải lên tối đa',
-  'embedding_model': 'Mô hình Embedding AI'
+  'embedding_model': 'Mô hình Embedding AI',
+  'rag.chunk_size': 'Số ký tự mỗi chunk',
+  'rag.chunk_overlap': 'Overlap giữa các chunk',
+  'rag.top_k': 'Số chunk retrieve mỗi câu hỏi',
+  'rag.embedding_model': 'Model embedding Gemini (768 chiều)',
+  'rag.vector_size': 'Số chiều vector collection Qdrant',
+  'rag.llm_model': 'Model sinh câu trả lời (Gemini)',
+  'rag.temperature': 'Nhiệt độ LLM',
+  'rag.enable_graph': 'Bật Graph RAG (Neo4j)'
 };
 
 // --- COMPONENT CHÍNH ---
@@ -104,27 +112,22 @@ const SystemSettings = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.ADMIN_SETTINGS);
-        if (!response.ok) throw new Error('Network response was not ok');
-        const result = await response.json();
+        const settingsList = await settingsService.list();
+        const list = Array.isArray(settingsList) ? settingsList : [];
 
-        // Merge with local storage
-        const customSettings = JSON.parse(localStorage.getItem('admin_new_settings') || '[]');
+        // Map backend properties to match frontend expectation (description -> desc)
+        const mappedParams = list.map(p => ({
+          key: p.key,
+          value: p.value,
+          desc: p.description || p.desc || ''
+        }));
 
-        let mergedParams = [...(result.parameters || [])];
-        customSettings.forEach(customParam => {
-          const index = mergedParams.findIndex(p => p.key === customParam.key);
-          if (index >= 0) {
-            mergedParams[index] = customParam;
-          } else {
-            mergedParams.push(customParam);
-          }
-        });
-        // Filter out deleted
-        const deletedSettings = JSON.parse(localStorage.getItem('admin_deleted_settings') || '[]');
-        mergedParams = mergedParams.filter(p => !deletedSettings.includes(p.key));
+        const stats = [
+          { label: "Thẻ hệ thống", value: "1,482", icon: "sell" },
+          { label: "Thời kỳ lịch sử", value: "12", icon: "timeline" }
+        ];
 
-        setData({ ...result, parameters: mergedParams });
+        setData({ stats, parameters: mappedParams });
       } catch (error) {
         console.error('Error fetching settings data:', error);
       } finally {
@@ -134,7 +137,7 @@ const SystemSettings = () => {
     fetchData();
   }, []);
 
-  const handleSave = (form) => {
+  const handleSave = async (form) => {
     if (!form.key.trim() || !form.value.trim()) return;
 
     const newParam = {
@@ -143,57 +146,53 @@ const SystemSettings = () => {
       desc: form.desc.trim()
     };
 
-    // Update state
-    let updatedParams = [...data.parameters];
-    const index = updatedParams.findIndex(p => p.key === newParam.key);
-    if (index >= 0) {
-      updatedParams[index] = newParam;
-    } else {
-      updatedParams.push(newParam);
+    try {
+      await settingsService.upsert({
+        key: newParam.key,
+        value: newParam.value,
+        description: newParam.desc,
+      });
+
+      // Update state
+      let updatedParams = [...data.parameters];
+      const index = updatedParams.findIndex(p => p.key === newParam.key);
+      if (index >= 0) {
+        updatedParams[index] = newParam;
+      } else {
+        updatedParams.push(newParam);
+      }
+      setData({ ...data, parameters: updatedParams });
+
+      setModalState({ open: false, editData: null });
+
+      // Show success toast
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    } catch (e) {
+      console.error('Lỗi khi lưu tham số lên backend:', e);
+      alert('Có lỗi xảy ra khi lưu tham số hệ thống!');
     }
-    setData({ ...data, parameters: updatedParams });
-
-    // Save to local storage
-    const customSettings = JSON.parse(localStorage.getItem('admin_new_settings') || '[]');
-    const customIndex = customSettings.findIndex(p => p.key === newParam.key);
-    if (customIndex >= 0) {
-      customSettings[customIndex] = newParam;
-    } else {
-      customSettings.push(newParam);
-    }
-    localStorage.setItem('admin_new_settings', JSON.stringify(customSettings));
-
-    setModalState({ open: false, editData: null });
-
-    // Show success toast
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     const key = deleteModal.key;
     if (!key) return;
 
-    // Remove from state
-    const updatedParams = data.parameters.filter(p => p.key !== key);
-    setData({ ...data, parameters: updatedParams });
+    try {
+      await settingsService.delete(key);
 
-    // Remove from custom local storage
-    const customSettings = JSON.parse(localStorage.getItem('admin_new_settings') || '[]');
-    const newCustomSettings = customSettings.filter(p => p.key !== key);
-    localStorage.setItem('admin_new_settings', JSON.stringify(newCustomSettings));
+      // Remove from state
+      const updatedParams = data.parameters.filter(p => p.key !== key);
+      setData({ ...data, parameters: updatedParams });
 
-    // Add to deleted local storage (to prevent default from showing again)
-    const deletedSettings = JSON.parse(localStorage.getItem('admin_deleted_settings') || '[]');
-    if (!deletedSettings.includes(key)) {
-      deletedSettings.push(key);
-      localStorage.setItem('admin_deleted_settings', JSON.stringify(deletedSettings));
+      setDeleteModal({ open: false, key: '' });
+      // Show success toast
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    } catch (e) {
+      console.error('Lỗi khi xóa tham số ở backend:', e);
+      alert('Có lỗi xảy ra khi xóa tham số hệ thống!');
     }
-
-    setDeleteModal({ open: false, key: '' });
-    // Show success toast
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
   };
 
   return (
@@ -212,8 +211,6 @@ const SystemSettings = () => {
             </p>
           </div>
         </div>
-
-
 
         {/* PARAMETERS TABLE */}
         <section className="bg-white rounded-3xl border border-outline-variant/60 shadow-sm overflow-hidden transition-all hover:shadow-md">

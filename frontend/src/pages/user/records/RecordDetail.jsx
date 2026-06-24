@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import { API_ENDPOINTS } from '../../../services/api';
+import apiClient, { mockClient } from '../../../services/apiClient';
 const RecordDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -16,10 +17,34 @@ const RecordDetail = () => {
   useEffect(() => {
     const fetchRecord = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.USER_RECORD_DETAIL);
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        setRecord(data);
+        let dbSource = null;
+        try {
+          const response = await apiClient.get(`${API_ENDPOINTS.USER_RECORD_DETAIL}/${id}`);
+          dbSource = response.data?.data || response.data;
+        } catch (apiErr) {
+          console.error('Failed to fetch record detail from API, trying mock:', apiErr);
+        }
+
+        let mockItem = null;
+        try {
+          const mockRes = await mockClient.get('/api/user_records.json');
+          const mockRecords = mockRes.data || [];
+          mockItem = mockRecords.find(m => (m.id && m.id.toString() === id) || (m.slug && m.slug === id) || (m.record_id && m.record_id.toString() === id));
+        } catch (err) {
+          console.error('Error fetching mock records:', err);
+        }
+
+        if (dbSource || mockItem) {
+          setRecord({
+            coverImg: mockItem?.coverImg || 'https://via.placeholder.com/600x800',
+            ...mockItem,
+            ...dbSource,
+            record_id: dbSource?.id || mockItem?.id || mockItem?.record_id,
+            title: dbSource?.name || mockItem?.name || mockItem?.title || '',
+            description: dbSource?.description || mockItem?.description || '',
+            archiveId: mockItem?.archiveId || `SRC-${dbSource?.id || id}`,
+          });
+        }
       } catch (error) {
         console.error('Error fetching record detail:', error);
       } finally {
@@ -49,12 +74,12 @@ const RecordDetail = () => {
             <h1 className="font-headline text-5xl md:text-7xl text-[#6b0f0d] font-semibold leading-tight tracking-tight">
               {record.title}
             </h1>
-            <p className="font-body text-[16px] text-[#2b1a16]/80 leading-relaxed max-w-3xl">
+            <p className="font-body text-[16px] text-[#2b1a16]/80 leading-relaxed max-w-3xl border-l-4 border-[#d99b4a] pl-6">
               {record.description}
             </p>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {record.metadata.map((item, i) => (
+              {(record.metadata || []).map((item, i) => (
                 <div key={i} className="p-5 border border-[#d99b4a]/30 rounded-sm bg-[#fffdf8] shadow-sm group hover:border-[#6b0f0d] hover:shadow-md transition-all">
                   <p className="text-[#6b0f0d]/60 font-body text-[9px] font-bold uppercase tracking-widest mb-2">{item.label}</p>
                   <p className="font-headline text-xl text-[#2b0504] font-semibold">{item.value}</p>
@@ -113,7 +138,7 @@ const RecordDetail = () => {
               <div className="absolute inset-0 opacity-10 dong-son-pattern mix-blend-overlay"></div>
               <h3 className="font-headline text-2xl font-semibold text-[#f7d78a] mb-8 border-b border-[#d99b4a]/20 pb-4 relative z-10">Cấu trúc bộ sử</h3>
               <ul className="space-y-8 relative z-10">
-                 {record.structure.map((item, i) => (
+                 {(record.structure || []).map((item, i) => (
                    <li key={i} className="flex gap-5 group">
                       <div className="w-12 h-12 rounded-full border border-[#d99b4a]/40 flex items-center justify-center shrink-0 group-hover:bg-[#d99b4a] group-hover:text-[#2b0504] transition-all duration-500 shadow-lg bg-[#1a0201]/40">
                          <span className="material-symbols-outlined text-2xl">{item.icon}</span>

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import apiClient, { mockClient, extractErrorMessage } from '../../../services/apiClient';
+import { API_ENDPOINTS } from '../../../services/api';
 
 const MetadataPeriodForm = () => {
   const navigate = useNavigate();
@@ -48,7 +50,7 @@ const MetadataPeriodForm = () => {
         years: newEmpYears.trim() || 'Chưa xác định',
         img: 'https://cdn-icons-png.flaticon.com/512/149/149071.png' // Default avatar placeholder
       };
-      setForm({ ...form, emperors: [...form.emperors, newEmp] });
+      setForm(prev => ({ ...prev, emperors: [...prev.emperors, newEmp] }));
     }
 
     resetEmperorForm();
@@ -73,47 +75,57 @@ const MetadataPeriodForm = () => {
     if (isEdit) {
       const fetchData = async () => {
         try {
-          const customPeriods = JSON.parse(localStorage.getItem('admin_new_periods') || '[]');
-          const localMatch = customPeriods.find(p => String(p.id) === String(id));
+          if (!isNaN(Number(id))) {
+            try {
+              const response = await apiClient.get(`${API_ENDPOINTS.ADMIN_PERIODS}/${id}`);
+              const data = response.data?.data || response.data;
+              if (data) {
+                setOriginalData(data);
+                const years = data.range?.match(/\d+/g) || [];
+                const timeParts = (data.range || '').split('-');
 
-          if (localMatch) {
-            setOriginalData(localMatch);
-            const years = localMatch.range?.match(/\d+/g) || [];
-            const timeParts = (localMatch.range || '').split('-');
-            setForm({
-              name: localMatch.name || '',
+                const sYear = data.startYear !== undefined && data.startYear !== null ? Math.abs(data.startYear) : (years[0] || '');
+                const eYear = data.endYear !== undefined && data.endYear !== null ? Math.abs(data.endYear) : (years[1] || '');
+                const eraStart = data.startYear !== undefined && data.startYear !== null ? (data.startYear < 0 ? 'TCN' : 'SCN') : (timeParts[0]?.includes('TCN') ? 'TCN' : 'SCN');
+                const eraEnd = data.endYear !== undefined && data.endYear !== null ? (data.endYear < 0 ? 'TCN' : 'SCN') : (timeParts[1]?.includes('TCN') ? 'TCN' : 'SCN');
+
+                setForm(prev => ({
+                  ...prev,
+                  name: data.name || '',
+                  startYear: sYear,
+                  endYear: eYear,
+                  eraTypeStart: eraStart,
+                  eraTypeEnd: eraEnd,
+                  philosophy: data.philosophy || '',
+                  description: data.description || data.desc || '',
+                  emperors: data.emperors || []
+                }));
+                return;
+              }
+            } catch (err) {
+              console.error('Lỗi khi tải thời kỳ từ backend:', err);
+            }
+          }
+
+          const response = await mockClient.get('/api/admin_metadata.json');
+          const data = response.data;
+          const periodDetail = data.periods?.find(p => String(p.id) === String(id));
+
+          if (periodDetail) {
+            setOriginalData(periodDetail);
+            const years = periodDetail.range?.match(/\d+/g) || [];
+            const timeParts = (periodDetail.range || '').split('-');
+            setForm(prev => ({
+              ...prev,
+              name: periodDetail.name || '',
               startYear: years[0] || '',
               endYear: years[1] || '',
               eraTypeStart: timeParts[0]?.includes('TCN') ? 'TCN' : 'SCN',
               eraTypeEnd: timeParts[1]?.includes('TCN') ? 'TCN' : 'SCN',
-              philosophy: localMatch.philosophy || '',
-              description: localMatch.desc || '',
-              emperors: localMatch.emperors || []
-            });
-            return;
-          }
-
-          const response = await fetch('/api/admin_metadata.json');
-          if (response.ok) {
-            const data = await response.json();
-            const periodDetail = data.periods?.find(p => String(p.id) === String(id));
-
-            if (periodDetail) {
-              setOriginalData(periodDetail);
-              const years = periodDetail.range?.match(/\d+/g) || [];
-              const timeParts = (periodDetail.range || '').split('-');
-              setForm(prev => ({
-                ...prev,
-                name: periodDetail.name || '',
-                startYear: years[0] || '',
-                endYear: years[1] || '',
-                eraTypeStart: timeParts[0]?.includes('TCN') ? 'TCN' : 'SCN',
-                eraTypeEnd: timeParts[1]?.includes('TCN') ? 'TCN' : 'SCN',
-                philosophy: periodDetail.philosophy || '',
-                description: periodDetail.desc || '',
-                emperors: periodDetail.emperors || []
-              }));
-            }
+              philosophy: periodDetail.philosophy || '',
+              description: periodDetail.desc || '',
+              emperors: periodDetail.emperors || []
+            }));
           }
         } catch (error) {
           console.error('Error fetching period:', error);
@@ -125,20 +137,31 @@ const MetadataPeriodForm = () => {
     // Luôn fetch danh sách nhân vật để gợi ý
     const fetchCharacters = async () => {
       try {
-        const response = await fetch('/api/admin_characters.json');
-        if (response.ok) {
-          const data = await response.json();
-          setAvailableCharacters(data.characters || []);
-        }
+        const response = await apiClient.get(API_ENDPOINTS.ADMIN_CHARACTERS, { params: { size: 500 } });
+        const charData = response.data?.data?.result || response.data?.data?.content || [];
+        setAvailableCharacters(charData.map(c => ({
+          id: c.id,
+          name: c.name,
+          title: c.alias || '',
+          years: `${c.birthDate ? new Date(c.birthDate).getFullYear() : '?'} - ${c.deathDate ? new Date(c.deathDate).getFullYear() : '?'}`,
+          dynasty: c.dynasty || 'Chưa rõ'
+        })));
       } catch (error) {
-        console.error('Error fetching characters:', error);
+        console.error('Error fetching characters from backend, trying mock:', error);
+        try {
+          const response = await mockClient.get('/api/admin_characters.json');
+          const data = response.data;
+          setAvailableCharacters(data.characters || []);
+        } catch (e) {
+          console.error('Error fetching characters mock:', e);
+        }
       }
     };
     fetchCharacters();
   }, [id, isEdit]);
 
   const removeEmperor = (empId) => {
-    setForm({ ...form, emperors: form.emperors.filter(e => e.id !== empId) });
+    setForm(prev => ({ ...prev, emperors: prev.emperors.filter(e => e.id !== empId) }));
   };
 
   const handleSave = async () => {
@@ -174,37 +197,14 @@ const MetadataPeriodForm = () => {
         await apiClient.post(API_ENDPOINTS.ADMIN_PERIODS, payload);
       }
 
-      // Also save to localStorage for unsupported features like emperors
-      let finalStartStr = `${form.startYear}${form.eraTypeStart === 'TCN' ? ' TCN' : ''}`;
-      let finalEndStr = `${form.endYear}${form.eraTypeEnd === 'TCN' ? ' TCN' : ''}`;
-
-      const newPeriods = JSON.parse(localStorage.getItem('admin_new_periods') || '[]');
-      const periodData = {
-        ...originalData,
-        id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('period_' + Date.now()),
-        name: form.name,
-        range: `${finalStartStr} - ${finalEndStr}`,
-        philosophy: form.philosophy,
-        desc: form.description,
-        emperors: form.emperors,
-        coverImg: "https://upload.wikimedia.org/wikipedia/commons/d/df/Trong_dong_Ngoc_Lu.jpg"
-      };
-
-      const existingIndex = newPeriods.findIndex(p => p.id === periodData.id || p.id === id);
-      if (existingIndex >= 0) {
-        newPeriods[existingIndex] = { ...newPeriods[existingIndex], ...periodData };
-      } else {
-        newPeriods.push(periodData);
-      }
-      localStorage.setItem('admin_new_periods', JSON.stringify(newPeriods));
-
       setShowSuccess(true);
       setTimeout(() => {
         navigate('/admin/metadata');
       }, 1500);
     } catch (error) {
       console.error('Lỗi lưu kỷ nguyên:', error);
-      alert('Có lỗi xảy ra khi lưu Kỷ nguyên!');
+      const errMsg = extractErrorMessage(error, 'Có lỗi xảy ra khi lưu Kỷ nguyên!');
+      alert(errMsg);
     }
   };
 
@@ -262,7 +262,7 @@ const MetadataPeriodForm = () => {
                   <input
                     type="text"
                     value={form.name}
-                    onChange={e => setForm({ ...form, name: e.target.value })}
+                    onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
                     className="w-full bg-transparent border-0 border-b border-outline-variant/60 focus:border-primary py-3 font-headline text-3xl text-on-surface font-bold outline-none transition-all placeholder:text-outline-variant/60 placeholder:font-light"
                     placeholder="Ví dụ: Nhà Lý (Hậu Lý)..."
                   />
@@ -276,13 +276,13 @@ const MetadataPeriodForm = () => {
                     <input
                       type="number"
                       value={form.startYear}
-                      onChange={e => setForm({ ...form, startYear: e.target.value })}
+                      onChange={e => setForm(prev => ({ ...prev, startYear: e.target.value }))}
                       className="flex-1 bg-transparent border-none px-3 text-sm font-bold text-on-surface outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
                       placeholder="1009"
                     />
                     <select
                       value={form.eraTypeStart}
-                      onChange={e => setForm({ ...form, eraTypeStart: e.target.value })}
+                      onChange={e => setForm(prev => ({ ...prev, eraTypeStart: e.target.value }))}
                       className="bg-white border border-outline-variant/40 rounded-lg px-3 py-1.5 text-[11px] font-bold text-on-surface outline-none cursor-pointer hover:bg-gray-50"
                     >
                       <option>SCN</option>
@@ -299,13 +299,13 @@ const MetadataPeriodForm = () => {
                     <input
                       type="number"
                       value={form.endYear}
-                      onChange={e => setForm({ ...form, endYear: e.target.value })}
+                      onChange={e => setForm(prev => ({ ...prev, endYear: e.target.value }))}
                       className="flex-1 bg-transparent border-none px-3 text-sm font-bold text-on-surface outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
                       placeholder="1225"
                     />
                     <select
                       value={form.eraTypeEnd}
-                      onChange={e => setForm({ ...form, eraTypeEnd: e.target.value })}
+                      onChange={e => setForm(prev => ({ ...prev, eraTypeEnd: e.target.value }))}
                       className="bg-white border border-outline-variant/40 rounded-lg px-3 py-1.5 text-[11px] font-bold text-on-surface outline-none cursor-pointer hover:bg-gray-50"
                     >
                       <option>SCN</option>
@@ -331,7 +331,7 @@ const MetadataPeriodForm = () => {
                   <input
                     type="text"
                     value={form.philosophy}
-                    onChange={e => setForm({ ...form, philosophy: e.target.value })}
+                    onChange={e => setForm(prev => ({ ...prev, philosophy: e.target.value }))}
                     className="w-full bg-transparent border-0 border-b border-outline-variant/60 focus:border-primary py-2 font-body text-base italic text-on-surface outline-none transition-all placeholder:text-outline-variant/60"
                     placeholder="Ví dụ: Nam Quốc Sơn Hà Nam Đế Cư..."
                   />
@@ -344,7 +344,7 @@ const MetadataPeriodForm = () => {
                   <textarea
                     rows="6"
                     value={form.description}
-                    onChange={e => setForm({ ...form, description: e.target.value })}
+                    onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
                     className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-4 text-sm leading-relaxed outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none font-body"
                     placeholder="Viết về các thay đổi chính trị - xã hội trong thời kỳ này..."
                   />
@@ -481,7 +481,7 @@ const MetadataPeriodForm = () => {
                 {/* THUMBNAIL UPLOAD IN PREVIEW */}
                 <div className="aspect-[4/3] rounded-2xl bg-surface-low border-2 border-dashed border-outline-variant/60 flex flex-col items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all group overflow-hidden relative cursor-pointer mb-6">
                   <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/d/df/Trong_dong_Ngoc_Lu.jpg"
+                    src="https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg"
                     className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 group-hover:opacity-80 transition-all duration-700"
                     alt="Period Cover"
                   />

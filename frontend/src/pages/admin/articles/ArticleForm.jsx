@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { generateSlug } from '../../../utils/stringUtils';
-import { RichTextEditor, ImageUpload, TagInput, FormHeader } from '../../../components/admin';
+import { RichTextEditor, ImageUpload, TagInput, FormHeader, EntityRelationInput } from '../../../components/admin';
+import { mockClient, extractErrorMessage, postService, tagService, eventService, sourceService } from '../../../services';
+import { API_ENDPOINTS } from '../../../services/api';
 
 const ArticleForm = () => {
   const { id } = useParams();
@@ -9,6 +11,8 @@ const ArticleForm = () => {
   const isEdit = !!id;
 
   const [predefinedTags, setPredefinedTags] = useState([]);
+  const [availableSources, setAvailableSources] = useState([]);
+  const [availableEvents, setAvailableEvents] = useState([]);
 
   const [form, setForm] = useState({
     title: '',
@@ -19,7 +23,9 @@ const ArticleForm = () => {
     tags: [],
     author: 'Admin',
     thumbnailUrl: null,
-    thumbnailPreview: null
+    thumbnailPreview: null,
+    sources: [],
+    eventId: null
   });
   const [originalData, setOriginalData] = useState({});
 
@@ -29,19 +35,14 @@ const ArticleForm = () => {
         try {
           let foundArticle = null;
 
-          // 1. Check custom articles in localStorage
-          const newArticlesStr = localStorage.getItem('admin_new_articles');
-          if (newArticlesStr) {
-            const newArticles = JSON.parse(newArticlesStr);
-            foundArticle = newArticles.find(a => String(a.id) === String(id));
-          }
-
-          // 2. If not found, check static articles list
-          if (!foundArticle) {
-            const response = await fetch('/api/admin_articles.json');
-            if (response.ok) {
-              const data = await response.json();
-              foundArticle = data.articles?.find(a => String(a.id) === String(id));
+          if (!isNaN(Number(id))) {
+            try {
+              const article = await postService.getById(id);
+              if (article) {
+                foundArticle = article;
+              }
+            } catch (err) {
+              console.error('Lỗi khi tải bài viết từ backend:', err);
             }
           }
 
@@ -52,12 +53,14 @@ const ArticleForm = () => {
               title: foundArticle.title || '',
               slug: foundArticle.slug || generateSlug(foundArticle.title || ''),
               content: foundArticle.content || '',
-              status: (foundArticle.status === 'published' || !foundArticle.status || foundArticle.status === 'Công khai') ? 'published' : 'draft',
-              publishedAt: foundArticle.publishedAt || '',
-              tags: foundArticle.tags ? (Array.isArray(foundArticle.tags) ? foundArticle.tags : [foundArticle.tags]) : (foundArticle.period ? [foundArticle.period] : []),
+              status: (foundArticle.status === 'published' || !foundArticle.status || foundArticle.status === 'Công khai' || foundArticle.status === 'PUBLISHED') ? 'published' : 'draft',
+              publishedAt: foundArticle.publishedAt || foundArticle.published_at || '',
+              tags: foundArticle.tags ? (Array.isArray(foundArticle.tags) ? foundArticle.tags.map(t => typeof t === 'object' ? (t.name || t.label || '') : t) : [foundArticle.tags]) : (foundArticle.period ? [foundArticle.period] : []),
               author: foundArticle.author || 'Admin',
               thumbnailUrl: null,
-              thumbnailPreview: foundArticle.image || foundArticle.thumbnailUrl || null
+              thumbnailPreview: foundArticle.image || foundArticle.thumbnailUrl || foundArticle.thumbnail_url || null,
+              sources: foundArticle.sources || [],
+              eventId: foundArticle.event?.id || foundArticle.eventId || null
             }));
           } else {
             console.error('Không tìm thấy bài viết với ID:', id);
@@ -69,34 +72,65 @@ const ArticleForm = () => {
       fetchData();
     }
 
+    const fetchSources = async () => {
+      try {
+        const list = await sourceService.listAll();
+        setAvailableSources(list);
+      } catch (error) {
+        console.error('Lỗi tải danh sách nguồn tư liệu:', error);
+      }
+    };
+    fetchSources();
+
     const fetchTags = async () => {
       try {
-        const response = await fetch('/api/admin_metadata.json');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.periods) {
-            setPredefinedTags(data.periods.map(t => ({
+        const list = await tagService.listAll();
+        setPredefinedTags(list.map(t => ({
+          id: t.id,
+          label: t.name,
+          category: t.type || 'Triều đại'
+        })));
+      } catch (error) {
+        console.error('Lỗi tải danh sách thẻ từ backend, thử dùng mock:', error);
+        try {
+          const response = await mockClient.get('/api/admin_metadata.json');
+          if (response.data?.tags) {
+            setPredefinedTags(response.data.tags.map(t => ({
               id: t.id,
               label: t.name,
-              category: 'Triều đại'
+              category: t.type || 'Triều đại'
             })));
           }
+        } catch (e) {
+          console.error('Lỗi tải danh sách thẻ:', e);
         }
-      } catch (error) {
-        console.error('Lỗi tải danh sách thẻ:', error);
       }
     };
     fetchTags();
+
+    const fetchEvents = async () => {
+      try {
+        const list = await eventService.listAll();
+        setAvailableEvents(list.map(e => ({
+          id: e.id,
+          name: e.name || e.title,
+          status: 'PUBLISHED'
+        })));
+      } catch (error) {
+        console.error('Lỗi tải danh sách sự kiện:', error);
+      }
+    };
+    fetchEvents();
   }, [id, isEdit]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setForm({
-        ...form,
+      setForm(prev => ({
+        ...prev,
         thumbnailUrl: file,
         thumbnailPreview: URL.createObjectURL(file)
-      });
+      }));
     }
   };
 
@@ -108,64 +142,80 @@ const ArticleForm = () => {
     setForm(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tagToRemove) }));
   };
 
-  const handleSave = async () => {
-    try {
-      const { default: apiClient } = await import('../../../services/apiClient');
-      const { API_ENDPOINTS } = await import('../../../services/api');
+  const validate = () => {
+    const errors = [];
+    const title = (form.title || '').trim();
+    if (!title) {
+      errors.push('Tiêu đề là bắt buộc');
+    } else if (title.length > 100) {
+      errors.push('Tiêu đề không được vượt quá 100 ký tự');
+    }
 
+    const slug = (form.slug || generateSlug(title)).trim();
+    if (!slug) {
+      errors.push('Slug là bắt buộc');
+    } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+      errors.push('Slug chỉ gồm chữ thường, số và dấu gạch ngang');
+    } else if (slug.length > 200) {
+      errors.push('Slug không được vượt quá 200 ký tự');
+    }
+
+    if (form.thumbnailPreview && typeof form.thumbnailPreview === 'string' && form.thumbnailPreview.length > 1000) {
+      errors.push('URL ảnh bìa không được vượt quá 1000 ký tự');
+    }
+
+    return { ok: errors.length === 0, errors, slug };
+  };
+
+  const handleSave = async () => {
+    const check = validate();
+    if (!check.ok) {
+      alert(check.errors.join('\n'));
+      return;
+    }
+
+    try {
       // Prepare payload to match backend CreatePostRequest/UpdatePostRequest
-      let publishedInstant = null;
-      if (form.publishedAt) {
-        publishedInstant = new Date(form.publishedAt).toISOString();
-      } else {
-        publishedInstant = new Date().toISOString();
-      }
+      const publishedInstant = form.publishedAt
+        ? new Date(form.publishedAt).toISOString()
+        : new Date().toISOString();
+
+      const tagIds = form.tags
+        .map(tagName => {
+          const match = predefinedTags.find(pt => pt.label === tagName);
+          if (match) return match.id;
+          const originalMatch = originalData.tags?.find(t => (t.name || t.label || t) === tagName);
+          if (originalMatch) return originalMatch.id;
+          return null;
+        })
+        .filter(id => id !== null)
+        .map(Number);
 
       const payload = {
-        title: form.title,
-        slug: form.slug,
+        title: form.title.trim(),
+        slug: check.slug,
         summary: form.content ? form.content.substring(0, 150).replace(/<[^>]+>/g, '') + '...' : '',
         content: form.content,
         status: form.status === 'published' || form.status === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT',
         publishedAt: publishedInstant,
-        // Optional thumbnail url mapping
-        thumbnailUrl: typeof form.thumbnailPreview === 'string' && form.thumbnailPreview.startsWith('http') ? form.thumbnailPreview : null
+        thumbnailUrl: typeof form.thumbnailPreview === 'string' && form.thumbnailPreview.startsWith('http') ? form.thumbnailPreview : null,
+        eventId: form.eventId,
+        tagIds: tagIds
       };
 
+      // Go through postService so the service layer owns the HTTP call.
+      // Backend PostController.update reads `id` from the request body.
       if (isEdit && !isNaN(Number(id))) {
-        await apiClient.put(API_ENDPOINTS.ADMIN_ARTICLES, { ...payload, id: Number(id) });
+        await postService.update({ ...payload, id: Number(id) });
       } else {
-        await apiClient.post(API_ENDPOINTS.ADMIN_ARTICLES, payload);
+        await postService.create(payload);
       }
 
-      // Also save to localStorage for mock fallback
-      const newArticles = JSON.parse(localStorage.getItem('admin_new_articles') || '[]');
-      const articleData = {
-        ...originalData,
-        id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('article_' + Date.now()),
-        title: form.title,
-        slug: form.slug,
-        content: form.content,
-        status: form.status === 'published' ? 'published' : 'draft',
-        publishedAt: form.publishedAt || new Date().toISOString().split('T')[0],
-        tags: form.tags,
-        period: form.tags && form.tags.length > 0 ? form.tags[0] : 'Chưa cập nhật',
-        author: form.author,
-        thumbnailUrl: form.thumbnailPreview || null
-      };
-
-      const existingIndex = newArticles.findIndex(a => String(a.id) === String(articleData.id));
-      if (existingIndex >= 0) {
-        newArticles[existingIndex] = { ...newArticles[existingIndex], ...articleData };
-      } else {
-        newArticles.push(articleData);
-      }
-
-      localStorage.setItem('admin_new_articles', JSON.stringify(newArticles));
       navigate('/admin/articles');
     } catch (error) {
       console.error('Lỗi khi lưu bài viết:', error);
-      alert('Có lỗi xảy ra khi lưu bài viết!');
+      const errMsg = extractErrorMessage(error, 'Có lỗi xảy ra khi lưu bài viết!');
+      alert(errMsg);
     }
   };
 
@@ -199,7 +249,7 @@ const ArticleForm = () => {
                 type="text" value={form.title}
                 onChange={e => {
                   const newTitle = e.target.value;
-                  setForm({ ...form, title: newTitle, slug: generateSlug(newTitle) });
+                  setForm(prev => ({ ...prev, title: newTitle, slug: generateSlug(newTitle) }));
                 }}
                 className="w-full bg-transparent border-0 border-b border-outline-variant/60 focus:border-primary py-3 font-headline text-3xl text-on-surface font-bold outline-none transition-all placeholder:text-outline-variant/60 placeholder:font-light"
                 placeholder="Nhập tiêu đề trang trọng..."
@@ -223,7 +273,7 @@ const ArticleForm = () => {
             </div>
             <RichTextEditor
               value={form.content}
-              onChange={(content) => setForm({ ...form, content })}
+              onChange={(content) => setForm(prev => ({ ...prev, content }))}
               placeholder="Bắt đầu soạn thảo dòng lịch sử..."
               className="h-[600px] flex flex-col custom-quill"
             />
@@ -252,7 +302,7 @@ const ArticleForm = () => {
                     <div className="relative">
                       <select
                         value={form.status}
-                        onChange={e => setForm({ ...form, status: e.target.value })}
+                        onChange={e => setForm(prev => ({ ...prev, status: e.target.value }))}
                         className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-sm font-bold text-on-surface outline-none cursor-pointer hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
                       >
                         <option value="draft">Bản nháp</option>
@@ -266,7 +316,7 @@ const ArticleForm = () => {
                     <input
                       type="date"
                       value={form.publishedAt}
-                      onChange={e => setForm({ ...form, publishedAt: e.target.value })}
+                      onChange={e => setForm(prev => ({ ...prev, publishedAt: e.target.value }))}
                       className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-sm font-bold text-on-surface outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                     />
                   </div>
@@ -284,8 +334,65 @@ const ArticleForm = () => {
               <ImageUpload
                 previewUrl={form.thumbnailPreview}
                 onImageChange={handleImageChange}
-                onRemove={() => setForm({ ...form, thumbnailUrl: null, thumbnailPreview: null })}
+                onRemove={() => setForm(prev => ({ ...prev, thumbnailUrl: null, thumbnailPreview: null }))}
               />
+
+              <div className="pt-4 border-t border-outline-variant/60">
+                <EntityRelationInput
+                  entities={form.eventId ? [
+                    availableEvents.find(e => e.id === form.eventId)?.name ||
+                    (originalData.event?.id === form.eventId ? originalData.event?.name : null)
+                  ].filter(Boolean) : []}
+                  availableEntities={availableEvents}
+                  type="event"
+                  label="Sự kiện lịch sử"
+                  icon="event"
+                  itemIcon="event"
+                  placeholder="Gõ hoặc chọn sự kiện..."
+                  onAdd={(val) => {
+                    const match = availableEvents.find(e => (e.name || e.title) === val);
+                    if (match) {
+                      setForm(prev => ({
+                        ...prev,
+                        eventId: match.id
+                      }));
+                    }
+                  }}
+                  onRemove={() => {
+                    setForm(prev => ({
+                      ...prev,
+                      eventId: null
+                    }));
+                  }}
+                />
+              </div>
+
+              <div className="pt-4 border-t border-outline-variant/60">
+                <EntityRelationInput
+                  entities={form.sources.map(s => s.title || s.name || s)}
+                  availableEntities={availableSources}
+                  type="source"
+                  label="Nguồn tham khảo"
+                  icon="menu_book"
+                  itemIcon="menu_book"
+                  placeholder="Gõ hoặc chọn nguồn sử liệu..."
+                  onAdd={(val) => {
+                    const match = availableSources.find(s => (s.title || s.name) === val);
+                    if (match) {
+                      setForm(prev => ({
+                        ...prev,
+                        sources: [...(prev.sources || []), match]
+                      }));
+                    }
+                  }}
+                  onRemove={(entToRemove) => {
+                    setForm(prev => ({
+                      ...prev,
+                      sources: prev.sources.filter(s => (s.title || s.name || s) !== entToRemove)
+                    }));
+                  }}
+                />
+              </div>
 
             </div>
           </div>

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { generateSlug } from '../../../utils/stringUtils';
 import { RichTextEditor, FormHeader } from '../../../components/admin';
+import apiClient, { mockClient, extractErrorMessage } from '../../../services/apiClient';
+import { API_ENDPOINTS } from '../../../services/api';
 
 const RecordForm = () => {
   const { id } = useParams();
@@ -9,7 +11,7 @@ const RecordForm = () => {
   const isEdit = !!id;
 
   const [form, setForm] = useState({
-    title: '', slug: '', author: '', publicationYear: '', sourceType: 'Bộ chính sử', content: '', reliabilityScore: ''
+    title: '', slug: '', author: '', publicationYear: '', sourceType: 'Bộ chính sử', content: ''
   });
   const [originalData, setOriginalData] = useState({});
   const [filePath, setFilePath] = useState(null);
@@ -20,31 +22,50 @@ const RecordForm = () => {
         try {
           let record = null;
 
-          // Check custom records in localStorage
-          const newRecordsStr = localStorage.getItem('admin_new_records');
-          if (newRecordsStr) {
-            const newRecords = JSON.parse(newRecordsStr);
-            record = newRecords.find(r => String(r.id) === String(id));
+          if (!isNaN(Number(id))) {
+            try {
+              const response = await apiClient.get(`${API_ENDPOINTS.ADMIN_SOURCES}/${id}`);
+              const data = response.data?.data || response.data;
+              if (data) {
+                record = data;
+              }
+            } catch (err) {
+              console.error('Lỗi khi tải sử liệu từ backend:', err);
+            }
           }
 
           if (!record) {
-            const response = await fetch('/api/user_record_detail.json');
-            if (response.ok) {
-              const data = await response.json();
-              record = data; // Assuming detail endpoint returns the specific record
-            }
+            const response = await mockClient.get('/api/admin_records.json');
+            const data = response.data;
+            record = data.records?.find(r => String(r.id) === String(id) || String(r.id).endsWith('-' + id));
+          }
+
+          if (!record) {
+            const response = await mockClient.get('/api/user_record_detail.json');
+            const data = response.data;
+            record = (String(data.id) === String(id) || String(data.id).endsWith('-' + id)) ? data : null;
           }
 
           if (record) {
             setOriginalData(record);
+
+            let typeLabel = 'Bộ chính sử';
+            if (record.sourceType === 'BOOK') typeLabel = 'Chính sử (Quốc sử)';
+            else if (record.sourceType === 'ARTICLE') typeLabel = 'Dã sử';
+            else if (record.sourceType === 'MANUAL') typeLabel = 'Thần tích';
+            else if (record.sourceType) typeLabel = record.sourceType;
+            else if (record.metadata) {
+              const metaVal = record.metadata?.find(m => m.label === 'Loại hình')?.value;
+              if (metaVal) typeLabel = metaVal;
+            }
+
             setForm(prev => ({
               ...prev,
-              title: record.title || '',
-              slug: record.slug || generateSlug(record.title || ''),
+              title: record.title || record.name || '',
+              slug: record.slug || generateSlug(record.title || record.name || ''),
               author: record.author || '',
               publicationYear: record.publicationYear || record.stats?.find(s => s.label === 'Năm ra đời')?.value || '',
-              sourceType: record.sourceType || record.metadata?.find(m => m.label === 'Loại hình')?.value || 'Bộ chính sử',
-              reliabilityScore: record.reliabilityScore || '9',
+              sourceType: typeLabel,
               content: record.content || record.translations?.[0]?.content?.map(c => c.text).join('<br/><br/>') || ''
             }));
           }
@@ -56,30 +77,35 @@ const RecordForm = () => {
     }
   }, [id, isEdit]);
 
-  const handleSave = () => {
-    const newRecords = JSON.parse(localStorage.getItem('admin_new_records') || '[]');
+  const handleSave = async () => {
+    try {
+      let backendType = 'BOOK';
+      if (form.sourceType === 'Dã sử') backendType = 'ARTICLE';
+      else if (form.sourceType === 'Thần tích') backendType = 'MANUAL';
 
-    const recordData = {
-      ...originalData,
-      id: id ? (isNaN(Number(id)) ? id : Number(id)) : ('record_' + Date.now()),
-      title: form.title,
-      slug: form.slug,
-      author: form.author,
-      publicationYear: form.publicationYear,
-      sourceType: form.sourceType,
-      reliabilityScore: form.reliabilityScore,
-      content: form.content
-    };
+      const payload = {
+        title: form.title,
+        sourceType: backendType,
+        sourceUrl: null,
+        filePath: filePath ? filePath.name : null,
+        content: form.content,
+        author: form.author || null,
+        publicationYear: form.publicationYear ? parseInt(form.publicationYear) : null,
+        reliabilityLevel: 'HIGH'
+      };
 
-    const existingIndex = newRecords.findIndex(r => String(r.id) === String(recordData.id));
-    if (existingIndex >= 0) {
-      newRecords[existingIndex] = { ...newRecords[existingIndex], ...recordData };
-    } else {
-      newRecords.push(recordData);
+      if (isEdit && !isNaN(Number(id))) {
+        await apiClient.put(`${API_ENDPOINTS.ADMIN_SOURCES}/${id}`, payload);
+      } else {
+        await apiClient.post(API_ENDPOINTS.ADMIN_SOURCES, payload);
+      }
+
+      navigate('/admin/records');
+    } catch (error) {
+      console.error('Lỗi khi lưu sử liệu:', error);
+      const errMsg = extractErrorMessage(error, 'Có lỗi xảy ra khi lưu sử liệu!');
+      alert(errMsg);
     }
-
-    localStorage.setItem('admin_new_records', JSON.stringify(newRecords));
-    navigate('/admin/records');
   };
 
   return (
@@ -106,7 +132,7 @@ const RecordForm = () => {
                   type="text" value={form.title}
                   onChange={e => {
                     const newTitle = e.target.value;
-                    setForm({ ...form, title: newTitle, slug: generateSlug(newTitle) });
+                    setForm(prev => ({ ...prev, title: newTitle, slug: generateSlug(newTitle) }));
                   }}
                   className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 font-headline text-2xl text-on-surface outline-none transition-all"
                   placeholder="Ví dụ: Đại Việt Sử Ký Toàn Thư..."
@@ -122,16 +148,13 @@ const RecordForm = () => {
               <div className="grid grid-cols-2 gap-8">
                 <div className="space-y-1">
                   <label className="font-body text-[10px] font-bold uppercase text-on-surface-variant">Tác giả / Chủ biên</label>
-                  <input type="text" value={form.author} onChange={e => setForm({ ...form, author: e.target.value })} className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 outline-none" placeholder="Vd: Ngô Sĩ Liên" />
+                  <input type="text" value={form.author} onChange={e => setForm(prev => ({ ...prev, author: e.target.value }))} className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 outline-none" placeholder="Vd: Ngô Sĩ Liên" />
                 </div>
                 <div className="space-y-1">
                   <label className="font-body text-[10px] font-bold uppercase text-on-surface-variant">Năm xuất bản/khởi soạn</label>
-                  <input type="number" value={form.publicationYear} onChange={e => setForm({ ...form, publicationYear: e.target.value })} className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 outline-none" placeholder="Vd: 1479" />
+                  <input type="number" value={form.publicationYear} onChange={e => setForm(prev => ({ ...prev, publicationYear: e.target.value }))} className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 outline-none" placeholder="Vd: 1479" />
                 </div>
-                <div className="space-y-1">
-                  <label className="font-body text-[10px] font-bold uppercase text-on-surface-variant">Độ tin cậy (1-10)</label>
-                  <input type="number" min="1" max="10" value={form.reliabilityScore} onChange={e => setForm({ ...form, reliabilityScore: e.target.value })} className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 outline-none" placeholder="Vd: 9" />
-                </div>
+
               </div>
             </section>
 
@@ -139,7 +162,7 @@ const RecordForm = () => {
             <section className="bg-white border border-outline-variant shadow-sm rounded-sm">
               <RichTextEditor
                 value={form.content}
-                onChange={(content) => setForm({ ...form, content })}
+                onChange={(content) => setForm(prev => ({ ...prev, content }))}
                 placeholder="Nhập nội dung sử liệu hoặc bản dịch tại đây..."
                 className="min-h-[500px]"
               />
@@ -168,7 +191,7 @@ const RecordForm = () => {
 
             <div className="bg-primary/90 text-white p-6 rounded shadow-xl">
               <h4 className="font-body text-[10px] font-bold uppercase tracking-widest border-b border-white/20 pb-2 mb-4 italic">Loại hình lưu trữ</h4>
-              <select value={form.sourceType} onChange={e => setForm({ ...form, sourceType: e.target.value })} className="w-full bg-white/10 border border-white/20 rounded p-2 text-sm outline-none">
+              <select value={form.sourceType} onChange={e => setForm(prev => ({ ...prev, sourceType: e.target.value }))} className="w-full bg-white/10 border border-white/20 rounded p-2 text-sm outline-none">
                 <option className="text-black">Chính sử (Quốc sử)</option>
                 <option className="text-black">Dã sử</option>
                 <option className="text-black">Thần tích</option>

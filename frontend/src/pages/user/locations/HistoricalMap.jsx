@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Swords, BookOpen, Compass, Sparkles, Feather, ArrowRight, X } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { MapPin, Swords, BookOpen, Compass, Sparkles, Feather, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const mapSites = [
   { location_id: 1, title: 'Hoàng thành Thăng Long', location: 'Hà Nội', location_type: 'relic', x: 230, y: 150, summary: 'Trung tâm chính trị, văn hóa của các triều đại phong kiến Việt Nam.', historyDetails: 'Nơi lưu giữ nhiều dấu tích của các vương triều...', famousCharacters: ['Lý Thái Tổ'] },

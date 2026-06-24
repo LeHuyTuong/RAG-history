@@ -1,5 +1,4 @@
-import { API_ENDPOINTS } from '../services/api';
-import apiClient from '../services/apiClient';
+import { ragService } from '../services';
 
 const MAX_LINKS = 20;
 const URL_REGEX = /^https?:\/\/.+/i;
@@ -48,14 +47,14 @@ export const extractSourcesFromCitations = (citations) => {
   }
 
   const uniqueSources = Array.from(
-    new Map(sources.map(s => [s.url, s])).values()
+    new Map(sources.map((s) => [s.url, s])).values()
   );
 
   return uniqueSources.slice(0, MAX_LINKS);
 };
 
-export const callRagChatApi = async (question, options = {}) => {
-  const { data } = await apiClient.post(API_ENDPOINTS.RAG_CHAT, {
+export const callRagChatApi = (question, options = {}) =>
+  ragService.chat({
     question,
     topK: options.topK || 5,
     useGraph: options.useGraph || false,
@@ -63,9 +62,6 @@ export const callRagChatApi = async (question, options = {}) => {
     tagIds: options.tagIds || [],
     temperature: options.temperature || 0.2,
   });
-  // axios response.data = ApiResponse<RagChatResponse> — unwrap .data field
-  return data.data ?? data;
-};
 
 export const transformCitationsToSources = (citations) => {
   return (citations || []).map((cit) => {

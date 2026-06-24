@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { AdminLayout, PageHeader, DataTable, StatsGrid, FilterBar, FilterInput, FilterSelect, ActionModal } from '../../../components/admin';
 
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient from '../../../services/apiClient';
+import { API_ENDPOINTS, mockClient } from '../../../services';
 const MemberManagement = () => {
   const navigate = useNavigate();
   // State quản lý các loại Modal
@@ -27,28 +26,27 @@ const MemberManagement = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await apiClient.get(API_ENDPOINTS.ADMIN_MEMBERS, { params: { page: 0, size: 500 } });
-        
-        const payload = response.data?.data || response.data;
-        const membersList = payload.result || [];
+        const response = await mockClient.get('/api/admin_members.json');
+        const payload = response.data || {};
+        const membersList = payload.members || [];
 
         setData({
-          stats: [
-            { id: 1, label: 'Tổng số thành viên', value: payload.meta?.total || membersList.length, icon: 'group', color: 'text-indigo-600' },
-            { id: 2, label: 'Thành viên đang khóa', value: membersList.filter(m => m.status === 'LOCKED').length, icon: 'lock', color: 'text-rose-600' }
+          stats: payload.stats || [
+            { id: 1, label: 'Tổng số thành viên', value: membersList.length, icon: 'group', color: 'text-indigo-600' },
+            { id: 2, label: 'Thành viên đang khóa', value: membersList.filter(m => m.status === 'locked').length, icon: 'lock', color: 'text-rose-600' }
           ],
           members: membersList.map(m => ({
             id: m.id,
-            name: m.fullName || m.username,
+            name: m.name || m.fullName || m.username,
             email: m.email || '',
-            role: 'Thành viên',
-            joinDate: m.createdAt ? new Date(m.createdAt).toLocaleDateString('vi-VN') : '',
-            status: m.status === 'LOCKED' ? 'locked' : 'active',
+            role: m.role || 'Thành viên',
+            joinDate: m.joinDate || '',
+            status: m.status === 'locked' ? 'locked' : 'active',
             raw: m
           }))
         });
       } catch (error) {
-        console.error('Error fetching members data:', error);
+        console.error('Error fetching members data from mock:', error);
       } finally {
         setLoading(false);
       }
@@ -63,15 +61,21 @@ const MemberManagement = () => {
     const deleteId = activeModal.data.id;
 
     try {
-      await apiClient.delete(`${API_ENDPOINTS.ADMIN_MEMBERS}/${deleteId}`);
-
-      setData(prev => ({
-        ...prev,
-        members: prev.members.filter(m => String(m.id) !== String(deleteId))
-      }));
+      // Simulate delete locally
+      setData(prev => {
+        const remaining = prev.members.filter(m => String(m.id) !== String(deleteId));
+        return {
+          stats: prev.stats.map(s => {
+            if (s.label === 'Tổng số thành viên') return { ...s, value: remaining.length };
+            if (s.label === 'Thành viên đang khóa') return { ...s, value: remaining.filter(m => m.status === 'locked').length };
+            return s;
+          }),
+          members: remaining
+        };
+      });
+      alert('Đã xóa thành viên (chế độ mock)!');
     } catch (error) {
       console.error('Error deleting member:', error);
-      alert('Có lỗi xảy ra khi xóa thành viên!');
     } finally {
       closeModal();
     }
@@ -82,35 +86,32 @@ const MemberManagement = () => {
     const lockId = activeModal.data.id;
     
     const currentStatus = activeModal.data.status;
-    const newStatus = currentStatus === 'active' ? 'LOCKED' : 'ACTIVE';
-    const rawMember = activeModal.data.raw;
+    const newStatus = currentStatus === 'active' ? 'locked' : 'active';
     
     try {
-      const payload = {
-        username: rawMember.username,
-        email: rawMember.email,
-        fullName: rawMember.fullName,
-        status: newStatus
-      };
-
-      await apiClient.put(`${API_ENDPOINTS.ADMIN_MEMBERS}/${lockId}`, payload);
-      
-      setData(prev => ({
-        ...prev,
-        members: prev.members.map(m => {
+      // Simulate lock/unlock locally
+      setData(prev => {
+        const updated = prev.members.map(m => {
           if (String(m.id) === String(lockId)) {
             return {
               ...m,
-              status: newStatus === 'LOCKED' ? 'locked' : 'active',
+              status: newStatus,
               raw: { ...m.raw, status: newStatus }
             };
           }
           return m;
-        })
-      }));
+        });
+        return {
+          stats: prev.stats.map(s => {
+            if (s.label === 'Thành viên đang khóa') return { ...s, value: updated.filter(m => m.status === 'locked').length };
+            return s;
+          }),
+          members: updated
+        };
+      });
+      alert(`Đã ${newStatus === 'locked' ? 'khóa' : 'mở khóa'} thành viên (chế độ mock)!`);
     } catch (error) {
       console.error('Error locking/unlocking member:', error);
-      alert('Có lỗi xảy ra khi thay đổi trạng thái thành viên!');
     } finally {
       closeModal();
     }

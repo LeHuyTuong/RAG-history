@@ -14,6 +14,7 @@ import {
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 
 import { API_ENDPOINTS } from '../../../services/api';
+import apiClient, { mockClient } from '../../../services/apiClient';
 const RecordManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, itemName: '', id: null });
@@ -22,26 +23,25 @@ const RecordManagement = () => {
   const [filters, setFilters] = useState({ search: '', type: '', dynasty: '' });
   const { periodColors, getPeriodStyle: getDynastyStyle } = usePeriodColors();
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteModal.id === null || deleteModal.id === undefined) return;
     const deleteId = deleteModal.id;
 
-    let newRecords = JSON.parse(localStorage.getItem('admin_new_records') || '[]');
-    newRecords = newRecords.filter(item => String(item.id) !== String(deleteId));
-    localStorage.setItem('admin_new_records', JSON.stringify(newRecords));
+    try {
+      if (!isNaN(Number(deleteId))) {
+        await apiClient.delete(`${API_ENDPOINTS.ADMIN_SOURCES}/${deleteId}`);
+      }
 
-    const deletedIds = JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]');
-    if (!deletedIds.includes(String(deleteId))) {
-      deletedIds.push(String(deleteId));
-      localStorage.setItem('admin_deleted_ids', JSON.stringify(deletedIds));
+      setData(prev => ({
+        ...prev,
+        records: prev.records.filter(r => String(r.id) !== String(deleteId))
+      }));
+
+      setDeleteModal({ open: false, itemName: '', id: null });
+    } catch (e) {
+      console.error('Lỗi khi xóa sử liệu:', e);
+      alert('Có lỗi xảy ra khi xóa sử liệu!');
     }
-
-    setData(prev => ({
-      ...prev,
-      records: prev.records.filter(r => String(r.id) !== String(deleteId))
-    }));
-
-    setDeleteModal({ open: false, itemName: '', id: null });
   };
 
   const handleFilterChange = (key, value) => {
@@ -59,36 +59,41 @@ const RecordManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.ADMIN_RECORDS);
-        if (!response.ok) throw new Error('Network response was not ok');
-        const result = await response.json();
+        let result = null;
+        try {
+          const response = await apiClient.get('/api/v1/admin/sources?size=500');
+          const rawItems = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
+          if (Array.isArray(rawItems)) {
+            result = {
+              stats: {
+                total: { value: String(rawItems.length), sub: 'bộ sử liệu' },
+                pending: { value: '0', sub: 'Không có chờ duyệt' }
+              },
+              records: rawItems.map(item => {
+                let typeLabel = 'Bộ chính sử';
+                if (item.sourceType === 'BOOK') typeLabel = 'Bộ chính sử';
+                else if (item.sourceType === 'ARTICLE') typeLabel = 'Dã sử';
+                else if (item.sourceType === 'MANUAL') typeLabel = 'Thần tích';
+                else if (item.sourceType) typeLabel = item.sourceType;
 
-        // Merge new records from localStorage
-        const newRecordsStr = localStorage.getItem('admin_new_records');
-        if (newRecordsStr) {
-          try {
-            const newRecordsRaw = JSON.parse(newRecordsStr);
-            const newRecords = newRecordsRaw.map(r => ({
-              id: r.id,
-              name: r.title,
-              author: r.author,
-              type: r.sourceType,
-              dynasty: "Chưa cập nhật",
-              status: "pending",
-              progress: 0,
-              lastUpdate: new Date().toISOString().split('T')[0]
-            }));
+                return {
+                  id: item.id,
+                  name: item.title || item.name || '',
+                  author: item.author || 'N/A',
+                  type: typeLabel,
+                  dynasty: item.period?.name || item.dynasty || 'Không rõ',
+                  icon: item.sourceType === 'BOOK' ? 'menu_book' : item.sourceType === 'ARTICLE' ? 'auto_stories' : 'description'
+                };
+              })
+            };
+          }
+        } catch (apiErr) {
+          console.error('Lỗi khi tải sử liệu từ API, chuyển sang mock:', apiErr);
+        }
 
-            const newRecordIds = new Set(newRecords.map(r => String(r.id)));
-            const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]'));
-            result.records = [
-              ...newRecords,
-              ...result.records.filter(r => !newRecordIds.has(String(r.id)) && !deletedIds.has(String(r.id)))
-            ];
-          } catch (e) { console.error('Error parsing new records', e); }
-        } else {
-          const deletedIds = new Set(JSON.parse(localStorage.getItem('admin_deleted_ids') || '[]'));
-          result.records = result.records.filter(r => !deletedIds.has(String(r.id)));
+        if (!result) {
+          const response = await mockClient.get('/api/admin_records.json');
+          result = response.data || { stats: { total: { value: '0', sub: '' }, pending: { value: '0', sub: '' } }, records: [] };
         }
 
         setData(result);

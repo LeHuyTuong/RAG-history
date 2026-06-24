@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Pagination from '../../../components/common/Pagination';
 
 import { API_ENDPOINTS } from '../../../services/api';
+import apiClient, { mockClient } from '../../../services/apiClient';
 const UserEvents = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriods, setSelectedPeriods] = useState([]);
@@ -15,10 +16,52 @@ const UserEvents = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.USER_EVENTS);
-        if (!response.ok) throw new Error('Network response was not ok');
-        const data = await response.json();
-        setEvents(data.events || data || []);
+        let dbEvents = [];
+        try {
+          const response = await apiClient.get(API_ENDPOINTS.USER_EVENTS);
+          dbEvents = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
+        } catch (apiErr) {
+          console.error('Lỗi gọi API sự kiện, chuyển sang dùng mock:', apiErr);
+        }
+
+        let mockEvents = [];
+        try {
+          const mockRes = await mockClient.get('/api/user_events.json');
+          mockEvents = mockRes.data?.events || mockRes.data || [];
+        } catch (err) {
+          console.error('Error fetching mock events:', err);
+        }
+
+        let merged = [];
+        if (dbEvents.length > 0) {
+          merged = dbEvents.map(dbItem => {
+            const mockItem = mockEvents.find(m => m.slug === dbItem.slug) || {};
+            return {
+              ...mockItem,
+              ...dbItem,
+              event_id: dbItem.id,
+              name: dbItem.name,
+              description: dbItem.description,
+              year: dbItem.startYear !== undefined ? dbItem.startYear : mockItem.year,
+              date: dbItem.startYear !== undefined 
+                ? `${Math.abs(dbItem.startYear)} ${dbItem.startYear < 0 ? 'TCN' : ''}`
+                : mockItem.date || '',
+              category: dbItem.period?.name || mockItem.category || '',
+            };
+          });
+        } else {
+          merged = mockEvents.map(mockItem => ({
+            ...mockItem,
+            event_id: mockItem.id || mockItem.event_id,
+            name: mockItem.name || mockItem.title || '',
+            description: mockItem.description || '',
+            year: mockItem.year || '',
+            date: mockItem.date || '',
+            category: mockItem.category || '',
+          }));
+        }
+
+        setEvents(merged);
       } catch (error) {
         console.error('Error fetching events data:', error);
       } finally {
@@ -37,19 +80,8 @@ const UserEvents = () => {
     return matchSearch && matchYear && matchPeriod;
   });
 
-  // Reset pagination when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, searchYear, selectedPeriods]);
-
   const totalPages = Math.ceil(filteredEvents.length / ITEMS_PER_PAGE);
   const paginatedEvents = filteredEvents.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-
-  const togglePeriod = (period) => {
-    setSelectedPeriods(prev =>
-      prev.includes(period) ? prev.filter(p => p !== period) : [...prev, period]
-    );
-  };
 
 
 
@@ -83,7 +115,10 @@ const UserEvents = () => {
               type="text"
               placeholder="Tìm kiếm sự kiện..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={e => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
               className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] placeholder-[#6b0f0d]/40 rounded-lg py-3 pl-12 pr-4 outline-none focus:border-[#6b0f0d]/60 transition-colors font-body shadow-inner"
             />
           </div>
@@ -93,7 +128,10 @@ const UserEvents = () => {
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#6b0f0d]/60">filter_alt</span>
               <select
                 value={selectedPeriods.length > 0 ? selectedPeriods[0] : ""}
-                onChange={e => setSelectedPeriods(e.target.value ? [e.target.value] : [])}
+                onChange={e => {
+                  setSelectedPeriods(e.target.value ? [e.target.value] : []);
+                  setCurrentPage(1);
+                }}
                 className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] rounded-lg py-3 pl-12 pr-10 appearance-none outline-none focus:border-[#6b0f0d]/60 transition-colors font-body cursor-pointer shadow-inner"
               >
                 <option value="">Tất cả thời kỳ</option>
@@ -110,7 +148,10 @@ const UserEvents = () => {
                 type="text"
                 placeholder="Năm (VD: 1288)"
                 value={searchYear}
-                onChange={e => setSearchYear(e.target.value)}
+                onChange={e => {
+                  setSearchYear(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] placeholder-[#6b0f0d]/40 rounded-lg py-3 pl-12 pr-4 outline-none focus:border-[#6b0f0d]/60 transition-colors font-body shadow-inner"
               />
             </div>
@@ -150,7 +191,7 @@ const UserEvents = () => {
                       <span className="font-body text-[9px] font-bold text-[#6b0f0d] uppercase tracking-widest block border-b border-[#d99b4a]/30 pb-2">{(event.category || "").includes('Nhà') ? (event.category || "").replace('Nhà', 'Triều') : (event.category || "Chưa rõ")}</span>
                       <h3 className="font-headline text-2xl text-[#2b0504] font-semibold tracking-tight leading-tight group-hover:text-[#6b0f0d] transition-colors">{event.name}</h3>
                       <p className="font-body text-[14px] text-[#2b1a16]/80 leading-relaxed line-clamp-3">
-                        {event.description}
+                        {event.description ? event.description.replace(/<[^>]*>/g, '') : ''}
                       </p>
                       <div className="pt-4 mt-auto">
                         <Link to={`/events/${event.event_id}`} className="text-[#6b0f0d] font-body text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 group/link border-t border-[#d99b4a]/20 pt-4 hover:bg-[#d99b4a]/10 transition-colors pb-2">
