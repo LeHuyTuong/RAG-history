@@ -7,6 +7,7 @@ import com.example.historyrag.feature.location.dto.LocationFilterRequest;
 import com.example.historyrag.feature.location.dto.LocationResponse;
 import com.example.historyrag.feature.location.dto.UpdateLocationRequest;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +26,10 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/v1/admin/locations")
 @PreAuthorize("hasRole('ADMIN')")
+@RequiredArgsConstructor
 public class LocationController {
 
     private final LocationService locationService;
-
-    public LocationController(LocationService locationService) {
-        this.locationService = locationService;
-    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<ResultPaginationDTO>> filter(

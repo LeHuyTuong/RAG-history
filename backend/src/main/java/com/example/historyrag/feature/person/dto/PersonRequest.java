@@ -1,5 +1,7 @@
 package com.example.historyrag.feature.person.dto;
 
+
+import lombok.Builder;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PastOrPresent;
@@ -8,6 +10,7 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
+@Builder
 public record PersonRequest(
         @NotBlank(message = "Name is required")
         @Size(max = 255, message = "Name must not exceed 255 characters")

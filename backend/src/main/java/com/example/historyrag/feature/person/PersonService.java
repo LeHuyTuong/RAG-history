@@ -16,4 +16,8 @@ public interface PersonService {
     ResultPaginationDTO getAllPersons(String keyword, Pageable pageable);
 
     void deletePerson(Long id);
+
+    long countPersons();
+
+    Person getPersonEntityById(Long id);
 }

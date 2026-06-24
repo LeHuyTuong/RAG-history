@@ -1,8 +1,11 @@
 package com.example.historyrag.feature.period.dto;
 
+
+import lombok.Builder;
 import com.example.historyrag.feature.period.Period;
 import java.time.Instant;
 
+@Builder
 public record PeriodResponse(
         Long id,
         String name,

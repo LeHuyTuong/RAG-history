@@ -7,20 +7,23 @@ import com.example.historyrag.feature.location.dto.CreateLocationRequest;
 import com.example.historyrag.feature.location.dto.LocationFilterRequest;
 import com.example.historyrag.feature.location.dto.LocationResponse;
 import com.example.historyrag.feature.location.dto.UpdateLocationRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.PredicateSpecification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 @Service
+@RequiredArgsConstructor
 public class LocationServiceImpl implements LocationService {
 
     private final LocationRepository locationRepository;
-
-    public LocationServiceImpl(LocationRepository locationRepository) {
-        this.locationRepository = locationRepository;
-    }
 
     @Override
     @Transactional
@@ -72,6 +75,27 @@ public class LocationServiceImpl implements LocationService {
             throw new ResourceNotFoundException("Địa danh", "id", id);
         }
         locationRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countLocations() {
+        return locationRepository.count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<Long, Location> getLocationsByIds(List<Long> ids) {
+        List<Location> locations = locationRepository.findAllById(ids);
+        Map<Long, Location> locationById = locations.stream()
+                .collect(Collectors.toMap(Location::getId, Function.identity()));
+
+        for (Long id : ids) {
+            if (!locationById.containsKey(id)) {
+                throw new ResourceNotFoundException("Địa danh", "id", id);
+            }
+        }
+        return locationById;
     }
 
     private void applyCreateRequest(Location location, CreateLocationRequest request) {

@@ -1,8 +1,11 @@
 package com.example.historyrag.feature.rag.dto;
 
+
+import lombok.Builder;
 import java.util.Collections;
 import java.util.List;
 
+@Builder
 public record RagChatResponse(
         String answer,
         List<RagCitationResponse> citations,

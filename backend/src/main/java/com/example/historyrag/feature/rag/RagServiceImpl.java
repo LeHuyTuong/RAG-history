@@ -12,20 +12,18 @@ import com.example.historyrag.infrastructure.webclient.RagClientService;
 import com.example.historyrag.infrastructure.webclient.RagStreamEvent;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.Disposable;
 
 @Service
+@RequiredArgsConstructor
 public class RagServiceImpl implements RagService {
 
     private static final long STREAM_TIMEOUT_MS = 180_000L;
 
     private final RagClientService ragClientService;
-
-    public RagServiceImpl(RagClientService ragClientService) {
-        this.ragClientService = ragClientService;
-    }
 
     @Override
     public RagHealthResponse getHealth(String traceparent) {

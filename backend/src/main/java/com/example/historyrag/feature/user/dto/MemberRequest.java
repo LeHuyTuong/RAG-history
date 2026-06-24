@@ -1,11 +1,14 @@
 package com.example.historyrag.feature.user.dto;
 
+
+import lombok.Builder;
 import com.example.historyrag.feature.user.Member;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+@Builder
 public record MemberRequest(
         @NotBlank(message = "Username is required")
         @Size(min = 3, max = 50, message = "Username must be 3-50 characters")

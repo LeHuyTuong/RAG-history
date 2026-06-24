@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,19 +24,15 @@ import java.util.Arrays;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
     private static final String COOKIE_PATH = "/api/v1/auth";
 
     private final AuthService authService;
+    @Value("${jwt.refresh-token-expiration}")
     private final long refreshTokenExpiration;
-
-    public AuthController(AuthService authService,
-            @Value("${jwt.refresh-token-expiration}") long refreshTokenExpiration) {
-        this.authService = authService;
-        this.refreshTokenExpiration = refreshTokenExpiration;
-    }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(

@@ -7,6 +7,7 @@ import com.example.historyrag.feature.participation.dto.ParticipationFilterReque
 import com.example.historyrag.feature.participation.dto.ParticipationResponse;
 import com.example.historyrag.feature.participation.dto.UpdateParticipationRequest;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +26,10 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/v1/admin/participations")
 @PreAuthorize("hasRole('ADMIN')")
+@RequiredArgsConstructor
 public class ParticipationController {
 
     private final ParticipationService participationService;
-
-    public ParticipationController(ParticipationService participationService) {
-        this.participationService = participationService;
-    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<ResultPaginationDTO>> filter(

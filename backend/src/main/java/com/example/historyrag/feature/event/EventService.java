@@ -18,4 +18,8 @@ public interface EventService {
     ResultPaginationDTO filter(EventFilterRequest filter, Pageable pageable);
 
     void delete(Long id);
+
+    long countEvents();
+
+    Event getEventEntityById(Long id);
 }

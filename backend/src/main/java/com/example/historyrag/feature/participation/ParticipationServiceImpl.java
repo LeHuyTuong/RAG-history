@@ -4,13 +4,14 @@ import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.exception.DuplicateResourceException;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.feature.event.Event;
-import com.example.historyrag.feature.event.EventRepository;
+import com.example.historyrag.feature.event.EventService;
 import com.example.historyrag.feature.participation.dto.CreateParticipationRequest;
 import com.example.historyrag.feature.participation.dto.ParticipationFilterRequest;
 import com.example.historyrag.feature.participation.dto.ParticipationResponse;
 import com.example.historyrag.feature.participation.dto.UpdateParticipationRequest;
 import com.example.historyrag.feature.person.Person;
-import com.example.historyrag.feature.person.PersonRepository;
+import com.example.historyrag.feature.person.PersonService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.PredicateSpecification;
@@ -18,22 +19,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class ParticipationServiceImpl implements ParticipationService {
 
     private static final String RESOURCE_NAME = "Tham gia sự kiện";
 
     private final ParticipationRepository participationRepository;
-    private final EventRepository eventRepository;
-    private final PersonRepository personRepository;
-
-    public ParticipationServiceImpl(
-            ParticipationRepository participationRepository,
-            EventRepository eventRepository,
-            PersonRepository personRepository) {
-        this.participationRepository = participationRepository;
-        this.eventRepository = eventRepository;
-        this.personRepository = personRepository;
-    }
+    private final EventService eventService;
+    private final PersonService personService;
 
     @Override
     @Transactional
@@ -87,13 +80,11 @@ public class ParticipationServiceImpl implements ParticipationService {
     }
 
     private Event getEvent(Long eventId) {
-        return eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResourceNotFoundException("Sự kiện", "id", eventId));
+        return eventService.getEventEntityById(eventId);
     }
 
     private Person getPerson(Long personId) {
-        return personRepository.findById(personId)
-                .orElseThrow(() -> new ResourceNotFoundException("Nhân vật", "id", personId));
+        return personService.getPersonEntityById(personId);
     }
 
     private void validateUnique(Long eventId, Long personId, ParticipationRole role) {

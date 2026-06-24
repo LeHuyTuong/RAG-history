@@ -8,4 +8,7 @@ import org.springframework.data.domain.Pageable;
 public interface EngagementService {
     ResultPaginationDTO getPendingComments(Pageable pageable);
     EngagementResponse moderateComment(Long engagementId, EngagementModerationRequest request);
+    long countEngagements();
+    long countByType(EngagementType engagementType);
+    long countByTypeAndCommentStatus(EngagementType engagementType, CommentStatus commentStatus);
 }

@@ -4,13 +4,13 @@ import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.exception.DuplicateResourceException;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.feature.event.Event;
-import com.example.historyrag.feature.event.EventRepository;
+import com.example.historyrag.feature.event.EventService;
 import com.example.historyrag.feature.participation.dto.CreateParticipationRequest;
 import com.example.historyrag.feature.participation.dto.ParticipationFilterRequest;
 import com.example.historyrag.feature.participation.dto.ParticipationResponse;
 import com.example.historyrag.feature.participation.dto.UpdateParticipationRequest;
 import com.example.historyrag.feature.person.Person;
-import com.example.historyrag.feature.person.PersonRepository;
+import com.example.historyrag.feature.person.PersonService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,10 +42,10 @@ class ParticipationServiceImplTest {
     private ParticipationRepository participationRepository;
 
     @Mock
-    private EventRepository eventRepository;
+    private EventService eventService;
 
     @Mock
-    private PersonRepository personRepository;
+    private PersonService personService;
 
     private ParticipationServiceImpl participationService;
 
@@ -53,8 +53,8 @@ class ParticipationServiceImplTest {
     void setUp() {
         participationService = new ParticipationServiceImpl(
                 participationRepository,
-                eventRepository,
-                personRepository);
+                eventService,
+                personService);
     }
 
     @Test
@@ -112,11 +112,12 @@ class ParticipationServiceImplTest {
     @DisplayName("Should reject create when event does not exist")
     void create_missingEvent_throwsResourceNotFoundException() {
         CreateParticipationRequest request = createRequest(ParticipationRole.GENERAL);
-        when(eventRepository.findById(request.eventId())).thenReturn(Optional.empty());
+        when(eventService.getEventEntityById(request.eventId()))
+                .thenThrow(new ResourceNotFoundException("Sự kiện", "id", request.eventId()));
 
         assertThrows(ResourceNotFoundException.class, () -> participationService.create(request));
 
-        verify(personRepository, never()).findById(any());
+        verify(personService, never()).getPersonEntityById(any());
         verify(participationRepository, never()).save(any(Participation.class));
     }
 
@@ -124,8 +125,9 @@ class ParticipationServiceImplTest {
     @DisplayName("Should reject create when person does not exist")
     void create_missingPerson_throwsResourceNotFoundException() {
         CreateParticipationRequest request = createRequest(ParticipationRole.GENERAL);
-        when(eventRepository.findById(request.eventId())).thenReturn(Optional.of(event()));
-        when(personRepository.findById(request.personId())).thenReturn(Optional.empty());
+        when(eventService.getEventEntityById(request.eventId())).thenReturn(event());
+        when(personService.getPersonEntityById(request.personId()))
+                .thenThrow(new ResourceNotFoundException("Nhân vật", "id", request.personId()));
 
         assertThrows(ResourceNotFoundException.class, () -> participationService.create(request));
 
@@ -231,8 +233,8 @@ class ParticipationServiceImplTest {
     }
 
     private void mockRelatedEntities(Long eventId, Long personId) {
-        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event()));
-        when(personRepository.findById(personId)).thenReturn(Optional.of(person()));
+        when(eventService.getEventEntityById(eventId)).thenReturn(event());
+        when(personService.getPersonEntityById(personId)).thenReturn(person());
     }
 
     private CreateParticipationRequest createRequest(ParticipationRole role) {

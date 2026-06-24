@@ -5,6 +5,7 @@ import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.feature.period.dto.PeriodRequest;
 import com.example.historyrag.feature.period.dto.PeriodResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,13 +18,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/admin/periods")
 @PreAuthorize("hasRole('ADMIN')")
+@RequiredArgsConstructor
 public class PeriodController {
 
     private final PeriodService periodService;
-
-    public PeriodController(PeriodService periodService) {
-        this.periodService = periodService;
-    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<ResultPaginationDTO>> getAllPeriods(

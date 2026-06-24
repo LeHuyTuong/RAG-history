@@ -5,6 +5,7 @@ import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.feature.tag.dto.TagRequest;
 import com.example.historyrag.feature.tag.dto.TagResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -15,13 +16,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/admin/tags")
 @PreAuthorize("hasRole('ADMIN')")
+@RequiredArgsConstructor
 public class TagController {
 
     private final TagService tagService;
-
-    public TagController(TagService tagService) {
-        this.tagService = tagService;
-    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<ResultPaginationDTO>> getAllTags(@ParameterObject Pageable pageable) {

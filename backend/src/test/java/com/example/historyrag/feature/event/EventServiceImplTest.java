@@ -9,10 +9,10 @@ import com.example.historyrag.feature.event.dto.EventLocationRelationRequest;
 import com.example.historyrag.feature.event.dto.EventResponse;
 import com.example.historyrag.feature.event.dto.UpdateEventRequest;
 import com.example.historyrag.feature.location.Location;
-import com.example.historyrag.feature.location.LocationRepository;
+import com.example.historyrag.feature.location.LocationService;
 import com.example.historyrag.feature.location.LocationType;
 import com.example.historyrag.feature.period.Period;
-import com.example.historyrag.feature.period.PeriodRepository;
+import com.example.historyrag.feature.period.PeriodService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +27,7 @@ import org.springframework.data.jpa.domain.PredicateSpecification;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -44,16 +45,16 @@ class EventServiceImplTest {
     private EventRepository eventRepository;
 
     @Mock
-    private PeriodRepository periodRepository;
+    private PeriodService periodService;
 
     @Mock
-    private LocationRepository locationRepository;
+    private LocationService locationService;
 
     private EventServiceImpl eventService;
 
     @BeforeEach
     void setUp() {
-        eventService = new EventServiceImpl(eventRepository, periodRepository, locationRepository);
+        eventService = new EventServiceImpl(eventRepository, periodService, locationService);
     }
 
     @Test
@@ -63,8 +64,8 @@ class EventServiceImplTest {
         Period period = period();
         Location location = location(2L);
         when(eventRepository.existsBySlug(request.slug())).thenReturn(false);
-        when(periodRepository.findById(request.periodId())).thenReturn(Optional.of(period));
-        when(locationRepository.findAllById(List.of(2L))).thenReturn(List.of(location));
+        when(periodService.getPeriodEntityById(request.periodId())).thenReturn(period);
+        when(locationService.getLocationsByIds(List.of(2L))).thenReturn(Map.of(2L, location));
         when(eventRepository.save(any(Event.class))).thenAnswer(invocation -> {
             Event saved = invocation.getArgument(0);
             saved.setId(1L);
@@ -90,8 +91,8 @@ class EventServiceImplTest {
         UpdateEventRequest request = updateRequest("chien-thang-bach-dang-1288");
         when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
         when(eventRepository.existsBySlugAndIdNot(request.slug(), event.getId())).thenReturn(false);
-        when(periodRepository.findById(request.periodId())).thenReturn(Optional.of(period()));
-        when(locationRepository.findAllById(List.of(2L))).thenReturn(List.of(location(2L)));
+        when(periodService.getPeriodEntityById(request.periodId())).thenReturn(period());
+        when(locationService.getLocationsByIds(List.of(2L))).thenReturn(Map.of(2L, location(2L)));
         when(eventRepository.save(event)).thenReturn(event);
 
         EventResponse response = eventService.update(event.getId(), request);
@@ -185,11 +186,16 @@ class EventServiceImplTest {
     void update_existingEvent_replacesLocationRelationCollection() {
         Event event = event(1L, "bach-dang");
         Location oldLocation = location(1L);
-        event.getEventLocations().add(new EventLocation(event, oldLocation, "OLD"));
+        event.getEventLocations().add(EventLocation.builder()
+                .id(new EventLocationId(event.getId(), oldLocation.getId()))
+                .event(event)
+                .location(oldLocation)
+                .relationType("OLD")
+                .build());
         UpdateEventRequest request = updateRequest("bach-dang");
         when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
-        when(periodRepository.findById(request.periodId())).thenReturn(Optional.of(period()));
-        when(locationRepository.findAllById(List.of(2L))).thenReturn(List.of(location(2L)));
+        when(periodService.getPeriodEntityById(request.periodId())).thenReturn(period());
+        when(locationService.getLocationsByIds(List.of(2L))).thenReturn(Map.of(2L, location(2L)));
         when(eventRepository.save(event)).thenReturn(event);
 
         eventService.update(event.getId(), request);

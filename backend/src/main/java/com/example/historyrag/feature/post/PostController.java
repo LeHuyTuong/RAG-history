@@ -7,6 +7,7 @@ import com.example.historyrag.feature.post.dto.PostFilterRequest;
 import com.example.historyrag.feature.post.dto.PostResponse;
 import com.example.historyrag.feature.post.dto.UpdatePostRequest;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -27,13 +28,10 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/v1/admin/posts")
 @PreAuthorize("hasRole('ADMIN')")
+@RequiredArgsConstructor
 public class PostController {
 
     private final PostService postService;
-
-    public PostController(PostService postService) {
-        this.postService = postService;
-    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<ResultPaginationDTO>> filter(

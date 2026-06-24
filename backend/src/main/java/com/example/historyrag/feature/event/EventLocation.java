@@ -12,6 +12,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,10 +26,12 @@ import java.time.Instant;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "event_location")
 public class EventLocation {
 
+    @Builder.Default
     @EmbeddedId
     private EventLocationId id = new EventLocationId();
 
@@ -53,14 +56,4 @@ public class EventLocation {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
-
-    public EventLocation(Event event, Location location, String relationType) {
-        this.event = event;
-        this.location = location;
-        this.relationType = relationType;
-        this.id = new EventLocationId(
-                event != null ? event.getId() : null,
-                location != null ? location.getId() : null
-        );
-    }
 }

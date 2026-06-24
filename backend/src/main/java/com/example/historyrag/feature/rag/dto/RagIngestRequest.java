@@ -1,11 +1,14 @@
 package com.example.historyrag.feature.rag.dto;
 
+
+import lombok.Builder;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+@Builder
 public record RagIngestRequest(
         @NotNull(message = "sourceId is required")
         Long sourceId,

@@ -5,19 +5,17 @@ import com.example.historyrag.exception.DuplicateResourceException;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.feature.person.dto.PersonRequest;
 import com.example.historyrag.feature.person.dto.PersonResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class PersonServiceImpl implements PersonService {
 
     private final PersonRepository personRepository;
-
-    public PersonServiceImpl(PersonRepository personRepository) {
-        this.personRepository = personRepository;
-    }
 
     @Override
     @Transactional
@@ -72,6 +70,19 @@ public class PersonServiceImpl implements PersonService {
             throw new ResourceNotFoundException("Nhân vật", "id", id);
         }
         personRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countPersons() {
+        return personRepository.count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Person getPersonEntityById(Long id) {
+        return personRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Nhân vật", "id", id));
     }
 
     private void applyRequest(Person person, PersonRequest request) {

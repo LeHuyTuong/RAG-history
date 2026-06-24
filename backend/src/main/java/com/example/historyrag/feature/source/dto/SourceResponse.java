@@ -1,11 +1,14 @@
 package com.example.historyrag.feature.source.dto;
 
+
+import lombok.Builder;
 import com.example.historyrag.feature.source.ReliabilityLevel;
 import com.example.historyrag.feature.source.Source;
 import com.example.historyrag.feature.source.SourceType;
 
 import java.time.Instant;
 
+@Builder
 public record SourceResponse(
         Long id,
         String title,

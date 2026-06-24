@@ -1,8 +1,11 @@
 package com.example.historyrag.feature.rag.dto;
 
+
+import lombok.Builder;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
+@Builder
 public record RagIngestSettings(
         @Min(value = 100, message = "chunkSize must be at least 100")
         @Max(value = 4000, message = "chunkSize must be at most 4000")

@@ -1,10 +1,13 @@
 package com.example.historyrag.feature.auth.dto;
 
+
+import lombok.Builder;
 import com.example.historyrag.feature.admin.Admin;
 import com.example.historyrag.feature.user.Member;
 
 import java.time.Instant;
 
+@Builder
 public record AuthUserResponse(
         Long id,
         String username,

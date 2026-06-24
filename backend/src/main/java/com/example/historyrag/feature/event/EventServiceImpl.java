@@ -10,9 +10,10 @@ import com.example.historyrag.feature.event.dto.EventLocationRelationRequest;
 import com.example.historyrag.feature.event.dto.EventResponse;
 import com.example.historyrag.feature.event.dto.UpdateEventRequest;
 import com.example.historyrag.feature.location.Location;
-import com.example.historyrag.feature.location.LocationRepository;
+import com.example.historyrag.feature.location.LocationService;
 import com.example.historyrag.feature.period.Period;
-import com.example.historyrag.feature.period.PeriodRepository;
+import com.example.historyrag.feature.period.PeriodService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.PredicateSpecification;
@@ -24,26 +25,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
 
     private static final String RESOURCE_NAME = "Sự kiện";
 
     private final EventRepository eventRepository;
-    private final PeriodRepository periodRepository;
-    private final LocationRepository locationRepository;
-
-    public EventServiceImpl(
-            EventRepository eventRepository,
-            PeriodRepository periodRepository,
-            LocationRepository locationRepository) {
-        this.eventRepository = eventRepository;
-        this.periodRepository = periodRepository;
-        this.locationRepository = locationRepository;
-    }
+    private final PeriodService periodService;
+    private final LocationService locationService;
 
     @Override
     @Transactional
@@ -105,6 +96,19 @@ public class EventServiceImpl implements EventService {
         eventRepository.deleteById(id);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public long countEvents() {
+        return eventRepository.count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Event getEventEntityById(Long id) {
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NAME, "id", id));
+    }
+
     private void applyCreateRequest(Event event, CreateEventRequest request) {
         event.setName(request.name());
         event.setSlug(request.slug());
@@ -131,8 +135,7 @@ public class EventServiceImpl implements EventService {
         if (periodId == null) {
             return null;
         }
-        return periodRepository.findById(periodId)
-                .orElseThrow(() -> new ResourceNotFoundException("Thời kỳ", "id", periodId));
+        return periodService.getPeriodEntityById(periodId);
     }
 
     private void replaceLocationRelations(
@@ -147,11 +150,12 @@ public class EventServiceImpl implements EventService {
         Map<Long, Location> locationById = resolveLocations(locationRelations);
         for (EventLocationRelationRequest relation : locationRelations) {
             Location location = locationById.get(relation.locationId());
-            event.getEventLocations().add(new EventLocation(
-                    event,
-                    location,
-                    normalizeRelationType(relation.relationType())
-            ));
+            event.getEventLocations().add(EventLocation.builder()
+                    .id(new EventLocationId(event.getId(), location.getId()))
+                    .event(event)
+                    .location(location)
+                    .relationType(normalizeRelationType(relation.relationType()))
+                    .build());
         }
     }
 
@@ -171,16 +175,7 @@ public class EventServiceImpl implements EventService {
         List<Long> locationIds = relations.stream()
                 .map(EventLocationRelationRequest::locationId)
                 .toList();
-        List<Location> locations = locationRepository.findAllById(locationIds);
-        Map<Long, Location> locationById = locations.stream()
-                .collect(Collectors.toMap(Location::getId, Function.identity()));
-
-        for (Long locationId : locationIds) {
-            if (!locationById.containsKey(locationId)) {
-                throw new ResourceNotFoundException("Địa danh", "id", locationId);
-            }
-        }
-        return locationById;
+        return locationService.getLocationsByIds(locationIds);
     }
 
     private String normalizeRelationType(String relationType) {

@@ -1,11 +1,14 @@
 package com.example.historyrag.feature.location.dto;
 
+
+import lombok.Builder;
 import com.example.historyrag.feature.location.Location;
 import com.example.historyrag.feature.location.LocationType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
+@Builder
 public record LocationResponse(
         Long id,
         String name,

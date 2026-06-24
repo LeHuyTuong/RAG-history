@@ -1,5 +1,7 @@
 package com.example.historyrag.feature.post.dto;
 
+
+import lombok.Builder;
 import com.example.historyrag.feature.post.PostStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,6 +11,7 @@ import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 
+@Builder
 public record UpdatePostRequest(
         @NotNull(message = "Id is required")
         Long id,

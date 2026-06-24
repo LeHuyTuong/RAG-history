@@ -1,8 +1,11 @@
 package com.example.historyrag.feature.period.dto;
 
+
+import lombok.Builder;
 import jakarta.validation.constraints.*;
 import java.time.Year;
 
+@Builder
 public record PeriodRequest(
         @NotBlank(message = "Name is required")
         @Size(max = 50, message = "Name must not exceed 50 characters")

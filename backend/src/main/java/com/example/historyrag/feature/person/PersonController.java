@@ -5,6 +5,7 @@ import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.feature.person.dto.PersonRequest;
 import com.example.historyrag.feature.person.dto.PersonResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +25,10 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/v1/admin/persons")
 @PreAuthorize("hasRole('ADMIN')")
+@RequiredArgsConstructor
 public class PersonController {
 
     private final PersonService personService;
-
-    public PersonController(PersonService personService) {
-        this.personService = personService;
-    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<ResultPaginationDTO>> getAllPersons(

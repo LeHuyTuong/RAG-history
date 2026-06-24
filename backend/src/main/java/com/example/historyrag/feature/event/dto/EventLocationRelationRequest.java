@@ -1,9 +1,12 @@
 package com.example.historyrag.feature.event.dto;
 
+
+import lombok.Builder;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+@Builder
 public record EventLocationRelationRequest(
         @NotNull(message = "Location id is required")
         Long locationId,

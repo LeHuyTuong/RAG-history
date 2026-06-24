@@ -5,6 +5,7 @@ import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.feature.engagement.dto.EngagementModerationRequest;
 import com.example.historyrag.feature.engagement.dto.EngagementResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +15,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/admin/engagements")
 @PreAuthorize("hasRole('ADMIN')")
+@RequiredArgsConstructor
 public class AdminEngagementController {
 
     private final EngagementService engagementService;
-
-    public AdminEngagementController(EngagementService engagementService) {
-        this.engagementService = engagementService;
-    }
 
     @GetMapping("/pending")
     public ResponseEntity<ApiResponse<ResultPaginationDTO>> getPendingComments(@ParameterObject Pageable pageable) {

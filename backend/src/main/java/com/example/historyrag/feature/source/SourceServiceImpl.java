@@ -6,6 +6,7 @@ import com.example.historyrag.feature.source.dto.CreateSourceRequest;
 import com.example.historyrag.feature.source.dto.SourceFilterRequest;
 import com.example.historyrag.feature.source.dto.SourceResponse;
 import com.example.historyrag.feature.source.dto.UpdateSourceRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.PredicateSpecification;
@@ -13,13 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class SourceServiceImpl implements SourceService {
 
     private final SourceRepository sourceRepository;
-
-    public SourceServiceImpl(SourceRepository sourceRepository) {
-        this.sourceRepository = sourceRepository;
-    }
 
     @Override
     @Transactional
@@ -63,6 +61,12 @@ public class SourceServiceImpl implements SourceService {
             throw new ResourceNotFoundException("Nguồn tư liệu", "id", id);
         }
         sourceRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countSources() {
+        return sourceRepository.count();
     }
 
     private void applyCreateRequest(Source source, CreateSourceRequest request) {

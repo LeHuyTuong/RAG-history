@@ -4,9 +4,9 @@ import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.exception.DuplicateResourceException;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.feature.admin.Admin;
-import com.example.historyrag.feature.admin.AdminRepository;
+import com.example.historyrag.feature.admin.AdminService;
 import com.example.historyrag.feature.event.Event;
-import com.example.historyrag.feature.event.EventRepository;
+import com.example.historyrag.feature.event.EventService;
 import com.example.historyrag.feature.post.dto.CreatePostRequest;
 import com.example.historyrag.feature.post.dto.PostFilterRequest;
 import com.example.historyrag.feature.post.dto.PostResponse;
@@ -16,7 +16,8 @@ import com.example.historyrag.feature.rag.dto.RagIngestMetadata;
 import com.example.historyrag.feature.rag.dto.RagIngestRequest;
 import com.example.historyrag.feature.rag.dto.RagIngestSettings;
 import com.example.historyrag.feature.tag.Tag;
-import com.example.historyrag.feature.tag.TagRepository;
+import com.example.historyrag.feature.tag.TagService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -28,31 +29,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
     private static final Logger log = LoggerFactory.getLogger(PostServiceImpl.class);
 
     private final PostRepository postRepository;
-    private final AdminRepository adminRepository;
-    private final EventRepository eventRepository;
-    private final TagRepository tagRepository;
+    private final AdminService adminService;
+    private final EventService eventService;
+    private final TagService tagService;
     private final RagService ragService;
-
-    public PostServiceImpl(PostRepository postRepository,
-            AdminRepository adminRepository,
-            EventRepository eventRepository,
-            TagRepository tagRepository,
-            RagService ragService) {
-        this.postRepository = postRepository;
-        this.adminRepository = adminRepository;
-        this.eventRepository = eventRepository;
-        this.tagRepository = tagRepository;
-        this.ragService = ragService;
-    }
 
     @Override
     @Transactional
@@ -61,8 +49,7 @@ public class PostServiceImpl implements PostService {
             throw new DuplicateResourceException("Bài viết", "slug", request.slug());
         }
 
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ResourceNotFoundException("Quản trị viên", "id", adminId));
+        Admin admin = adminService.getAdminEntityById(adminId);
 
         Post post = new Post();
         post.setAdmin(admin);
@@ -122,6 +109,18 @@ public class PostServiceImpl implements PostService {
         postRepository.deleteById(id);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public long countPosts() {
+        return postRepository.count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countPostsByStatus(PostStatus status) {
+        return postRepository.countByStatus(status);
+    }
+
     private void applyCreateRequest(Post post, CreatePostRequest request) {
         PostStatus status = request.status() == null ? PostStatus.DRAFT : request.status();
         post.setTitle(request.title());
@@ -158,8 +157,7 @@ public class PostServiceImpl implements PostService {
         if (eventId == null) {
             return null;
         }
-        return eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResourceNotFoundException("Sự kiện", "id", eventId));
+        return eventService.getEventEntityById(eventId);
     }
 
     private void tryIngest(Post post) {
@@ -209,19 +207,6 @@ public class PostServiceImpl implements PostService {
             return new ArrayList<>();
         }
 
-        List<Long> uniqueIds = tagIds.stream().distinct().toList();
-        List<Tag> tags = tagRepository.findAllById(uniqueIds);
-        if (tags.size() != uniqueIds.size()) {
-            Set<Long> foundIds = tags.stream()
-                    .map(Tag::getId)
-                    .collect(Collectors.toSet());
-            Long missingId = uniqueIds.stream()
-                    .filter(id -> !foundIds.contains(id))
-                    .findFirst()
-                    .orElseThrow();
-            throw new ResourceNotFoundException("Thẻ", "id", missingId);
-        }
-
-        return tags;
+        return tagService.getTagsByIds(tagIds);
     }
 }

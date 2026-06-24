@@ -1,37 +1,24 @@
 package com.example.historyrag.feature.user;
 
-import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.exception.DuplicateResourceException;
-import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.exception.InvalidRequestException;
+import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.feature.user.dto.MemberRequest;
 import com.example.historyrag.feature.user.dto.MemberResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
-
-    private static final Logger log = LoggerFactory.getLogger(MemberServiceImpl.class);
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public MemberServiceImpl(MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
-        this.memberRepository = memberRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
     @Override
     @Transactional
     public MemberResponse createMember(MemberRequest request) {
@@ -79,6 +66,37 @@ public class MemberServiceImpl implements MemberService {
         }
         memberRepository.deleteById(id);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countMembers() {
+        return memberRepository.count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Member> findMemberByEmail(String email) {
+        return memberRepository.findByEmail(email);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsByEmail(String email) {
+        return memberRepository.existsByEmail(email);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsByUsername(String username) {
+        return memberRepository.existsByUsername(username);
+    }
+
+    @Override
+    @Transactional
+    public Member saveMember(Member member) {
+        return memberRepository.save(member);
+    }
+
     private void applyRequest(Member member, MemberRequest request) {
         member.setUsername(request.username());
         member.setEmail(request.email());

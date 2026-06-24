@@ -7,6 +7,7 @@ import com.example.historyrag.feature.source.dto.SourceFilterRequest;
 import com.example.historyrag.feature.source.dto.SourceResponse;
 import com.example.historyrag.feature.source.dto.UpdateSourceRequest;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +26,10 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/v1/admin/sources")
 @PreAuthorize("hasRole('ADMIN')")
+@RequiredArgsConstructor
 public class SourceController {
 
     private final SourceService sourceService;
-
-    public SourceController(SourceService sourceService) {
-        this.sourceService = sourceService;
-    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<ResultPaginationDTO>> filter(

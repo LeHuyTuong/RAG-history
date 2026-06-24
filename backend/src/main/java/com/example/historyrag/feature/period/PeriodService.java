@@ -10,4 +10,6 @@ public interface PeriodService {
     PeriodResponse updatePeriod(Long id, PeriodRequest request);
     ResultPaginationDTO getAllPeriods(String keyword, Pageable pageable);
     void deletePeriod(Long id);
+    long countPeriods();
+    Period getPeriodEntityById(Long id);
 }

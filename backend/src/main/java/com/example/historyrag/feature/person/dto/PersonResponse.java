@@ -1,10 +1,13 @@
 package com.example.historyrag.feature.person.dto;
 
+
+import lombok.Builder;
 import com.example.historyrag.feature.person.Person;
 
 import java.time.Instant;
 import java.time.LocalDate;
 
+@Builder
 public record PersonResponse(
         Long id,
         String name,

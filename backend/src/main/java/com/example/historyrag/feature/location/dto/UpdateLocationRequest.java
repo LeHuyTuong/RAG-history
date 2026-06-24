@@ -1,5 +1,7 @@
 package com.example.historyrag.feature.location.dto;
 
+
+import lombok.Builder;
 import com.example.historyrag.feature.location.LocationType;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -10,6 +12,7 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
+@Builder
 public record UpdateLocationRequest(
         @NotBlank(message = "Name is required")
         @Size(max = 255, message = "Name must not exceed 255 characters")

@@ -6,11 +6,13 @@ import com.example.historyrag.feature.event.EventLocation;
 import com.example.historyrag.feature.location.Location;
 import com.example.historyrag.feature.location.LocationType;
 import com.example.historyrag.feature.period.Period;
+import lombok.Builder;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
+@Builder
 public record EventResponse(
         Long id,
         String name,
@@ -49,6 +51,7 @@ public record EventResponse(
         );
     }
 
+    @Builder
     public record PeriodSummary(
             Long id,
             String name,
@@ -62,6 +65,7 @@ public record EventResponse(
         }
     }
 
+    @Builder
     public record LocationRelationResponse(
             Long locationId,
             String name,

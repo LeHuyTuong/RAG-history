@@ -4,7 +4,7 @@
 
 SET NAMES utf8mb4;
 
-INSERT INTO admin (admin_id, username, email, password_hash, full_name, status, created_at, updated_at) VALUES
+INSERT IGNORE INTO admin (admin_id, username, email, password_hash, full_name, status, created_at, updated_at) VALUES
     (1, 'admin01', 'admin01@historyrag.local', '$2a$12$suDFoge3YdvkKOYkTg3sD.bTbQAevcLRzZw/NxRPl3g5lutDXUk4u', 'Quản trị viên 01', 'ACTIVE', '2026-01-01 08:00:00', '2026-01-01 08:00:00'),
     (2, 'admin02', 'admin02@historyrag.local', '$2a$12$suDFoge3YdvkKOYkTg3sD.bTbQAevcLRzZw/NxRPl3g5lutDXUk4u', 'Quản trị viên 02', 'ACTIVE', '2026-01-02 08:00:00', '2026-01-02 08:00:00'),
     (3, 'admin03', 'admin03@historyrag.local', '$2a$12$suDFoge3YdvkKOYkTg3sD.bTbQAevcLRzZw/NxRPl3g5lutDXUk4u', 'Quản trị viên 03', 'ACTIVE', '2026-01-03 08:00:00', '2026-01-03 08:00:00'),
@@ -26,7 +26,7 @@ INSERT INTO admin (admin_id, username, email, password_hash, full_name, status, 
     (19, 'admin19', 'admin19@historyrag.local', '$2a$12$suDFoge3YdvkKOYkTg3sD.bTbQAevcLRzZw/NxRPl3g5lutDXUk4u', 'Quản trị viên 19', 'ACTIVE', '2026-01-19 08:00:00', '2026-01-19 08:00:00'),
     (20, 'admin20', 'admin20@historyrag.local', '$2a$12$suDFoge3YdvkKOYkTg3sD.bTbQAevcLRzZw/NxRPl3g5lutDXUk4u', 'Quản trị viên 20', 'LOCKED', '2026-01-20 08:00:00', '2026-01-20 08:00:00');
 
-INSERT INTO member (member_id, username, email, password_hash, full_name, status, created_at, updated_at) VALUES
+INSERT IGNORE INTO member (member_id, username, email, password_hash, full_name, status, created_at, updated_at) VALUES
     (1, 'member01', 'member01@historyrag.local', '$2a$12$suDFoge3YdvkKOYkTg3sD.bTbQAevcLRzZw/NxRPl3g5lutDXUk4u', 'Thành viên 01', 'ACTIVE', '2026-02-01 09:00:00', '2026-02-01 09:00:00'),
     (2, 'member02', 'member02@historyrag.local', '$2a$12$suDFoge3YdvkKOYkTg3sD.bTbQAevcLRzZw/NxRPl3g5lutDXUk4u', 'Thành viên 02', 'ACTIVE', '2026-02-02 09:00:00', '2026-02-02 09:00:00'),
     (3, 'member03', 'member03@historyrag.local', '$2a$12$suDFoge3YdvkKOYkTg3sD.bTbQAevcLRzZw/NxRPl3g5lutDXUk4u', 'Thành viên 03', 'ACTIVE', '2026-02-03 09:00:00', '2026-02-03 09:00:00'),
@@ -48,7 +48,7 @@ INSERT INTO member (member_id, username, email, password_hash, full_name, status
     (19, 'member19', 'member19@historyrag.local', '$2a$12$suDFoge3YdvkKOYkTg3sD.bTbQAevcLRzZw/NxRPl3g5lutDXUk4u', 'Thành viên 19', 'ACTIVE', '2026-02-19 09:00:00', '2026-02-19 09:00:00'),
     (20, 'member20', 'member20@historyrag.local', '$2a$12$suDFoge3YdvkKOYkTg3sD.bTbQAevcLRzZw/NxRPl3g5lutDXUk4u', 'Thành viên 20', 'LOCKED', '2026-02-20 09:00:00', '2026-02-20 09:00:00');
 
-INSERT INTO period (period_id, name, slug, start_year, end_year, description, created_at, updated_at) VALUES
+INSERT IGNORE INTO period (period_id, name, slug, start_year, end_year, description, created_at, updated_at) VALUES
     (1, 'Thời Văn Lang', 'thoi-van-lang', -2879, -258, 'Giai đoạn truyền thuyết gắn với các vua Hùng và nền văn minh sông Hồng.', '2026-03-01 08:00:00', '2026-03-01 08:00:00'),
     (2, 'Thời Âu Lạc', 'thoi-au-lac', -257, -179, 'Nhà nước Âu Lạc của An Dương Vương với trung tâm Cổ Loa.', '2026-03-02 08:00:00', '2026-03-02 08:00:00'),
     (3, 'Bắc thuộc lần thứ nhất', 'bac-thuoc-lan-thu-nhat', -179, 40, 'Giai đoạn chịu sự cai trị của các triều đại phương Bắc sau Âu Lạc.', '2026-03-03 08:00:00', '2026-03-03 08:00:00'),
@@ -70,7 +70,7 @@ INSERT INTO period (period_id, name, slug, start_year, end_year, description, cr
     (19, 'Thời Pháp thuộc', 'thoi-phap-thuoc', 1858, 1945, 'Giai đoạn Việt Nam chịu sự cai trị của thực dân Pháp.', '2026-03-19 08:00:00', '2026-03-19 08:00:00'),
     (20, 'Việt Nam hiện đại', 'viet-nam-hien-dai', 1945, NULL, 'Giai đoạn từ Cách mạng tháng Tám đến hiện nay.', '2026-03-20 08:00:00', '2026-03-20 08:00:00');
 
-INSERT INTO person (person_id, name, slug, alias, birth_date, death_date, biography, created_at, updated_at) VALUES
+INSERT IGNORE INTO person (person_id, name, slug, alias, birth_date, death_date, biography, created_at, updated_at) VALUES
     (1, 'Hùng Vương', 'hung-vuong', 'Các vua Hùng', NULL, NULL, 'Hùng Vương là danh xưng truyền thống của các thủ lĩnh Văn Lang trong buổi đầu lịch sử Việt Nam.', '2026-04-01 08:00:00', '2026-04-01 08:00:00'),
     (2, 'An Dương Vương', 'an-duong-vuong', 'Thục Phán', NULL, NULL, 'An Dương Vương được gắn với nhà nước Âu Lạc và thành Cổ Loa.', '2026-04-02 08:00:00', '2026-04-02 08:00:00'),
     (3, 'Trưng Trắc', 'trung-trac', 'Hai Bà Trưng', NULL, NULL, 'Trưng Trắc là một trong hai thủ lĩnh cuộc khởi nghĩa chống Đông Hán năm 40.', '2026-04-03 08:00:00', '2026-04-03 08:00:00'),
@@ -92,7 +92,7 @@ INSERT INTO person (person_id, name, slug, alias, birth_date, death_date, biogra
     (19, 'Phan Bội Châu', 'phan-boi-chau', NULL, '1867-12-26', '1940-10-29', 'Phan Bội Châu là nhà yêu nước tiêu biểu đầu thế kỷ XX.', '2026-04-19 08:00:00', '2026-04-19 08:00:00'),
     (20, 'Võ Nguyên Giáp', 'vo-nguyen-giap', NULL, '1911-08-25', '2013-10-04', 'Võ Nguyên Giáp là Đại tướng, Tổng tư lệnh Quân đội nhân dân Việt Nam.', '2026-04-20 08:00:00', '2026-04-20 08:00:00');
 
-INSERT INTO location (location_id, name, slug, location_type, latitude, longitude, description, created_at, updated_at) VALUES
+INSERT IGNORE INTO location (location_id, name, slug, location_type, latitude, longitude, description, created_at, updated_at) VALUES
     (1, 'Phú Thọ', 'phu-tho', 'REGION', 21.268443, 105.204557, 'Vùng đất gắn với truyền thuyết các vua Hùng.', '2026-05-01 08:00:00', '2026-05-01 08:00:00'),
     (2, 'Cổ Loa', 'co-loa', 'CITADEL', 21.116700, 105.883300, 'Kinh đô Âu Lạc với hệ thống thành lũy cổ.', '2026-05-02 08:00:00', '2026-05-02 08:00:00'),
     (3, 'Mê Linh', 'me-linh', 'REGION', 21.183300, 105.716700, 'Căn cứ khởi nghĩa Hai Bà Trưng.', '2026-05-03 08:00:00', '2026-05-03 08:00:00'),
@@ -114,7 +114,7 @@ INSERT INTO location (location_id, name, slug, location_type, latitude, longitud
     (19, 'Đà Nẵng', 'da-nang', 'CITY', 16.054407, 108.202167, 'Nơi liên quân Pháp - Tây Ban Nha nổ súng xâm lược năm 1858.', '2026-05-19 08:00:00', '2026-05-19 08:00:00'),
     (20, 'Điện Biên Phủ', 'dien-bien-phu', 'BATTLEFIELD', 21.386000, 103.016000, 'Chiến trường quyết định trong kháng chiến chống Pháp.', '2026-05-20 08:00:00', '2026-05-20 08:00:00');
 
-INSERT INTO event (event_id, period_id, name, slug, description, start_year, end_year, start_date, end_date, certainty_level, created_at, updated_at) VALUES
+INSERT IGNORE INTO event (event_id, period_id, name, slug, description, start_year, end_year, start_date, end_date, certainty_level, created_at, updated_at) VALUES
     (1, 1, 'Hình thành nhà nước Văn Lang', 'hinh-thanh-nha-nuoc-van-lang', 'Sự hình thành nhà nước sơ khai Văn Lang trong truyền thống lịch sử Việt Nam.', -2879, -258, NULL, NULL, 'ESTIMATED', '2026-06-01 08:00:00', '2026-06-01 08:00:00'),
     (2, 2, 'An Dương Vương xây thành Cổ Loa', 'an-duong-vuong-xay-thanh-co-loa', 'Cổ Loa được xem là trung tâm quyền lực của Âu Lạc.', -257, -208, NULL, NULL, 'ESTIMATED', '2026-06-02 08:00:00', '2026-06-02 08:00:00'),
     (3, 3, 'Triệu Đà thôn tính Âu Lạc', 'trieu-da-thon-tinh-au-lac', 'Âu Lạc rơi vào quyền kiểm soát của Nam Việt, mở đầu thời kỳ Bắc thuộc.', -179, -179, NULL, NULL, 'ESTIMATED', '2026-06-03 08:00:00', '2026-06-03 08:00:00'),
@@ -136,7 +136,7 @@ INSERT INTO event (event_id, period_id, name, slug, description, start_year, end
     (19, 19, 'Pháp nổ súng ở Đà Nẵng', 'phap-no-sung-o-da-nang', 'Liên quân Pháp - Tây Ban Nha tấn công Đà Nẵng, mở đầu quá trình xâm lược.', 1858, 1858, '1858-09-01', '1858-09-01', 'CERTAIN', '2026-06-19 08:00:00', '2026-06-19 08:00:00'),
     (20, 20, 'Chiến thắng Điện Biên Phủ', 'chien-thang-dien-bien-phu', 'Chiến dịch Điện Biên Phủ kết thúc thắng lợi ngày 7 tháng 5 năm 1954.', 1954, 1954, '1954-03-13', '1954-05-07', 'CERTAIN', '2026-06-20 08:00:00', '2026-06-20 08:00:00');
 
-INSERT INTO post (post_id, admin_id, event_id, title, slug, summary, content, thumbnail_url, status, published_at, created_at, updated_at) VALUES
+INSERT IGNORE INTO post (post_id, admin_id, event_id, title, slug, summary, content, thumbnail_url, status, published_at, created_at, updated_at) VALUES
     (1, 1, 1, 'Văn Lang trong ký ức lịch sử', 'van-lang-trong-ky-uc-lich-su', 'Tóm lược nguồn gốc Văn Lang và truyền thống Hùng Vương.', 'Bài viết giới thiệu bối cảnh hình thành nhà nước Văn Lang, các truyền thuyết Hùng Vương và giá trị văn hóa còn lưu lại.', '/images/posts/van-lang.jpg', 'PUBLISHED', '2026-07-01 09:00:00', '2026-07-01 08:00:00', '2026-07-01 09:00:00'),
     (2, 2, 2, 'Cổ Loa và dấu ấn Âu Lạc', 'co-loa-va-dau-an-au-lac', 'Khám phá vai trò của Cổ Loa trong thời Âu Lạc.', 'Cổ Loa là một trung tâm quyền lực cổ với cấu trúc thành lũy đặc biệt và nhiều lớp truyền thuyết lịch sử.', '/images/posts/co-loa.jpg', 'PUBLISHED', '2026-07-02 09:00:00', '2026-07-02 08:00:00', '2026-07-02 09:00:00'),
     (3, 3, 3, 'Âu Lạc sau năm 179 trước Công nguyên', 'au-lac-sau-nam-179-truoc-cong-nguyen', 'Bối cảnh Âu Lạc rơi vào quyền kiểm soát của Nam Việt.', 'Bài viết phân tích sự kiện Triệu Đà thôn tính Âu Lạc và hệ quả chính trị trong khu vực.', '/images/posts/au-lac.jpg', 'PUBLISHED', '2026-07-03 09:00:00', '2026-07-03 08:00:00', '2026-07-03 09:00:00'),
@@ -158,7 +158,7 @@ INSERT INTO post (post_id, admin_id, event_id, title, slug, summary, content, th
     (19, 19, 19, 'Đà Nẵng 1858 và bước ngoặt cận đại', 'da-nang-1858-va-buoc-ngoat-can-dai', 'Sự kiện mở đầu quá trình Pháp xâm lược Việt Nam.', 'Cuộc tấn công Đà Nẵng năm 1858 mở ra một thời kỳ biến động sâu sắc.', '/images/posts/da-nang-1858.jpg', 'ARCHIVED', '2026-07-19 09:00:00', '2026-07-19 08:00:00', '2026-07-19 09:00:00'),
     (20, 20, 20, 'Điện Biên Phủ trong lịch sử hiện đại', 'dien-bien-phu-trong-lich-su-hien-dai', 'Chiến thắng năm 1954 và ý nghĩa quốc tế.', 'Điện Biên Phủ là thắng lợi quân sự quyết định, dẫn tới Hiệp định Genève năm 1954.', '/images/posts/dien-bien-phu.jpg', 'PUBLISHED', '2026-07-20 09:00:00', '2026-07-20 08:00:00', '2026-07-20 09:00:00');
 
-INSERT INTO tag (tag_id, name, slug, description, created_at) VALUES
+INSERT IGNORE INTO tag (tag_id, name, slug, description, created_at) VALUES
     (1, 'Cổ đại', 'co-dai', 'Chủ đề về lịch sử cổ đại Việt Nam.', '2026-08-01 08:00:00'),
     (2, 'Trung đại', 'trung-dai', 'Chủ đề về lịch sử trung đại Việt Nam.', '2026-08-02 08:00:00'),
     (3, 'Cận đại', 'can-dai', 'Chủ đề về lịch sử cận đại.', '2026-08-03 08:00:00'),
@@ -180,7 +180,7 @@ INSERT INTO tag (tag_id, name, slug, description, created_at) VALUES
     (19, 'Nhà Nguyễn', 'nha-nguyen-tag', 'Chủ đề về triều Nguyễn.', '2026-08-19 08:00:00'),
     (20, 'Điện Biên Phủ', 'dien-bien-phu-tag', 'Chủ đề về chiến dịch Điện Biên Phủ.', '2026-08-20 08:00:00');
 
-INSERT INTO refresh_token (refresh_token_id, member_id, admin_id, token_hash, expires_at, revoked, device_info, ip_address, created_at) VALUES
+INSERT IGNORE INTO refresh_token (refresh_token_id, member_id, admin_id, token_hash, expires_at, revoked, device_info, ip_address, created_at) VALUES
     (1, NULL, 1, SHA2('sample-refresh-token-admin-01', 256), '2026-12-01 00:00:00', FALSE, 'Chrome on Windows', '10.0.0.1', '2026-09-01 08:00:00'),
     (2, NULL, 2, SHA2('sample-refresh-token-admin-02', 256), '2026-12-02 00:00:00', FALSE, 'Firefox on Windows', '10.0.0.2', '2026-09-02 08:00:00'),
     (3, NULL, 3, SHA2('sample-refresh-token-admin-03', 256), '2026-12-03 00:00:00', FALSE, 'Safari on macOS', '10.0.0.3', '2026-09-03 08:00:00'),
@@ -202,7 +202,7 @@ INSERT INTO refresh_token (refresh_token_id, member_id, admin_id, token_hash, ex
     (19, 9, NULL, SHA2('sample-refresh-token-member-09', 256), '2026-12-19 00:00:00', FALSE, 'Edge on macOS', '10.0.1.9', '2026-09-19 08:00:00'),
     (20, 10, NULL, SHA2('sample-refresh-token-member-10', 256), '2026-12-20 00:00:00', TRUE, 'Chrome on iOS', '10.0.1.10', '2026-09-20 08:00:00');
 
-INSERT INTO post_tag (post_id, tag_id, created_at) VALUES
+INSERT IGNORE INTO post_tag (post_id, tag_id, created_at) VALUES
     (1, 1, '2026-10-01 08:00:00'),
     (2, 9, '2026-10-02 08:00:00'),
     (3, 15, '2026-10-03 08:00:00'),
@@ -224,7 +224,7 @@ INSERT INTO post_tag (post_id, tag_id, created_at) VALUES
     (19, 3, '2026-10-19 08:00:00'),
     (20, 20, '2026-10-20 08:00:00');
 
-INSERT INTO engagement (engagement_id, member_id, post_id, parent_engagement_id, engagement_type, comment_content, comment_status, rating_value, created_at, updated_at) VALUES
+INSERT IGNORE INTO engagement (engagement_id, member_id, post_id, parent_engagement_id, engagement_type, comment_content, comment_status, rating_value, created_at, updated_at) VALUES
     (1, 1, 1, NULL, 'VIEW', NULL, NULL, NULL, '2026-11-01 08:00:00', '2026-11-01 08:00:00'),
     (2, 2, 2, NULL, 'LIKE', NULL, NULL, NULL, '2026-11-02 08:00:00', '2026-11-02 08:00:00'),
     (3, 3, 3, NULL, 'BOOKMARK', NULL, NULL, NULL, '2026-11-03 08:00:00', '2026-11-03 08:00:00'),
@@ -241,14 +241,14 @@ INSERT INTO engagement (engagement_id, member_id, post_id, parent_engagement_id,
     (14, 14, 14, NULL, 'RATING', NULL, NULL, 5, '2026-11-14 08:00:00', '2026-11-14 08:00:00'),
     (15, 15, 15, NULL, 'COMMENT', 'Mình muốn đọc thêm về các cải cách tiền tệ thời Hồ.', 'PENDING', NULL, '2026-11-15 08:00:00', '2026-11-15 08:00:00');
 
-INSERT INTO engagement (engagement_id, member_id, post_id, parent_engagement_id, engagement_type, comment_content, comment_status, rating_value, created_at, updated_at) VALUES
+INSERT IGNORE INTO engagement (engagement_id, member_id, post_id, parent_engagement_id, engagement_type, comment_content, comment_status, rating_value, created_at, updated_at) VALUES
     (16, 16, 5, 5, 'COMMENT', 'Đúng vậy, phần hình tượng dân gian rất thú vị.', 'VISIBLE', NULL, '2026-11-16 08:00:00', '2026-11-16 08:00:00'),
     (17, 17, 10, 10, 'COMMENT', 'Có thể bổ sung thêm bản đồ chiến dịch không?', 'VISIBLE', NULL, '2026-11-17 08:00:00', '2026-11-17 08:00:00'),
     (18, 18, 15, 15, 'COMMENT', 'Bình luận đang chờ duyệt để tránh trùng nội dung.', 'HIDDEN', NULL, '2026-11-18 08:00:00', '2026-11-18 08:00:00'),
     (19, 19, 18, NULL, 'LIKE', NULL, NULL, NULL, '2026-11-19 08:00:00', '2026-11-19 08:00:00'),
     (20, 20, 20, NULL, 'RATING', NULL, NULL, 5, '2026-11-20 08:00:00', '2026-11-20 08:00:00');
 
-INSERT INTO event_location (event_id, location_id, relation_type, created_at) VALUES
+INSERT IGNORE INTO event_location (event_id, location_id, relation_type, created_at) VALUES
     (1, 1, 'CENTERED_AT', '2026-12-01 08:00:00'),
     (2, 2, 'CAPITAL', '2026-12-02 08:00:00'),
     (3, 2, 'RELATED_TO', '2026-12-03 08:00:00'),
@@ -270,7 +270,7 @@ INSERT INTO event_location (event_id, location_id, relation_type, created_at) VA
     (19, 19, 'BATTLEFIELD', '2026-12-19 08:00:00'),
     (20, 20, 'BATTLEFIELD', '2026-12-20 08:00:00');
 
-INSERT INTO participation (participation_id, event_id, person_id, `role`, note, confidence, created_at, updated_at) VALUES
+INSERT IGNORE INTO participation (participation_id, event_id, person_id, `role`, note, confidence, created_at, updated_at) VALUES
     (1, 1, 1, 'KING', 'Nhân vật truyền thuyết đại diện cho thời Văn Lang.', 0.60, '2027-01-01 08:00:00', '2027-01-01 08:00:00'),
     (2, 2, 2, 'KING', 'Gắn với việc xây thành Cổ Loa.', 0.70, '2027-01-02 08:00:00', '2027-01-02 08:00:00'),
     (3, 4, 3, 'LEADER', 'Một trong hai thủ lĩnh khởi nghĩa.', 0.95, '2027-01-03 08:00:00', '2027-01-03 08:00:00'),
@@ -292,7 +292,7 @@ INSERT INTO participation (participation_id, event_id, person_id, `role`, note, 
     (19, 19, 19, 'REFERENCE', 'Nhân vật yêu nước tiêu biểu trong bối cảnh Pháp thuộc.', 0.70, '2027-01-19 08:00:00', '2027-01-19 08:00:00'),
     (20, 20, 20, 'COMMANDER', 'Tổng tư lệnh trong chiến dịch Điện Biên Phủ.', 0.99, '2027-01-20 08:00:00', '2027-01-20 08:00:00');
 
-INSERT INTO source (source_id, title, source_type, source_url, file_path, content, author, publication_year, reliability_level, created_at, updated_at) VALUES
+INSERT IGNORE INTO source (source_id, title, source_type, source_url, file_path, content, author, publication_year, reliability_level, created_at, updated_at) VALUES
     (1, 'Đại Việt sử ký toàn thư - phần ngoại kỷ', 'BOOK', 'https://vi.wikipedia.org/wiki/Đại_Việt_sử_ký_toàn_thư', NULL, 'Tư liệu về truyền thuyết Hùng Vương và các thời kỳ đầu.', 'Ngô Sĩ Liên', 1697, 'HIGH', '2027-02-01 08:00:00', '2027-02-01 08:00:00'),
     (2, 'Cổ Loa: khảo cổ và lịch sử', 'ARTICLE', 'https://vi.wikipedia.org/wiki/Cổ_Loa', NULL, 'Bài nghiên cứu tổng hợp về di tích Cổ Loa và Âu Lạc.', 'Viện Sử học', 2015, 'HIGH', '2027-02-02 08:00:00', '2027-02-02 08:00:00'),
     (3, 'Nam Việt và Âu Lạc', 'BOOK', 'https://vi.wikipedia.org/wiki/Âu_Lạc', NULL, 'Tư liệu về quan hệ Nam Việt và Âu Lạc.', 'Tác giả mẫu', 2008, 'MEDIUM', '2027-02-03 08:00:00', '2027-02-03 08:00:00'),
@@ -314,7 +314,7 @@ INSERT INTO source (source_id, title, source_type, source_url, file_path, conten
     (19, 'Đà Nẵng 1858', 'PDF', 'https://vi.wikipedia.org/wiki/Trận_Đà_Nẵng_(1858–1859)', NULL, 'Tư liệu về cuộc tấn công Đà Nẵng năm 1858.', 'Trung tâm tư liệu mẫu', 2018, 'MEDIUM', '2027-02-19 08:00:00', '2027-02-19 08:00:00'),
     (20, 'Điện Biên Phủ: điểm hẹn lịch sử', 'BOOK', 'https://vi.wikipedia.org/wiki/Chiến_dịch_Điện_Biên_Phủ', NULL, 'Tư liệu tổng hợp về chiến dịch Điện Biên Phủ.', 'Nhà xuất bản mẫu', 2014, 'HIGH', '2027-02-20 08:00:00', '2027-02-20 08:00:00');
 
-INSERT INTO event_source (event_id, source_id, page_number, evidence_text, confidence, note, created_at) VALUES
+INSERT IGNORE INTO event_source (event_id, source_id, page_number, evidence_text, confidence, note, created_at) VALUES
     (1, 1, 12, 'Nguồn ngoại kỷ ghi nhận truyền thống Hùng Vương.', 0.60, 'Dữ liệu có yếu tố truyền thuyết.', '2027-03-01 08:00:00'),
     (2, 2, 23, 'Các lớp thành Cổ Loa phản ánh trung tâm quyền lực Âu Lạc.', 0.82, 'Dựa trên tổng hợp khảo cổ.', '2027-03-02 08:00:00'),
     (3, 3, 45, 'Sự kiện Nam Việt kiểm soát Âu Lạc được ghi trong nhiều nguồn.', 0.70, 'Niên đại có khác biệt giữa nguồn.', '2027-03-03 08:00:00'),
@@ -336,7 +336,7 @@ INSERT INTO event_source (event_id, source_id, page_number, evidence_text, confi
     (19, 19, 7, 'Pháp nổ súng tấn công Đà Nẵng ngày 1/9/1858.', 0.95, 'Nguồn cận đại.', '2027-03-19 08:00:00'),
     (20, 20, 88, 'Chiến dịch Điện Biên Phủ kết thúc ngày 7/5/1954.', 0.99, 'Nguồn hiện đại.', '2027-03-20 08:00:00');
 
-INSERT INTO rag_chunk (rag_chunk_id, source_type, source_id, chunk_index, chunk_text, qdrant_point_id, content_hash, metadata_json, embedded_at, created_at) VALUES
+INSERT IGNORE INTO rag_chunk (rag_chunk_id, source_type, source_id, chunk_index, chunk_text, qdrant_point_id, content_hash, metadata_json, embedded_at, created_at) VALUES
     (1, 'EVENT', 1, 0, 'Chunk sự kiện về sự hình thành nhà nước Văn Lang.', 'qdrant-event-0001', SHA2('rag-chunk-event-001', 256), '{"sourceType":"EVENT","sourceId":1,"chunkIndex":0}', '2027-04-01 08:00:00', '2027-04-01 08:00:00'),
     (2, 'EVENT', 2, 0, 'Chunk sự kiện về An Dương Vương và thành Cổ Loa.', 'qdrant-event-0002', SHA2('rag-chunk-event-002', 256), '{"sourceType":"EVENT","sourceId":2,"chunkIndex":0}', '2027-04-02 08:00:00', '2027-04-02 08:00:00'),
     (3, 'EVENT', 3, 0, 'Chunk sự kiện về Triệu Đà thôn tính Âu Lạc.', 'qdrant-event-0003', SHA2('rag-chunk-event-003', 256), '{"sourceType":"EVENT","sourceId":3,"chunkIndex":0}', '2027-04-03 08:00:00', '2027-04-03 08:00:00'),
@@ -358,7 +358,7 @@ INSERT INTO rag_chunk (rag_chunk_id, source_type, source_id, chunk_index, chunk_
     (19, 'SOURCE', 4, 0, 'Chunk nguồn Khởi nghĩa Hai Bà Trưng.', 'qdrant-source-0004', SHA2('rag-chunk-source-004', 256), '{"sourceType":"SOURCE","sourceId":4,"chunkIndex":0,"pageNumber":18}', '2027-04-19 08:00:00', '2027-04-19 08:00:00'),
     (20, 'SOURCE', 5, 0, 'Chunk nguồn Bà Triệu trong sử liệu và truyền thuyết.', 'qdrant-source-0005', SHA2('rag-chunk-source-005', 256), '{"sourceType":"SOURCE","sourceId":5,"chunkIndex":0,"pageNumber":31}', '2027-04-20 08:00:00', '2027-04-20 08:00:00');
 
-INSERT INTO system_settings (setting_key, setting_value, description) VALUES
+INSERT IGNORE INTO system_settings (setting_key, setting_value, description) VALUES
     ('rag.max_context_chars', '6000', 'Số ký tự ngữ cảnh tối đa gửi sang LLM'),
     ('rag.min_score', '0.35', 'Điểm tương đồng tối thiểu để nhận chunk'),
     ('rag.citation_required', 'true', 'Yêu cầu câu trả lời có trích dẫn nguồn'),

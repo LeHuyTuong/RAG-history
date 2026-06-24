@@ -10,6 +10,7 @@ import com.example.historyrag.feature.rag.dto.RagIngestResponse;
 import com.example.historyrag.feature.rag.dto.RagRetrieveRequest;
 import com.example.historyrag.feature.rag.dto.RagRetrieveResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,13 +25,10 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequestMapping("/api/v1/rag")
+@RequiredArgsConstructor
 public class RagController {
 
     private final RagService ragService;
-
-    public RagController(RagService ragService) {
-        this.ragService = ragService;
-    }
 
     @GetMapping("/health")
     public ResponseEntity<ApiResponse<RagHealthResponse>> getHealth(

@@ -5,9 +5,9 @@ import com.example.historyrag.exception.InvalidRequestException;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.feature.event.dto.CreateEventRequest;
 import com.example.historyrag.feature.event.dto.EventLocationRelationRequest;
-import com.example.historyrag.feature.location.LocationRepository;
 import com.example.historyrag.feature.period.Period;
-import com.example.historyrag.feature.period.PeriodRepository;
+import com.example.historyrag.feature.location.LocationService;
+import com.example.historyrag.feature.period.PeriodService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,16 +31,16 @@ class EventServiceImplValidationTest {
     private EventRepository eventRepository;
 
     @Mock
-    private PeriodRepository periodRepository;
+    private PeriodService periodService;
 
     @Mock
-    private LocationRepository locationRepository;
+    private LocationService locationService;
 
     private EventServiceImpl eventService;
 
     @BeforeEach
     void setUp() {
-        eventService = new EventServiceImpl(eventRepository, periodRepository, locationRepository);
+        eventService = new EventServiceImpl(eventRepository, periodService, locationService);
     }
 
     @Test
@@ -60,7 +59,8 @@ class EventServiceImplValidationTest {
     void create_missingPeriod_throwsResourceNotFoundException() {
         CreateEventRequest request = createRequest("bach-dang");
         when(eventRepository.existsBySlug(request.slug())).thenReturn(false);
-        when(periodRepository.findById(request.periodId())).thenReturn(Optional.empty());
+        when(periodService.getPeriodEntityById(request.periodId()))
+                .thenThrow(new ResourceNotFoundException("Thời kỳ", "id", request.periodId()));
 
         assertThrows(ResourceNotFoundException.class, () -> eventService.create(request));
     }
@@ -70,8 +70,9 @@ class EventServiceImplValidationTest {
     void create_missingLocation_throwsResourceNotFoundException() {
         CreateEventRequest request = createRequest("bach-dang");
         when(eventRepository.existsBySlug(request.slug())).thenReturn(false);
-        when(periodRepository.findById(request.periodId())).thenReturn(Optional.of(period()));
-        when(locationRepository.findAllById(List.of(2L))).thenReturn(List.of());
+        when(periodService.getPeriodEntityById(request.periodId())).thenReturn(period());
+        when(locationService.getLocationsByIds(List.of(2L)))
+                .thenThrow(new ResourceNotFoundException("Địa danh", "id", 2L));
 
         assertThrows(ResourceNotFoundException.class, () -> eventService.create(request));
     }
@@ -95,7 +96,7 @@ class EventServiceImplValidationTest {
                 )
         );
         when(eventRepository.existsBySlug(request.slug())).thenReturn(false);
-        when(periodRepository.findById(request.periodId())).thenReturn(Optional.of(period()));
+        when(periodService.getPeriodEntityById(request.periodId())).thenReturn(period());
 
         assertThrows(InvalidRequestException.class, () -> eventService.create(request));
     }

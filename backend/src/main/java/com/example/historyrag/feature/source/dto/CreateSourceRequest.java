@@ -1,5 +1,7 @@
 package com.example.historyrag.feature.source.dto;
 
+
+import lombok.Builder;
 import com.example.historyrag.feature.source.ReliabilityLevel;
 import com.example.historyrag.feature.source.SourceType;
 import jakarta.validation.constraints.NotBlank;
@@ -7,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+@Builder
 public record CreateSourceRequest(
         @NotBlank(message = "Title is required")
         @Size(max = 500, message = "Title must not exceed 500 characters")

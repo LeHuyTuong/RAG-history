@@ -6,18 +6,20 @@ import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.exception.InvalidRequestException;
 import com.example.historyrag.feature.tag.dto.TagRequest;
 import com.example.historyrag.feature.tag.dto.TagResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Service
+@RequiredArgsConstructor
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
-
-    public TagServiceImpl(TagRepository tagRepository) {
-        this.tagRepository = tagRepository;
-    }
 
     @Override
     @Transactional
@@ -67,5 +69,29 @@ public class TagServiceImpl implements TagService {
             throw new ResourceNotFoundException("Tag", "id", id);
         }
         tagRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countTags() {
+        return tagRepository.count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Tag> getTagsByIds(List<Long> ids) {
+        List<Long> uniqueIds = ids.stream().distinct().toList();
+        List<Tag> tags = tagRepository.findAllById(uniqueIds);
+        if (tags.size() != uniqueIds.size()) {
+            Set<Long> foundIds = tags.stream()
+                    .map(Tag::getId)
+                    .collect(Collectors.toSet());
+            Long missingId = uniqueIds.stream()
+                    .filter(id -> !foundIds.contains(id))
+                    .findFirst()
+                    .orElseThrow();
+            throw new ResourceNotFoundException("Thẻ", "id", missingId);
+        }
+        return tags;
     }
 }

@@ -5,6 +5,7 @@ import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.feature.user.dto.MemberRequest;
 import com.example.historyrag.feature.user.dto.MemberResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -23,13 +24,10 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/api/v1/admin/members")
+@RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
-
-    public MemberController(MemberService memberService) {
-        this.memberService = memberService;
-    }
 
     @PostMapping
     public ResponseEntity<ApiResponse<MemberResponse>> create(@Valid @RequestBody MemberRequest request) {

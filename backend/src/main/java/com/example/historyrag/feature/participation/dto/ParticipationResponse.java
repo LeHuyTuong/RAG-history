@@ -4,10 +4,12 @@ import com.example.historyrag.feature.event.Event;
 import com.example.historyrag.feature.participation.Participation;
 import com.example.historyrag.feature.participation.ParticipationRole;
 import com.example.historyrag.feature.person.Person;
+import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
+@Builder
 public record ParticipationResponse(
         Long id,
         EventSummary event,
@@ -31,6 +33,7 @@ public record ParticipationResponse(
         );
     }
 
+    @Builder
     public record EventSummary(
             Long id,
             String name,
@@ -41,6 +44,7 @@ public record ParticipationResponse(
         }
     }
 
+    @Builder
     public record PersonSummary(
             Long id,
             String name,

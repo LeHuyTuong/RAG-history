@@ -1,5 +1,8 @@
 package com.example.historyrag.feature.rag.dto;
 
+
+import lombok.Builder;
+@Builder
 public record RagCitationResponse(
         String sourceType,
         Long sourceId,

@@ -1,9 +1,12 @@
 package com.example.historyrag.feature.engagement.dto;
 
+
+import lombok.Builder;
 import com.example.historyrag.feature.engagement.CommentStatus;
 import com.example.historyrag.feature.engagement.Engagement;
 import java.time.Instant;
 
+@Builder
 public record EngagementResponse(
         Long id,
         String commentContent,

@@ -18,4 +18,6 @@ public interface SourceService {
     ResultPaginationDTO filter(SourceFilterRequest filter, Pageable pageable);
 
     void delete(Long id);
+
+    long countSources();
 }

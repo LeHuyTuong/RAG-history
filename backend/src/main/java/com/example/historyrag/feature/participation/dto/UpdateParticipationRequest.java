@@ -1,5 +1,7 @@
 package com.example.historyrag.feature.participation.dto;
 
+
+import lombok.Builder;
 import com.example.historyrag.feature.participation.ParticipationRole;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -9,6 +11,7 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
+@Builder
 public record UpdateParticipationRequest(
         @NotNull(message = "Event id is required")
         Long eventId,

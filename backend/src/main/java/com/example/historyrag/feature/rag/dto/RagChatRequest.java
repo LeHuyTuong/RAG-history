@@ -1,5 +1,7 @@
 package com.example.historyrag.feature.rag.dto;
 
+
+import lombok.Builder;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
@@ -9,6 +11,7 @@ import jakarta.validation.constraints.Size;
 import java.util.Collections;
 import java.util.List;
 
+@Builder
 public record RagChatRequest(
         @NotBlank(message = "Question is required")
         @Size(max = 2000, message = "Question must be at most 2000 characters")

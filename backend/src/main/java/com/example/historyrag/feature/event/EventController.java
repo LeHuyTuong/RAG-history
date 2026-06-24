@@ -7,6 +7,7 @@ import com.example.historyrag.feature.event.dto.EventFilterRequest;
 import com.example.historyrag.feature.event.dto.EventResponse;
 import com.example.historyrag.feature.event.dto.UpdateEventRequest;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +26,10 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/v1/admin/events")
 @PreAuthorize("hasRole('ADMIN')")
+@RequiredArgsConstructor
 public class EventController {
 
     private final EventService eventService;
-
-    public EventController(EventService eventService) {
-        this.eventService = eventService;
-    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<ResultPaginationDTO>> filter(
