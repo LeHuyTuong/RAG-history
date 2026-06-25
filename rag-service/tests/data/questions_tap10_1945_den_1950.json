@@ -1,0 +1,250 @@
+{
+  "source": {
+    "sourceId": 10,
+    "title": "Lịch sử Việt Nam tập 10 Từ năm 1945 đến năm 1950",
+    "pages": "1-625",
+    "chunks": 0
+  },
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Xây dựng nhà nước VNDCCH",
+      "question": "Chính phủ Việt Nam Dân chủ Cộng hòa đã thực hiện những biện pháp khẩn cấp nào ngay sau khi thành lập tháng 8/1945?",
+      "expected_keywords": ["diệt giặc đói", "diệt giặc dốt", "diệt giặc ngoại xâm", "chính sách khẩn cấp"]
+    },
+    {
+      "id": 2,
+      "topic": "Xây dựng nhà nước VNDCCH",
+      "question": "Cuộc Tổng tuyển cử đầu tiên của nước Việt Nam Dân chủ Cộng hòa được tổ chức vào ngày tháng năm nào?",
+      "expected_keywords": ["6/1/1946", "Tổng tuyển cử", "Quốc hội", "phổ thông đầu phiếu"]
+    },
+    {
+      "id": 3,
+      "topic": "Xây dựng nhà nước VNDCCH",
+      "question": "Hiến pháp đầu tiên của nước Việt Nam Dân chủ Cộng hòa được Quốc hội thông qua vào năm nào?",
+      "expected_keywords": ["1946", "Hiến pháp", "Quốc hội", "dân chủ nhân dân"]
+    },
+    {
+      "id": 4,
+      "topic": "Thù trong giặc ngoài",
+      "question": "Sau Cách mạng tháng Tám, Việt Nam đứng trước những khó khăn gì từ quân đội nước ngoài?",
+      "expected_keywords": ["Tưởng Giới Thạch", "quân Anh", "Pháp quay lại", "quân chiếm đóng"]
+    },
+    {
+      "id": 5,
+      "topic": "Chính phủ liên hiệp",
+      "question": "Chính phủ liên hiệp kháng chiến được thành lập vào tháng 3 năm 1946 bao gồm những lực lượng chính trị nào?",
+      "expected_keywords": ["Việt Minh", "Việt Nam Cách mạng Đồng minh hội", "Việt Nam Quốc dân Đảng", "liên hiệp"]
+    },
+    {
+      "id": 6,
+      "topic": "Pháp quay lại Nam Bộ",
+      "question": "Thực dân Pháp quay lại xâm lược Nam Bộ vào ngày tháng năm nào và bằng hành động nào?",
+      "expected_keywords": ["23/9/1945", "Nam Bộ", "Pháp tấn công", "Sài Gòn"]
+    },
+    {
+      "id": 7,
+      "topic": "Nam Bộ kháng chiến",
+      "question": "Lời kêu gọi Nam Bộ kháng chiến ngày 23/9/1945 được phát đi trong hoàn cảnh nào và kết quả ban đầu ra sao?",
+      "expected_keywords": ["Nam Bộ kháng chiến", "23/9/1945", "kháng chiến toàn dân", "Sài Gòn"]
+    },
+    {
+      "id": 8,
+      "topic": "Nam Bộ kháng chiến",
+      "question": "Ủy ban Kháng chiến Nam Bộ được thành lập vào tháng 9/1945 do ai đứng đầu?",
+      "expected_keywords": ["Trần Văn Giàu", "Ủy ban Kháng chiến Nam Bộ", "lãnh đạo kháng chiến", "Nam Bộ"]
+    },
+    {
+      "id": 9,
+      "topic": "Hiệp định sơ bộ 6/3/1946",
+      "question": "Hiệp định Sơ bộ ngày 6/3/1946 được ký kết giữa ai với ai và nội dung chính là gì?",
+      "expected_keywords": ["Hồ Chí Minh", "Sainteny", "Pháp công nhận", "quân Pháp thay quân Tưởng"]
+    },
+    {
+      "id": 10,
+      "topic": "Hiệp định sơ bộ 6/3/1946",
+      "question": "Mục đích của Chính phủ Việt Nam khi ký Hiệp định Sơ bộ ngày 6/3/1946 với Pháp là gì?",
+      "expected_keywords": ["tránh chiến tranh", "loại quân Tưởng", "tranh thủ thời gian", "chuẩn bị lực lượng"]
+    },
+    {
+      "id": 11,
+      "topic": "Hội nghị Fontainebleau",
+      "question": "Hội nghị Fontainebleau năm 1946 được tổ chức nhằm mục đích gì và có kết quả ra sao?",
+      "expected_keywords": ["Fontainebleau", "1946", "thất bại", "Pháp không nhượng bộ"]
+    },
+    {
+      "id": 12,
+      "topic": "Tạm ước 9/1946",
+      "question": "Tạm ước ngày 14/9/1946 giữa Hồ Chí Minh và Marius Moutet có nội dung gì và ý nghĩa như thế nào?",
+      "expected_keywords": ["Tạm ước", "14/9/1946", "Moutet", "đình chiến tạm thời"]
+    },
+    {
+      "id": 13,
+      "topic": "Toàn quốc kháng chiến",
+      "question": "Toàn quốc kháng chiến bùng nổ vào ngày tháng năm nào và được phát động bằng văn kiện nào?",
+      "expected_keywords": ["19/12/1946", "Lời kêu gọi toàn quốc kháng chiến", "Hồ Chí Minh", "kháng chiến chống Pháp"]
+    },
+    {
+      "id": 14,
+      "topic": "Toàn quốc kháng chiến",
+      "question": "Đường lối kháng chiến toàn quốc được xác định qua tác phẩm nào của Trường Chinh?",
+      "expected_keywords": ["Kháng chiến nhất định thắng lợi", "Trường Chinh", "đường lối kháng chiến", "toàn dân toàn diện"]
+    },
+    {
+      "id": 15,
+      "topic": "Chiến đấu tại Hà Nội",
+      "question": "Quân và dân Hà Nội đã chiến đấu giam chân quân Pháp trong thành phố bao lâu để bảo vệ cuộc rút lui của Trung ương?",
+      "expected_keywords": ["60 ngày đêm", "Hà Nội", "Vệ quốc đoàn", "Trung đoàn Thủ đô"]
+    },
+    {
+      "id": 16,
+      "topic": "Chiến dịch Việt Bắc Thu Đông 1947",
+      "question": "Chiến dịch Việt Bắc Thu Đông 1947 diễn ra như thế nào và kết quả của chiến dịch là gì?",
+      "expected_keywords": ["Thu Đông 1947", "Việt Bắc", "Pháp thất bại", "căn cứ địa"]
+    },
+    {
+      "id": 17,
+      "topic": "Chiến dịch Việt Bắc Thu Đông 1947",
+      "question": "Quân Pháp đã thực hiện chiến dịch tấn công Việt Bắc năm 1947 theo kế hoạch nào và nhằm mục đích gì?",
+      "expected_keywords": ["bao vây tiêu diệt", "Việt Bắc", "căn cứ địa", "chặt đầu não"]
+    },
+    {
+      "id": 18,
+      "topic": "Kinh tế kháng chiến",
+      "question": "Chính sách kinh tế kháng chiến trong những năm 1946-1950 tập trung vào những mục tiêu gì?",
+      "expected_keywords": ["tự cấp tự túc", "vừa kháng chiến vừa kiến quốc", "sản xuất", "tăng gia sản xuất"]
+    },
+    {
+      "id": 19,
+      "topic": "Kinh tế kháng chiến",
+      "question": "Chính phủ kháng chiến đã tiến hành cải cách ruộng đất bước đầu như thế nào trong giai đoạn 1946-1950?",
+      "expected_keywords": ["giảm tô giảm tức", "chia ruộng đất", "vùng tự do", "nông dân"]
+    },
+    {
+      "id": 20,
+      "topic": "Giáo dục vùng tự do",
+      "question": "Phong trào bình dân học vụ được phát động như thế nào và đạt kết quả gì trong giai đoạn 1945-1950?",
+      "expected_keywords": ["bình dân học vụ", "xóa mù chữ", "vùng tự do", "giáo dục kháng chiến"]
+    },
+    {
+      "id": 21,
+      "topic": "Văn hóa kháng chiến",
+      "question": "Đề cương văn hóa Việt Nam năm 1943 có ý nghĩa gì đối với nền văn hóa kháng chiến?",
+      "expected_keywords": ["Đề cương văn hóa", "1943", "dân tộc hóa", "khoa học hóa đại chúng hóa"]
+    },
+    {
+      "id": 22,
+      "topic": "Quân đội nhân dân",
+      "question": "Quân đội Quốc gia Việt Nam được thành lập và phát triển như thế nào trong những năm 1946-1950?",
+      "expected_keywords": ["Vệ quốc đoàn", "Quân đội Quốc gia", "tuyển quân", "huấn luyện"]
+    },
+    {
+      "id": 23,
+      "topic": "Chiến dịch Biên Giới 1950",
+      "question": "Chiến dịch Biên Giới thu đông năm 1950 do ai chỉ huy và đạt được kết quả gì?",
+      "expected_keywords": ["Võ Nguyên Giáp", "Đường số 4", "Cao Bằng Lạng Sơn", "giải phóng biên giới"]
+    },
+    {
+      "id": 24,
+      "topic": "Chiến dịch Biên Giới 1950",
+      "question": "Chiến thắng Biên Giới năm 1950 đã mở ra những thuận lợi gì cho cuộc kháng chiến chống Pháp?",
+      "expected_keywords": ["khai thông biên giới", "viện trợ Trung Quốc", "thế chủ động", "vùng giải phóng"]
+    },
+    {
+      "id": 25,
+      "topic": "Lê Quảng Ba",
+      "question": "Đại tướng Lê Quảng Ba có vai trò gì trong chiến dịch Biên Giới năm 1950?",
+      "expected_keywords": ["Lê Quảng Ba", "Biên Giới", "chỉ huy", "chiến dịch"]
+    },
+    {
+      "id": 26,
+      "topic": "Trần Đăng Ninh",
+      "question": "Trần Đăng Ninh đảm nhiệm vai trò gì trong bộ máy kháng chiến và có đóng góp như thế nào?",
+      "expected_keywords": ["Trần Đăng Ninh", "hậu cần", "cung cấp", "kháng chiến"]
+    },
+    {
+      "id": 27,
+      "topic": "Quan hệ quốc tế",
+      "question": "Việt Nam Dân chủ Cộng hòa được những nước nào công nhận đầu tiên vào năm 1950?",
+      "expected_keywords": ["Trung Quốc", "Liên Xô", "1950", "công nhận ngoại giao"]
+    },
+    {
+      "id": 28,
+      "topic": "Chiến lược kháng chiến",
+      "question": "Chiến lược kháng chiến trường kỳ của Việt Nam trong giai đoạn 1946-1950 dựa trên những nguyên tắc nào?",
+      "expected_keywords": ["trường kỳ kháng chiến", "tự lực cánh sinh", "toàn dân toàn diện", "du kích chiến"]
+    },
+    {
+      "id": 29,
+      "topic": "Vùng tự do",
+      "question": "Vùng tự do Liên khu IV (Bình-Trị-Thiên-Khu Bốn) có vai trò gì trong cuộc kháng chiến giai đoạn 1946-1950?",
+      "expected_keywords": ["Liên khu IV", "vùng tự do", "hậu phương", "cung cấp lương thực"]
+    },
+    {
+      "id": 30,
+      "topic": "Chiến tranh du kích",
+      "question": "Chiến tranh du kích đã được phát triển như thế nào ở vùng sau lưng địch trong giai đoạn 1947-1950?",
+      "expected_keywords": ["du kích", "vùng sau lưng địch", "phá tề trừ gian", "dân quân du kích"]
+    },
+    {
+      "id": 31,
+      "topic": "Pháp mở rộng chiến tranh",
+      "question": "Sau thất bại ở Việt Bắc năm 1947, Pháp chuyển sang chiến lược gì trong những năm 1948-1950?",
+      "expected_keywords": ["đánh nhanh thắng nhanh thất bại", "bình định", "lập chính quyền bù nhìn", "chiến tranh tổng lực"]
+    },
+    {
+      "id": 32,
+      "topic": "Chính phủ bù nhìn Bảo Đại",
+      "question": "Pháp dựng lên chính phủ Bảo Đại năm 1949 nhằm mục đích gì?",
+      "expected_keywords": ["Bảo Đại", "Quốc gia Việt Nam", "1949", "chia rẽ kháng chiến"]
+    },
+    {
+      "id": 33,
+      "topic": "Xây dựng căn cứ địa",
+      "question": "Căn cứ địa Việt Bắc đã phát huy vai trò như thế nào trong giai đoạn 1946-1950?",
+      "expected_keywords": ["Việt Bắc", "căn cứ địa", "kháng chiến", "trung ương Đảng"]
+    },
+    {
+      "id": 34,
+      "topic": "Mặt trận ngoại giao",
+      "question": "Việt Nam Dân chủ Cộng hòa đã tiến hành những hoạt động ngoại giao nào trong giai đoạn 1946-1950?",
+      "expected_keywords": ["Liên Hợp Quốc", "ngoại giao", "tranh thủ ủng hộ", "phong trào hòa bình"]
+    },
+    {
+      "id": 35,
+      "topic": "Chiến dịch Thu Đông 1948",
+      "question": "Chiến dịch Thu Đông 1948 ở đồng bằng Bắc Bộ đã đạt được kết quả gì?",
+      "expected_keywords": ["Thu Đông 1948", "đồng bằng Bắc Bộ", "tiêu hao sinh lực", "phá bình định"]
+    },
+    {
+      "id": 36,
+      "topic": "Công tác Đảng",
+      "question": "Đảng Cộng sản Đông Dương đã làm gì để lãnh đạo cuộc kháng chiến trong giai đoạn 1946-1950?",
+      "expected_keywords": ["lãnh đạo kháng chiến", "Trung ương Đảng", "chỉ đạo chiến lược", "Hội nghị Trung ương"]
+    },
+    {
+      "id": 37,
+      "topic": "Quân sự",
+      "question": "Từ chiến tranh du kích, quân đội Việt Nam đã phát triển lên chiến tranh vận động như thế nào trong năm 1950?",
+      "expected_keywords": ["chiến tranh vận động", "đại đoàn", "tiêu diệt sinh lực địch", "tác chiến tập trung"]
+    },
+    {
+      "id": 38,
+      "topic": "Tài chính kháng chiến",
+      "question": "Nhà nước kháng chiến đã giải quyết bài toán tài chính như thế nào trong giai đoạn 1946-1950?",
+      "expected_keywords": ["công phiếu kháng chiến", "thuế nông nghiệp", "Quỹ kháng chiến", "tự lực cánh sinh"]
+    },
+    {
+      "id": 39,
+      "topic": "Địch hậu",
+      "question": "Phong trào đấu tranh ở vùng bị tạm chiếm của địch trong giai đoạn 1946-1950 diễn ra như thế nào?",
+      "expected_keywords": ["vùng tạm chiếm", "phá tề trừ gian", "bất hợp tác", "đấu tranh chính trị"]
+    },
+    {
+      "id": 40,
+      "topic": "Sự kiện quốc tế",
+      "question": "Thắng lợi của Cách mạng Trung Quốc năm 1949 và chiến tranh Triều Tiên năm 1950 ảnh hưởng như thế nào đến cuộc kháng chiến của Việt Nam?",
+      "expected_keywords": ["Cách mạng Trung Quốc", "viện trợ", "tác động quốc tế", "Mỹ can thiệp"]
+    }
+  ]
+}

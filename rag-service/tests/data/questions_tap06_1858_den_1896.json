@@ -1,0 +1,250 @@
+{
+  "source": {
+    "sourceId": 6,
+    "title": "Lịch sử Việt Nam tập 06 Từ năm 1858 đến năm 1896",
+    "pages": "1-472",
+    "chunks": 0
+  },
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Pháp xâm lược",
+      "question": "Pháp tấn công Đà Nẵng vào năm nào và lý do chính thức mà họ đưa ra là gì?",
+      "expected_keywords": ["Đà Nẵng", "1858", "Pháp tấn công", "bảo vệ giáo sĩ"]
+    },
+    {
+      "id": 2,
+      "topic": "Pháp xâm lược",
+      "question": "Sau khi không chiếm được Đà Nẵng, Pháp chuyển hướng tấn công vào đâu và kết quả như thế nào?",
+      "expected_keywords": ["Sài Gòn", "1859", "Gia Định", "Pháp chiếm"]
+    },
+    {
+      "id": 3,
+      "topic": "Pháp xâm lược",
+      "question": "Triều đình Huế phản ứng như thế nào trước cuộc tấn công của Pháp vào Đà Nẵng và Sài Gòn năm 1858-1859?",
+      "expected_keywords": ["triều đình", "kháng cự", "chủ hòa", "đàm phán"]
+    },
+    {
+      "id": 4,
+      "topic": "Hiệp ước 1862",
+      "question": "Hiệp ước Nhâm Tuất năm 1862 có nội dung chính là gì và nhà Nguyễn phải nhượng bộ những gì?",
+      "expected_keywords": ["Hiệp ước Nhâm Tuất", "1862", "ba tỉnh miền Đông", "nhượng đất"]
+    },
+    {
+      "id": 5,
+      "topic": "Nam Kỳ lục tỉnh",
+      "question": "Pháp hoàn thành việc chiếm Nam Kỳ lục tỉnh vào năm nào và bằng cách nào?",
+      "expected_keywords": ["Nam Kỳ lục tỉnh", "1867", "ba tỉnh miền Tây", "chiếm đóng"]
+    },
+    {
+      "id": 6,
+      "topic": "Trương Định",
+      "question": "Trương Định lãnh đạo phong trào kháng Pháp ở Nam Kỳ như thế nào và ông hy sinh vào năm nào?",
+      "expected_keywords": ["Trương Định", "kháng Pháp", "Nam Kỳ", "1864"]
+    },
+    {
+      "id": 7,
+      "topic": "Kháng chiến Nam Kỳ",
+      "question": "Nguyễn Trung Trực đã lập được chiến công nào nổi bật trong kháng chiến chống Pháp ở Nam Kỳ?",
+      "expected_keywords": ["Nguyễn Trung Trực", "đốt tàu L'Esperance", "Kiên Giang", "kháng Pháp"]
+    },
+    {
+      "id": 8,
+      "topic": "Kháng chiến Nam Kỳ",
+      "question": "Thủ Khoa Huân (Nguyễn Hữu Huân) có vai trò gì trong phong trào kháng Pháp ở Nam Kỳ?",
+      "expected_keywords": ["Thủ Khoa Huân", "Nguyễn Hữu Huân", "kháng Pháp", "Nam Kỳ"]
+    },
+    {
+      "id": 9,
+      "topic": "Pháp đánh Bắc Kỳ",
+      "question": "Garnier tấn công Bắc Kỳ năm 1873 diễn ra như thế nào và kết thúc ra sao?",
+      "expected_keywords": ["Garnier", "1873", "Bắc Kỳ", "thành Hà Nội"]
+    },
+    {
+      "id": 10,
+      "topic": "Pháp đánh Bắc Kỳ",
+      "question": "Quân Cờ Đen (Lưu Vĩnh Phúc) đóng vai trò gì trong việc chống Pháp ở Bắc Kỳ năm 1873?",
+      "expected_keywords": ["Cờ Đen", "Lưu Vĩnh Phúc", "Cầu Giấy", "Garnier"]
+    },
+    {
+      "id": 11,
+      "topic": "Pháp đánh Bắc Kỳ",
+      "question": "Rivière tấn công Bắc Kỳ lần thứ hai năm 1882 và chiếm Hà Nội như thế nào?",
+      "expected_keywords": ["Rivière", "1882", "Hà Nội", "Bắc Kỳ"]
+    },
+    {
+      "id": 12,
+      "topic": "Hoàng Diệu",
+      "question": "Tổng đốc Hoàng Diệu thủ thành Hà Nội như thế nào trước cuộc tấn công của Rivière năm 1882?",
+      "expected_keywords": ["Hoàng Diệu", "thủ thành", "Hà Nội", "1882"]
+    },
+    {
+      "id": 13,
+      "topic": "Hiệp ước 1884",
+      "question": "Hiệp ước Patenôtre năm 1884 có nội dung gì và tại sao được coi là mốc Việt Nam mất hoàn toàn độc lập?",
+      "expected_keywords": ["Hiệp ước Patenôtre", "1884", "bảo hộ", "mất độc lập"]
+    },
+    {
+      "id": 14,
+      "topic": "Hiệp ước 1883-1884",
+      "question": "Hiệp ước Harmand năm 1883 khác gì so với Hiệp ước Patenôtre năm 1884?",
+      "expected_keywords": ["Harmand", "1883", "Patenôtre", "1884"]
+    },
+    {
+      "id": 15,
+      "topic": "Cần Vương",
+      "question": "Chiếu Cần Vương được ban ra vào năm nào, trong hoàn cảnh nào và có nội dung như thế nào?",
+      "expected_keywords": ["Chiếu Cần Vương", "1885", "Hàm Nghi", "kháng Pháp"]
+    },
+    {
+      "id": 16,
+      "topic": "Cần Vương",
+      "question": "Vua Hàm Nghi bị bắt như thế nào và số phận của ông sau đó ra sao?",
+      "expected_keywords": ["Hàm Nghi", "bị bắt", "1888", "lưu đày"]
+    },
+    {
+      "id": 17,
+      "topic": "Cần Vương",
+      "question": "Tôn Thất Thuyết có vai trò gì trong sự kiện biến kinh thành Huế và phong trào Cần Vương?",
+      "expected_keywords": ["Tôn Thất Thuyết", "tấn công Pháp", "kinh thành Huế", "1885"]
+    },
+    {
+      "id": 18,
+      "topic": "Phan Đình Phùng",
+      "question": "Phan Đình Phùng lãnh đạo cuộc khởi nghĩa ở đâu và trong bao lâu trong phong trào Cần Vương?",
+      "expected_keywords": ["Phan Đình Phùng", "Hà Tĩnh", "Hương Khê", "Cần Vương"]
+    },
+    {
+      "id": 19,
+      "topic": "Phan Đình Phùng",
+      "question": "Cao Thắng, người phụ tá của Phan Đình Phùng, đóng góp gì nổi bật cho cuộc kháng chiến?",
+      "expected_keywords": ["Cao Thắng", "chế tạo súng", "Phan Đình Phùng", "kháng Pháp"]
+    },
+    {
+      "id": 20,
+      "topic": "Đinh Công Tráng",
+      "question": "Đinh Công Tráng lãnh đạo cuộc khởi nghĩa Ba Đình ở đâu và vào năm nào?",
+      "expected_keywords": ["Đinh Công Tráng", "Ba Đình", "Thanh Hóa", "1886"]
+    },
+    {
+      "id": 21,
+      "topic": "Cần Vương các tỉnh",
+      "question": "Phong trào Cần Vương lan rộng ra những tỉnh nào và những lãnh tụ tiêu biểu nào ở các địa phương?",
+      "expected_keywords": ["Cần Vương", "các tỉnh", "lãnh tụ địa phương", "kháng Pháp"]
+    },
+    {
+      "id": 22,
+      "topic": "Yên Thế",
+      "question": "Khởi nghĩa Yên Thế do Hoàng Hoa Thám lãnh đạo bắt đầu từ năm nào và kéo dài đến bao giờ?",
+      "expected_keywords": ["Hoàng Hoa Thám", "Yên Thế", "1884", "kháng chiến"]
+    },
+    {
+      "id": 23,
+      "topic": "Yên Thế",
+      "question": "Đặc điểm nổi bật của cuộc khởi nghĩa Yên Thế khác với phong trào Cần Vương ở điểm nào?",
+      "expected_keywords": ["Yên Thế", "nông dân", "tự phát", "khác Cần Vương"]
+    },
+    {
+      "id": 24,
+      "topic": "Tổ chức Đông Dương",
+      "question": "Liên bang Đông Dương thuộc Pháp được thành lập năm nào và gồm những xứ nào?",
+      "expected_keywords": ["Liên bang Đông Dương", "1887", "Việt Nam", "Campuchia"]
+    },
+    {
+      "id": 25,
+      "topic": "Chính sách thuộc địa",
+      "question": "Pháp áp đặt chính sách cai trị như thế nào ở Nam Kỳ sau khi chiếm đóng hoàn toàn?",
+      "expected_keywords": ["thuộc địa", "Nam Kỳ", "cai trị trực tiếp", "chính sách"]
+    },
+    {
+      "id": 26,
+      "topic": "Chính sách thuộc địa",
+      "question": "Sự khác biệt giữa chế độ thuộc địa ở Nam Kỳ và chế độ bảo hộ ở Bắc Kỳ và Trung Kỳ là gì?",
+      "expected_keywords": ["thuộc địa", "bảo hộ", "Nam Kỳ", "Bắc Trung Kỳ"]
+    },
+    {
+      "id": 27,
+      "topic": "Kinh tế thuộc địa",
+      "question": "Pháp bắt đầu khai thác tài nguyên và kinh tế Việt Nam như thế nào trong giai đoạn 1858-1896?",
+      "expected_keywords": ["khai thác", "tài nguyên", "đất đai", "thuộc địa"]
+    },
+    {
+      "id": 28,
+      "topic": "Xã hội thuộc địa",
+      "question": "Tầng lớp sĩ phu Việt Nam phản ứng như thế nào trước sự thất bại và mất nước vào cuối thế kỷ XIX?",
+      "expected_keywords": ["sĩ phu", "phản ứng", "kháng chiến", "hợp tác"]
+    },
+    {
+      "id": 29,
+      "topic": "Văn thơ yêu nước",
+      "question": "Thơ văn yêu nước của Nguyễn Đình Chiểu phản ánh tinh thần kháng Pháp ở Nam Kỳ như thế nào?",
+      "expected_keywords": ["Nguyễn Đình Chiểu", "thơ văn yêu nước", "Nam Kỳ", "kháng Pháp"]
+    },
+    {
+      "id": 30,
+      "topic": "Tôn Thất Thuyết",
+      "question": "Sau khi đưa vua Hàm Nghi ra ngoài kinh thành, Tôn Thất Thuyết làm gì để tiếp tục kháng chiến?",
+      "expected_keywords": ["Tôn Thất Thuyết", "Trung Quốc", "cầu viện", "kháng chiến"]
+    },
+    {
+      "id": 31,
+      "topic": "Thực dân Pháp",
+      "question": "Thực dân Pháp dùng chính sách chia để trị như thế nào để cai quản Việt Nam?",
+      "expected_keywords": ["chia để trị", "Pháp", "thực dân", "cai trị"]
+    },
+    {
+      "id": 32,
+      "topic": "Cuộc chiến Hà Nội",
+      "question": "Trận Cầu Giấy năm 1883 diễn ra như thế nào và kết quả là gì?",
+      "expected_keywords": ["Cầu Giấy", "1883", "Rivière", "Cờ Đen"]
+    },
+    {
+      "id": 33,
+      "topic": "Chiến trường Bắc Kỳ",
+      "question": "Các cuộc chiến đấu ở Bắc Kỳ giai đoạn 1883-1885 diễn ra trên những chiến trường chính nào?",
+      "expected_keywords": ["Bắc Kỳ", "chiến trường", "Pháp", "quân triều đình"]
+    },
+    {
+      "id": 34,
+      "topic": "Triều đình Huế",
+      "question": "Triều đình Huế chia làm những phe phái nào sau khi Pháp đánh vào Bắc Kỳ và quan điểm của mỗi phe ra sao?",
+      "expected_keywords": ["chủ chiến", "chủ hòa", "triều đình", "tranh luận"]
+    },
+    {
+      "id": 35,
+      "topic": "Vua sau 1884",
+      "question": "Sau khi ký Hiệp ước Patenôtre, triều đình Huế có những vua nào và quyền lực thực tế của họ như thế nào?",
+      "expected_keywords": ["vua Việt Nam", "bảo hộ Pháp", "quyền hình thức", "kiểm soát"]
+    },
+    {
+      "id": 36,
+      "topic": "Khởi nghĩa Hương Khê",
+      "question": "Khởi nghĩa Hương Khê của Phan Đình Phùng kéo dài từ năm nào đến năm nào và tại sao đây là cuộc khởi nghĩa tiêu biểu nhất của phong trào Cần Vương?",
+      "expected_keywords": ["Hương Khê", "1885-1895", "Phan Đình Phùng", "Cần Vương"]
+    },
+    {
+      "id": 37,
+      "topic": "Đông Dương thuộc Pháp",
+      "question": "Phủ Toàn quyền Đông Dương được thành lập với vai trò gì trong hệ thống cai trị của Pháp?",
+      "expected_keywords": ["Toàn quyền Đông Dương", "Paul Doumer", "cai trị", "bộ máy"]
+    },
+    {
+      "id": 38,
+      "topic": "Giáo dục thuộc địa",
+      "question": "Pháp bắt đầu cải cách hệ thống giáo dục ở Việt Nam như thế nào trong giai đoạn đầu thống trị?",
+      "expected_keywords": ["giáo dục", "Pháp", "chữ Quốc ngữ", "trường học"]
+    },
+    {
+      "id": 39,
+      "topic": "Phong trào văn thân",
+      "question": "Phong trào văn thân chống Pháp ở Trung Kỳ năm 1885 diễn ra như thế nào?",
+      "expected_keywords": ["văn thân", "Trung Kỳ", "1885", "chống Pháp"]
+    },
+    {
+      "id": 40,
+      "topic": "Tổng kết Cần Vương",
+      "question": "Phong trào Cần Vương thất bại vì những nguyên nhân gì theo đánh giá của các nhà sử học?",
+      "expected_keywords": ["Cần Vương thất bại", "nguyên nhân", "bảo thủ", "lực lượng phân tán"]
+    }
+  ]
+}

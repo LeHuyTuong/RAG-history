@@ -1,0 +1,250 @@
+{
+  "source": {
+    "sourceId": 7,
+    "title": "Lịch sử Việt Nam tập 07 Từ năm 1897 đến năm 1918",
+    "pages": "1-664",
+    "chunks": 0
+  },
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Khai thác thuộc địa lần 1",
+      "question": "Paul Doumer thực hiện chương trình khai thác thuộc địa lần thứ nhất ở Đông Dương với những trọng tâm nào?",
+      "expected_keywords": ["Paul Doumer", "khai thác thuộc địa", "hạ tầng", "tài chính"]
+    },
+    {
+      "id": 2,
+      "topic": "Khai thác thuộc địa lần 1",
+      "question": "Hệ thống thuế của Pháp áp đặt lên người Việt Nam trong cuộc khai thác thuộc địa lần thứ nhất bao gồm những loại thuế nào?",
+      "expected_keywords": ["thuế thân", "thuế rượu", "thuế muối", "thuế thuốc phiện"]
+    },
+    {
+      "id": 3,
+      "topic": "Đường sắt Đông Dương",
+      "question": "Hệ thống đường sắt Đông Dương được xây dựng như thế nào và phục vụ mục đích gì?",
+      "expected_keywords": ["đường sắt", "Đông Dương", "Hà Nội-Sài Gòn", "khai thác"]
+    },
+    {
+      "id": 4,
+      "topic": "Khai thác thuộc địa lần 1",
+      "question": "Ngành khai mỏ, đặc biệt là mỏ than Quảng Ninh, phát triển như thế nào dưới sự khai thác của Pháp?",
+      "expected_keywords": ["mỏ than", "Quảng Ninh", "công nhân mỏ", "khai thác"]
+    },
+    {
+      "id": 5,
+      "topic": "Khai thác thuộc địa lần 1",
+      "question": "Đồn điền cao su và đồn điền trồng cây công nghiệp được Pháp thiết lập như thế nào ở Đông Dương?",
+      "expected_keywords": ["đồn điền", "cao su", "cây công nghiệp", "Nam Kỳ"]
+    },
+    {
+      "id": 6,
+      "topic": "Giai cấp công nhân",
+      "question": "Giai cấp công nhân Việt Nam hình thành như thế nào trong quá trình khai thác thuộc địa của Pháp?",
+      "expected_keywords": ["công nhân", "hình thành", "khai thác thuộc địa", "điều kiện lao động"]
+    },
+    {
+      "id": 7,
+      "topic": "Giai cấp công nhân",
+      "question": "Điều kiện sống và làm việc của công nhân Việt Nam tại các mỏ và đồn điền của Pháp như thế nào?",
+      "expected_keywords": ["điều kiện lao động", "bóc lột", "công nhân", "đồn điền"]
+    },
+    {
+      "id": 8,
+      "topic": "Đông Du",
+      "question": "Phong trào Đông Du do Phan Bội Châu khởi xướng nhằm mục đích gì và diễn ra như thế nào?",
+      "expected_keywords": ["Đông Du", "Phan Bội Châu", "Nhật Bản", "du học"]
+    },
+    {
+      "id": 9,
+      "topic": "Đông Du",
+      "question": "Tại sao phong trào Đông Du thất bại và Phan Bội Châu phải rời Nhật Bản?",
+      "expected_keywords": ["Đông Du thất bại", "Pháp-Nhật", "trục xuất", "1909"]
+    },
+    {
+      "id": 10,
+      "topic": "Phan Bội Châu",
+      "question": "Phan Bội Châu thành lập Hội Duy Tân và Việt Nam Quang Phục Hội với mục tiêu và phương thức đấu tranh như thế nào?",
+      "expected_keywords": ["Phan Bội Châu", "Hội Duy Tân", "Việt Nam Quang Phục Hội", "bạo động"]
+    },
+    {
+      "id": 11,
+      "topic": "Phan Bội Châu",
+      "question": "Tư tưởng chính trị của Phan Bội Châu thay đổi như thế nào từ đầu thế kỷ XX đến sau Chiến tranh thế giới I?",
+      "expected_keywords": ["Phan Bội Châu", "tư tưởng", "quân chủ", "dân chủ"]
+    },
+    {
+      "id": 12,
+      "topic": "Đông Kinh Nghĩa Thục",
+      "question": "Đông Kinh Nghĩa Thục được thành lập năm nào, do ai sáng lập và hoạt động với mục tiêu gì?",
+      "expected_keywords": ["Đông Kinh Nghĩa Thục", "1907", "Lương Văn Can", "canh tân"]
+    },
+    {
+      "id": 13,
+      "topic": "Đông Kinh Nghĩa Thục",
+      "question": "Chương trình giảng dạy và tuyên truyền của Đông Kinh Nghĩa Thục có nội dung gì khác biệt so với nền giáo dục truyền thống?",
+      "expected_keywords": ["Đông Kinh Nghĩa Thục", "giảng dạy", "chữ Quốc ngữ", "canh tân"]
+    },
+    {
+      "id": 14,
+      "topic": "Đông Kinh Nghĩa Thục",
+      "question": "Tại sao Đông Kinh Nghĩa Thục bị thực dân Pháp đóng cửa và những hậu quả gì xảy ra với những người sáng lập?",
+      "expected_keywords": ["Đông Kinh Nghĩa Thục", "đóng cửa", "1908", "bắt giam"]
+    },
+    {
+      "id": 15,
+      "topic": "Duy Tân",
+      "question": "Phong trào Duy Tân do Phan Châu Trinh lãnh đạo có chủ trương gì khác với Phan Bội Châu?",
+      "expected_keywords": ["Phan Châu Trinh", "Duy Tân", "bất bạo động", "khai dân trí"]
+    },
+    {
+      "id": 16,
+      "topic": "Duy Tân",
+      "question": "Phong trào Duy Tân ở Trung Kỳ năm 1908 phát triển như thế nào và bị Pháp đàn áp ra sao?",
+      "expected_keywords": ["Duy Tân Trung Kỳ", "1908", "kháng thuế", "đàn áp"]
+    },
+    {
+      "id": 17,
+      "topic": "Phan Châu Trinh",
+      "question": "Phan Châu Trinh bị Pháp bắt và đày ra Côn Đảo như thế nào và vì lý do gì?",
+      "expected_keywords": ["Phan Châu Trinh", "Côn Đảo", "bắt giam", "phong trào"]
+    },
+    {
+      "id": 18,
+      "topic": "Kháng thuế 1908",
+      "question": "Phong trào chống thuế và kháng sưu ở Trung Kỳ năm 1908 bùng nổ vì những nguyên nhân nào?",
+      "expected_keywords": ["kháng thuế", "1908", "Trung Kỳ", "sưu thuế"]
+    },
+    {
+      "id": 19,
+      "topic": "Đội Cấn",
+      "question": "Khởi nghĩa Thái Nguyên do Đội Cấn (Trịnh Văn Cấn) lãnh đạo nổ ra vào năm nào và diễn biến như thế nào?",
+      "expected_keywords": ["Đội Cấn", "Thái Nguyên", "1917", "khởi nghĩa"]
+    },
+    {
+      "id": 20,
+      "topic": "Đội Cấn",
+      "question": "Lương Ngọc Quyến đóng vai trò gì trong cuộc khởi nghĩa Thái Nguyên năm 1917?",
+      "expected_keywords": ["Lương Ngọc Quyến", "Thái Nguyên", "Đội Cấn", "1917"]
+    },
+    {
+      "id": 21,
+      "topic": "Chiến tranh thế giới I",
+      "question": "Chiến tranh thế giới thứ nhất (1914-1918) ảnh hưởng như thế nào đến tình hình kinh tế và xã hội Việt Nam?",
+      "expected_keywords": ["Chiến tranh thế giới I", "kinh tế", "Việt Nam", "thuộc địa"]
+    },
+    {
+      "id": 22,
+      "topic": "Chiến tranh thế giới I",
+      "question": "Pháp bắt người Việt Nam tham gia Chiến tranh thế giới I như thế nào và số lượng bao nhiêu người bị đưa sang Pháp?",
+      "expected_keywords": ["lính Việt", "Pháp", "Chiến tranh thế giới I", "lính thợ"]
+    },
+    {
+      "id": 23,
+      "topic": "Chiến tranh thế giới I",
+      "question": "Kinh tế Đông Dương bị thực dân Pháp khai thác như thế nào trong thời kỳ Chiến tranh thế giới thứ nhất?",
+      "expected_keywords": ["khai thác", "Chiến tranh thế giới I", "Đông Dương", "lương thực"]
+    },
+    {
+      "id": 24,
+      "topic": "Tư tưởng dân tộc",
+      "question": "Những tư tưởng cách mạng từ Trung Quốc và phương Tây ảnh hưởng như thế nào đến phong trào yêu nước Việt Nam đầu thế kỷ XX?",
+      "expected_keywords": ["tư tưởng cách mạng", "Trung Quốc", "phong trào yêu nước", "Việt Nam"]
+    },
+    {
+      "id": 25,
+      "topic": "Nguyễn Ái Quốc",
+      "question": "Nguyễn Tất Thành (Nguyễn Ái Quốc) rời Việt Nam năm nào và bằng cách nào để tìm đường cứu nước?",
+      "expected_keywords": ["Nguyễn Tất Thành", "1911", "ra đi tìm đường", "Sài Gòn"]
+    },
+    {
+      "id": 26,
+      "topic": "Nguyễn Ái Quốc",
+      "question": "Nguyễn Ái Quốc gặp chủ nghĩa Mác-Lênin như thế nào trong quá trình hoạt động ở Pháp?",
+      "expected_keywords": ["Nguyễn Ái Quốc", "chủ nghĩa Mác-Lênin", "Quốc tế III", "Pháp"]
+    },
+    {
+      "id": 27,
+      "topic": "Giáo dục thuộc địa",
+      "question": "Hệ thống giáo dục Pháp-Việt được thành lập như thế nào và có những đặc điểm gì khác với hệ thống giáo dục Nho học?",
+      "expected_keywords": ["giáo dục Pháp-Việt", "chữ Quốc ngữ", "trường học", "cải cách giáo dục"]
+    },
+    {
+      "id": 28,
+      "topic": "Báo chí",
+      "question": "Báo chí tiếng Việt ra đời và phát triển như thế nào trong đầu thế kỷ XX?",
+      "expected_keywords": ["báo chí", "tiếng Việt", "Gia Định báo", "chữ Quốc ngữ"]
+    },
+    {
+      "id": 29,
+      "topic": "Tầng lớp trí thức mới",
+      "question": "Tầng lớp trí thức Tây học mới hình thành và có vai trò gì trong phong trào yêu nước đầu thế kỷ XX?",
+      "expected_keywords": ["trí thức Tây học", "yêu nước", "tầng lớp mới", "tiếp thu"]
+    },
+    {
+      "id": 30,
+      "topic": "Đàn áp phong trào",
+      "question": "Thực dân Pháp đàn áp các phong trào yêu nước đầu thế kỷ XX như thế nào?",
+      "expected_keywords": ["đàn áp", "Côn Đảo", "bắt giam", "tử hình"]
+    },
+    {
+      "id": 31,
+      "topic": "Công nghiệp thuộc địa",
+      "question": "Ngành công nghiệp chế biến và công nghiệp nhẹ phát triển như thế nào ở Việt Nam trong giai đoạn khai thác thuộc địa lần 1?",
+      "expected_keywords": ["công nghiệp", "chế biến", "nhà máy", "thuộc địa"]
+    },
+    {
+      "id": 32,
+      "topic": "Nông nghiệp thuộc địa",
+      "question": "Chế độ chiếm đoạt ruộng đất của Pháp ảnh hưởng như thế nào đến tình trạng nông dân Việt Nam?",
+      "expected_keywords": ["chiếm đoạt ruộng đất", "nông dân", "địa chủ Pháp", "bần cùng hóa"]
+    },
+    {
+      "id": 33,
+      "topic": "Hoạt động Phan Bội Châu",
+      "question": "Phan Bội Châu đã có những hoạt động gì ở Trung Quốc sau khi rời Nhật Bản?",
+      "expected_keywords": ["Phan Bội Châu", "Trung Quốc", "Việt Nam Quang Phục Hội", "ám sát"]
+    },
+    {
+      "id": 34,
+      "topic": "Cường Để",
+      "question": "Kỳ Ngoại Hầu Cường Để tham gia phong trào Đông Du như thế nào và vai trò của ông là gì?",
+      "expected_keywords": ["Cường Để", "Đông Du", "hoàng thân", "kháng Pháp"]
+    },
+    {
+      "id": 35,
+      "topic": "Xã hội thuộc địa",
+      "question": "Cơ cấu giai cấp xã hội Việt Nam biến đổi như thế nào dưới tác động của chính sách thuộc địa Pháp?",
+      "expected_keywords": ["giai cấp", "tư sản", "địa chủ", "vô sản"]
+    },
+    {
+      "id": 36,
+      "topic": "Văn hóa đầu thế kỷ XX",
+      "question": "Văn học và nghệ thuật Việt Nam đầu thế kỷ XX chịu ảnh hưởng từ phương Tây như thế nào?",
+      "expected_keywords": ["văn học", "ảnh hưởng phương Tây", "chữ Quốc ngữ", "đầu thế kỷ XX"]
+    },
+    {
+      "id": 37,
+      "topic": "Đường sắt",
+      "question": "Tuyến đường sắt Hà Nội - Sài Gòn hoàn thành vào năm nào và có ý nghĩa kinh tế - quân sự như thế nào?",
+      "expected_keywords": ["đường sắt Hà Nội-Sài Gòn", "hoàn thành", "kinh tế", "quân sự"]
+    },
+    {
+      "id": 38,
+      "topic": "Đô thị hóa",
+      "question": "Các đô thị Việt Nam như Hà Nội, Sài Gòn, Hải Phòng phát triển như thế nào dưới sự cai trị của Pháp?",
+      "expected_keywords": ["đô thị", "Hà Nội", "Sài Gòn", "thuộc địa"]
+    },
+    {
+      "id": 39,
+      "topic": "Hải Phòng cảng",
+      "question": "Hải Phòng được Pháp phát triển thành hải cảng quan trọng như thế nào để phục vụ khai thác thuộc địa?",
+      "expected_keywords": ["Hải Phòng", "cảng biển", "thương mại", "khai thác"]
+    },
+    {
+      "id": 40,
+      "topic": "Khủng hoảng kinh tế xã hội",
+      "question": "Tác động của Chiến tranh thế giới I đến đời sống nhân dân Việt Nam và mâu thuẫn xã hội ngày càng gay gắt như thế nào?",
+      "expected_keywords": ["Chiến tranh thế giới I", "đời sống", "mâu thuẫn xã hội", "bất mãn"]
+    }
+  ]
+}

@@ -1,0 +1,250 @@
+{
+  "source": {
+    "sourceId": 14,
+    "title": "Lịch sử Việt Nam tập 14 Từ năm 1975 đến năm 1986",
+    "pages": "1-483",
+    "chunks": 0
+  },
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Thống nhất đất nước",
+      "question": "Cuộc Tổng tuyển cử thống nhất đất nước được tổ chức vào ngày tháng năm nào và bầu ra Quốc hội nước nào?",
+      "expected_keywords": ["25/4/1976", "Tổng tuyển cử", "Quốc hội thống nhất", "Việt Nam thống nhất"]
+    },
+    {
+      "id": 2,
+      "topic": "Thống nhất đất nước",
+      "question": "Quốc hội thống nhất họp kỳ đầu tiên vào tháng 6-7/1976 đã quyết định đặt tên nước là gì?",
+      "expected_keywords": ["Cộng hòa Xã hội Chủ nghĩa Việt Nam", "CHXHCNVN", "1976", "tên nước"]
+    },
+    {
+      "id": 3,
+      "topic": "Thống nhất đất nước",
+      "question": "Thủ đô và quốc kỳ của nước Cộng hòa Xã hội Chủ nghĩa Việt Nam được xác định như thế nào tại Quốc hội năm 1976?",
+      "expected_keywords": ["Hà Nội", "quốc kỳ", "đổi tên thành phố", "Hồ Chí Minh City"]
+    },
+    {
+      "id": 4,
+      "topic": "Cải tạo miền Nam",
+      "question": "Công cuộc cải tạo công thương nghiệp tư bản chủ nghĩa ở miền Nam được tiến hành từ năm nào và bằng những biện pháp gì?",
+      "expected_keywords": ["cải tạo công thương nghiệp", "quốc hữu hóa", "miền Nam", "1975-1976"]
+    },
+    {
+      "id": 5,
+      "topic": "Cải tạo miền Nam",
+      "question": "Chiến dịch đánh tư sản mại bản năm 1975 ở miền Nam có mục tiêu gì và diễn ra như thế nào?",
+      "expected_keywords": ["tư sản mại bản", "1975", "đánh tư sản", "tịch thu tài sản"]
+    },
+    {
+      "id": 6,
+      "topic": "Hợp tác hóa nông nghiệp miền Nam",
+      "question": "Phong trào hợp tác hóa nông nghiệp ở miền Nam diễn ra như thế nào trong giai đoạn 1975-1980?",
+      "expected_keywords": ["hợp tác xã", "miền Nam", "nông nghiệp", "tập thể hóa"]
+    },
+    {
+      "id": 7,
+      "topic": "Kinh tế kế hoạch hóa",
+      "question": "Nền kinh tế kế hoạch hóa tập trung quan liêu bao cấp có những đặc trưng gì và gây ra những hậu quả nào?",
+      "expected_keywords": ["kế hoạch hóa tập trung", "bao cấp", "tem phiếu", "kinh tế kém hiệu quả"]
+    },
+    {
+      "id": 8,
+      "topic": "Chiến tranh biên giới Tây Nam",
+      "question": "Chiến tranh biên giới Tây Nam bùng nổ như thế nào và nguyên nhân từ phía Khmer Đỏ là gì?",
+      "expected_keywords": ["Khmer Đỏ", "xâm lấn biên giới Tây Nam", "1977-1978", "Pol Pot"]
+    },
+    {
+      "id": 9,
+      "topic": "Chiến tranh biên giới Tây Nam",
+      "question": "Việt Nam giúp nhân dân Campuchia lật đổ chế độ Pol Pot Khmer Đỏ vào ngày tháng năm nào?",
+      "expected_keywords": ["7/1/1979", "Phnom Penh giải phóng", "Khmer Đỏ sụp đổ", "Campuchia"]
+    },
+    {
+      "id": 10,
+      "topic": "Chiến tranh biên giới phía Bắc",
+      "question": "Trung Quốc tấn công biên giới phía Bắc Việt Nam vào ngày tháng năm nào và ở những tỉnh nào?",
+      "expected_keywords": ["17/2/1979", "biên giới phía Bắc", "Trung Quốc", "Lạng Sơn Cao Bằng Lào Cai"]
+    },
+    {
+      "id": 11,
+      "topic": "Chiến tranh biên giới phía Bắc",
+      "question": "Việt Nam đã chống trả cuộc xâm lược của Trung Quốc tháng 2/1979 như thế nào và kết quả ra sao?",
+      "expected_keywords": ["kháng chiến biên giới", "đánh trả", "Trung Quốc rút quân", "3/1979"]
+    },
+    {
+      "id": 12,
+      "topic": "Đại hội Đảng IV",
+      "question": "Đại hội Đảng lần thứ IV năm 1976 đã xác định đường lối xây dựng đất nước thống nhất như thế nào?",
+      "expected_keywords": ["Đại hội IV", "1976", "xây dựng CNXH", "công nghiệp hóa xã hội chủ nghĩa"]
+    },
+    {
+      "id": 13,
+      "topic": "Đại hội Đảng V",
+      "question": "Đại hội Đảng lần thứ V năm 1982 đã đánh giá tình hình và đề ra đường lối gì?",
+      "expected_keywords": ["Đại hội V", "1982", "đường lối", "sửa chữa khuyết điểm"]
+    },
+    {
+      "id": 14,
+      "topic": "Thuyền nhân",
+      "question": "Làn sóng thuyền nhân người Việt vượt biên trong giai đoạn 1975-1985 có nguyên nhân gì và quy mô như thế nào?",
+      "expected_keywords": ["thuyền nhân", "vượt biên", "kinh tế khó khăn", "người Hoa"]
+    },
+    {
+      "id": 15,
+      "topic": "Khủng hoảng kinh tế",
+      "question": "Nền kinh tế Việt Nam rơi vào khủng hoảng trong thập niên 1980 vì những nguyên nhân nào?",
+      "expected_keywords": ["khủng hoảng kinh tế", "lạm phát", "thiếu hụt hàng hóa", "cơ chế bao cấp"]
+    },
+    {
+      "id": 16,
+      "topic": "Giá-lương-tiền",
+      "question": "Cuộc cải cách giá-lương-tiền năm 1985 có nội dung gì và kết quả ra sao?",
+      "expected_keywords": ["giá-lương-tiền", "1985", "cải cách tiền tệ", "lạm phát phi mã"]
+    },
+    {
+      "id": 17,
+      "topic": "Bao cấp",
+      "question": "Chế độ bao cấp ở Việt Nam hoạt động như thế nào và gây ra những bất cập gì?",
+      "expected_keywords": ["bao cấp", "tem phiếu", "phân phối", "thiếu tính cạnh tranh"]
+    },
+    {
+      "id": 18,
+      "topic": "Kế hoạch 5 năm 1976-1980",
+      "question": "Kế hoạch Nhà nước 5 năm lần thứ II (1976-1980) có mục tiêu gì và kết quả thực hiện như thế nào?",
+      "expected_keywords": ["kế hoạch 5 năm", "1976-1980", "công nghiệp hóa", "không hoàn thành mục tiêu"]
+    },
+    {
+      "id": 19,
+      "topic": "Cải cách nông nghiệp",
+      "question": "Những đổi mới bước đầu trong nông nghiệp cuối những năm 1970 đầu 1980 diễn ra như thế nào?",
+      "expected_keywords": ["khoán sản phẩm", "Khoán 100", "1981", "nông nghiệp"]
+    },
+    {
+      "id": 20,
+      "topic": "Quan hệ quốc tế",
+      "question": "Quan hệ giữa Việt Nam và các nước ASEAN trong giai đoạn 1975-1986 như thế nào và vì sao?",
+      "expected_keywords": ["ASEAN", "căng thẳng", "Campuchia", "cô lập ngoại giao"]
+    },
+    {
+      "id": 21,
+      "topic": "Quan hệ Việt-Xô",
+      "question": "Quan hệ Việt Nam - Liên Xô trong giai đoạn 1975-1986 phát triển như thế nào?",
+      "expected_keywords": ["Liên Xô", "viện trợ", "hợp tác toàn diện", "Hiệp ước hữu nghị 1978"]
+    },
+    {
+      "id": 22,
+      "topic": "Người Hoa",
+      "question": "Vấn đề người Hoa ở Việt Nam trong giai đoạn 1978-1979 diễn ra như thế nào và có liên quan gì đến quan hệ Việt-Trung?",
+      "expected_keywords": ["người Hoa", "rời Việt Nam", "quan hệ Việt-Trung", "xung đột"]
+    },
+    {
+      "id": 23,
+      "topic": "Quân đội ở Campuchia",
+      "question": "Quân đội Việt Nam ở Campuchia trong giai đoạn 1979-1989 thực hiện nhiệm vụ gì?",
+      "expected_keywords": ["quân tình nguyện", "Campuchia", "bảo vệ chính quyền", "Khmer Đỏ"]
+    },
+    {
+      "id": 24,
+      "topic": "Cải cách bước đầu",
+      "question": "Những biểu hiện đầu tiên của tư duy đổi mới trong Đảng xuất hiện như thế nào trước Đại hội VI?",
+      "expected_keywords": ["tư duy đổi mới", "nhìn thẳng sự thật", "sửa chữa sai lầm", "trước Đại hội VI"]
+    },
+    {
+      "id": 25,
+      "topic": "Xây dựng hệ thống chính trị",
+      "question": "Hiến pháp năm 1980 của nước Cộng hòa Xã hội Chủ nghĩa Việt Nam có những điểm mới gì?",
+      "expected_keywords": ["Hiến pháp 1980", "CHXHCNVN", "nhà nước XHCN", "quyền lực nhân dân"]
+    },
+    {
+      "id": 26,
+      "topic": "Xây dựng hệ thống chính trị",
+      "question": "Mặt trận Tổ quốc Việt Nam được thành lập như thế nào từ sự hợp nhất các tổ chức chính trị sau 1975?",
+      "expected_keywords": ["Mặt trận Tổ quốc Việt Nam", "1977", "hợp nhất", "Liên Việt Mặt trận Việt Minh"]
+    },
+    {
+      "id": 27,
+      "topic": "Lương thực",
+      "question": "Tình hình lương thực ở Việt Nam trong giai đoạn 1976-1980 như thế nào và nguyên nhân là gì?",
+      "expected_keywords": ["thiếu lương thực", "sản xuất nông nghiệp thấp", "nhập khẩu gạo", "khủng hoảng"]
+    },
+    {
+      "id": 28,
+      "topic": "Chiến tranh phá hoại",
+      "question": "Hoạt động phá hoại của các lực lượng Khmer Đỏ và phản động ở biên giới Tây Nam trong giai đoạn 1975-1978 gây ra những tổn thất gì?",
+      "expected_keywords": ["Khmer Đỏ xâm lấn", "biên giới Tây Nam", "dân thường thiệt mạng", "An Giang Kiên Giang"]
+    },
+    {
+      "id": 29,
+      "topic": "Phục hồi sau chiến tranh",
+      "question": "Việt Nam đã nỗ lực như thế nào để tháo gỡ bom mìn và phục hồi đất đai sau chiến tranh?",
+      "expected_keywords": ["rà phá bom mìn", "khắc phục hậu quả chiến tranh", "phục hồi đất đai", "chất độc da cam"]
+    },
+    {
+      "id": 30,
+      "topic": "Hội nghị Trung ương 6",
+      "question": "Hội nghị Trung ương 6 Khóa IV (1979) đã quyết định những chính sách gì để tháo gỡ khó khăn kinh tế?",
+      "expected_keywords": ["Hội nghị Trung ương 6", "1979", "phá vỡ cơ chế cũ", "tháo gỡ kinh tế"]
+    },
+    {
+      "id": 31,
+      "topic": "Khoán sản phẩm",
+      "question": "Chỉ thị 100 về khoán sản phẩm trong nông nghiệp năm 1981 có nội dung gì và tác động ra sao?",
+      "expected_keywords": ["Chỉ thị 100", "khoán sản phẩm", "1981", "tăng năng suất nông nghiệp"]
+    },
+    {
+      "id": 32,
+      "topic": "Lao động xã hội",
+      "question": "Tình trạng lao động và việc làm ở Việt Nam trong giai đoạn 1975-1986 như thế nào?",
+      "expected_keywords": ["thất nghiệp", "lao động", "kinh tế tập thể", "lao động dôi thừa"]
+    },
+    {
+      "id": 33,
+      "topic": "Cải cách kinh tế",
+      "question": "Nghị quyết 08 về cải tiến cơ chế quản lý kinh tế công nghiệp năm 1979 có nội dung gì?",
+      "expected_keywords": ["cơ chế quản lý", "công nghiệp", "1979", "tự chủ sản xuất kinh doanh"]
+    },
+    {
+      "id": 34,
+      "topic": "Mỹ bao vây cấm vận",
+      "question": "Mỹ thi hành chính sách bao vây cấm vận Việt Nam từ sau 1975 gây ra những khó khăn gì?",
+      "expected_keywords": ["cấm vận", "Mỹ", "khó khăn kinh tế", "cô lập quốc tế"]
+    },
+    {
+      "id": 35,
+      "topic": "Văn hóa xã hội",
+      "question": "Tình hình văn hóa xã hội ở miền Nam sau giải phóng năm 1975 diễn ra như thế nào trong quá trình thống nhất?",
+      "expected_keywords": ["cải tạo văn hóa", "miền Nam", "tiếp quản", "thống nhất văn hóa"]
+    },
+    {
+      "id": 36,
+      "topic": "Trại cải tạo",
+      "question": "Chính sách cải tạo đối với cán bộ, sĩ quan chế độ cũ ở miền Nam sau 1975 được thực hiện như thế nào?",
+      "expected_keywords": ["học tập cải tạo", "sĩ quan ngụy", "trại cải tạo", "chính sách hòa giải"]
+    },
+    {
+      "id": 37,
+      "topic": "Đổi mới nhận thức",
+      "question": "Cuộc thảo luận về đổi mới tư duy kinh tế trong Đảng vào đầu thập niên 1980 tập trung vào những vấn đề gì?",
+      "expected_keywords": ["đổi mới tư duy", "kinh tế thị trường", "nhìn thẳng sự thật", "bỏ cơ chế cũ"]
+    },
+    {
+      "id": 38,
+      "topic": "Quan hệ đối ngoại",
+      "question": "Việt Nam tham gia tổ chức quốc tế nào trong giai đoạn 1975-1986?",
+      "expected_keywords": ["Liên Hợp Quốc", "1977", "COMECON", "hội nhập quốc tế"]
+    },
+    {
+      "id": 39,
+      "topic": "Lao động xuất khẩu",
+      "question": "Việt Nam bắt đầu xuất khẩu lao động sang các nước XHCN trong giai đoạn nào và sang những nước nào?",
+      "expected_keywords": ["xuất khẩu lao động", "Liên Xô Đông Đức", "1980", "hợp tác lao động"]
+    },
+    {
+      "id": 40,
+      "topic": "Chuẩn bị Đổi mới",
+      "question": "Những tiền đề và sự chuẩn bị nào dẫn đến quyết định Đổi mới tại Đại hội VI năm 1986?",
+      "expected_keywords": ["khủng hoảng kinh tế", "áp lực đổi mới", "Đại hội VI", "tư duy mới"]
+    }
+  ]
+}

@@ -1,0 +1,250 @@
+{
+  "source": {
+    "sourceId": 8,
+    "title": "Lịch sử Việt Nam tập 08 Từ năm 1919 đến năm 1930",
+    "pages": "1-611",
+    "chunks": 0
+  },
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Nguyễn Ái Quốc tại Pháp",
+      "question": "Nguyễn Ái Quốc gửi bản Yêu sách của nhân dân An Nam đến Hội nghị Versailles năm 1919 với những nội dung gì?",
+      "expected_keywords": ["Nguyễn Ái Quốc", "Yêu sách", "Versailles", "1919"]
+    },
+    {
+      "id": 2,
+      "topic": "Nguyễn Ái Quốc tại Pháp",
+      "question": "Nguyễn Ái Quốc gia nhập Đảng Cộng sản Pháp vào năm nào và trong hoàn cảnh như thế nào?",
+      "expected_keywords": ["Nguyễn Ái Quốc", "Đảng Cộng sản Pháp", "1920", "Tours"]
+    },
+    {
+      "id": 3,
+      "topic": "Nguyễn Ái Quốc tại Pháp",
+      "question": "Tác phẩm Le Procès de la colonisation française (Bản án chế độ thực dân Pháp) được Nguyễn Ái Quốc viết vào năm nào và có nội dung gì?",
+      "expected_keywords": ["Bản án chế độ thực dân", "Nguyễn Ái Quốc", "1925", "tố cáo"]
+    },
+    {
+      "id": 4,
+      "topic": "Nguyễn Ái Quốc ở Liên Xô",
+      "question": "Nguyễn Ái Quốc đến Liên Xô năm nào và học tập, hoạt động ở đó như thế nào?",
+      "expected_keywords": ["Nguyễn Ái Quốc", "Liên Xô", "Quốc tế Cộng sản", "Moscow"]
+    },
+    {
+      "id": 5,
+      "topic": "Hội Việt Nam CMTN",
+      "question": "Hội Việt Nam Cách mạng Thanh niên được thành lập vào năm nào, ở đâu và do ai sáng lập?",
+      "expected_keywords": ["Hội Việt Nam Cách mạng Thanh niên", "1925", "Quảng Châu", "Nguyễn Ái Quốc"]
+    },
+    {
+      "id": 6,
+      "topic": "Hội Việt Nam CMTN",
+      "question": "Hội Việt Nam Cách mạng Thanh niên đào tạo và truyền bá chủ nghĩa Mác-Lênin vào Việt Nam như thế nào?",
+      "expected_keywords": ["Hội Việt Nam CMTN", "đào tạo cán bộ", "Mác-Lênin", "Thanh Niên báo"]
+    },
+    {
+      "id": 7,
+      "topic": "Hội Việt Nam CMTN",
+      "question": "Tờ báo Thanh Niên của Hội Việt Nam Cách mạng Thanh niên có vai trò gì trong việc truyền bá tư tưởng cách mạng?",
+      "expected_keywords": ["báo Thanh Niên", "Nguyễn Ái Quốc", "tuyên truyền", "cách mạng"]
+    },
+    {
+      "id": 8,
+      "topic": "Phong trào công nhân",
+      "question": "Phong trào đấu tranh của công nhân Việt Nam trong những năm 1919-1929 diễn ra như thế nào?",
+      "expected_keywords": ["phong trào công nhân", "bãi công", "đấu tranh", "Việt Nam"]
+    },
+    {
+      "id": 9,
+      "topic": "Phong trào công nhân",
+      "question": "Cuộc bãi công của thợ Ba Son năm 1925 có ý nghĩa gì trong lịch sử phong trào công nhân Việt Nam?",
+      "expected_keywords": ["Ba Son", "1925", "bãi công", "Tôn Đức Thắng"]
+    },
+    {
+      "id": 10,
+      "topic": "Phong trào nông dân",
+      "question": "Tình trạng của nông dân Việt Nam trong giai đoạn 1919-1930 như thế nào dưới tác động của khai thác thuộc địa lần 2?",
+      "expected_keywords": ["nông dân", "bần cùng", "khai thác thuộc địa", "đất đai"]
+    },
+    {
+      "id": 11,
+      "topic": "Khai thác thuộc địa lần 2",
+      "question": "Khai thác thuộc địa lần thứ hai của Pháp sau Chiến tranh thế giới I có những đặc điểm gì khác so với lần đầu?",
+      "expected_keywords": ["khai thác thuộc địa lần 2", "đầu tư tư bản", "cao su", "than"]
+    },
+    {
+      "id": 12,
+      "topic": "Khai thác thuộc địa lần 2",
+      "question": "Đầu tư tư bản Pháp vào Đông Dương trong những năm 1920 tập trung vào những lĩnh vực nào?",
+      "expected_keywords": ["tư bản Pháp", "đầu tư", "cao su", "mỏ than"]
+    },
+    {
+      "id": 13,
+      "topic": "Tân Việt Cách mạng Đảng",
+      "question": "Tân Việt Cách mạng Đảng được thành lập như thế nào và thành phần gồm những ai?",
+      "expected_keywords": ["Tân Việt Cách mạng Đảng", "trí thức", "1928", "Trung Kỳ"]
+    },
+    {
+      "id": 14,
+      "topic": "Tân Việt Cách mạng Đảng",
+      "question": "Tân Việt Cách mạng Đảng có đường lối cách mạng như thế nào và quan hệ với Hội Việt Nam Cách mạng Thanh niên ra sao?",
+      "expected_keywords": ["Tân Việt", "đường lối", "Hội Việt Nam CMTN", "chuyển hóa"]
+    },
+    {
+      "id": 15,
+      "topic": "Việt Nam Quốc dân Đảng",
+      "question": "Việt Nam Quốc dân Đảng được thành lập vào năm nào, do ai lãnh đạo và theo đường lối gì?",
+      "expected_keywords": ["Việt Nam Quốc dân Đảng", "1927", "Nguyễn Thái Học", "dân tộc"]
+    },
+    {
+      "id": 16,
+      "topic": "Việt Nam Quốc dân Đảng",
+      "question": "Vụ ám sát Bazin năm 1929 do Việt Nam Quốc dân Đảng thực hiện dẫn đến hậu quả gì?",
+      "expected_keywords": ["Bazin", "ám sát", "Việt Nam Quốc dân Đảng", "đàn áp"]
+    },
+    {
+      "id": 17,
+      "topic": "Khởi nghĩa Yên Bái 1930",
+      "question": "Khởi nghĩa Yên Bái do Việt Nam Quốc dân Đảng tổ chức nổ ra vào ngày tháng năm nào?",
+      "expected_keywords": ["khởi nghĩa Yên Bái", "9/2/1930", "Việt Nam Quốc dân Đảng", "Nguyễn Thái Học"]
+    },
+    {
+      "id": 18,
+      "topic": "Khởi nghĩa Yên Bái 1930",
+      "question": "Khởi nghĩa Yên Bái 1930 thất bại vì những nguyên nhân nào?",
+      "expected_keywords": ["Yên Bái thất bại", "cô lập", "thiếu lực lượng", "Pháp đàn áp"]
+    },
+    {
+      "id": 19,
+      "topic": "Khởi nghĩa Yên Bái 1930",
+      "question": "Nguyễn Thái Học và các đồng chí bị bắt và xử tử như thế nào sau thất bại của khởi nghĩa Yên Bái?",
+      "expected_keywords": ["Nguyễn Thái Học", "xử tử", "máy chém", "Yên Bái"]
+    },
+    {
+      "id": 20,
+      "topic": "Thành lập Đảng Cộng sản",
+      "question": "Đảng Cộng sản Việt Nam được thành lập vào ngày tháng năm nào và ở đâu?",
+      "expected_keywords": ["Đảng Cộng sản Việt Nam", "3/2/1930", "Hồng Kông", "Hội nghị hợp nhất"]
+    },
+    {
+      "id": 21,
+      "topic": "Thành lập Đảng Cộng sản",
+      "question": "Hội nghị hợp nhất thành lập Đảng Cộng sản Việt Nam có sự tham gia của những tổ chức cộng sản nào?",
+      "expected_keywords": ["hợp nhất", "Đông Dương Cộng sản Đảng", "An Nam Cộng sản Đảng", "Nguyễn Ái Quốc"]
+    },
+    {
+      "id": 22,
+      "topic": "Thành lập Đảng Cộng sản",
+      "question": "Cương lĩnh chính trị đầu tiên của Đảng Cộng sản Việt Nam do ai soạn thảo và có những nội dung cơ bản nào?",
+      "expected_keywords": ["Cương lĩnh chính trị", "Nguyễn Ái Quốc", "cách mạng dân tộc", "1930"]
+    },
+    {
+      "id": 23,
+      "topic": "Hương Cảng",
+      "question": "Hội nghị hợp nhất ở Hương Cảng (Hồng Kông) năm 1930 diễn ra trong bao nhiêu ngày và đạt được những kết quả gì?",
+      "expected_keywords": ["Hương Cảng", "Hội nghị hợp nhất", "1930", "Đảng Cộng sản"]
+    },
+    {
+      "id": 24,
+      "topic": "Đổi tên Đảng",
+      "question": "Tại Hội nghị lần thứ nhất Ban Chấp hành Trung ương (10/1930), tên Đảng được đổi thành gì và tại sao?",
+      "expected_keywords": ["Đảng Cộng sản Đông Dương", "đổi tên", "1930", "Trần Phú"]
+    },
+    {
+      "id": 25,
+      "topic": "Tình hình thế giới",
+      "question": "Thắng lợi của Cách mạng tháng Mười Nga năm 1917 ảnh hưởng như thế nào đến phong trào giải phóng dân tộc ở Việt Nam?",
+      "expected_keywords": ["Cách mạng tháng Mười", "Nga", "ảnh hưởng", "Việt Nam"]
+    },
+    {
+      "id": 26,
+      "topic": "Quốc tế Cộng sản",
+      "question": "Quốc tế Cộng sản (Comintern) hỗ trợ phong trào cách mạng Việt Nam như thế nào trong những năm 1920?",
+      "expected_keywords": ["Quốc tế Cộng sản", "Comintern", "Nguyễn Ái Quốc", "hỗ trợ"]
+    },
+    {
+      "id": 27,
+      "topic": "Phân hóa Hội VNCMTN",
+      "question": "Hội Việt Nam Cách mạng Thanh niên tan rã và phân hóa như thế nào dẫn đến sự ra đời của các tổ chức cộng sản?",
+      "expected_keywords": ["HVNCMTN phân hóa", "Đông Dương Cộng sản Đảng", "1929", "chia rẽ"]
+    },
+    {
+      "id": 28,
+      "topic": "Đông Dương Cộng sản Đảng",
+      "question": "Đông Dương Cộng sản Đảng được thành lập vào năm nào và có đặc điểm gì?",
+      "expected_keywords": ["Đông Dương Cộng sản Đảng", "6/1929", "Bắc Kỳ", "thành lập"]
+    },
+    {
+      "id": 29,
+      "topic": "An Nam Cộng sản Đảng",
+      "question": "An Nam Cộng sản Đảng hình thành như thế nào và hoạt động ở khu vực nào?",
+      "expected_keywords": ["An Nam Cộng sản Đảng", "1929", "Nam Kỳ", "thành lập"]
+    },
+    {
+      "id": 30,
+      "topic": "Kinh tế 1919-1930",
+      "question": "Nền kinh tế Việt Nam bị cuộc khủng hoảng kinh tế thế giới 1929-1933 ảnh hưởng như thế nào?",
+      "expected_keywords": ["khủng hoảng kinh tế", "1929", "Việt Nam", "thuộc địa"]
+    },
+    {
+      "id": 31,
+      "topic": "Giai cấp tư sản",
+      "question": "Giai cấp tư sản dân tộc Việt Nam hình thành và phát triển như thế nào trong những năm 1920?",
+      "expected_keywords": ["tư sản dân tộc", "hình thành", "kinh doanh", "thương nghiệp"]
+    },
+    {
+      "id": 32,
+      "topic": "Giai cấp tư sản",
+      "question": "Phong trào chấn hưng kinh tế dân tộc và vận động tẩy chay hàng Pháp, Hoa trong những năm 1919-1923 diễn ra như thế nào?",
+      "expected_keywords": ["chấn hưng kinh tế", "tẩy chay", "tư sản", "hàng nội địa"]
+    },
+    {
+      "id": 33,
+      "topic": "Phan Bội Châu bị bắt",
+      "question": "Phan Bội Châu bị bắt vào năm nào và sự kiện này có ảnh hưởng gì đến phong trào yêu nước?",
+      "expected_keywords": ["Phan Bội Châu", "bắt", "1925", "Thượng Hải"]
+    },
+    {
+      "id": 34,
+      "topic": "Phan Châu Trinh qua đời",
+      "question": "Phan Châu Trinh qua đời vào năm nào và đám tang của ông diễn ra như thế nào?",
+      "expected_keywords": ["Phan Châu Trinh", "1926", "qua đời", "biểu tình"]
+    },
+    {
+      "id": 35,
+      "topic": "Văn hóa 1919-1930",
+      "question": "Phong trào Thơ mới và văn học hiện thực phê phán nổi lên như thế nào trong những năm 1920-1930?",
+      "expected_keywords": ["văn học", "Thơ mới", "hiện thực", "thế kỷ XX"]
+    },
+    {
+      "id": 36,
+      "topic": "Báo chí cách mạng",
+      "question": "Báo chí cách mạng và tiến bộ phát triển như thế nào trong giai đoạn 1919-1930?",
+      "expected_keywords": ["báo cách mạng", "Thanh Niên", "Búa Liềm", "tuyên truyền"]
+    },
+    {
+      "id": 37,
+      "topic": "Đảng hợp nhất",
+      "question": "Tại sao Nguyễn Ái Quốc phải đứng ra triệu tập và chủ trì hội nghị hợp nhất ba tổ chức cộng sản?",
+      "expected_keywords": ["hợp nhất", "Nguyễn Ái Quốc", "ba tổ chức", "thống nhất"]
+    },
+    {
+      "id": 38,
+      "topic": "Cương lĩnh Đảng",
+      "question": "Luận cương chính trị tháng 10/1930 do Trần Phú soạn thảo có những điểm gì khác so với Cương lĩnh của Nguyễn Ái Quốc?",
+      "expected_keywords": ["Luận cương", "Trần Phú", "1930", "cách mạng vô sản"]
+    },
+    {
+      "id": 39,
+      "topic": "Vai trò Nguyễn Ái Quốc",
+      "question": "Những đóng góp cơ bản của Nguyễn Ái Quốc trong việc chuẩn bị về tư tưởng, chính trị và tổ chức cho sự ra đời của Đảng là gì?",
+      "expected_keywords": ["Nguyễn Ái Quốc", "chuẩn bị", "tư tưởng", "thành lập Đảng"]
+    },
+    {
+      "id": 40,
+      "topic": "Ý nghĩa thành lập Đảng",
+      "question": "Sự ra đời của Đảng Cộng sản Việt Nam ngày 3/2/1930 có ý nghĩa lịch sử như thế nào đối với cách mạng Việt Nam?",
+      "expected_keywords": ["3/2/1930", "ý nghĩa lịch sử", "chấm dứt khủng hoảng đường lối", "Đảng Cộng sản"]
+    }
+  ]
+}
