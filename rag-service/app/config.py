@@ -43,6 +43,12 @@ class Settings(BaseSettings):
     # embedding_dim phải khớp với collection đã tạo trong Qdrant — đổi model thì phải tạo lại collection
     embedding_dim: int = 768
 
+    # Neo4j — graph store cho GraphRAG (entity + relationship)
+    neo4j_uri: str = Field(default="bolt://localhost:7687", validation_alias=AliasChoices("NEO4J_URI"))
+    neo4j_user: str = Field(default="neo4j", validation_alias=AliasChoices("NEO4J_USERNAME", "NEO4J_USER"))
+    neo4j_password: str = Field(default="neo4j", validation_alias=AliasChoices("NEO4J_PASSWORD"))
+    neo4j_database: str = Field(default="neo4j", validation_alias=AliasChoices("NEO4J_DATABASE"))
+
     # Giá trị mặc định cho pipeline — request có thể override
     default_chunk_size: int = 800
     default_chunk_overlap: int = 120

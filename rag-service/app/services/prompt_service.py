@@ -28,14 +28,24 @@ def load_system_prompt() -> str:
     return _PROMPT_PATH.read_text(encoding="utf-8").strip()
 
 
-def build_user_message(question: str, hits: list[ScoredPoint]) -> str:
+def build_user_message(question: str, hits: list[ScoredPoint],
+                       graph_facts: list[str] | None = None) -> str:
     context = "\n\n".join(_format_hit(i, hit) for i, hit in enumerate(hits, start=1))
+    graph_block = ""
+    if graph_facts:
+        facts = "\n".join(f"- {fact}" for fact in graph_facts)
+        graph_block = (
+            "QUAN HỆ TỪ GRAPH (trích từ tri thức đồ thị, ưu tiên dùng cho câu hỏi về quan hệ):\n"
+            f"{facts}\n\n"
+        )
     return (
         "CONTEXT:\n"
         f"{context}\n\n"
+        f"{graph_block}"
         "QUESTION:\n"
         f"{question}\n\n"
-        "Yêu cầu: Trả lời dựa trên CONTEXT. Nếu không đủ nguồn, nói rõ là dữ liệu chưa đủ."
+        "Yêu cầu: Trả lời dựa trên CONTEXT và QUAN HỆ TỪ GRAPH (nếu có). "
+        "Nếu không đủ nguồn, nói rõ là dữ liệu chưa đủ."
     )
 
 

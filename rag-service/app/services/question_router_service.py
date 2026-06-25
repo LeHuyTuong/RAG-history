@@ -49,9 +49,27 @@ def validate_question(question: str) -> str | None:
     return None
 
 
+# Từ khóa gợi ý câu hỏi về QUAN HỆ thực thể — loại mà vector search hay thiếu
+# còn graph (Neo4j) trả lời tốt: quan hệ gia đình, chức tước, phe phái, kế vị...
+_GRAPH_HINT_RE = re.compile(
+    r"\b(con|cháu|cha|mẹ|vợ|chồng|anh|em|dòng dõi|hậu duệ|tổ tiên|"
+    r"tướng|thuộc hạ|dưới trướng|bộ tướng|cận thần|đại thần|"
+    r"kế vị|nối ngôi|truyền ngôi|kế nghiệp|"
+    r"thuộc triều|dưới thời|phe|đồng minh|đối thủ|"
+    r"là ai|là gì|của ai|ai là)\b",
+    re.IGNORECASE,
+)
+
+
 def route(question: str, requested_use_graph: bool = False) -> dict[str, bool]:
-    # Graph (Neo4j) chưa implement — bỏ qua requested_use_graph trong MVP
+    """
+    Quyết định chiến lược retrieval:
+      - Luôn dùng vector (semantic search) làm nền.
+      - Bật graph khi câu hỏi có dấu hiệu về quan hệ thực thể, hoặc client yêu cầu.
+    Hybrid (cả hai) cho câu hỏi quan hệ vì graph + vector bổ sung lẫn nhau.
+    """
+    use_graph = requested_use_graph or bool(_GRAPH_HINT_RE.search(question))
     return {
         "use_vector": True,
-        "use_graph": False,
+        "use_graph": use_graph,
     }

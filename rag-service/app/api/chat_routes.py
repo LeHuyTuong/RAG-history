@@ -82,24 +82,26 @@ async def _chat(req: RagChatRequest) -> RagChatResponse:
             tag_ids=req.tagIds or None,
         )
 
-    if not hits:
+    graph_facts = _graph_context(req.question) if routing["use_graph"] else []
+
+    if not hits and not graph_facts:
         return RagChatResponse(
             answer=_NO_DATA_MSG,
             citations=[],
             usedVector=routing["use_vector"],
-            usedGraph=False,
+            usedGraph=routing["use_graph"],
         )
 
     try:
         system_prompt = load_system_prompt()
-        user_message = build_user_message(req.question, hits)
+        user_message = build_user_message(req.question, hits, graph_facts)
         answer = generate(system_prompt, user_message, req.temperature)
     except Exception:
         return RagChatResponse(
             answer=_NO_DATA_MSG,
             citations=[],
             usedVector=True,
-            usedGraph=False,
+            usedGraph=bool(graph_facts),
         )
 
     suggestions = suggest_questions(req.question, answer)
@@ -107,7 +109,7 @@ async def _chat(req: RagChatRequest) -> RagChatResponse:
         answer=answer,
         citations=to_citations(hits),
         usedVector=True,
-        usedGraph=False,
+        usedGraph=bool(graph_facts),
         suggestions=suggestions,
     )
 
@@ -138,8 +140,10 @@ async def _stream_chat_events(req: RagChatRequest):
             tag_ids=req.tagIds or None,
         )
 
-    if not hits:
-        for event in _answer_events(_NO_DATA_MSG, [], routing["use_vector"], False):
+    graph_facts = _graph_context(req.question) if routing["use_graph"] else []
+
+    if not hits and not graph_facts:
+        for event in _answer_events(_NO_DATA_MSG, [], routing["use_vector"], routing["use_graph"]):
             yield event
         return
 
@@ -147,12 +151,12 @@ async def _stream_chat_events(req: RagChatRequest):
     full_answer = ""
     try:
         system_prompt = load_system_prompt()
-        user_message = build_user_message(req.question, hits)
+        user_message = build_user_message(req.question, hits, graph_facts)
         for chunk in generate_stream(system_prompt, user_message, req.temperature):
             full_answer += chunk
             yield _sse("chat.delta", {"text": chunk})
     except Exception:
-        for event in _answer_events(_NO_DATA_MSG, [], True, False):
+        for event in _answer_events(_NO_DATA_MSG, [], True, bool(graph_facts)):
             yield event
         return
 
@@ -161,7 +165,7 @@ async def _stream_chat_events(req: RagChatRequest):
     })
     yield _sse("chat.completed", {
         "usedVector": True,
-        "usedGraph": False,
+        "usedGraph": bool(graph_facts),
     })
     suggestions = suggest_questions(req.question, full_answer)
     if suggestions:
@@ -178,6 +182,15 @@ def _answer_events(answer: str, citations: list, used_vector: bool, used_graph: 
         "usedVector": used_vector,
         "usedGraph": used_graph,
     })
+
+
+def _graph_context(question: str) -> list[str]:
+    """Lấy quan hệ từ Neo4j cho câu hỏi; nuốt lỗi để graph không làm sập chat."""
+    try:
+        from app.services.graph_service import retrieve_graph_context
+        return retrieve_graph_context(question)
+    except Exception:
+        return []
 
 
 def _sse(event: str, data: dict) -> str:
