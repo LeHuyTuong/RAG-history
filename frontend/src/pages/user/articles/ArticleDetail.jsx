@@ -7,39 +7,14 @@ import { usePeriodColors } from '../../../hooks/usePeriodColors';
 const ArticleDetail = () => {
   const { getPeriodStyle } = usePeriodColors();
   const { slug } = useParams();
-  const [likes, setLikes] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
-  const [sourcesOpen, setSourcesOpen] = useState(false);
-  const [expandedSourceId, setExpandedSourceId] = useState(null);
-
-  const [comments, setComments] = useState(() => [
-    {
-      engagement_id: 1,
-      member_id: 101,
-      post_id: parseInt(slug) || 1,
-      parent_engagement_id: null,
-      engagement_type: 'COMMENT',
-      comment_content: 'Bài viết rất sâu sắc, làm rõ được nhiều chi tiết về chiến thuật của nhà Trần.',
-      comment_status: 'VISIBLE',
-      rating_value: null,
-      created_at: new Date(Date.now() - 2 * 3600000).toISOString(),
-      updated_at: new Date(Date.now() - 2 * 3600000).toISOString(),
-      member_name: 'Học giả Ẩn danh'
-    },
-    {
-      engagement_id: 2,
-      member_id: 102,
-      post_id: parseInt(slug) || 1,
-      parent_engagement_id: null,
-      engagement_type: 'COMMENT',
-      comment_content: 'Có tài liệu nào nói thêm về vai trò của Yết Kiêu trong trận này không ạ?',
-      comment_status: 'VISIBLE',
-      rating_value: null,
-      created_at: new Date(Date.now() - 5 * 3600000).toISOString(),
-      updated_at: new Date(Date.now() - 5 * 3600000).toISOString(),
-      member_name: 'Người Yêu Sử'
-    }
-  ]);
+  const [likes, setLikes] = useState(() => {
+    const savedLikes = localStorage.getItem(`likes_${slug}`);
+    return savedLikes ? parseInt(savedLikes) : 0;
+  });
+  const [isLiked, setIsLiked] = useState(() => {
+    return localStorage.getItem(`isLiked_${slug}`) === 'true';
+  });
+  const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
 
   const [article, setArticle] = useState(null);
@@ -57,7 +32,8 @@ const ArticleDetail = () => {
 
         if (isNumeric) {
           try {
-            const res = await apiClient.get(`${API_ENDPOINTS.USER_ARTICLE_DETAIL}/${slug}`);
+            const url = typeof API_ENDPOINTS.USER_ARTICLE_DETAIL === 'function' ? API_ENDPOINTS.USER_ARTICLE_DETAIL(slug) : `${API_ENDPOINTS.USER_ARTICLE_DETAIL}/${slug}`;
+            const res = await apiClient.get(url);
             dbPost = res.data?.data || res.data;
           } catch (err) {
             console.error('Failed to fetch article by ID, falling back to search', err);
@@ -67,7 +43,7 @@ const ArticleDetail = () => {
         if (!dbPost) {
           try {
             const response = await apiClient.get(`${API_ENDPOINTS.USER_ARTICLES}?size=100`);
-            const posts = response.data?.data?.result || response.data?.data || [];
+            const posts = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
             dbPost = posts.find(a => (a.id && a.id.toString() === slug) || a.slug === slug);
           } catch (err) {
             console.error('Failed to fetch user articles from api:', err);
@@ -83,24 +59,84 @@ const ArticleDetail = () => {
           console.error('Error fetching mock articles:', err);
         }
         if (dbPost || mockItem) {
+          const validThumbnail = dbPost?.thumbnailUrl && dbPost.thumbnailUrl.trim() !== '' && dbPost.thumbnailUrl !== 'null';
+          const relatedEntities = [];
+          if (dbPost?.event) {
+            relatedEntities.push({
+              icon: "event",
+              title: dbPost.event.name,
+              type: "Sự kiện",
+              link: `/events/${dbPost.event.slug || dbPost.event.id}`
+            });
+          }
+          if (dbPost?.tags && dbPost.tags.length > 0) {
+            dbPost.tags.forEach(tag => {
+              relatedEntities.push({
+                icon: "label",
+                title: tag.name,
+                type: "Từ khóa",
+                link: `/tags/${tag.slug || tag.id}`
+              });
+            });
+          }
           const merged = {
-            ...mockItem,
             ...dbPost,
-            thumbnail_url: dbPost?.thumbnailUrl || mockItem?.thumbnail_url || "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg",
+            thumbnail_url: validThumbnail ? dbPost.thumbnailUrl : (mockItem?.thumbnail_url || "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg"),
             dynasty: dbPost?.tags?.[0]?.name || mockItem?.dynasty || 'Lịch sử',
             dynasties: dbPost?.tags && dbPost.tags.length > 0
               ? dbPost.tags.map(t => typeof t === 'object' ? t.name : t)
               : (mockItem?.tags || [mockItem?.dynasty || 'Lịch sử']),
             content: dbPost?.content || mockItem?.content || '',
             summary: dbPost?.summary || mockItem?.summary || '',
+            author: dbPost?.author?.fullName || dbPost?.admin?.name || mockItem?.author || 'Admin',
+            published_at: dbPost?.publishedAt ? new Date(dbPost.publishedAt).toLocaleDateString('vi-VN') : (mockItem?.published_at || ''),
+            likes: 0,
+            relatedEntities: relatedEntities
           };
 
           setArticle(merged);
-          setLikes(merged.likes || 0);
-          if (merged.commentsList) {
-            setComments(merged.commentsList);
+          
+          // Nạp lại likes từ localStorage cho bài viết này
+          const savedLikes = localStorage.getItem(`likesCount_${merged.slug || slug}`);
+          if (savedLikes !== null) {
+            setLikes(parseInt(savedLikes, 10));
           } else {
-            setComments([]);
+            setLikes(merged.likes || 0);
+          }
+          setIsLiked(localStorage.getItem(`liked_${merged.slug || slug}`) === 'true');
+          
+          // Gọi API thật lấy comment
+          if (dbPost.id) {
+            try {
+              const commRes = await apiClient.get(`${API_ENDPOINTS.PUBLIC_ENGAGEMENTS}?postId=${dbPost.id}`);
+              const fetchedComments = commRes.data?.data || [];
+              setComments(fetchedComments);
+            } catch (err) {
+              console.error('Failed to fetch comments', err);
+              // Fallback to local storage if API fails
+              const savedComments = localStorage.getItem(`comments_${merged.slug || slug}`);
+              if (savedComments) {
+                try {
+                  setComments(JSON.parse(savedComments));
+                } catch (e) {
+                  setComments([]);
+                }
+              } else {
+                setComments([]);
+              }
+            }
+          } else {
+            // Nạp lại comments từ localStorage cho bài viết này nếu ko có id
+            const savedComments = localStorage.getItem(`comments_${merged.slug || slug}`);
+            if (savedComments) {
+              try {
+                setComments(JSON.parse(savedComments));
+              } catch (e) {
+                setComments([]);
+              }
+            } else {
+              setComments([]);
+            }
           }
 
           // Fetch event details to get locations and characters
@@ -165,8 +201,14 @@ const ArticleDetail = () => {
   if (!article) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Không tìm thấy bài viết.</div>;
 
   const handleLike = () => {
-    setLikes(prev => isLiked ? prev - 1 : prev + 1);
-    setIsLiked(!isLiked);
+    const newIsLiked = !isLiked;
+    const newLikes = newIsLiked ? likes + 1 : likes - 1;
+    
+    setLikes(newLikes);
+    setIsLiked(newIsLiked);
+    
+    localStorage.setItem(`liked_${slug}`, String(newIsLiked));
+    localStorage.setItem(`likesCount_${slug}`, String(newLikes));
   };
 
   return (
@@ -413,19 +455,28 @@ const ArticleDetail = () => {
                     <button
                       onClick={() => {
                         if (newComment.trim()) {
-                          setComments([...comments, {
-                            engagement_id: Date.now(),
-                            member_id: 999, // ID của user hiện tại
-                            post_id: parseInt(slug) || 1,
-                            parent_engagement_id: null,
-                            engagement_type: 'COMMENT',
-                            comment_content: newComment,
-                            comment_status: 'VISIBLE',
-                            rating_value: null,
-                            created_at: new Date().toISOString(),
-                            updated_at: new Date().toISOString(),
-                            member_name: 'Khách'
-                          }]);
+                          let currentUser = null;
+                          try {
+                            const userStr = localStorage.getItem('user');
+                            if (userStr) currentUser = JSON.parse(userStr);
+                          } catch (e) {}
+                          
+                          const newCommentObj = {
+                            id: Date.now(),
+                            memberId: currentUser?.id || 999,
+                            postId: parseInt(slug) || 1,
+                            parentEngagementId: null,
+                            engagementType: 'COMMENT',
+                            commentContent: newComment,
+                            commentStatus: 'VISIBLE',
+                            ratingValue: null,
+                            createdAt: new Date().toISOString(),
+                            memberName: currentUser?.fullName || currentUser?.name || 'Khách'
+                          };
+                          
+                          const updatedComments = [...comments, newCommentObj];
+                          setComments(updatedComments);
+                          localStorage.setItem(`comments_${slug}`, JSON.stringify(updatedComments));
                           setNewComment('');
                         }
                       }}
@@ -440,19 +491,19 @@ const ArticleDetail = () => {
               {/* Comments List */}
               <div className="space-y-6 mt-8">
                 {comments.map((comment) => (
-                  <div key={comment.engagement_id} className="flex gap-4 p-4 border border-[#d99b4a]/20 bg-[#fcf9ee] rounded-sm">
+                  <div key={comment.id || comment.engagement_id} className="flex gap-4 p-4 border border-[#d99b4a]/20 bg-[#fcf9ee] rounded-sm">
                     <div className="w-10 h-10 rounded-full bg-[#6b0f0d] text-[#ffe7b0] flex items-center justify-center shrink-0 font-headline font-bold text-lg">
-                      {comment.member_name ? comment.member_name.charAt(0) : 'U'}
+                      {comment.memberName || comment.member_name ? (comment.memberName || comment.member_name).charAt(0) : 'U'}
                     </div>
                     <div>
                       <div className="flex items-baseline gap-3 mb-1">
-                        <span className="font-headline font-bold text-[#6b0f0d]">{comment.member_name}</span>
+                        <span className="font-headline font-bold text-[#6b0f0d]">{comment.memberName || comment.member_name}</span>
                         <span className="text-[11px] text-[#2b1a16]/50 font-body tracking-wider">
-                          {new Date(comment.created_at).toLocaleString('vi-VN')}
+                          {new Date(comment.createdAt || comment.created_at).toLocaleString('vi-VN')}
                         </span>
                       </div>
                       <p className="font-body text-[14px] text-[#2b1a16]/80 leading-relaxed">
-                        {comment.comment_content}
+                        {comment.commentContent || comment.comment_content}
                       </p>
                     </div>
                   </div>

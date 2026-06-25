@@ -13,6 +13,11 @@ export const ENDPOINTS = {
     // ---------- Dashboard (Admin) ----------
     DASHBOARD: `${API_V1}/dashboard`,
 
+    // ---------- Public entities ----------
+    PUBLIC: {
+        ENGAGEMENTS: `${API_V1}/engagements`,
+    },
+
     // ---------- Admin entities ----------
     ADMIN: {
         POSTS: `${API_V1}/admin/posts`,

@@ -24,7 +24,6 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/api/v1/admin/persons")
-@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class PersonController {
 
@@ -44,6 +43,7 @@ public class PersonController {
         return ResponseEntity.ok(ApiResponse.success("Lấy thông tin nhân vật thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<PersonResponse>> create(@Valid @RequestBody PersonRequest request) {
         PersonResponse response = personService.createPerson(request);
@@ -52,6 +52,7 @@ public class PersonController {
                 .body(ApiResponse.created("Tạo nhân vật thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<PersonResponse>> update(
             @PathVariable Long id,
@@ -60,6 +61,7 @@ public class PersonController {
         return ResponseEntity.ok(ApiResponse.success("Cập nhật nhân vật thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         personService.deletePerson(id);

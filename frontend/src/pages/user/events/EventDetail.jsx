@@ -19,38 +19,14 @@ const EventDetail = () => {
       try {
         let dbEvent = null;
         try {
-          const url = typeof API_ENDPOINTS.USER_EVENT_DETAIL === 'function'
-            ? API_ENDPOINTS.USER_EVENT_DETAIL(id)
-            : `${API_ENDPOINTS.USER_EVENT_DETAIL}/${id}`;
+          const url = typeof API_ENDPOINTS.USER_EVENT_DETAIL === 'function' ? API_ENDPOINTS.USER_EVENT_DETAIL(id) : `${API_ENDPOINTS.USER_EVENT_DETAIL}/${id}`;
           const response = await apiClient.get(url);
           dbEvent = response.data?.data || response.data;
         } catch (apiErr) {
-          console.error('Failed to fetch event detail from API, trying mock:', apiErr);
-        }
-
-        let mockItem = null;
-        try {
-          const mockRes = await mockClient.get('/api/user_events.json');
-          const mockEvents = mockRes.data?.events || mockRes.data || [];
-          mockItem = mockEvents.find(m => (m.id && m.id.toString() === id) || (m.slug && m.slug === id) || (m.event_id && m.event_id.toString() === id));
-        } catch (err) {
-          console.error('Error fetching mock events:', err);
+          console.error('Failed to fetch event detail from API:', apiErr);
         }
 
         let dbParts = [];
-        try {
-          const partsRes = await apiClient.get('/api/v1/admin/participations', { params: { eventId: id } });
-          const rawParts = partsRes.data?.data?.result || partsRes.data?.data || [];
-          dbParts = rawParts.map(item => ({
-            person_id: item.person?.id,
-            person_name: item.person?.name,
-            role: item.role === 'LEADER' ? 'Lãnh đạo' : item.role === 'COMMANDER' ? 'Chỉ huy' : 'Tham chiến',
-            color: 'border-l-[#d99b4a]'
-          }));
-        } catch (err) {
-          console.error('Error fetching participations:', err);
-        }
-
         let dbArticles = [];
         try {
           const articlesRes = await apiClient.get(API_ENDPOINTS.USER_ARTICLES, { params: { eventId: id, size: 100 } });
@@ -59,7 +35,20 @@ const EventDetail = () => {
           console.error('Error fetching event articles:', err);
         }
 
-        if (dbEvent || mockItem) {
+        if (dbEvent) {
+          try {
+            const partsRes = await apiClient.get('/api/v1/admin/participations', { params: { eventId: dbEvent.id } });
+            const rawParts = partsRes.data?.data?.result || partsRes.data?.data || [];
+            dbParts = rawParts.map(item => ({
+              person_id: item.person?.id,
+              person_name: item.person?.name,
+              role: item.role === 'LEADER' ? 'Lãnh đạo' : item.role === 'COMMANDER' ? 'Chỉ huy' : 'Tham chiến',
+              color: 'border-l-[#d99b4a]'
+            }));
+          } catch (err) {
+            console.error('Error fetching participations:', err);
+          }
+          
           const parseEventYear = (dateStr, fallbackYear) => {
             if (!dateStr) return fallbackYear;
             const isNegative = dateStr.startsWith('-');
@@ -72,25 +61,22 @@ const EventDetail = () => {
             return fallbackYear;
           };
           const resolvedStartYear = parseEventYear(dbEvent?.startDate, dbEvent?.startYear);
+
           setEventData({
-            ...mockItem,
             ...dbEvent,
-            event_id: dbEvent?.id || mockItem?.id || mockItem?.event_id,
-            title: dbEvent?.name || mockItem?.name || mockItem?.title || '',
-            description: dbEvent?.description || mockItem?.description || '',
+            event_id: dbEvent.id,
+            title: dbEvent.name,
+            description: dbEvent.description || '',
             time: resolvedStartYear !== undefined
-              ? `${Math.abs(resolvedStartYear)}${resolvedStartYear < 0 ? ' TCN' : ''}`
-              : mockItem?.time || '',
+              ? `${Math.abs(resolvedStartYear)} ${resolvedStartYear < 0 ? 'TCN' : ''}`
+              : '',
             location: dbEvent?.locationRelations && dbEvent.locationRelations.length > 0
               ? dbEvent.locationRelations.map(l => l.name).join(', ')
-              : (mockItem?.location || 'Chưa rõ'),
-            locationRelations: dbEvent?.locationRelations || mockItem?.locationRelations || [],
-            participations: dbParts.length > 0 ? dbParts : (mockItem?.relatedFigures || []).map(f => ({
-              person_id: f.person_id || f.id,
-              person_name: f.name,
-              role: f.role || 'Tham chiến',
-              color: 'border-l-[#d99b4a]'
-            })),
+              : 'Chưa rõ',
+            locationRelations: dbEvent.locationRelations || [],
+            heroImg: dbEvent.image || "/images/home.png",
+            mapImg: dbEvent.image || "/images/home.png",
+            participations: dbParts,
             relatedArticles: dbArticles
           });
         }

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { personService } from '../../../services';
-import { mockClient } from '../../../services/apiClient';
-import { stripHtml } from '../../../utils/stringUtils';
+import { API_ENDPOINTS } from '../../../services/api';
+import apiClient from '../../../services/apiClient';
 
 const UserCharacters = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,50 +19,34 @@ const UserCharacters = () => {
           const dbRes = await personService.filter({ size: 500 });
           dbItems = dbRes.items || [];
         } catch (apiErr) {
-          console.error('Lỗi gọi API nhân vật, chuyển sang dùng mock:', apiErr);
+          console.error('Lỗi gọi API nhân vật:', apiErr);
         }
 
-        let mockChars = [];
         try {
-          const mockRes = await mockClient.get('/api/user_characters.json');
-          mockChars = mockRes.data?.characters || mockRes.data || [];
-        } catch (err) {
-          console.error('Error fetching mock characters:', err);
+          const pRes = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
+          const rawPeriods = pRes.data?.data?.result || pRes.data?.data?.content || pRes.data?.data || [];
+          setPeriods(rawPeriods.map(p => p.name).filter(Boolean));
+        } catch (pErr) {
+          console.error('Lỗi gọi API thời kỳ:', pErr);
         }
 
-        let merged = [];
-        if (dbItems.length > 0) {
-          merged = dbItems.map(dbItem => {
-            const mockItem = mockChars.find(m => m.slug === dbItem.slug) || {};
-            const rawDesc = dbItem.biography || mockItem.biography || mockItem.description || '';
-            const cleanDesc = stripHtml(rawDesc);
-            return {
-              ...mockItem,
-              ...dbItem,
-              person_id: dbItem.id,
-              realName: dbItem.alias || '',
-              desc: cleanDesc,
-              dynasty: dbItem.dynasty || mockItem.dynasty || 'Chưa rõ',
-              image: dbItem.avatar || mockItem.image || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
-              achievements: mockItem.achievements || []
-            };
-          });
-        } else {
-          merged = mockChars.map(mockItem => ({
-            ...mockItem,
-            person_id: mockItem.id || mockItem.person_id,
-            realName: mockItem.realName || mockItem.alias || '',
-            desc: mockItem.biography || mockItem.description || '',
-            dynasty: mockItem.dynasty || 'Chưa rõ',
-            image: mockItem.image || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
-            achievements: mockItem.achievements || []
-          }));
-        }
+        let merged = dbItems.map(dbItem => {
+          const rawDesc = dbItem.biography || dbItem.description || '';
+          const cleanDesc = rawDesc ? rawDesc.replace(/<[^>]*>/g, '') : '';
+          return {
+            ...dbItem,
+            person_id: dbItem.id,
+            realName: dbItem.alias || '',
+            desc: cleanDesc,
+            dynasty: dbItem.dynasty || 'Chưa rõ',
+            image: dbItem.avatar || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+            achievements: [],
+            years: dbItem.birthDate || dbItem.deathDate ? `${dbItem.birthDate ? dbItem.birthDate : '?'} - ${dbItem.deathDate ? dbItem.deathDate : '?'}` : ''
+          };
+        });
 
         setCharacters(merged);
-
-        const uniquePeriods = [...new Set(merged.map(c => c.dynasty).filter(Boolean))];
-        setPeriods(uniquePeriods);
+        setCharacters(merged);
       } catch (error) {
         console.error('Error fetching characters:', error);
       } finally {
@@ -152,11 +136,6 @@ const UserCharacters = () => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 sepia-[0.1]"
                     />
 
-                    {/* Dynasty badge */}
-                    <div className="absolute top-4 right-4 bg-[#6b0f0d]/95 backdrop-blur-sm border border-[#d99b4a]/40 text-[#ffe7b0] text-[10px] font-bold px-4 py-1.5 rounded-full z-10 shadow-lg uppercase tracking-widest">
-                      {char.dynasty && char.dynasty.includes('Nhà') ? char.dynasty.replace('Nhà', 'Triều') : char.dynasty}
-                    </div>
-
                     {/* Gradient overlay for bottom text */}
                     <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#1a0201] via-[#1a0201]/50 to-transparent pointer-events-none"></div>
 
@@ -175,23 +154,9 @@ const UserCharacters = () => {
 
                   {/* Content section */}
                   <div className="p-6 flex flex-col flex-grow relative bg-[#fffdf8] dong-son-pattern-subtle">
-                    <p className="text-[#2b1a16]/80 text-[14px] leading-relaxed mb-6 line-clamp-3 font-body relative z-10">
+                    <p className="text-[#2b1a16]/80 text-[14px] leading-relaxed mb-6 line-clamp-4 font-body relative z-10">
                       {char.desc}
                     </p>
-
-                    <div className="mb-6 relative z-10">
-                      <h3 className="text-[#6b0f0d] font-bold text-[14px] mb-4 flex items-center gap-2 uppercase tracking-wider text-[11px] border-b border-[#d99b4a]/20 pb-2">
-                        <span className="material-symbols-outlined text-[18px] text-[#d99b4a]">military_tech</span> Chi Tiết Tiêu Biểu:
-                      </h3>
-                      <ul className="space-y-3">
-                        {char.achievements.map((ach, idx) => (
-                          <li key={idx} className="flex items-start gap-3 text-[14px] text-[#2b1a16]/90 font-body">
-                            <span className="w-1.5 h-1.5 rounded-sm bg-[#d99b4a] mt-2 shrink-0 shadow-sm border border-[#6b0f0d]/20"></span>
-                            <span className="leading-snug">{ach}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
 
                     <div className="mt-auto pt-4 flex border-t border-[#d99b4a]/20 relative z-10">
                       <Link to={`/characters/${char.id}`} className="text-[#6b0f0d] font-bold text-[13px] uppercase tracking-widest flex items-center gap-1 hover:text-[#d99b4a] transition-colors group/link">

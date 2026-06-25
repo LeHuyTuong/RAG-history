@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 
 import { API_ENDPOINTS } from '../../../services/api';
-import apiClient, { mockClient } from '../../../services/apiClient';
+import apiClient from '../../../services/apiClient';
 
 const CharacterDetail = () => {
   const { id } = useParams();
@@ -20,19 +20,11 @@ const CharacterDetail = () => {
       try {
         let dbPerson = null;
         try {
-          const response = await apiClient.get(`${API_ENDPOINTS.USER_CHARACTER_DETAIL}/${id}`);
+          const url = typeof API_ENDPOINTS.USER_CHARACTER_DETAIL === 'function' ? API_ENDPOINTS.USER_CHARACTER_DETAIL(id) : `${API_ENDPOINTS.USER_CHARACTER_DETAIL}/${id}`;
+          const response = await apiClient.get(url);
           dbPerson = response.data?.data || response.data;
         } catch (apiErr) {
-          console.error('Failed to fetch character detail from API, trying mock:', apiErr);
-        }
-
-        let mockItem = null;
-        try {
-          const mockRes = await mockClient.get('/api/user_characters.json');
-          const mockChars = mockRes.data?.characters || [];
-          mockItem = mockChars.find(m => (m.id && m.id.toString() === id) || (m.slug && m.slug === id) || (m.person_id && m.person_id.toString() === id));
-        } catch (err) {
-          console.error('Error fetching mock characters:', err);
+          console.error('Failed to fetch character detail from API:', apiErr);
         }
 
         let dbParts = [];
@@ -76,14 +68,21 @@ const CharacterDetail = () => {
           console.error('Error fetching character associations:', err);
         }
 
-        if (dbPerson || mockItem) {
+        if (dbPerson) {
           setCharacter({
-            portrait: mockItem?.image || mockItem?.portrait || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
-            ...mockItem,
             ...dbPerson,
-            person_id: dbPerson?.id || mockItem?.id || mockItem?.person_id,
-            biography: dbPerson?.biography || mockItem?.biography || '',
-            description: dbPerson?.biography || mockItem?.biography || mockItem?.description || '',
+            person_id: dbPerson.id,
+            portrait: dbPerson.image || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+            biography: dbPerson.biography || '',
+            description: dbPerson.biography || '',
+            dynastyTitle: dbPerson.dynasty?.name || 'Vương triều',
+            templeName: dbPerson.templeName || 'N/A',
+            eraName: dbPerson.eraName || 'N/A',
+            reign: dbPerson.reign || 'N/A',
+            quote: dbPerson.quote || 'Tâm tồn thiên hạ, trí độ vạn dân.',
+            milestones: [],
+            relatedFigures: [],
+            steleImg: "/images/home.png",
             relatedLocations,
             relatedArticles: relatedPosts
           });

@@ -4,12 +4,13 @@ import Pagination from '../../../components/common/Pagination';
 import { stripHtml } from '../../../utils/stringUtils';
 
 import { API_ENDPOINTS } from '../../../services/api';
-import apiClient, { mockClient } from '../../../services/apiClient';
+import apiClient from '../../../services/apiClient';
 const UserEvents = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriods, setSelectedPeriods] = useState([]);
   const [searchYear, setSearchYear] = useState('');
   const [events, setEvents] = useState([]);
+  const [periods, setPeriods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 9;
@@ -22,57 +23,45 @@ const UserEvents = () => {
           const response = await apiClient.get(API_ENDPOINTS.USER_EVENTS);
           dbEvents = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
         } catch (apiErr) {
-          console.error('Lỗi gọi API sự kiện, chuyển sang dùng mock:', apiErr);
+          console.error('Lỗi gọi API sự kiện:', apiErr);
         }
 
-        let mockEvents = [];
         try {
-          const mockRes = await mockClient.get('/api/user_events.json');
-          mockEvents = mockRes.data?.events || mockRes.data || [];
-        } catch (err) {
-          console.error('Error fetching mock events:', err);
+          const pRes = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
+          const rawPeriods = pRes.data?.data?.result || pRes.data?.data?.content || pRes.data?.data || [];
+          setPeriods(rawPeriods.map(p => p.name).filter(Boolean));
+        } catch (pErr) {
+          console.error('Lỗi gọi API thời kỳ:', pErr);
         }
 
-        let merged = [];
-        if (dbEvents.length > 0) {
-          merged = dbEvents.map(dbItem => {
-            const mockItem = mockEvents.find(m => m.slug === dbItem.slug) || {};
-            const parseEventYear = (dateStr, fallbackYear) => {
-              if (!dateStr) return fallbackYear;
-              const isNegative = dateStr.startsWith('-');
-              const cleanStr = isNegative ? dateStr.substring(1) : dateStr;
-              const match = cleanStr.match(/^(\d{4})/);
-              if (match) {
-                const y = parseInt(match[1], 10);
-                return isNegative ? -y : y;
-              }
-              return fallbackYear;
-            };
-            const resolvedStartYear = parseEventYear(dbItem.startDate, dbItem.startYear);
-            return {
-              ...mockItem,
-              ...dbItem,
-              event_id: dbItem.id,
-              name: dbItem.name,
-              description: dbItem.description,
-              year: resolvedStartYear !== undefined ? resolvedStartYear : mockItem.year,
-              date: resolvedStartYear !== undefined 
-                ? `${Math.abs(resolvedStartYear)}${resolvedStartYear < 0 ? ' TCN' : ''}`
-                : mockItem.date || '',
-              category: dbItem.period?.name || mockItem.category || '',
-            };
-          });
-        } else {
-          merged = mockEvents.map(mockItem => ({
-            ...mockItem,
-            event_id: mockItem.id || mockItem.event_id,
-            name: mockItem.name || mockItem.title || '',
-            description: mockItem.description || '',
-            year: mockItem.year || '',
-            date: mockItem.date || '',
-            category: mockItem.category || '',
-          }));
-        }
+        let merged = dbEvents.map(dbItem => {
+          const parseEventYear = (dateStr, fallbackYear) => {
+            if (!dateStr) return fallbackYear;
+            const isNegative = dateStr.startsWith('-');
+            const cleanStr = isNegative ? dateStr.substring(1) : dateStr;
+            const match = cleanStr.match(/^(\d{4})/);
+            if (match) {
+              const y = parseInt(match[1], 10);
+              return isNegative ? -y : y;
+            }
+            return fallbackYear;
+          };
+          const resolvedStartYear = parseEventYear(dbItem.startDate, dbItem.startYear);
+          
+          return {
+            ...dbItem,
+            event_id: dbItem.id,
+            name: dbItem.name,
+            title: dbItem.name,
+            description: dbItem.description,
+            year: resolvedStartYear !== undefined ? resolvedStartYear : '',
+            date: resolvedStartYear !== undefined 
+              ? `${Math.abs(resolvedStartYear)} ${resolvedStartYear < 0 ? 'TCN' : ''}`
+              : '',
+            category: dbItem.period?.name || 'Sự kiện',
+            image: dbItem.image || 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg'
+          };
+        });
 
         setEvents(merged);
       } catch (error) {
@@ -147,8 +136,8 @@ const UserEvents = () => {
                 }}
                 className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] rounded-lg py-3 pl-12 pr-10 appearance-none outline-none focus:border-[#6b0f0d]/60 transition-colors font-body cursor-pointer shadow-inner"
               >
-                <option value="">Tất cả triều đại</option>
-                {[...new Set(events.map(e => e.category).filter(Boolean))].map(t => (
+                <option value="">Tất cả thời kỳ</option>
+                {periods.map(t => (
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>

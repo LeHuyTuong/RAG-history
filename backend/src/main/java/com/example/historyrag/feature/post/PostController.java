@@ -27,7 +27,6 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/api/v1/admin/posts")
-@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class PostController {
 
@@ -47,6 +46,7 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success("Lấy thông tin bài viết thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<PostResponse>> create(
             @Valid @RequestBody CreatePostRequest request,
@@ -58,6 +58,7 @@ public class PostController {
                 .body(ApiResponse.created("Tạo bài viết thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping
     public ResponseEntity<ApiResponse<PostResponse>> update(
             @Valid @RequestBody UpdatePostRequest request) {
@@ -65,6 +66,7 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success("Cập nhật bài viết thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         postService.delete(id);

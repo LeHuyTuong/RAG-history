@@ -30,30 +30,23 @@ const PeriodDetail = () => {
       try {
         let dbPeriod = null;
         try {
-          const response = await apiClient.get(`${API_ENDPOINTS.USER_PERIOD_DETAIL}/${id}`);
+          const url = typeof API_ENDPOINTS.USER_PERIOD_DETAIL === 'function' 
+            ? API_ENDPOINTS.USER_PERIOD_DETAIL(id) 
+            : `${API_ENDPOINTS.USER_PERIOD_DETAIL}/${id}`;
+          const response = await apiClient.get(url);
           dbPeriod = response.data?.data || response.data;
+          
+          if (dbPeriod) {
+            setPeriod({
+              ...dbPeriod,
+              period_id: dbPeriod.id,
+              start_year: dbPeriod.startYear,
+              end_year: dbPeriod.endYear,
+              description: dbPeriod.description || '',
+            });
+          }
         } catch (apiErr) {
-          console.error('Failed to fetch period detail from API, trying mock:', apiErr);
-        }
-
-        let mockItem = null;
-        try {
-          const mockRes = await mockClient.get('/api/user_periods.json');
-          const mockPeriods = mockRes.data || [];
-          mockItem = mockPeriods.find(m => (m.id && m.id.toString() === id) || (m.slug && m.slug === id) || (m.period_id && m.period_id.toString() === id));
-        } catch (err) {
-          console.error('Error fetching mock periods:', err);
-        }
-
-        if (dbPeriod || mockItem) {
-          setPeriod({
-            ...mockItem,
-            ...dbPeriod,
-            period_id: dbPeriod?.id || mockItem?.id || mockItem?.period_id,
-            start_year: dbPeriod?.startYear !== undefined ? dbPeriod.startYear : mockItem?.start_year,
-            end_year: dbPeriod?.endYear !== undefined ? dbPeriod.endYear : mockItem?.end_year,
-            description: dbPeriod?.description || mockItem?.description || '',
-          });
+          console.error('Failed to fetch period detail from API:', apiErr);
         }
       } catch (error) {
         console.error('Error fetching period:', error);
@@ -68,19 +61,14 @@ const PeriodDetail = () => {
         try {
           const response = await apiClient.get(API_ENDPOINTS.USER_EVENTS);
           eventList = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
+          setRelatedEvents(eventList.slice(0, 3).map(e => ({
+            ...e,
+            year: e.startYear !== undefined ? e.startYear : '',
+            image: e.image || "/images/home.png"
+          })));
         } catch (apiErr) {
-          console.error('Failed to fetch user events, trying mock:', apiErr);
-        }
-
-        if (eventList.length === 0) {
-          try {
-            const mockRes = await mockClient.get('/api/user_events.json');
-            eventList = mockRes.data?.events || mockRes.data || [];
-          } catch (err) {
-            console.error('Error fetching mock events:', err);
-          }
-        }
-        setRelatedEvents(eventList.slice(0, 3)); 
+          console.error('Failed to fetch user events:', apiErr);
+        } 
       } catch (error) {
         console.error('Error fetching events:', error);
       }

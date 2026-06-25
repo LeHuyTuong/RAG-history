@@ -11,8 +11,10 @@ const UserPosts = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPeriod, setFilterPeriod] = useState('');
   const [articles, setArticles] = useState([]);
+  const [periods, setPeriods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState('newest');
   const ITEMS_PER_PAGE = 6;
 
   useEffect(() => {
@@ -23,42 +25,40 @@ const UserPosts = () => {
           const response = await apiClient.get(API_ENDPOINTS.USER_ARTICLES);
           dbPosts = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
         } catch (apiErr) {
-          console.error('Lỗi gọi API bài viết, chuyển sang dùng mock:', apiErr);
+          console.error('Lỗi gọi API bài viết:', apiErr);
         }
 
-        let mockPosts = [];
         try {
-          const mockRes = await mockClient.get('/api/user_articles.json');
-          mockPosts = mockRes.data || [];
-        } catch (err) {
-          console.error('Error fetching mock articles:', err);
+          const pRes = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
+          const rawPeriods = pRes.data?.data?.result || pRes.data?.data?.content || pRes.data?.data || [];
+          setPeriods(rawPeriods.map(p => p.name).filter(Boolean));
+        } catch (pErr) {
+          console.error('Lỗi gọi API thời kỳ:', pErr);
         }
 
-        let merged = [];
-        if (dbPosts.length > 0) {
-          merged = dbPosts.map((dbItem, index) => {
-            const mockItem = mockPosts.find(m => m.slug === dbItem.slug) || {};
-            return {
-              featured: index === 0,
-              ...mockItem,
-              ...dbItem,
-              thumbnail_url: dbItem.thumbnailUrl || mockItem.thumbnail_url || "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg",
-              dynasty: dbItem.tags?.[0]?.name || mockItem.dynasty || 'Lịch sử',
-              dynasties: dbItem.tags && dbItem.tags.length > 0
-                ? dbItem.tags.map(t => typeof t === 'object' ? t.name : t)
-                : (mockItem.tags || [mockItem.dynasty || 'Lịch sử']),
-            };
-          });
-        } else {
-          merged = mockPosts.map((mockItem, index) => ({
+        let merged = dbPosts.map((dbItem, index) => {
+          const validThumbnail = dbItem.thumbnailUrl && dbItem.thumbnailUrl.trim() !== '' && dbItem.thumbnailUrl !== 'null';
+          return {
             featured: index === 0,
-            ...mockItem,
-            id: mockItem.id || mockItem.post_id,
-            thumbnail_url: mockItem.thumbnail_url || "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg",
-            dynasty: mockItem.dynasty || 'Lịch sử',
-            dynasties: mockItem.tags || [mockItem.dynasty || 'Lịch sử'],
-          }));
-        }
+            ...dbItem,
+            id: dbItem.id,
+            thumbnail_url: validThumbnail ? dbItem.thumbnailUrl : "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg",
+            dynasty: dbItem.tags?.[0]?.name || 'Lịch sử',
+            dynasties: dbItem.tags && dbItem.tags.length > 0
+              ? dbItem.tags.map(t => typeof t === 'object' ? t.name : t)
+              : [dbItem.tags?.[0]?.name || 'Lịch sử'],
+            readTime: '5 MIN',
+            likes: parseInt(localStorage.getItem(`likesCount_${dbItem.slug || dbItem.id}`) || '0', 10),
+            isLiked: localStorage.getItem(`liked_${dbItem.slug || dbItem.id}`) === 'true',
+            comments: (() => {
+              try {
+                return JSON.parse(localStorage.getItem(`comments_${dbItem.slug || dbItem.id}`) || '[]').length;
+              } catch (e) {
+                return 0;
+              }
+            })()
+          };
+        });
 
         setArticles(merged);
       } catch (error) {
@@ -73,20 +73,30 @@ const UserPosts = () => {
   // Lấy bài viết tiêu biểu (bài đầu tiên có featured: true)
   const featuredArt = articles.find(a => a.featured);
   // Lọc bài viết
-  const filteredArticles = articles.filter(a => !a.featured && (
+  let filteredArticles = articles.filter(a => !a.featured && (
     String(a.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     String(a.summary || "").toLowerCase().includes(searchTerm.toLowerCase())
   ) && (
       filterPeriod ? (a.dynasties || [a.dynasty]).some(dyn => String(dyn || "").includes(filterPeriod.replace('Triều ', ''))) : true
     ));
 
+  // Sắp xếp
+  filteredArticles = [...filteredArticles].sort((a, b) => {
+    if (sortBy === 'newest') {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : a.id;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : b.id;
+      return dateB - dateA;
+    } else if (sortBy === 'popular') {
+      return (b.likes || 0) - (a.likes || 0);
+    }
+    return 0;
+  });
+
   const totalPages = Math.ceil(filteredArticles.length / ITEMS_PER_PAGE);
   const paginatedArticles = filteredArticles.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   // Reset pagination is now handled directly in input onChange handlers to satisfy eslint rules
 
-  // Danh sách các triều đại để đồng bộ với data
-  const periods = [...new Set(articles.flatMap(a => a.dynasties || [a.dynasty]).filter(Boolean))];
 
   if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải bài viết...</div>;
 
@@ -216,8 +226,18 @@ const UserPosts = () => {
             </div>
             <div className="flex items-center gap-4 px-4 font-body border-l border-[#d99b4a]/20">
               <span className="text-[#2b1a16]/60 text-[10px] font-bold uppercase hidden md:inline">Sắp xếp:</span>
-              <button className="text-[#6b0f0d] font-bold text-[11px] uppercase tracking-widest border-b-2 border-[#6b0f0d]">Mới nhất</button>
-              <button className="text-[#2b1a16]/60 font-bold text-[11px] uppercase tracking-widest hover:text-[#6b0f0d] transition-all">Đọc nhiều</button>
+              <button 
+                onClick={() => { setSortBy('newest'); setCurrentPage(1); }}
+                className={`${sortBy === 'newest' ? 'text-[#6b0f0d] border-b-2 border-[#6b0f0d]' : 'text-[#2b1a16]/60 hover:text-[#6b0f0d]'} font-bold text-[11px] uppercase tracking-widest transition-all`}
+              >
+                Mới nhất
+              </button>
+              <button 
+                onClick={() => { setSortBy('popular'); setCurrentPage(1); }}
+                className={`${sortBy === 'popular' ? 'text-[#6b0f0d] border-b-2 border-[#6b0f0d]' : 'text-[#2b1a16]/60 hover:text-[#6b0f0d]'} font-bold text-[11px] uppercase tracking-widest transition-all`}
+              >
+                Đọc nhiều
+              </button>
             </div>
           </div>
         </div>
@@ -270,8 +290,8 @@ const UserPosts = () => {
                   </p>
                   <div className="flex items-center justify-between pt-4 border-t border-[#d99b4a]/20 mt-auto font-body">
                     <div className="flex gap-4">
-                      <span className="flex items-center gap-1.5 text-[10px] font-bold text-[#6b0f0d]/70">
-                        <Heart size={16} strokeWidth={2} /> {art.likes}
+                      <span className={`flex items-center gap-1.5 text-[10px] font-bold ${art.isLiked ? 'text-[#6b0f0d]' : 'text-[#6b0f0d]/70'}`}>
+                        <Heart size={16} strokeWidth={2} fill={art.isLiked ? 'currentColor' : 'none'} /> {art.likes}
                       </span>
                       <span className="flex items-center gap-1.5 text-[10px] font-bold text-[#6b0f0d]/70">
                         <MessageSquare size={16} strokeWidth={2} /> {art.comments}

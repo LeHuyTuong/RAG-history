@@ -25,7 +25,6 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/api/v1/admin/locations")
-@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class LocationController {
 
@@ -45,6 +44,7 @@ public class LocationController {
         return ResponseEntity.ok(ApiResponse.success("Lấy thông tin địa danh thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<LocationResponse>> create(@Valid @RequestBody CreateLocationRequest request) {
         LocationResponse response = locationService.create(request);
@@ -53,6 +53,7 @@ public class LocationController {
                 .body(ApiResponse.created("Tạo địa danh thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<LocationResponse>> update(
             @PathVariable Long id,
@@ -61,6 +62,7 @@ public class LocationController {
         return ResponseEntity.ok(ApiResponse.success("Cập nhật địa danh thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         locationService.delete(id);

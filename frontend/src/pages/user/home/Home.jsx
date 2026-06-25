@@ -55,35 +55,15 @@ const Home = () => {
                     console.error('Failed to fetch home data from API, using mock:', apiErr);
                 }
 
-                // Always fetch mock data to merge/fallback
-                let mockHome = { periods: [], featuredCharacters: [], events: [], recentPosts: [] };
-                try {
-                    const mockRes = await mockClient.get('/api/user_home.json');
-                    mockHome = mockRes.data || mockHome;
-                } catch (mockErr) {
-                    console.error('Failed to fetch mock home data:', mockErr);
-                }
+                let mergedPeriods = dbPeriods.slice(0, 6).map((p, idx) => ({
+                    ...p,
+                    years: p.startYear !== undefined && p.endYear !== undefined
+                        ? `${Math.abs(p.startYear)} ${p.startYear < 0 ? 'TCN' : ''} - ${p.endYear ? Math.abs(p.endYear) + (p.endYear < 0 ? ' TCN' : '') : 'Nay'}`
+                        : '',
+                    icon: DEFAULT_PERIOD_ICONS[idx % DEFAULT_PERIOD_ICONS.length],
+                }));
 
-                // Merge periods
-                let mergedPeriods = [];
-                if (dbPeriods.length > 0) {
-                    mergedPeriods = dbPeriods.slice(0, 6).map((p, idx) => ({
-                        ...p,
-                        years: p.startYear !== undefined && p.endYear !== undefined
-                            ? `${Math.abs(p.startYear)}${p.startYear < 0 ? ' TCN' : ''} - ${p.endYear ? Math.abs(p.endYear) + (p.endYear < 0 ? ' TCN' : '') : 'Nay'}`
-                            : '',
-                        icon: DEFAULT_PERIOD_ICONS[idx % DEFAULT_PERIOD_ICONS.length],
-                    }));
-                } else {
-                    mergedPeriods = (mockHome.periods || []).map((p, idx) => ({
-                        ...p,
-                        id: p.id || idx + 1,
-                        years: p.years || '',
-                        icon: p.icon || DEFAULT_PERIOD_ICONS[idx % DEFAULT_PERIOD_ICONS.length],
-                    }));
-                }
 
-                // Apply custom period order if exists in localStorage
                 const periodOrderStr = localStorage.getItem('home_period_order') || localStorage.getItem('admin_period_order');
                 if (periodOrderStr) {
                     try {
@@ -99,95 +79,32 @@ const Home = () => {
                     }
                 }
 
-                // Merge characters
-                let mergedCharacters = [];
-                if (dbPersons.length > 0) {
-                    mergedCharacters = dbPersons.slice(0, 3).map(c => {
-                        const mockChar = (mockHome.featuredCharacters || []).find(m => m.slug === c.slug) || {};
-                        return {
-                            ...mockChar,
-                            ...c,
-                            years: (() => {
-                                const parseCharYear = (dateStr) => {
-                                    if (!dateStr) return null;
-                                    const isNegative = dateStr.startsWith('-');
-                                    const cleanStr = isNegative ? dateStr.substring(1) : dateStr;
-                                    const match = cleanStr.match(/^(\d{4})/);
-                                    if (match) {
-                                        const y = parseInt(match[1], 10);
-                                        return isNegative ? -y : y;
-                                    }
-                                    return null;
-                                };
-                                const formatYear = (y) => {
-                                    if (y === undefined || y === null || y === '') return '';
-                                    const val = parseInt(y, 10);
-                                    if (isNaN(val)) return y;
-                                    return val < 0 ? `${Math.abs(val)} TCN` : `${val}`;
-                                };
-                                const start = parseCharYear(c.birthDate);
-                                const end = parseCharYear(c.deathDate);
-                                if (!start && !end) return mockChar.years || '';
-                                if (!start) return `? - ${formatYear(end)}`;
-                                if (!end) return `${formatYear(start)} - ?`;
-                                return `${formatYear(start)} - ${formatYear(end)}`;
-                            })(),
-                            desc: stripHtml(c.biography) || mockChar.desc || '',
-                            image: c.image || mockChar.image || DEFAULT_CHAR_IMAGE,
-                        };
-                    });
-                } else {
-                    mergedCharacters = (mockHome.featuredCharacters || []).map(c => ({
-                        ...c,
-                        image: c.image || DEFAULT_CHAR_IMAGE,
-                    }));
-                }
+                let mergedCharacters = dbPersons.slice(0, 3).map(c => ({
+                    ...c,
+                    years: c.birthDate || c.deathDate
+                        ? `${c.birthDate ? c.birthDate : '?'} - ${c.deathDate ? c.deathDate : '?'}`
+                        : '',
+                    desc: (c.biography || c.description || '').replace(/<[^>]*>/g, ''),
+                    image: c.avatar || DEFAULT_CHAR_IMAGE,
+                }));
 
-                // Merge events
-                let mergedEvents = [];
-                if (dbEvents.length > 0) {
-                    mergedEvents = dbEvents.slice(0, 4).map(e => {
-                        const mockEv = (mockHome.events || []).find(m => m.slug === e.slug) || {};
-                        return {
-                            ...mockEv,
-                            ...e,
-                            date: e.startYear !== undefined
-                                ? `${Math.abs(e.startYear)}${e.startYear < 0 ? ' TCN' : ''}`
-                                : mockEv.date || '',
-                            desc: stripHtml(e.description) || mockEv.desc || '',
-                            title: e.name || mockEv.title || '',
-                        };
-                    });
-                } else {
-                    mergedEvents = (mockHome.events || []).map(e => ({
-                        ...e,
-                    }));
-                }
+                let mergedEvents = dbEvents.slice(0, 4).map(e => ({
+                    ...e,
+                    date: e.startYear !== undefined
+                        ? `${Math.abs(e.startYear)} ${e.startYear < 0 ? 'TCN' : ''}`
+                        : '',
+                    desc: (e.description || '').replace(/<[^>]*>/g, ''),
+                    title: e.name || '',
+                }));
 
-                // Merge posts
-                let mergedPosts = [];
-                if (dbPosts.length > 0) {
-                    mergedPosts = dbPosts.slice(0, 2).map(p => {
-                        const mockPost = (mockHome.recentPosts || []).find(m => m.slug === p.slug) || {};
-                        return {
-                            ...mockPost,
-                            ...p,
-                            date: p.publishedAt || p.createdAt
-                                ? new Date(p.publishedAt || p.createdAt).toLocaleDateString('vi-VN')
-                                : mockPost.date || '',
-                            desc: p.summary || mockPost.desc || '',
-                            category: p.tags?.[0]?.name || mockPost.category || 'Nghiên cứu',
-                            categories: p.tags && p.tags.length > 0
-                                ? p.tags.map(t => typeof t === 'object' ? t.name : t)
-                                : (mockPost.categories || [mockPost.category || 'Nghiên cứu']),
-                        };
-                    });
-                } else {
-                    mergedPosts = (mockHome.recentPosts || []).map(p => ({
-                        ...p,
-                        categories: p.categories || [p.category || 'Nghiên cứu'],
-                    }));
-                }
+                let mergedPosts = dbPosts.slice(0, 2).map(p => ({
+                    ...p,
+                    date: p.publishedAt || p.createdAt
+                        ? new Date(p.publishedAt || p.createdAt).toLocaleDateString('vi-VN')
+                        : '',
+                    desc: (p.summary || p.description || '').replace(/<[^>]*>/g, ''),
+                    category: p.tags?.[0]?.name || 'Nghiên cứu',
+                }));
 
                 setData({
                     periods: mergedPeriods,
