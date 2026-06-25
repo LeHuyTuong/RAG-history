@@ -245,6 +245,126 @@
       "topic": "Tự chủ",
       "question": "Họ Khúc (Khúc Thừa Dụ, Khúc Hạo, Khúc Thừa Mỹ) có những đóng góp gì cho nền tự chủ Việt Nam?",
       "expected_keywords": ["Khúc Thừa Dụ", "Khúc Hạo", "cải cách", "thuế"]
+    },
+    {
+      "id": 41,
+      "topic": "Tiền sử",
+      "question": "Thời đại đồ đá mới ở Việt Nam có những đặc trưng gì về đời sống và kỹ thuật chế tác?",
+      "expected_keywords": ["đồ đá mới", "mài nhẵn", "gốm", "nông nghiệp"]
+    },
+    {
+      "id": 42,
+      "topic": "Tiền sử",
+      "question": "Văn hóa Phùng Nguyên có vai trò gì trong quá trình chuyển sang thời đại đồng thau ở Việt Nam?",
+      "expected_keywords": ["Phùng Nguyên", "đồng thau", "đồ đồng", "tiền Đông Sơn"]
+    },
+    {
+      "id": 43,
+      "topic": "Văn Lang - Âu Lạc",
+      "question": "Nghề trồng lúa nước của cư dân Việt cổ thời Văn Lang – Âu Lạc đạt trình độ như thế nào?",
+      "expected_keywords": ["lúa nước", "canh tác", "đồng bằng", "thủy lợi"]
+    },
+    {
+      "id": 44,
+      "topic": "Văn Lang - Âu Lạc",
+      "question": "Tín ngưỡng thờ thần tự nhiên và vật tổ của người Việt cổ thời Văn Lang thể hiện ra sao?",
+      "expected_keywords": ["tín ngưỡng", "thờ thần", "vật tổ", "lễ hội"]
+    },
+    {
+      "id": 45,
+      "topic": "Bắc thuộc lần 1",
+      "question": "Nhà Hán tổ chức bộ máy cai trị ở Giao Châu theo hình thức nào?",
+      "expected_keywords": ["Giao Châu", "thái thú", "quận huyện", "đô hộ"]
+    },
+    {
+      "id": 46,
+      "topic": "Khởi nghĩa Hai Bà Trưng",
+      "question": "Thi Sách là ai và cái chết của ông liên quan thế nào đến việc Hai Bà Trưng nổi dậy?",
+      "expected_keywords": ["Thi Sách", "Trưng Trắc", "Tô Định", "nguyên nhân"]
+    },
+    {
+      "id": 47,
+      "topic": "Bắc thuộc",
+      "question": "Triệu Quang Phục (Triệu Việt Vương) duy trì kháng chiến ở đầm Dạ Trạch như thế nào sau khi Lý Bí thất bại?",
+      "expected_keywords": ["Triệu Quang Phục", "Dạ Trạch", "du kích", "Triệu Việt Vương"]
+    },
+    {
+      "id": 48,
+      "topic": "Bắc thuộc",
+      "question": "Lý Phật Tử lên ngôi sau Triệu Quang Phục và cai trị đến khi mất nước về tay nhà Tùy ra sao?",
+      "expected_keywords": ["Lý Phật Tử", "Vạn Xuân", "nhà Tùy", "593"]
+    },
+    {
+      "id": 49,
+      "topic": "Bắc thuộc",
+      "question": "Cao Biền xây thành Đại La và thực hiện chính sách thủy lợi gì ở Giao Châu thời Đường?",
+      "expected_keywords": ["Cao Biền", "Đại La", "thành", "kênh đào"]
+    },
+    {
+      "id": 50,
+      "topic": "Bắc thuộc",
+      "question": "Phật giáo du nhập vào Giao Châu theo con đường nào và ảnh hưởng đến đời sống người Việt ra sao?",
+      "expected_keywords": ["Phật giáo", "Giao Châu", "Ấn Độ", "Mâu Tử"]
+    },
+    {
+      "id": 51,
+      "topic": "Bắc thuộc",
+      "question": "Giao Châu giữ vai trò trung chuyển thương mại trên Con đường tơ lụa biển như thế nào?",
+      "expected_keywords": ["thương mại", "đường biển", "cảng", "Ấn Độ"]
+    },
+    {
+      "id": 52,
+      "topic": "Bắc thuộc",
+      "question": "Chữ Hán và giáo dục Nho học ảnh hưởng thế nào đến tầng lớp hào trưởng người Việt trong thời Bắc thuộc?",
+      "expected_keywords": ["chữ Hán", "Nho học", "hào trưởng", "giáo dục"]
+    },
+    {
+      "id": 53,
+      "topic": "Ngô Quyền",
+      "question": "Kiều Công Tiễn giết Dương Đình Nghệ và cầu cứu Nam Hán – sự kiện đó dẫn đến điều gì?",
+      "expected_keywords": ["Kiều Công Tiễn", "Dương Đình Nghệ", "Nam Hán", "phản bội"]
+    },
+    {
+      "id": 54,
+      "topic": "Tiền sử",
+      "question": "Bằng chứng khảo cổ sớm nhất về sự xuất hiện của con người ở Việt Nam là gì?",
+      "expected_keywords": ["người tối cổ", "hang động", "công cụ đá", "Thanh Hóa"]
+    },
+    {
+      "id": 55,
+      "topic": "Văn Lang - Âu Lạc",
+      "question": "Kinh đô Phong Châu của nước Văn Lang nằm ở đâu và có đặc điểm địa lý nào nổi bật?",
+      "expected_keywords": ["Phong Châu", "Bạch Hạc", "Phú Thọ", "kinh đô"]
+    },
+    {
+      "id": 56,
+      "topic": "Bắc thuộc",
+      "question": "Khởi nghĩa Lý Tự Tiên và Đinh Kiến cuối thế kỷ VII diễn ra như thế nào?",
+      "expected_keywords": ["Lý Tự Tiên", "Đinh Kiến", "khởi nghĩa", "nhà Đường"]
+    },
+    {
+      "id": 57,
+      "topic": "Bắc thuộc",
+      "question": "Tổ chức làng xã của người Việt trong thời Bắc thuộc có vai trò gì trong việc bảo tồn văn hóa?",
+      "expected_keywords": ["làng xã", "cộng đồng", "tự quản", "phong tục"]
+    },
+    {
+      "id": 58,
+      "topic": "Tự chủ",
+      "question": "Khúc Hạo đã thực hiện cải cách gì về thuế khóa và hành chính địa phương?",
+      "expected_keywords": ["Khúc Hạo", "thuế", "bình quân", "cải cách hành chính"]
+    },
+    {
+      "id": 59,
+      "topic": "Ngô Quyền",
+      "question": "Ngô Quyền có mối quan hệ gia đình như thế nào với Dương Đình Nghệ trước khi trở thành lãnh tụ?",
+      "expected_keywords": ["Ngô Quyền", "Dương Đình Nghệ", "con rể", "tướng"]
+    },
+    {
+      "id": 60,
+      "topic": "Tiền sử",
+      "question": "Văn hóa Đông Sơn có ảnh hưởng như thế nào đến các nền văn hóa khác trong khu vực Đông Nam Á?",
+      "expected_keywords": ["Đông Sơn", "Đông Nam Á", "trống đồng", "lan rộng"]
     }
   ]
 }

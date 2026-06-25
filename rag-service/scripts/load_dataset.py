@@ -181,16 +181,53 @@ def _is_hard_daily_quota(exc: Exception) -> bool:
     )
 
 
-def embed_with_retry(embed_documents, texts: list[str], retries: int = 10, backoff: float = 60.0):
-    for attempt in range(1, retries + 1):
-        try:
-            return embed_documents(texts)
-        except Exception as exc:  # noqa: BLE001
-            if _is_hard_daily_quota(exc):
+def _make_embed_fn(api_key: str):
+    """Tạo embed_documents function dùng API key cụ thể."""
+    from google import genai
+    from google.genai import types
+    client = genai.Client(api_key=api_key)
+
+    def embed_documents(texts: list[str]) -> list[list[float]]:
+        from app.config import settings
+        results: list[list[float]] = []
+        for i in range(0, len(texts), 100):
+            batch = texts[i: i + 100]
+            response = client.models.embed_content(
+                model=settings.embedding_model,
+                contents=batch,
+                config=types.EmbedContentConfig(
+                    task_type="RETRIEVAL_DOCUMENT",
+                    output_dimensionality=settings.embedding_dim,
+                ),
+            )
+            results.extend(e.values for e in response.embeddings)
+        return results
+
+    return embed_documents
+
+
+def make_embed_with_retry(embed_fn_list: list, retries: int = 10, backoff: float = 60.0):
+    """Trả về hàm embed có key rotation — key_index được giữ giữa các lần gọi."""
+    state = {"key_index": 0}
+
+    def embed_with_retry(texts: list[str]) -> list[list[float]]:
+        for attempt in range(1, retries + 1):
+            embed_documents = embed_fn_list[state["key_index"]]
+            try:
+                return embed_documents(texts)
+            except Exception as exc:  # noqa: BLE001
+                if _is_hard_daily_quota(exc):
+                    state["key_index"] += 1
+                    if state["key_index"] < len(embed_fn_list):
+                        print(
+                            f"\n  ! Key {state['key_index']} hết RPD → chuyển sang key {state['key_index'] + 1}",
+                            file=sys.stderr,
+                        )
+                        continue
                 print(
-                    "\n  ✗ HẾT QUOTA NGÀY (RPD) — không thể tiếp tục hôm nay.\n"
+                    "\n  ✗ TẤT CẢ KEY HẾT QUOTA NGÀY (RPD).\n"
                     "    Giải pháp:\n"
-                    "      1. Chờ đến 14:00 hôm nay hoặc 14:00 ngày mai (VN) rồi chạy lại.\n"
+                    "      1. Chờ đến 07:00 sáng VN (00:00 UTC) rồi chạy lại với --resume.\n"
                     "      2. Bật billing tại aistudio.google.com → Settings → Billing.",
                     file=sys.stderr,
                 )
@@ -202,6 +239,8 @@ def embed_with_retry(embed_documents, texts: list[str], retries: int = 10, backo
             print(f"    ! embed 429 (lần {attempt}/{retries}): TPM/RPM limit -> chờ {wait:.0f}s",
                   file=sys.stderr)
             time.sleep(wait)
+
+    return embed_with_retry
 
 
 def main() -> int:
@@ -268,12 +307,23 @@ def main() -> int:
     sys.path.insert(0, str(RAG_SERVICE_DIR))
     try:
         from app.config import settings
-        from app.services.embedding_service import embed_documents
         from app.vectorstore.qdrant_client import ensure_collection, get_client
         from app.vectorstore.vector_repository import delete_by_source_id, point_id, upsert
     except Exception as exc:  # noqa: BLE001
         print(f"ERROR khi import app/ (thiếu .env hay deps?): {exc}", file=sys.stderr)
         return 1
+
+    # Build danh sách embed functions từ các API key có sẵn (key rotation khi hết RPD)
+    api_keys = [settings.google_api_key]
+    for i in range(2, 10):
+        extra_key = os.environ.get(f"GOOGLE_API_KEY_{i}", "").strip()
+        if extra_key:
+            api_keys.append(extra_key)
+        else:
+            break
+    embed_fn_list = [_make_embed_fn(k) for k in api_keys]
+    embed_with_retry = make_embed_with_retry(embed_fn_list)
+    print(f"API keys   : {len(api_keys)} key(s) sẵn sàng (key rotation khi hết RPD)")
 
     collection = args.collection or settings.qdrant_collection
     print(f"collection : {collection}  (embedding_dim={settings.embedding_dim}, model={settings.embedding_model})")
@@ -332,7 +382,7 @@ def main() -> int:
                 return 0, n_skip
 
             indices, pages, texts = zip(*to_process)
-            vectors = embed_with_retry(embed_documents, list(texts))
+            vectors = embed_with_retry(list(texts))
             ids = [point_id(sid, idx) for idx in indices]
             payloads = [build_payload(sid, title, file_path, idx, page, text, created_at)
                         for idx, page, text in to_process]

@@ -1,4 +1,4 @@
-package com.example.historyrag.infrastructure.webclient;
+package com.example.historyrag.infrastructure.feign;
 
 import com.example.historyrag.feature.rag.dto.RagChatRequest;
 import com.example.historyrag.feature.rag.dto.RagChatResponse;
@@ -9,7 +9,6 @@ import com.example.historyrag.feature.rag.dto.RagIngestResponse;
 import com.example.historyrag.feature.rag.dto.RagRetrieveRequest;
 import com.example.historyrag.feature.rag.dto.RagRetrieveResponse;
 import java.util.function.Consumer;
-import reactor.core.Disposable;
 
 public interface RagClientService {
 
@@ -17,7 +16,8 @@ public interface RagClientService {
 
     RagChatResponse chat(RagChatRequest request, String traceparent);
 
-    Disposable streamChat(
+    // Non-blocking: starts background thread, calls callbacks as SSE events arrive.
+    void streamChat(
             RagChatRequest request,
             String traceparent,
             Consumer<RagStreamEvent> onEvent,

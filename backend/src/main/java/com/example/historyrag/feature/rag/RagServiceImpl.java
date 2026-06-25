@@ -8,22 +8,22 @@ import com.example.historyrag.feature.rag.dto.RagIngestRequest;
 import com.example.historyrag.feature.rag.dto.RagIngestResponse;
 import com.example.historyrag.feature.rag.dto.RagRetrieveRequest;
 import com.example.historyrag.feature.rag.dto.RagRetrieveResponse;
-import com.example.historyrag.infrastructure.webclient.RagClientService;
-import com.example.historyrag.infrastructure.webclient.RagStreamEvent;
+import com.example.historyrag.infrastructure.feign.RagClientService;
+import com.example.historyrag.infrastructure.feign.RagStreamEvent;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicReference;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import reactor.core.Disposable;
 
 @Service
-@RequiredArgsConstructor
 public class RagServiceImpl implements RagService {
 
     private static final long STREAM_TIMEOUT_MS = 180_000L;
 
     private final RagClientService ragClientService;
+
+    public RagServiceImpl(RagClientService ragClientService) {
+        this.ragClientService = ragClientService;
+    }
 
     @Override
     public RagHealthResponse getHealth(String traceparent) {
@@ -38,19 +38,13 @@ public class RagServiceImpl implements RagService {
     @Override
     public SseEmitter streamChat(RagChatRequest request, String traceparent) {
         SseEmitter emitter = new SseEmitter(STREAM_TIMEOUT_MS);
-        AtomicReference<Disposable> subscription = new AtomicReference<>();
-
-        Disposable disposable = ragClientService.streamChat(
+        ragClientService.streamChat(
                 request,
                 traceparent,
                 event -> sendEvent(emitter, event),
                 error -> completeWithStreamError(emitter),
                 emitter::complete);
-        subscription.set(disposable);
-
-        emitter.onTimeout(() -> dispose(subscription));
-        emitter.onCompletion(() -> dispose(subscription));
-        emitter.onError(error -> dispose(subscription));
+        emitter.onTimeout(emitter::complete);
         return emitter;
     }
 
@@ -82,12 +76,5 @@ public class RagServiceImpl implements RagService {
     private void completeWithStreamError(SseEmitter emitter) {
         sendEvent(emitter, new RagStreamEvent("chat.error", "{\"message\":\"RAG stream failed\"}"));
         emitter.complete();
-    }
-
-    private void dispose(AtomicReference<Disposable> subscription) {
-        Disposable disposable = subscription.get();
-        if (disposable != null && !disposable.isDisposed()) {
-            disposable.dispose();
-        }
     }
 }

@@ -245,6 +245,126 @@
       "topic": "Nhà Trần",
       "question": "Sự suy yếu của nhà Trần cuối thế kỷ XIV có những nguyên nhân nào?",
       "expected_keywords": ["suy yếu", "Hồ Quý Ly", "nội bộ", "khủng hoảng"]
+    },
+    {
+      "id": 41,
+      "topic": "Nhà Lý",
+      "question": "Thiền sư Vạn Hạnh có vai trò gì trong việc đưa Lý Công Uẩn lên ngôi?",
+      "expected_keywords": ["Vạn Hạnh", "Lý Công Uẩn", "thiền sư", "sấm ngữ"]
+    },
+    {
+      "id": 42,
+      "topic": "Nhà Lý",
+      "question": "Nhà Lý tổ chức quân đội trung ương (cấm quân) và địa phương quân như thế nào?",
+      "expected_keywords": ["cấm quân", "địa phương quân", "quân đội", "Lý"]
+    },
+    {
+      "id": 43,
+      "topic": "Nhà Lý",
+      "question": "Lý Thánh Tông đánh Chiêm Thành năm 1069 và kết quả ra sao?",
+      "expected_keywords": ["Lý Thánh Tông", "Chiêm Thành", "1069", "Chế Củ"]
+    },
+    {
+      "id": 44,
+      "topic": "Nhà Lý",
+      "question": "Kiến trúc chùa tháp thời Lý có những đặc trưng nghệ thuật nào nổi bật?",
+      "expected_keywords": ["chùa", "tháp", "kiến trúc", "Phật giáo"]
+    },
+    {
+      "id": 45,
+      "topic": "Nhà Lý",
+      "question": "Hệ thống đê điều và thủy lợi thời Lý được xây dựng và quản lý như thế nào?",
+      "expected_keywords": ["đê điều", "thủy lợi", "sông Hồng", "nông nghiệp"]
+    },
+    {
+      "id": 46,
+      "topic": "Nhà Lý",
+      "question": "Nguyên nhân nào dẫn đến sự suy vong của nhà Lý và sự thay thế bởi nhà Trần?",
+      "expected_keywords": ["nhà Lý", "suy vong", "Lý Huệ Tông", "Trần Thủ Độ"]
+    },
+    {
+      "id": 47,
+      "topic": "Nhà Trần",
+      "question": "Chính sách điền trang thái ấp của nhà Trần ảnh hưởng như thế nào đến cơ cấu xã hội?",
+      "expected_keywords": ["điền trang", "thái ấp", "quý tộc", "nông nô"]
+    },
+    {
+      "id": 48,
+      "topic": "Nhà Trần",
+      "question": "Lý Chiêu Hoàng nhường ngôi cho Trần Cảnh diễn ra như thế nào?",
+      "expected_keywords": ["Lý Chiêu Hoàng", "Trần Cảnh", "1225", "nhường ngôi"]
+    },
+    {
+      "id": 49,
+      "topic": "Nhà Trần",
+      "question": "Nhà Trần tổ chức thi cử và chọn quan lại theo mô hình nào?",
+      "expected_keywords": ["khoa cử", "thi", "quan lại", "Trần"]
+    },
+    {
+      "id": 50,
+      "topic": "Nhà Trần",
+      "question": "Trần Nhân Tông xuất gia và sáng lập thiền phái Trúc Lâm Yên Tử như thế nào?",
+      "expected_keywords": ["Trần Nhân Tông", "Trúc Lâm", "Yên Tử", "xuất gia"]
+    },
+    {
+      "id": 51,
+      "topic": "Nhà Trần",
+      "question": "Quan hệ ngoại giao giữa Đại Việt và nhà Nguyên sau ba lần kháng chiến thay đổi ra sao?",
+      "expected_keywords": ["ngoại giao", "nhà Nguyên", "hòa bình", "triều cống"]
+    },
+    {
+      "id": 52,
+      "topic": "Nhà Trần",
+      "question": "Hồ Quý Ly thực hiện những cải cách gì để củng cố quyền lực cuối triều Trần?",
+      "expected_keywords": ["Hồ Quý Ly", "cải cách", "tiền giấy", "hạn điền"]
+    },
+    {
+      "id": 53,
+      "topic": "Nhà Lý",
+      "question": "Lý Thường Kiệt tiến công phủ Ung Châu năm 1075 với chiến lược và mục tiêu gì?",
+      "expected_keywords": ["Lý Thường Kiệt", "Ung Châu", "1075", "tiên phát chế nhân"]
+    },
+    {
+      "id": 54,
+      "topic": "Nhà Trần",
+      "question": "Đại Việt sử lược là tác phẩm sử học nào và ra đời trong bối cảnh nào thời Trần?",
+      "expected_keywords": ["Đại Việt sử lược", "sử học", "thời Trần", "biên soạn"]
+    },
+    {
+      "id": 55,
+      "topic": "Nhà Lý",
+      "question": "Chính sách đối ngoại của nhà Lý với Đại Lý (Vân Nam) và Chiêm Thành có điểm gì đặc biệt?",
+      "expected_keywords": ["Đại Lý", "Chiêm Thành", "biên giới", "Lý"]
+    },
+    {
+      "id": 56,
+      "topic": "Nhà Trần",
+      "question": "Trận Tây Kết năm 1285 và cái chết của Toa Đô có ý nghĩa như thế nào trong kháng chiến lần hai?",
+      "expected_keywords": ["Tây Kết", "Toa Đô", "1285", "Trần Quang Khải"]
+    },
+    {
+      "id": 57,
+      "topic": "Nhà Đinh - Tiền Lê",
+      "question": "Nhà Tống phản ứng như thế nào trước sự độc lập của Đại Cồ Việt thời Đinh – Tiền Lê?",
+      "expected_keywords": ["nhà Tống", "bang giao", "triều cống", "thần phục"]
+    },
+    {
+      "id": 58,
+      "topic": "Nhà Trần",
+      "question": "Cơ cấu triều đình nhà Trần với chế độ Thái thượng hoàng có ưu điểm gì trong việc ổn định chính trị?",
+      "expected_keywords": ["Thái thượng hoàng", "quyền lực", "ổn định", "truyền ngôi"]
+    },
+    {
+      "id": 59,
+      "topic": "Nhà Trần",
+      "question": "Quan hệ Đại Việt và Chiêm Thành dưới thời Trần diễn ra như thế nào?",
+      "expected_keywords": ["Chiêm Thành", "Trần", "biên giới", "xung đột"]
+    },
+    {
+      "id": 60,
+      "topic": "Nhà Lý",
+      "question": "Thương nghiệp và các trung tâm buôn bán thời Lý phát triển như thế nào?",
+      "expected_keywords": ["thương nghiệp", "chợ", "Thăng Long", "buôn bán"]
     }
   ]
 }

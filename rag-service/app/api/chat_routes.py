@@ -57,9 +57,18 @@ async def _chat(req: RagChatRequest) -> RagChatResponse:
     from app.config import settings
     from app.services.retrieval_service import retrieve
     from app.services.prompt_service import load_system_prompt, build_user_message
-    from app.services.llm_service import generate
+    from app.services.llm_service import generate, suggest_questions
     from app.services.citation_service import to_citations
-    from app.services.question_router_service import route
+    from app.services.question_router_service import route, validate_question
+
+    validation_error = validate_question(req.question)
+    if validation_error:
+        return RagChatResponse(
+            answer=validation_error,
+            citations=[],
+            usedVector=False,
+            usedGraph=False,
+        )
 
     top_k = req.topK or settings.default_top_k
     routing = route(req.question, req.useGraph)
@@ -93,11 +102,13 @@ async def _chat(req: RagChatRequest) -> RagChatResponse:
             usedGraph=False,
         )
 
+    suggestions = suggest_questions(req.question, answer)
     return RagChatResponse(
         answer=answer,
         citations=to_citations(hits),
         usedVector=True,
         usedGraph=False,
+        suggestions=suggestions,
     )
 
 
@@ -105,9 +116,15 @@ async def _stream_chat_events(req: RagChatRequest):
     from app.config import settings
     from app.services.retrieval_service import retrieve
     from app.services.prompt_service import load_system_prompt, build_user_message
-    from app.services.llm_service import generate_stream
+    from app.services.llm_service import generate_stream, suggest_questions
     from app.services.citation_service import to_citations
-    from app.services.question_router_service import route
+    from app.services.question_router_service import route, validate_question
+
+    validation_error = validate_question(req.question)
+    if validation_error:
+        for event in _answer_events(validation_error, [], False, False):
+            yield event
+        return
 
     top_k = req.topK or settings.default_top_k
     routing = route(req.question, req.useGraph)
@@ -127,10 +144,12 @@ async def _stream_chat_events(req: RagChatRequest):
         return
 
     citations = to_citations(hits)
+    full_answer = ""
     try:
         system_prompt = load_system_prompt()
         user_message = build_user_message(req.question, hits)
         for chunk in generate_stream(system_prompt, user_message, req.temperature):
+            full_answer += chunk
             yield _sse("chat.delta", {"text": chunk})
     except Exception:
         for event in _answer_events(_NO_DATA_MSG, [], True, False):
@@ -144,6 +163,9 @@ async def _stream_chat_events(req: RagChatRequest):
         "usedVector": True,
         "usedGraph": False,
     })
+    suggestions = suggest_questions(req.question, full_answer)
+    if suggestions:
+        yield _sse("chat.suggestions", {"suggestions": suggestions})
 
 
 def _answer_events(answer: str, citations: list, used_vector: bool, used_graph: bool):

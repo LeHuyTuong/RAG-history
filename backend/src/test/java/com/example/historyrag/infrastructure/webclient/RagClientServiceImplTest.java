@@ -8,12 +8,21 @@ import com.example.historyrag.feature.rag.dto.RagIngestRequest;
 import com.example.historyrag.feature.rag.dto.RagIngestResponse;
 import com.example.historyrag.feature.rag.dto.RagRetrieveRequest;
 import com.example.historyrag.feature.rag.dto.RagRetrieveResponse;
+import com.example.historyrag.infrastructure.feign.RagClientService;
+import com.example.historyrag.infrastructure.feign.RagFeignClient;
+import com.example.historyrag.infrastructure.feign.RagFeignClientAdapter;
+import com.example.historyrag.infrastructure.feign.RagStreamEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import feign.Feign;
+import feign.Request;
+import feign.jackson.JacksonDecoder;
+import feign.jackson.JacksonEncoder;
+import feign.okhttp.OkHttpClient;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -22,8 +31,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.Disposable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,7 +60,7 @@ class RagClientServiceImplTest {
             sendJson(exchange, 200, "{\"status\":\"ok\",\"service\":\"rag-history\"}");
         });
         server.start();
-        RagClientServiceImpl service = newService();
+        RagClientService service = newService();
 
         RagHealthResponse response = service.getHealth("00-trace");
 
@@ -87,7 +94,7 @@ class RagClientServiceImplTest {
                     """);
         });
         server.start();
-        RagClientServiceImpl service = newService();
+        RagClientService service = newService();
 
         RagChatResponse response = service.chat(
                 new RagChatRequest("Nhà Trần thành lập năm nào?", 5, false, List.of(2L), List.of(7L), 0.2),
@@ -126,7 +133,7 @@ class RagClientServiceImplTest {
                     """);
         });
         server.start();
-        RagClientServiceImpl service = newService();
+        RagClientService service = newService();
 
         RagRetrieveResponse response = service.retrieve(
                 new RagRetrieveRequest("Nhà Trần thành lập năm nào?", 3, List.of(2L), List.of()),
@@ -157,7 +164,7 @@ class RagClientServiceImplTest {
                     """);
         });
         server.start();
-        RagClientServiceImpl service = newService();
+        RagClientService service = newService();
 
         RagIngestResponse response = service.ingest(
                 new RagIngestRequest(7L, "MANUAL_INPUT", "Manual", null, null, null, null, "Noi dung", null, null),
@@ -178,7 +185,7 @@ class RagClientServiceImplTest {
             sendJson(exchange, 200, "{\"status\":\"deleted\",\"sourceId\":7}");
         });
         server.start();
-        RagClientServiceImpl service = newService();
+        RagClientService service = newService();
 
         RagDeleteResponse response = service.deleteSource(7L, null);
 
@@ -204,22 +211,15 @@ class RagClientServiceImplTest {
                     """);
         });
         server.start();
-        RagClientServiceImpl service = newService();
+        RagClientService service = newService();
         RagChatRequest request = new RagChatRequest("Nhà Trần thành lập năm nào?", 5, false, List.of(), List.of(), 0.2);
         List<RagStreamEvent> events = new CopyOnWriteArrayList<>();
         CountDownLatch completed = new CountDownLatch(1);
         AtomicReference<Throwable> error = new AtomicReference<>();
 
-        Disposable disposable = service.streamChat(
-                request,
-                "00-trace",
-                events::add,
-                error::set,
-                completed::countDown
-        );
+        service.streamChat(request, "00-trace", events::add, error::set, completed::countDown);
 
         assertThat(completed.await(5, TimeUnit.SECONDS)).isTrue();
-        disposable.dispose();
         assertThat(error.get()).isNull();
         assertThat(traceparent.get()).isEqualTo("00-trace");
         assertThat(requestBody.get()).contains("\"question\":\"Nhà Trần thành lập năm nào?\"");
@@ -234,11 +234,11 @@ class RagClientServiceImplTest {
     void streamChatDefaultsMissingEventNameAndData() throws Exception {
         server.createContext("/rag/chat/stream", exchange -> sendSse(exchange, 200, "data:\n\n"));
         server.start();
-        RagClientServiceImpl service = newService();
+        RagClientService service = newService();
         List<RagStreamEvent> events = new CopyOnWriteArrayList<>();
         CountDownLatch completed = new CountDownLatch(1);
 
-        Disposable disposable = service.streamChat(
+        service.streamChat(
                 new RagChatRequest("Question", null, false, List.of(), List.of(), 0.2),
                 null,
                 events::add,
@@ -247,7 +247,6 @@ class RagClientServiceImplTest {
         );
 
         assertThat(completed.await(5, TimeUnit.SECONDS)).isTrue();
-        disposable.dispose();
         assertThat(events).hasSize(1);
         assertThat(events.getFirst().name()).isEqualTo("message");
         assertThat(events.getFirst().data()).isEqualTo("{}");
@@ -261,8 +260,15 @@ class RagClientServiceImplTest {
         exchange.close();
     }
 
-    private RagClientServiceImpl newService() {
-        return new RagClientServiceImpl(WebClient.builder(), baseUrl, Duration.ofSeconds(5));
+    private RagClientService newService() {
+        ObjectMapper mapper = new ObjectMapper();
+        RagFeignClient feignClient = Feign.builder()
+                .client(new OkHttpClient())
+                .encoder(new JacksonEncoder(mapper))
+                .decoder(new JacksonDecoder(mapper))
+                .options(new Request.Options(5, TimeUnit.SECONDS, 5, TimeUnit.SECONDS, true))
+                .target(RagFeignClient.class, baseUrl);
+        return new RagFeignClientAdapter(feignClient);
     }
 
     private static void sendJson(HttpExchange exchange, int status, String body) throws IOException {

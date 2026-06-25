@@ -31,8 +31,13 @@ class Settings(BaseSettings):
     qdrant_api_key: str
     qdrant_collection: str = "history_chunks"
 
-    # Google AI Studio — dùng chung 1 key cho cả embedding (Gemini) và LLM (Gemma)
+    # Google AI Studio — dùng chung key pool cho cả embedding (Gemini) và LLM (Gemma)
+    # Key rotation: khi key 1 hết quota ngày thì tự động chuyển sang key 2, 3...
     google_api_key: str = Field(validation_alias=AliasChoices("GOOGLE_API_KEY", "LLM_API_KEY"))
+    google_api_key_2: str | None = Field(default=None, validation_alias=AliasChoices("GOOGLE_API_KEY_2", "LLM_API_KEY_2"))
+    google_api_key_3: str | None = Field(default=None, validation_alias=AliasChoices("GOOGLE_API_KEY_3", "LLM_API_KEY_3"))
+    google_api_key_4: str | None = Field(default=None, validation_alias=AliasChoices("GOOGLE_API_KEY_4", "LLM_API_KEY_4"))
+    google_api_key_5: str | None = Field(default=None, validation_alias=AliasChoices("GOOGLE_API_KEY_5", "LLM_API_KEY_5"))
     llm_model: str = "gemma-4-31b-it"
     embedding_model: str = "gemini-embedding-001"
     # embedding_dim phải khớp với collection đã tạo trong Qdrant — đổi model thì phải tạo lại collection
@@ -42,7 +47,7 @@ class Settings(BaseSettings):
     default_chunk_size: int = 800
     default_chunk_overlap: int = 120
     default_top_k: int = 5
-    score_threshold: float = 0.5
+    score_threshold: float = Field(default=0.55, validation_alias=AliasChoices("MIN_SCORE", "SCORE_THRESHOLD"))
 
 
 settings = Settings()

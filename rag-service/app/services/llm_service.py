@@ -72,6 +72,28 @@ def generate_stream(system_prompt: str, user_message: str, temperature: float = 
         raise ValueError("LLM returned empty stream")
 
 
+def suggest_questions(question: str, answer: str) -> list[str]:
+    """Sinh 3 câu hỏi gợi ý liên quan dựa trên cặp question-answer vừa trả lời."""
+    prompt = (
+        f"Câu hỏi: {question}\n"
+        f"Câu trả lời: {answer[:600]}\n\n"
+        "Dựa trên cuộc trò chuyện về lịch sử Việt Nam trên, hãy đề xuất đúng 3 câu hỏi "
+        "tiếp theo mà người dùng có thể muốn tìm hiểu thêm. "
+        "Chỉ liệt kê 3 câu hỏi, mỗi câu một dòng, không đánh số, không giải thích."
+    )
+    try:
+        response = _get_client().models.generate_content(
+            model=settings.llm_model,
+            contents=prompt,
+            config=types.GenerateContentConfig(temperature=0.7),
+        )
+        text = (response.text or "").strip()
+        lines = [ln.strip().lstrip("-•*").strip() for ln in text.splitlines() if ln.strip()]
+        return [ln for ln in lines if len(ln) > 10][:3]
+    except Exception:  # noqa: BLE001
+        return []
+
+
 def _chunk_text(text: str, chunk_size: int = 48):
     for index in range(0, len(text), chunk_size):
         yield text[index:index + chunk_size]

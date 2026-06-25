@@ -41,3 +41,4 @@ class RagChatResponse(BaseModel):
     citations: list[Citation]
     usedVector: bool
     usedGraph: bool
+    suggestions: list[str] = []
