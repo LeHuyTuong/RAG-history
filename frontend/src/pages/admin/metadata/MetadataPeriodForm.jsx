@@ -165,17 +165,46 @@ const MetadataPeriodForm = () => {
   };
 
   const handleSave = async () => {
-    let sY = parseInt(form.startYear, 10);
-    let eY = parseInt(form.endYear, 10);
-    if (isNaN(sY)) sY = 0;
-    if (isNaN(eY)) eY = 0;
-
-    const startVal = form.eraTypeStart === 'TCN' ? -sY : sY;
-    const endVal = form.eraTypeEnd === 'TCN' ? -eY : eY;
-
-    if (startVal > endVal) {
-      alert('Lỗi hợp lệ: Năm bắt đầu phải nhỏ hơn hoặc bằng năm kết thúc.');
+    if (!form.name.trim()) {
+      alert('Vui lòng nhập tên thời kỳ.');
       return;
+    }
+
+    const hasStart = form.startYear !== '' && form.startYear !== null && form.startYear !== undefined;
+    const hasEnd = form.endYear !== '' && form.endYear !== null && form.endYear !== undefined;
+
+    if (hasStart) {
+      const sY = parseInt(form.startYear, 10);
+      if (isNaN(sY) || sY < 0) {
+        alert('Năm bắt đầu phải là số nguyên dương lớn hơn hoặc bằng 0.');
+        return;
+      }
+    }
+    if (hasEnd) {
+      const eY = parseInt(form.endYear, 10);
+      if (isNaN(eY) || eY < 0) {
+        alert('Năm kết thúc phải là số nguyên dương lớn hơn hoặc bằng 0.');
+        return;
+      }
+    }
+
+    let startVal = null;
+    let endVal = null;
+
+    if (hasStart) {
+      const sY = parseInt(form.startYear, 10);
+      startVal = form.eraTypeStart === 'TCN' ? -sY : sY;
+    }
+    if (hasEnd) {
+      const eY = parseInt(form.endYear, 10);
+      endVal = form.eraTypeEnd === 'TCN' ? -eY : eY;
+    }
+
+    if (hasStart && hasEnd) {
+      if (startVal > endVal) {
+        alert('Lỗi hợp lệ: Năm bắt đầu không thể diễn ra sau năm kết thúc.');
+        return;
+      }
     }
 
     try {
@@ -498,7 +527,7 @@ const MetadataPeriodForm = () => {
                   <div className="px-4 py-1.5 text-white text-[10px] font-bold rounded-full mb-3 uppercase tracking-widest shadow-sm ring-2 ring-white/50 bg-gradient-to-r from-primary to-indigo-600">
                     {form.startYear && form.endYear
                       ? `${form.startYear}${form.eraTypeStart === 'TCN' ? ' TCN' : ''} - ${form.endYear}${form.eraTypeEnd === 'TCN' ? ' TCN' : ''}`
-                      : 'Khoảng thời gian'}
+                      : 'Khoảng niên đại'}
                   </div>
 
                   <h4 className="font-headline text-3xl font-bold bg-gradient-to-r from-gray-900 to-primary bg-clip-text text-transparent transition-all duration-300 mb-2">

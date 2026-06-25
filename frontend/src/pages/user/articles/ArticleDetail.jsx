@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { API_ENDPOINTS } from '../../../services/api';
 import apiClient, { mockClient } from '../../../services/apiClient';
+import { usePeriodColors } from '../../../hooks/usePeriodColors';
 
 const ArticleDetail = () => {
+  const { getPeriodStyle } = usePeriodColors();
   const { slug } = useParams();
   const [likes, setLikes] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
@@ -80,13 +82,15 @@ const ArticleDetail = () => {
         } catch (err) {
           console.error('Error fetching mock articles:', err);
         }
-
         if (dbPost || mockItem) {
           const merged = {
             ...mockItem,
             ...dbPost,
             thumbnail_url: dbPost?.thumbnailUrl || mockItem?.thumbnail_url || "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg",
             dynasty: dbPost?.tags?.[0]?.name || mockItem?.dynasty || 'Lịch sử',
+            dynasties: dbPost?.tags && dbPost.tags.length > 0
+              ? dbPost.tags.map(t => typeof t === 'object' ? t.name : t)
+              : (mockItem?.tags || [mockItem?.dynasty || 'Lịch sử']),
             content: dbPost?.content || mockItem?.content || '',
             summary: dbPost?.summary || mockItem?.summary || '',
           };
@@ -97,6 +101,55 @@ const ArticleDetail = () => {
             setComments(merged.commentsList);
           } else {
             setComments([]);
+          }
+
+          // Fetch event details to get locations and characters
+          const eventId = dbPost?.event?.id || mockItem?.event?.id || mockItem?.eventId;
+          if (eventId) {
+            try {
+              const eventRes = await apiClient.get(`${API_ENDPOINTS.USER_EVENT_DETAIL}/${eventId}`);
+              const fullEvent = eventRes.data?.data || eventRes.data;
+
+              const partsRes = await apiClient.get('/api/v1/admin/participations', { params: { eventId } });
+              const rawParts = partsRes.data?.data?.result || partsRes.data?.data || [];
+
+              const dynamicEntities = [];
+              dynamicEntities.push({
+                title: fullEvent.name || fullEvent.title || 'Sự kiện',
+                type: 'Sự kiện',
+                icon: 'event',
+                link: `/events/${eventId}`
+              });
+
+              if (fullEvent.locationRelations) {
+                fullEvent.locationRelations.forEach(loc => {
+                  dynamicEntities.push({
+                    title: loc.name,
+                    type: 'Địa danh',
+                    icon: 'location_on',
+                    link: `/locations/${loc.locationId}`
+                  });
+                });
+              }
+
+              rawParts.forEach(p => {
+                if (p.person) {
+                  dynamicEntities.push({
+                    title: p.person.name,
+                    type: 'Nhân vật',
+                    icon: 'person',
+                    link: `/characters/${p.person.id}`
+                  });
+                }
+              });
+
+              setArticle(prev => ({
+                ...prev,
+                relatedEntities: dynamicEntities
+              }));
+            } catch (err) {
+              console.error('Lỗi khi tải thông tin liên kết của bài viết:', err);
+            }
           }
         }
       } catch (error) {
@@ -136,6 +189,20 @@ const ArticleDetail = () => {
 
           {/* Header Section */}
           <header className="mb-12">
+            {/* Dynasty Tags */}
+            {(article.dynasties || [article.dynasty]).length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {(article.dynasties || [article.dynasty]).map((dyn, idx) => (
+                  <span
+                    key={idx}
+                    className={`px-3 py-1 font-body text-[10px] font-bold uppercase tracking-widest rounded-full border shadow-sm ${getPeriodStyle(dyn)}`}
+                  >
+                    {dyn}
+                  </span>
+                ))}
+              </div>
+            )}
+
             <h1 className="font-headline text-5xl md:text-6xl text-[#6b0f0d] font-semibold leading-tight mb-8 tracking-tight">
               {article.title}
             </h1>

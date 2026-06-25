@@ -9,6 +9,22 @@ const HubEntityForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  // Clean prefix if present (e.g. "character_12" -> "12")
+  let cleanId = id;
+  let forcedType = null;
+  if (id && typeof id === 'string') {
+    if (id.startsWith('character_')) {
+      cleanId = id.replace('character_', '');
+      forcedType = 'character';
+    } else if (id.startsWith('event_')) {
+      cleanId = id.replace('event_', '');
+      forcedType = 'event';
+    } else if (id.startsWith('location_')) {
+      cleanId = id.replace('location_', '');
+      forcedType = 'location';
+    }
+  }
+
   const [entity, setEntity] = useState(null);
   const [entityType, setEntityType] = useState(''); // 'character', 'event', 'location'
   const [typeLabel, setTypeLabel] = useState(''); // 'Nhân vật', 'Sự kiện', 'Địa danh'
@@ -108,26 +124,45 @@ const HubEntityForm = () => {
         setAllLocations(mergedLocations);
 
         // Find the target entity
-        let target = mergedChars.find(c => String(c.id) === String(id) || String(c.id).endsWith('-' + id));
-        let type = 'character';
-        let tLabel = 'Nhân vật';
+        let target = null;
+        let type = forcedType || 'character';
+        let tLabel = type === 'character' ? 'Nhân vật' : type === 'event' ? 'Sự kiện' : 'Địa danh';
+
+        if (type === 'character') {
+          target = mergedChars.find(c => String(c.id) === String(cleanId) || String(c.id) === String(id));
+        } else if (type === 'event') {
+          target = mergedEvents.find(e => String(e.id) === String(cleanId) || String(e.id) === String(id));
+        } else if (type === 'location') {
+          target = mergedLocations.find(l => String(l.id || l.location_id) === String(cleanId) || String(l.id || l.location_id) === String(id));
+        }
 
         if (!target) {
-          target = mergedEvents.find(e => String(e.id) === String(id) || String(e.id).endsWith('-' + id));
-          type = 'event';
-          tLabel = 'Sự kiện';
+          target = mergedChars.find(c => String(c.id) === String(cleanId) || String(c.id) === String(id));
+          if (target) {
+            type = 'character';
+            tLabel = 'Nhân vật';
+          }
         }
         if (!target) {
-          target = mergedLocations.find(l => String(l.id || l.location_id) === String(id) || String(l.id || l.location_id).endsWith('-' + id));
-          type = 'location';
-          tLabel = 'Địa danh';
+          target = mergedEvents.find(e => String(e.id) === String(cleanId) || String(e.id) === String(id));
+          if (target) {
+            type = 'event';
+            tLabel = 'Sự kiện';
+          }
+        }
+        if (!target) {
+          target = mergedLocations.find(l => String(l.id || l.location_id) === String(cleanId) || String(l.id || l.location_id) === String(id));
+          if (target) {
+            type = 'location';
+            tLabel = 'Địa danh';
+          }
         }
 
         // If numeric ID and target found, let's fetch detail by ID for full info
-        if (target && !isNaN(Number(id))) {
+        if (target && !isNaN(Number(cleanId))) {
           try {
             if (type === 'character') {
-              const response = await apiClient.get(`${API_ENDPOINTS.ADMIN_CHARACTERS}/${id}`);
+              const response = await apiClient.get(`${API_ENDPOINTS.ADMIN_CHARACTERS}/${cleanId}`);
               const data = response.data?.data || response.data;
               if (data) {
                 target = {
@@ -139,7 +174,7 @@ const HubEntityForm = () => {
                 };
               }
             } else if (type === 'event') {
-              const response = await apiClient.get(`${API_ENDPOINTS.ADMIN_EVENTS}/${id}`);
+              const response = await apiClient.get(`${API_ENDPOINTS.ADMIN_EVENTS}/${cleanId}`);
               const data = response.data?.data || response.data;
               if (data) {
                 target = {
@@ -151,7 +186,7 @@ const HubEntityForm = () => {
                 };
               }
             } else if (type === 'location') {
-              const response = await apiClient.get(`${API_ENDPOINTS.ADMIN_LOCATIONS}/${id}`);
+              const response = await apiClient.get(`${API_ENDPOINTS.ADMIN_LOCATIONS}/${cleanId}`);
               const data = response.data?.data || response.data;
               if (data) {
                 target = {
@@ -177,11 +212,11 @@ const HubEntityForm = () => {
           const ownRelations = [];
           const dbRelationsList = [];
 
-          if (!isNaN(Number(id))) {
+          if (!isNaN(Number(cleanId))) {
             if (type === 'character') {
               try {
                 const partRes = await apiClient.get('/api/v1/admin/participations', {
-                  params: { personId: id, size: 500 }
+                  params: { personId: cleanId, size: 500 }
                 });
                 const partData = partRes.data?.data?.result || partRes.data?.data || [];
                 partData.forEach(p => {
@@ -208,7 +243,7 @@ const HubEntityForm = () => {
             } else if (type === 'event') {
               try {
                 const partRes = await apiClient.get('/api/v1/admin/participations', {
-                  params: { eventId: id, size: 500 }
+                  params: { eventId: cleanId, size: 500 }
                 });
                 const partData = partRes.data?.data?.result || partRes.data?.data || [];
                 partData.forEach(p => {
@@ -237,7 +272,7 @@ const HubEntityForm = () => {
               if (target && target.locationRelations) {
                 target.locationRelations.forEach(lr => {
                   const relItem = {
-                    id: `el_${id}_${lr.locationId}`,
+                    id: `el_${cleanId}_${lr.locationId}`,
                     targetId: lr.locationId,
                     name: lr.name,
                     type: 'Địa danh',
@@ -246,7 +281,7 @@ const HubEntityForm = () => {
                     isCustom: true,
                     isBackend: true,
                     backendType: 'event_location',
-                    eventId: id,
+                    eventId: cleanId,
                     locationId: lr.locationId
                   };
                   ownRelations.push(relItem);
@@ -259,10 +294,10 @@ const HubEntityForm = () => {
                 const eventData = eventRes.data?.data?.result || eventRes.data?.data?.content || [];
                 eventData.forEach(event => {
                   if (event.locationRelations) {
-                    const locRel = event.locationRelations.find(lr => String(lr.locationId) === String(id));
+                    const locRel = event.locationRelations.find(lr => String(lr.locationId) === String(cleanId));
                     if (locRel) {
                       const relItem = {
-                        id: `el_${event.id}_${id}`,
+                        id: `el_${event.id}_${cleanId}`,
                         targetId: event.id,
                         name: event.name,
                         type: 'Sự kiện',
@@ -272,7 +307,7 @@ const HubEntityForm = () => {
                         isBackend: true,
                         backendType: 'event_location',
                         eventId: event.id,
-                        locationId: id
+                        locationId: cleanId
                       };
                       ownRelations.push(relItem);
                       dbRelationsList.push(relItem);
@@ -359,15 +394,17 @@ const HubEntityForm = () => {
 
     try {
       // 1. Save base entity information
-      if (!isNaN(Number(id))) {
+      if (!isNaN(Number(cleanId))) {
         if (entityType === 'character') {
           const payload = {
             name: name,
             slug: entity.slug || generateSlug(name),
-            alias: entity.title || entity.alias || '',
-            biography: desc
+            alias: entity.alias !== undefined ? entity.alias : (entity.title !== undefined ? entity.title : ''),
+            biography: desc,
+            birthDate: entity.birthDate || null,
+            deathDate: entity.deathDate || null
           };
-          await apiClient.put(`${API_ENDPOINTS.ADMIN_CHARACTERS}/${id}`, payload);
+          await apiClient.put(`${API_ENDPOINTS.ADMIN_CHARACTERS}/${cleanId}`, payload);
         } else if (entityType === 'event') {
           // Event locations are updated as part of payload locationRelations
           const locationRelations = relatedEntities
@@ -389,7 +426,7 @@ const HubEntityForm = () => {
             periodId: entity.periodId || (entity.period ? entity.period.id : null),
             locationRelations: locationRelations
           };
-          await apiClient.put(`${API_ENDPOINTS.ADMIN_EVENTS}/${id}`, payload);
+          await apiClient.put(`${API_ENDPOINTS.ADMIN_EVENTS}/${cleanId}`, payload);
         } else if (entityType === 'location') {
           const payload = {
             name: name,
@@ -399,7 +436,7 @@ const HubEntityForm = () => {
             longitude: entity.longitude !== undefined ? entity.longitude : null,
             description: desc
           };
-          await apiClient.put(`${API_ENDPOINTS.ADMIN_LOCATIONS}/${id}`, payload);
+          await apiClient.put(`${API_ENDPOINTS.ADMIN_LOCATIONS}/${cleanId}`, payload);
         }
       }
     } catch (error) {
@@ -409,7 +446,7 @@ const HubEntityForm = () => {
     }
 
     // 2. Synchronize DB relationships
-    if (!isNaN(Number(id))) {
+    if (!isNaN(Number(cleanId))) {
       try {
         if (entityType === 'character') {
           const currentEventIds = relatedEntities.filter(re => re.group === 'event').map(re => Number(re.targetId));
@@ -434,7 +471,7 @@ const HubEntityForm = () => {
             }
             await apiClient.post('/api/v1/admin/participations', {
               eventId: Number(re.targetId),
-              personId: Number(id),
+              personId: Number(cleanId),
               role: matchedRole,
               note: re.relation
             });
@@ -461,7 +498,7 @@ const HubEntityForm = () => {
               matchedRole = upperRel;
             }
             await apiClient.post('/api/v1/admin/participations', {
-              eventId: Number(id),
+              eventId: Number(cleanId),
               personId: Number(re.targetId),
               role: matchedRole,
               note: re.relation
@@ -480,7 +517,7 @@ const HubEntityForm = () => {
             const eventData = eventRes.data?.data || eventRes.data;
             if (eventData) {
               const updatedLocationRelations = (eventData.locationRelations || [])
-                .filter(lr => String(lr.locationId) !== String(id))
+                .filter(lr => String(lr.locationId) !== String(cleanId))
                 .map(lr => ({
                   locationId: lr.locationId,
                   relationType: lr.relationType
@@ -511,7 +548,7 @@ const HubEntityForm = () => {
                 relationType: lr.relationType
               }));
               updatedLocationRelations.push({
-                locationId: Number(id),
+                locationId: Number(cleanId),
                 relationType: re.relation
               });
               const payload = {
@@ -540,7 +577,7 @@ const HubEntityForm = () => {
   };
 
   const getCombinedNodes = () => {
-    return [...allCharacters, ...allEvents, ...allLocations].filter(n => String(n.id) !== String(id));
+    return [...allCharacters, ...allEvents, ...allLocations].filter(n => String(n.id) !== String(cleanId) && String(n.id) !== String(id));
   };
 
   if (!entity) {

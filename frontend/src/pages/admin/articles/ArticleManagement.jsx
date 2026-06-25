@@ -19,7 +19,7 @@ const ArticleManagement = () => {
   const [modal, setModal] = useState({ open: false, type: '', item: null });
   const [data, setData] = useState({ stats: [], articles: [] });
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({ search: '', status: '', period: '', author: '' });
+  const [filters, setFilters] = useState({ search: '', status: '', tag: '', author: '' });
   const { periodColors, getPeriodStyle } = usePeriodColors();
 
   const handleDelete = async () => {
@@ -55,7 +55,7 @@ const ArticleManagement = () => {
             title: p.title,
             slug: p.slug,
             summary: p.summary,
-            period: p.tags && p.tags.length > 0 ? p.tags[0].name : 'Chưa rõ',
+            tags: p.tags && p.tags.length > 0 ? p.tags.map(t => t.name) : ['Chưa rõ'],
             author: p.author?.fullName || p.author?.username || 'Admin',
             status: p.status
           }))
@@ -104,9 +104,9 @@ const ArticleManagement = () => {
     const matchSearch = article.title.toLowerCase().includes(filters.search.toLowerCase()) ||
       article.slug.toLowerCase().includes(filters.search.toLowerCase());
     const matchStatus = filters.status ? getNormalizedStatus(article.status) === filters.status : true;
-    const matchPeriod = filters.period ? article.period === filters.period : true;
+    const matchTag = filters.tag ? article.tags.includes(filters.tag) : true;
     const matchAuthor = filters.author ? article.author === filters.author : true;
-    return matchSearch && matchStatus && matchPeriod && matchAuthor;
+    return matchSearch && matchStatus && matchTag && matchAuthor;
   });
 
   const columns = [
@@ -127,10 +127,14 @@ const ArticleManagement = () => {
       )
     },
     {
-      key: 'period', header: 'Triều đại', render: (row) => (
-        <span className={`border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getPeriodStyle(row.period)}`}>
-          {row.period}
-        </span>
+      key: 'tags', header: 'Chủ đề / Thẻ', render: (row) => (
+        <div className="flex flex-wrap gap-1 max-w-[200px]">
+          {row.tags.map((t, idx) => (
+            <span key={idx} className={`border px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${getPeriodStyle(t)}`}>
+              {t}
+            </span>
+          ))}
+        </div>
       )
     },
     {
@@ -193,13 +197,13 @@ const ArticleManagement = () => {
               <div className="flex gap-4">
                 <div className="relative">
                   <select
-                    value={filters.period}
-                    onChange={(e) => handleFilterChange('period', e.target.value)}
+                    value={filters.tag}
+                    onChange={(e) => handleFilterChange('tag', e.target.value)}
                     className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[160px]"
                   >
-                    <option value="">Tất cả thời kỳ</option>
-                    {Array.from(new Set(data.articles.map(a => a.period))).filter(Boolean).map(p => (
-                      <option key={p} value={p}>{p}</option>
+                    <option value="">Tất cả chủ đề / thẻ</option>
+                    {Array.from(new Set(data.articles.flatMap(a => a.tags || []))).filter(t => t && t !== 'Chưa rõ').map(t => (
+                      <option key={t} value={t}>{t}</option>
                     ))}
                   </select>
                   <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>

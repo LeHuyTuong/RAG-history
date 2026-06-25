@@ -110,7 +110,7 @@ const PeriodDetail = () => {
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center mb-32 relative">
           <div className="lg:col-span-6 space-y-8 relative z-10">
             <span className="inline-block bg-[#6b0f0d] text-[#ffe7b0] px-4 py-1 font-body text-[10px] font-bold uppercase tracking-[0.3em] shadow-sm border border-[#d99b4a]/40">
-              {period.start_year && period.end_year ? `Năm ${Math.abs(period.start_year)} ${period.start_year < 0 ? 'TCN' : ''} - ${Math.abs(period.end_year)} ${period.end_year < 0 ? 'TCN' : ''}` : 'Thời Kỳ Lịch Sử'}
+              {period.start_year && period.end_year ? `Năm ${Math.abs(period.start_year)}${period.start_year < 0 ? ' TCN' : ''} - ${Math.abs(period.end_year)}${period.end_year < 0 ? ' TCN' : ''}` : 'Thời Kỳ Lịch Sử'}
             </span>
             <h1 className="font-headline text-5xl md:text-7xl text-[#6b0f0d] font-semibold leading-tight tracking-tight">
               {period.name && period.name.includes('Nhà') ? period.name.replace('Nhà', 'Triều') : period.name}

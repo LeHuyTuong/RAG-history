@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Pagination from '../../../components/common/Pagination';
+import { stripHtml } from '../../../utils/stringUtils';
 
 import { API_ENDPOINTS } from '../../../services/api';
 import apiClient, { mockClient } from '../../../services/apiClient';
@@ -36,15 +37,27 @@ const UserEvents = () => {
         if (dbEvents.length > 0) {
           merged = dbEvents.map(dbItem => {
             const mockItem = mockEvents.find(m => m.slug === dbItem.slug) || {};
+            const parseEventYear = (dateStr, fallbackYear) => {
+              if (!dateStr) return fallbackYear;
+              const isNegative = dateStr.startsWith('-');
+              const cleanStr = isNegative ? dateStr.substring(1) : dateStr;
+              const match = cleanStr.match(/^(\d{4})/);
+              if (match) {
+                const y = parseInt(match[1], 10);
+                return isNegative ? -y : y;
+              }
+              return fallbackYear;
+            };
+            const resolvedStartYear = parseEventYear(dbItem.startDate, dbItem.startYear);
             return {
               ...mockItem,
               ...dbItem,
               event_id: dbItem.id,
               name: dbItem.name,
               description: dbItem.description,
-              year: dbItem.startYear !== undefined ? dbItem.startYear : mockItem.year,
-              date: dbItem.startYear !== undefined 
-                ? `${Math.abs(dbItem.startYear)} ${dbItem.startYear < 0 ? 'TCN' : ''}`
+              year: resolvedStartYear !== undefined ? resolvedStartYear : mockItem.year,
+              date: resolvedStartYear !== undefined 
+                ? `${Math.abs(resolvedStartYear)}${resolvedStartYear < 0 ? ' TCN' : ''}`
                 : mockItem.date || '',
               category: dbItem.period?.name || mockItem.category || '',
             };
@@ -134,7 +147,7 @@ const UserEvents = () => {
                 }}
                 className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] rounded-lg py-3 pl-12 pr-10 appearance-none outline-none focus:border-[#6b0f0d]/60 transition-colors font-body cursor-pointer shadow-inner"
               >
-                <option value="">Tất cả thời kỳ</option>
+                <option value="">Tất cả triều đại</option>
                 {[...new Set(events.map(e => e.category).filter(Boolean))].map(t => (
                   <option key={t} value={t}>{t}</option>
                 ))}
@@ -191,7 +204,7 @@ const UserEvents = () => {
                       <span className="font-body text-[9px] font-bold text-[#6b0f0d] uppercase tracking-widest block border-b border-[#d99b4a]/30 pb-2">{(event.category || "").includes('Nhà') ? (event.category || "").replace('Nhà', 'Triều') : (event.category || "Chưa rõ")}</span>
                       <h3 className="font-headline text-2xl text-[#2b0504] font-semibold tracking-tight leading-tight group-hover:text-[#6b0f0d] transition-colors">{event.name}</h3>
                       <p className="font-body text-[14px] text-[#2b1a16]/80 leading-relaxed line-clamp-3">
-                        {event.description ? event.description.replace(/<[^>]*>/g, '') : ''}
+                        {stripHtml(event.description)}
                       </p>
                       <div className="pt-4 mt-auto">
                         <Link to={`/events/${event.event_id}`} className="text-[#6b0f0d] font-body text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 group/link border-t border-[#d99b4a]/20 pt-4 hover:bg-[#d99b4a]/10 transition-colors pb-2">

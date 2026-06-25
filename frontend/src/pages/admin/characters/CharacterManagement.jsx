@@ -14,7 +14,7 @@ import {
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { getDynastyLabel } from '../../../utils/dynastyUtils';
 
-import { personService } from '../../../services';
+import { personService, apiClient, eventService, participationService } from '../../../services';
 const CharacterManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, name: '', id: null });
@@ -44,15 +44,105 @@ const CharacterManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { items: content } = await personService.filter({ page: 0, size: 500 });
+        const [personRes, partRes, eventRes] = await Promise.allSettled([
+          personService.filter({ page: 0, size: 500 }),
+          apiClient.get('/api/v1/admin/participations', { params: { size: 5000 } }),
+          apiClient.get('/api/v1/admin/events', { params: { size: 500 } })
+        ]);
 
-        const mappedContent = content.map(c => ({
-          ...c,
-          title: c.alias || '',
-          years: `${c.birthDate ? new Date(c.birthDate).getFullYear() : '?'} - ${c.deathDate ? new Date(c.deathDate).getFullYear() : '?'}`,
-          dynasty: c.dynasty || 'Chưa rõ',
-          status: c.status || 'published'
-        }));
+        const content = personRes.status === 'fulfilled' ? personRes.value.items : [];
+        const participationsList = partRes.status === 'fulfilled' ? (partRes.value.data?.data?.result || partRes.value.data?.data || []) : [];
+        const eventsList = eventRes.status === 'fulfilled' ? (eventRes.value.data?.data?.result || eventRes.value.data?.data?.content || eventRes.value.data || []) : [];
+
+        // Build event period mapping
+        const eventPeriodMap = {};
+        eventsList.forEach(e => {
+          if (e.id && e.period?.name) {
+            eventPeriodMap[e.id] = e.period.name;
+          }
+        });
+
+        // Build person periods mapping
+        const personPeriodsMap = {};
+        participationsList.forEach(p => {
+          const personId = p.person?.id;
+          const eventId = p.event?.id;
+          if (personId && eventId) {
+            const periodName = eventPeriodMap[eventId];
+            if (periodName) {
+              if (!personPeriodsMap[personId]) {
+                personPeriodsMap[personId] = new Set();
+              }
+              personPeriodsMap[personId].add(periodName);
+            }
+          }
+        });
+
+        let mockChars = [];
+        try {
+          const mockRes = await mockClient.get('/api/admin_characters.json');
+          mockChars = mockRes.data?.characters || [];
+        } catch (mockErr) {
+          console.error('Error fetching mock characters in management:', mockErr);
+        }
+
+        const parseCharacterYear = (dateStr) => {
+          if (!dateStr) return null;
+          const isNegative = dateStr.startsWith('-');
+          const cleanStr = isNegative ? dateStr.substring(1) : dateStr;
+          const match = cleanStr.match(/^(\d{4})/);
+          if (match) {
+            const y = parseInt(match[1], 10);
+            return isNegative ? -y : y;
+          }
+          return null;
+        };
+
+        const formatYear = (y) => {
+          if (y === undefined || y === null || y === '') return '';
+          const val = parseInt(y, 10);
+          if (isNaN(val)) return y;
+          return val < 0 ? `${Math.abs(val)} TCN` : `${val}`;
+        };
+
+        const formatRange = (start, end) => {
+          const s = formatYear(start);
+          const e = formatYear(end);
+          if (!s && !e) return 'Chưa rõ';
+          if (!s) return `? - ${e}`;
+          if (!e) return `${s} - ?`;
+          return `${s} - ${e}`;
+        };
+
+        const mappedContent = content.map(c => {
+          const mockChar = mockChars.find(m => m.slug === c.slug) || {};
+          const dyns = new Set();
+
+          // 1. Add dynasties from mock data
+          if (mockChar.dynasties) {
+            mockChar.dynasties.forEach(d => dyns.add(d));
+          } else if (mockChar.dynasty) {
+            dyns.add(mockChar.dynasty);
+          }
+
+          // 2. Add dynasties from live participations
+          const liveDyns = personPeriodsMap[c.id];
+          if (liveDyns) {
+            liveDyns.forEach(d => dyns.add(d));
+          }
+
+          const allDyns = Array.from(dyns);
+
+          return {
+            ...mockChar,
+            ...c,
+            title: c.alias || mockChar.alias || '',
+            years: formatRange(parseCharacterYear(c.birthDate), parseCharacterYear(c.deathDate)),
+            dynasty: allDyns.length > 0 ? allDyns[0] : 'Chưa rõ',
+            dynasties: allDyns,
+            status: c.status || 'published'
+          };
+        });
 
         const charResult = {
           characters: mappedContent,
@@ -160,7 +250,9 @@ const CharacterManagement = () => {
   const filteredCharacters = data.characters.filter(char => {
     const matchSearch = char.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
       char.title?.toLowerCase().includes(filters.search.toLowerCase());
-    const matchDynasty = filters.dynasty ? char.dynasty === filters.dynasty : true;
+    const matchDynasty = filters.dynasty
+      ? (char.dynasties?.includes(filters.dynasty) || char.dynasty === filters.dynasty)
+      : true;
     const matchStatus = filters.status ? getNormalizedStatus(char.status) === filters.status : true;
     return matchSearch && matchDynasty && matchStatus;
   });

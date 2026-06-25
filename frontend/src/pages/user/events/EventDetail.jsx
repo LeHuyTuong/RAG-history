@@ -19,7 +19,10 @@ const EventDetail = () => {
       try {
         let dbEvent = null;
         try {
-          const response = await apiClient.get(`${API_ENDPOINTS.USER_EVENT_DETAIL}/${id}`);
+          const url = typeof API_ENDPOINTS.USER_EVENT_DETAIL === 'function'
+            ? API_ENDPOINTS.USER_EVENT_DETAIL(id)
+            : `${API_ENDPOINTS.USER_EVENT_DETAIL}/${id}`;
+          const response = await apiClient.get(url);
           dbEvent = response.data?.data || response.data;
         } catch (apiErr) {
           console.error('Failed to fetch event detail from API, trying mock:', apiErr);
@@ -48,22 +51,47 @@ const EventDetail = () => {
           console.error('Error fetching participations:', err);
         }
 
+        let dbArticles = [];
+        try {
+          const articlesRes = await apiClient.get(API_ENDPOINTS.USER_ARTICLES, { params: { eventId: id, size: 100 } });
+          dbArticles = articlesRes.data?.data?.result || articlesRes.data?.data?.content || articlesRes.data?.data || [];
+        } catch (err) {
+          console.error('Error fetching event articles:', err);
+        }
+
         if (dbEvent || mockItem) {
+          const parseEventYear = (dateStr, fallbackYear) => {
+            if (!dateStr) return fallbackYear;
+            const isNegative = dateStr.startsWith('-');
+            const cleanStr = isNegative ? dateStr.substring(1) : dateStr;
+            const match = cleanStr.match(/^(\d{4})/);
+            if (match) {
+              const y = parseInt(match[1], 10);
+              return isNegative ? -y : y;
+            }
+            return fallbackYear;
+          };
+          const resolvedStartYear = parseEventYear(dbEvent?.startDate, dbEvent?.startYear);
           setEventData({
             ...mockItem,
             ...dbEvent,
             event_id: dbEvent?.id || mockItem?.id || mockItem?.event_id,
             title: dbEvent?.name || mockItem?.name || mockItem?.title || '',
             description: dbEvent?.description || mockItem?.description || '',
-            time: dbEvent?.startYear !== undefined
-              ? `${Math.abs(dbEvent.startYear)} ${dbEvent.startYear < 0 ? 'TCN' : ''}`
+            time: resolvedStartYear !== undefined
+              ? `${Math.abs(resolvedStartYear)}${resolvedStartYear < 0 ? ' TCN' : ''}`
               : mockItem?.time || '',
+            location: dbEvent?.locationRelations && dbEvent.locationRelations.length > 0
+              ? dbEvent.locationRelations.map(l => l.name).join(', ')
+              : (mockItem?.location || 'Chưa rõ'),
+            locationRelations: dbEvent?.locationRelations || mockItem?.locationRelations || [],
             participations: dbParts.length > 0 ? dbParts : (mockItem?.relatedFigures || []).map(f => ({
               person_id: f.person_id || f.id,
               person_name: f.name,
               role: f.role || 'Tham chiến',
               color: 'border-l-[#d99b4a]'
-            }))
+            })),
+            relatedArticles: dbArticles
           });
         }
       } catch (error) {
@@ -95,11 +123,25 @@ const EventDetail = () => {
         <section className="mb-20 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-8">
             <span className="inline-block bg-[#6b0f0d]/5 text-[#6b0f0d] px-4 py-1.5 font-body text-[10px] font-bold uppercase tracking-[0.3em] border border-[#d99b4a]/30 shadow-sm">
-              Imperial Victory
+              {eventData.period?.name || eventData.category || 'Chiến tích Lịch sử'}
             </span>
             <h1 className="font-headline text-5xl md:text-7xl text-[#6b0f0d] leading-tight font-semibold tracking-tight">
               {eventData.title || eventData.name}
             </h1>
+            {/* Tags đã chọn */}
+            <div className="flex flex-wrap gap-2 pt-2">
+              {(eventData.period?.name || eventData.category) && (
+                <span className="bg-[#6b0f0d] text-[#ffe7b0] px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-[#d99b4a]/30 shadow-sm">
+                  Triều đại: {eventData.period?.name || eventData.category}
+                </span>
+              )}
+              {eventData.locationRelations && eventData.locationRelations.map((loc, idx) => (
+                <span key={idx} className="bg-[#fffdf8] text-[#6b0f0d] px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-[#d99b4a]/30 flex items-center gap-1.5 shadow-sm">
+                  <span className="material-symbols-outlined text-[12px] opacity-70">location_on</span>
+                  {loc.name}
+                </span>
+              ))}
+            </div>
             <div 
               className="font-body text-[16px] text-[#2b1a16]/90 max-w-2xl border-l-4 border-[#d99b4a] pl-8 py-2 leading-relaxed space-y-4 ql-editor"
               dangerouslySetInnerHTML={{ __html: eventData.subtitle || eventData.description }}
@@ -120,10 +162,10 @@ const EventDetail = () => {
 
         {/* --- 2. BASIC INFO BENTO GRID --- */}
         <section className="mb-20 grid grid-cols-1 md:grid-cols-4 gap-6">
-          <InfoCard icon="calendar_today" label="Thời gian" value={eventData.time} />
+          <InfoCard icon="calendar_today" label="Niên đại" value={eventData.time} />
           <InfoCard icon="location_on" label="Địa điểm" value={eventData.location} />
-          <InfoCard icon="groups" label="Lực lượng" value={eventData.forces} />
-          <InfoCard icon="military_tech" label="Kết quả" value={eventData.result} isHighlight />
+          <InfoCard icon="groups" label="Lực lượng" value={eventData.forces || 'Chưa rõ'} />
+          <InfoCard icon="military_tech" label="Kết quả" value={eventData.result || 'Chưa rõ'} isHighlight />
         </section>
 
         {/* --- 3. TACTICAL MAP & GALLERY --- */}
@@ -171,6 +213,41 @@ const EventDetail = () => {
             ))}
           </div>
         </section>
+
+        {/* --- 5. RELATED ARTICLES --- */}
+        {eventData.relatedArticles && eventData.relatedArticles.length > 0 && (
+          <section className="space-y-10 border-t border-[#d99b4a]/30 pt-16 mt-20">
+            <h2 className="font-headline text-3xl text-[#6b0f0d] font-semibold">Bài viết liên quan</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+              {eventData.relatedArticles.map((art) => (
+                <article key={art.id || art.post_id} className="group bg-[#fffdf8] border border-[#d99b4a]/30 shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-500 flex flex-col relative overflow-hidden">
+                  <div className="border border-[#d99b4a]/30 relative flex flex-col h-full bg-[#fcf9ee] dong-son-pattern">
+                    <div className="h-52 overflow-hidden relative border-b border-[#d99b4a]/30">
+                      <Link to={`/articles/${art.slug}`}>
+                        <img
+                          className="w-full h-full object-cover grayscale-[0.6] sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0 group-hover:scale-110 transition-transform duration-700"
+                          src={art.thumbnailUrl || "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg"}
+                          alt={art.title}
+                        />
+                      </Link>
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201]/60 to-transparent opacity-70 pointer-events-none"></div>
+                    </div>
+                    <div className="p-6 flex flex-col flex-grow relative z-10">
+                      <Link to={`/articles/${art.slug}`}>
+                        <h4 className="font-headline text-xl text-[#2b0504] font-semibold group-hover:text-[#6b0f0d] transition-colors mb-3 leading-tight tracking-tight">
+                          {art.title}
+                        </h4>
+                      </Link>
+                      <p className="font-body text-xs text-[#2b1a16]/80 line-clamp-3 mb-4 leading-relaxed">
+                        {art.summary}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
 
       </main>
     </div>

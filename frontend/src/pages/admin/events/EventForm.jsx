@@ -2,7 +2,15 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { generateSlug } from '../../../utils/stringUtils';
 import { RichTextEditor, EntityRelationInput, FormHeader, TagInput } from '../../../components/admin';
-import apiClient, { mockClient, extractErrorMessage } from '../../../services/apiClient';
+import {
+  apiClient,
+  mockClient,
+  extractErrorMessage,
+  locationService,
+  personService,
+  periodService,
+  eventService
+} from '../../../services';
 import { API_ENDPOINTS } from '../../../services/api';
 
 const EventForm = () => {
@@ -13,8 +21,10 @@ const EventForm = () => {
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
-    time: '',
-    sub: '',
+    startYear: '',
+    startYearEra: 'SCN',
+    endYear: '',
+    endYearEra: 'SCN',
     description: '',
     dynasty: [],
     status: 'Bản nháp',
@@ -36,10 +46,8 @@ const EventForm = () => {
 
           if (!isNaN(Number(id))) {
             try {
-              const response = await apiClient.get(`${API_ENDPOINTS.ADMIN_EVENTS}/${id}`);
-              const data = response.data?.data || response.data;
-              if (data) {
-                foundEvent = data;
+              foundEvent = await eventService.getById(Number(id));
+              if (foundEvent) {
                 try {
                   const partRes = await apiClient.get('/api/v1/admin/participations', {
                     params: { eventId: id, size: 500 }
@@ -65,12 +73,37 @@ const EventForm = () => {
 
           if (foundEvent) {
             setOriginalData(foundEvent);
+            const extractYearAndEra = (dateStr, fallbackYear) => {
+              if (!dateStr) {
+                if (fallbackYear !== undefined && fallbackYear !== null && fallbackYear !== '') {
+                  const val = Math.abs(parseInt(fallbackYear));
+                  const era = parseInt(fallbackYear) < 0 ? 'TCN' : 'SCN';
+                  return { val, era };
+                }
+                return { val: '', era: 'SCN' };
+              }
+              const isNegative = dateStr.startsWith('-');
+              const cleanStr = isNegative ? dateStr.substring(1) : dateStr;
+              const parts = cleanStr.split('-');
+              if (parts[0]) {
+                const y = parseInt(parts[0]);
+                if (!isNaN(y)) {
+                  return { val: y, era: isNegative ? 'TCN' : 'SCN' };
+                }
+              }
+              return { val: '', era: 'SCN' };
+            };
+            const sYearObj = extractYearAndEra(foundEvent.startDate, foundEvent.startYear);
+            const eYearObj = extractYearAndEra(foundEvent.endDate, foundEvent.endYear);
+
             setFormData(prev => ({
               ...prev,
               name: foundEvent.name || foundEvent.title || '',
               slug: foundEvent.slug || generateSlug(foundEvent.name || foundEvent.title || ''),
-              time: foundEvent.startYear !== undefined && foundEvent.startYear !== null ? `${foundEvent.startYear} - ${foundEvent.endYear || ''}` : (foundEvent.time || foundEvent.startDate || foundEvent.date || ''),
-              sub: foundEvent.sub || foundEvent.shortDesc || (foundEvent.description ? foundEvent.description.replace(/<[^>]*>/g, '') : ''),
+              startYear: sYearObj.val,
+              startYearEra: sYearObj.era,
+              endYear: eYearObj.val,
+              endYearEra: eYearObj.era,
               description: foundEvent.description || foundEvent.content || '',
               dynasty: foundEvent.period ? [foundEvent.period.name] : (foundEvent.dynasties ? foundEvent.dynasties : (foundEvent.dynasty ? (Array.isArray(foundEvent.dynasty) ? foundEvent.dynasty : [foundEvent.dynasty]) : [])),
               status: (foundEvent.status === 'published' || !foundEvent.status || foundEvent.status === 'PUBLISHED') ? 'Công khai' : 'Bản nháp',
@@ -88,13 +121,12 @@ const EventForm = () => {
 
     const fetchAvailableData = async () => {
       try {
-        const [locRes, charRes, metaRes] = await Promise.all([
-          apiClient.get(API_ENDPOINTS.ADMIN_LOCATIONS, { params: { size: 500 } }),
-          apiClient.get(API_ENDPOINTS.ADMIN_CHARACTERS, { params: { size: 500 } }),
-          apiClient.get(API_ENDPOINTS.ADMIN_PERIODS, { params: { size: 500 } })
+        const [locData, charData, periodsList] = await Promise.all([
+          locationService.listAll({ size: 500 }),
+          personService.listAll({ size: 500 }),
+          periodService.listAll({ size: 500 })
         ]);
 
-        const locData = locRes.data?.data?.result || locRes.data?.data?.content || [];
         setAvailableLocations(locData.map(l => ({
           id: l.id,
           name: l.name,
@@ -104,7 +136,6 @@ const EventForm = () => {
           status: 'PUBLISHED'
         })));
 
-        const charData = charRes.data?.data?.result || charRes.data?.data?.content || [];
         setAvailableCharacters(charData.map(c => ({
           ...c,
           title: c.alias || '',
@@ -113,21 +144,24 @@ const EventForm = () => {
           status: c.status || 'published'
         })));
 
-        const periodsList = metaRes.data?.data?.result || metaRes.data?.data || [];
         setPeriods(periodsList);
         setAvailablePeriods(periodsList.map(p => p.name));
       } catch (error) {
         console.error('Lỗi khi tải dữ liệu liên kết từ backend, dùng mock làm dự phòng:', error);
         try {
-          const [locRes, charRes, metaRes] = await Promise.all([
+          const [locRes, charRes, periodsRes] = await Promise.all([
             mockClient.get('/api/admin_locations.json').then(r => r.data),
             mockClient.get('/api/admin_characters.json').then(r => r.data),
-            mockClient.get('/api/admin_metadata.json').then(r => r.data)
+            mockClient.get('/api/user_periods.json').then(r => r.data)
           ]);
           setAvailableLocations(locRes.locations || []);
           setAvailableCharacters(charRes.characters || []);
-          setAvailablePeriods(metaRes.periods?.map(p => p.name) || []);
-          setPeriods(metaRes.periods || []);
+          const mockPeriodsList = (periodsRes || []).map(p => ({
+            ...p,
+            id: p.id || p.period_id
+          }));
+          setAvailablePeriods(mockPeriodsList.map(p => p.name) || []);
+          setPeriods(mockPeriodsList || []);
         } catch (e) {
           console.error('Lỗi khi tải dữ liệu mock làm dự phòng:', e);
         }
@@ -165,7 +199,7 @@ const EventForm = () => {
   };
 
   const handleAddDynasty = (tag) => {
-    setFormData(prev => ({ ...prev, dynasty: [...new Set([...(prev.dynasty || []), tag])] }));
+    setFormData(prev => ({ ...prev, dynasty: [tag] }));
   };
 
   const handleRemoveDynasty = (tag) => {
@@ -179,13 +213,41 @@ const EventForm = () => {
       return;
     }
 
+    if (formData.startYear !== '' && formData.startYear !== null && formData.startYear !== undefined) {
+      const sYear = parseInt(formData.startYear, 10);
+      if (isNaN(sYear) || sYear < 0) {
+        alert('Năm bắt đầu phải là số nguyên dương lớn hơn hoặc bằng 0.');
+        return;
+      }
+    }
+    if (formData.endYear !== '' && formData.endYear !== null && formData.endYear !== undefined) {
+      const eYear = parseInt(formData.endYear, 10);
+      if (isNaN(eYear) || eYear < 0) {
+        alert('Năm kết thúc phải là số nguyên dương lớn hơn hoặc bằng 0.');
+        return;
+      }
+    }
+
+    if (formData.startYear !== '' && formData.startYear !== null && formData.startYear !== undefined &&
+        formData.endYear !== '' && formData.endYear !== null && formData.endYear !== undefined) {
+      const sYear = parseInt(formData.startYear, 10);
+      const eYear = parseInt(formData.endYear, 10);
+      const startVal = formData.startYearEra === 'TCN' ? -sYear : sYear;
+      const endVal = formData.endYearEra === 'TCN' ? -eYear : eYear;
+      if (startVal > endVal) {
+        alert('Lỗi hợp lệ: Năm bắt đầu không thể diễn ra sau năm kết thúc.');
+        return;
+      }
+    }
+
     try {
-      let startYear = null;
-      let endYear = null;
-      if (formData.time) {
-        const parts = formData.time.split('-');
-        if (parts[0]) startYear = parseInt(parts[0].trim()) || null;
-        if (parts[1]) endYear = parseInt(parts[1].trim()) || null;
+      let startYear = formData.startYear !== '' ? parseInt(formData.startYear) : null;
+      if (startYear !== null && formData.startYearEra === 'TCN') {
+        startYear = -startYear;
+      }
+      let endYear = formData.endYear !== '' ? parseInt(formData.endYear) : null;
+      if (endYear !== null && formData.endYearEra === 'TCN') {
+        endYear = -endYear;
       }
 
       let selectedPeriodId = null;
@@ -195,9 +257,6 @@ const EventForm = () => {
         if (matchedPeriod) {
           selectedPeriodId = matchedPeriod.id;
         }
-      }
-      if (!selectedPeriodId) {
-        selectedPeriodId = originalData.period?.id || null;
       }
 
       const locationRelations = (formData.relatedLocations || [])
@@ -210,6 +269,23 @@ const EventForm = () => {
         })
         .filter(rel => rel !== null);
 
+      let startDate = null;
+      let endDate = null;
+      if (formData.startYear !== '' && formData.startYear !== null) {
+        const sYear = parseInt(formData.startYear);
+        if (!isNaN(sYear) && sYear >= 0) {
+          const sign = formData.startYearEra === 'TCN' ? '-' : '';
+          startDate = `${sign}${String(sYear).padStart(4, '0')}-01-01`;
+        }
+      }
+      if (formData.endYear !== '' && formData.endYear !== null) {
+        const eYear = parseInt(formData.endYear);
+        if (!isNaN(eYear) && eYear >= 0) {
+          const sign = formData.endYearEra === 'TCN' ? '-' : '';
+          endDate = `${sign}${String(eYear).padStart(4, '0')}-01-01`;
+        }
+      }
+
       const payload = {
         name: formData.name,
         slug: formData.slug,
@@ -217,18 +293,17 @@ const EventForm = () => {
         periodId: selectedPeriodId,
         startYear: startYear,
         endYear: endYear,
-        startDate: null,
-        endDate: null,
+        startDate: startDate,
+        endDate: endDate,
         certaintyLevel: 'CERTAIN',
         locationRelations: locationRelations
       };
 
       let savedEventId = Number(id);
       if (isEdit && !isNaN(Number(id))) {
-        await apiClient.put(`${API_ENDPOINTS.ADMIN_EVENTS}/${id}`, payload);
+        await eventService.update(Number(id), payload);
       } else {
-        const res = await apiClient.post(API_ENDPOINTS.ADMIN_EVENTS, payload);
-        const newEvent = res.data?.data || res.data;
+        const newEvent = await eventService.create(payload);
         if (newEvent && newEvent.id) {
           savedEventId = Number(newEvent.id);
         }
@@ -331,28 +406,44 @@ const EventForm = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-outline-variant/30">
                   <div className="space-y-2">
-                    <label className="block font-body text-[11px] font-bold uppercase text-on-surface-variant tracking-widest">Thời gian diễn ra</label>
-                    <div className="bg-surface-low/50 border border-outline-variant/60 rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all p-1 h-12">
+                    <label className="block font-body text-[11px] font-bold uppercase text-on-surface-variant tracking-widest">Năm bắt đầu</label>
+                    <div className="bg-surface-low/50 border border-outline-variant/60 rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all p-1 h-12 flex items-center">
                       <input
-                        type="text"
-                        value={formData.time}
-                        onChange={e => setFormData(prev => ({ ...prev, time: e.target.value }))}
-                        className="w-full h-full bg-transparent border-none px-3 font-body text-xs outline-none placeholder:text-outline-variant/60 font-bold text-on-surface"
-                        placeholder="VD: Năm 1010, Thế kỷ 15..."
+                        type="number"
+                        value={formData.startYear}
+                        onChange={e => setFormData(prev => ({ ...prev, startYear: e.target.value }))}
+                        className="flex-grow h-full bg-transparent border-none px-3 font-body text-xs outline-none placeholder:text-outline-variant/60 font-bold text-on-surface"
+                        placeholder="VD: 1010"
                       />
+                      <select
+                        value={formData.startYearEra}
+                        onChange={e => setFormData(prev => ({ ...prev, startYearEra: e.target.value }))}
+                        className="bg-transparent border-0 border-l border-outline-variant/40 px-2 h-full text-xs font-bold text-primary outline-none cursor-pointer"
+                      >
+                        <option value="SCN">SCN</option>
+                        <option value="TCN">TCN</option>
+                      </select>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block font-body text-[11px] font-bold uppercase text-on-surface-variant tracking-widest">Phụ đề (Mô tả ngắn gọn)</label>
-                    <div className="bg-surface-low/50 border border-outline-variant/60 rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all p-1 h-12">
+                    <label className="block font-body text-[11px] font-bold uppercase text-on-surface-variant tracking-widest">Năm kết thúc</label>
+                    <div className="bg-surface-low/50 border border-outline-variant/60 rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all p-1 h-12 flex items-center">
                       <input
-                        type="text"
-                        value={formData.sub}
-                        onChange={e => setFormData(prev => ({ ...prev, sub: e.target.value }))}
-                        className="w-full h-full bg-transparent border-none px-3 font-body text-xs outline-none placeholder:text-outline-variant/60 font-bold text-on-surface"
-                        placeholder="VD: Chiếu dời đô của Lý Công Uẩn..."
+                        type="number"
+                        value={formData.endYear}
+                        onChange={e => setFormData(prev => ({ ...prev, endYear: e.target.value }))}
+                        className="flex-grow h-full bg-transparent border-none px-3 font-body text-xs outline-none placeholder:text-outline-variant/60 font-bold text-on-surface"
+                        placeholder="VD: 1025"
                       />
+                      <select
+                        value={formData.endYearEra}
+                        onChange={e => setFormData(prev => ({ ...prev, endYearEra: e.target.value }))}
+                        className="bg-transparent border-0 border-l border-outline-variant/40 px-2 h-full text-xs font-bold text-primary outline-none cursor-pointer"
+                      >
+                        <option value="SCN">SCN</option>
+                        <option value="TCN">TCN</option>
+                      </select>
                     </div>
                   </div>
                 </div>

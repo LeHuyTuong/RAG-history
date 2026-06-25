@@ -35,6 +35,47 @@ const CharacterDetail = () => {
           console.error('Error fetching mock characters:', err);
         }
 
+        let dbParts = [];
+        let relatedLocations = [];
+        let relatedPosts = [];
+        try {
+          const partsRes = await apiClient.get('/api/v1/admin/participations', { params: { personId: id } });
+          dbParts = partsRes.data?.data?.result || partsRes.data?.data || [];
+          
+          if (dbParts.length > 0) {
+            const eventIds = dbParts.map(p => p.event?.id).filter(Boolean);
+            
+            const eventsRes = await apiClient.get(API_ENDPOINTS.USER_EVENTS, { params: { size: 500 } });
+            const allEvents = eventsRes.data?.data?.result || eventsRes.data?.data?.content || eventsRes.data?.data || [];
+            const characterEvents = allEvents.filter(e => eventIds.includes(e.id));
+            
+            const locsMap = new Map();
+            characterEvents.forEach(ev => {
+              if (ev.locationRelations) {
+                ev.locationRelations.forEach(loc => {
+                  locsMap.set(loc.locationId, {
+                    id: loc.locationId,
+                    name: loc.name,
+                    slug: loc.slug,
+                    type: loc.locationType
+                  });
+                });
+              }
+            });
+            relatedLocations = Array.from(locsMap.values());
+            
+            try {
+              const postsRes = await apiClient.get(API_ENDPOINTS.USER_ARTICLES, { params: { size: 500 } });
+              const allPosts = postsRes.data?.data?.result || postsRes.data?.data?.content || postsRes.data?.data || [];
+              relatedPosts = allPosts.filter(post => post.event?.id && eventIds.includes(post.event.id));
+            } catch (err) {
+              console.error('Error fetching related posts for character:', err);
+            }
+          }
+        } catch (err) {
+          console.error('Error fetching character associations:', err);
+        }
+
         if (dbPerson || mockItem) {
           setCharacter({
             portrait: mockItem?.image || mockItem?.portrait || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
@@ -43,6 +84,8 @@ const CharacterDetail = () => {
             person_id: dbPerson?.id || mockItem?.id || mockItem?.person_id,
             biography: dbPerson?.biography || mockItem?.biography || '',
             description: dbPerson?.biography || mockItem?.biography || mockItem?.description || '',
+            relatedLocations,
+            relatedArticles: relatedPosts
           });
         }
       } catch (error) {

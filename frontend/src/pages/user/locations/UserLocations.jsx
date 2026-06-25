@@ -136,7 +136,7 @@ export default function UserLocations() {
               onChange={e => setSelectedDynasty(e.target.value)}
               className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] rounded-lg py-3 pl-12 pr-10 appearance-none outline-none focus:border-[#6b0f0d]/60 transition-colors font-body cursor-pointer shadow-inner"
             >
-              <option value="">Tất cả thời kỳ</option>
+              <option value="">Tất cả triều đại</option>
               {dynasties.map(dyn => (
                 <option key={dyn} value={dyn}>{dyn}</option>
               ))}

@@ -7,11 +7,14 @@ import {
     postService,
     mockClient
 } from '../../../services';
+import { usePeriodColors } from '../../../hooks/usePeriodColors';
+import { stripHtml } from '../../../utils/stringUtils';
 
 const DEFAULT_PERIOD_ICONS = ['hourglass_empty', 'history', 'person', 'account_balance', 'map', 'auto_stories'];
 const DEFAULT_CHAR_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg';
 
 const Home = () => {
+    const { getPeriodStyle } = usePeriodColors();
     const navigate = useNavigate();
     const [data, setData] = useState({ featuredCharacters: [], recentPosts: [], periods: [], events: [] });
     const [loading, setLoading] = useState(true);
@@ -67,7 +70,7 @@ const Home = () => {
                     mergedPeriods = dbPeriods.slice(0, 6).map((p, idx) => ({
                         ...p,
                         years: p.startYear !== undefined && p.endYear !== undefined
-                            ? `${Math.abs(p.startYear)} ${p.startYear < 0 ? 'TCN' : ''} - ${p.endYear ? Math.abs(p.endYear) + (p.endYear < 0 ? ' TCN' : '') : 'Nay'}`
+                            ? `${Math.abs(p.startYear)}${p.startYear < 0 ? ' TCN' : ''} - ${p.endYear ? Math.abs(p.endYear) + (p.endYear < 0 ? ' TCN' : '') : 'Nay'}`
                             : '',
                         icon: DEFAULT_PERIOD_ICONS[idx % DEFAULT_PERIOD_ICONS.length],
                     }));
@@ -104,10 +107,32 @@ const Home = () => {
                         return {
                             ...mockChar,
                             ...c,
-                            years: c.birthDate || c.deathDate
-                                ? `${c.birthDate ? c.birthDate : '?'} - ${c.deathDate ? c.deathDate : '?'}`
-                                : mockChar.years || '',
-                            desc: (c.biography || '').replace(/<[^>]*>/g, '') || mockChar.desc || '',
+                            years: (() => {
+                                const parseCharYear = (dateStr) => {
+                                    if (!dateStr) return null;
+                                    const isNegative = dateStr.startsWith('-');
+                                    const cleanStr = isNegative ? dateStr.substring(1) : dateStr;
+                                    const match = cleanStr.match(/^(\d{4})/);
+                                    if (match) {
+                                        const y = parseInt(match[1], 10);
+                                        return isNegative ? -y : y;
+                                    }
+                                    return null;
+                                };
+                                const formatYear = (y) => {
+                                    if (y === undefined || y === null || y === '') return '';
+                                    const val = parseInt(y, 10);
+                                    if (isNaN(val)) return y;
+                                    return val < 0 ? `${Math.abs(val)} TCN` : `${val}`;
+                                };
+                                const start = parseCharYear(c.birthDate);
+                                const end = parseCharYear(c.deathDate);
+                                if (!start && !end) return mockChar.years || '';
+                                if (!start) return `? - ${formatYear(end)}`;
+                                if (!end) return `${formatYear(start)} - ?`;
+                                return `${formatYear(start)} - ${formatYear(end)}`;
+                            })(),
+                            desc: stripHtml(c.biography) || mockChar.desc || '',
                             image: c.image || mockChar.image || DEFAULT_CHAR_IMAGE,
                         };
                     });
@@ -127,9 +152,9 @@ const Home = () => {
                             ...mockEv,
                             ...e,
                             date: e.startYear !== undefined
-                                ? `${Math.abs(e.startYear)} ${e.startYear < 0 ? 'TCN' : ''}`
+                                ? `${Math.abs(e.startYear)}${e.startYear < 0 ? ' TCN' : ''}`
                                 : mockEv.date || '',
-                            desc: (e.description || '').replace(/<[^>]*>/g, '') || mockEv.desc || '',
+                            desc: stripHtml(e.description) || mockEv.desc || '',
                             title: e.name || mockEv.title || '',
                         };
                     });
@@ -152,11 +177,15 @@ const Home = () => {
                                 : mockPost.date || '',
                             desc: p.summary || mockPost.desc || '',
                             category: p.tags?.[0]?.name || mockPost.category || 'Nghiên cứu',
+                            categories: p.tags && p.tags.length > 0
+                                ? p.tags.map(t => typeof t === 'object' ? t.name : t)
+                                : (mockPost.categories || [mockPost.category || 'Nghiên cứu']),
                         };
                     });
                 } else {
                     mergedPosts = (mockHome.recentPosts || []).map(p => ({
                         ...p,
+                        categories: p.categories || [p.category || 'Nghiên cứu'],
                     }));
                 }
 
@@ -330,8 +359,15 @@ const Home = () => {
                                         auto_stories
                                     </span>
                                 </div>
-                                <div className="absolute top-3 left-3 bg-[#6b0f0d] text-[#ffe7b0] text-[9px] font-bold px-3 py-1 rounded-sm uppercase tracking-widest z-10">
-                                    {post.category && post.category.includes('Nhà') ? post.category.replace('Nhà', 'Triều') : post.category}
+                                <div className="absolute top-3 left-3 flex flex-wrap gap-1 z-10 max-w-[90%]">
+                                    {(post.categories || [post.category]).map((cat, idx) => {
+                                        const cleanCat = cat && cat.includes('Nhà') ? cat.replace('Nhà', 'Triều') : cat;
+                                        return (
+                                            <span key={idx} className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border shadow-md ${getPeriodStyle(cleanCat)}`}>
+                                                {cleanCat}
+                                            </span>
+                                        );
+                                    })}
                                 </div>
                             </div>
 

@@ -48,7 +48,7 @@ const UserPeriods = () => {
               ...dbItem,
               period_id: dbItem.id,
               range: dbItem.startYear !== undefined && dbItem.endYear !== undefined
-                ? `${Math.abs(dbItem.startYear)} ${dbItem.startYear < 0 ? 'TCN' : ''} - ${dbItem.endYear ? Math.abs(dbItem.endYear) + (dbItem.endYear < 0 ? ' TCN' : '') : 'Nay'}`
+                ? `${Math.abs(dbItem.startYear)}${dbItem.startYear < 0 ? ' TCN' : ''} - ${dbItem.endYear ? Math.abs(dbItem.endYear) + (dbItem.endYear < 0 ? ' TCN' : '') : 'Nay'}`
                 : mockItem.range || ''
             };
           });

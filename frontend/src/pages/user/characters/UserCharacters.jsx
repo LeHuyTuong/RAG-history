@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { personService } from '../../../services';
 import { mockClient } from '../../../services/apiClient';
+import { stripHtml } from '../../../utils/stringUtils';
 
 const UserCharacters = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,7 +35,7 @@ const UserCharacters = () => {
           merged = dbItems.map(dbItem => {
             const mockItem = mockChars.find(m => m.slug === dbItem.slug) || {};
             const rawDesc = dbItem.biography || mockItem.biography || mockItem.description || '';
-            const cleanDesc = rawDesc ? rawDesc.replace(/<[^>]*>/g, '') : '';
+            const cleanDesc = stripHtml(rawDesc);
             return {
               ...mockItem,
               ...dbItem,
@@ -73,7 +74,7 @@ const UserCharacters = () => {
 
   const filteredCharacters = characters.filter(char => {
     const matchesSearch = char.name.toLowerCase().includes(searchTerm.toLowerCase()) || char.realName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesPeriod = activePeriod === '' || activePeriod === 'Tất cả thời kỳ' || char.dynasty.includes(activePeriod.replace('Triều ', ''));
+    const matchesPeriod = activePeriod === '' || activePeriod === 'Tất cả thời kỳ' || activePeriod === 'Tất cả thời đại' || activePeriod === 'Tất cả triều đại' || char.dynasty.includes(activePeriod.replace('Triều ', ''));
     return matchesSearch && matchesPeriod;
   });
 
@@ -123,7 +124,7 @@ const UserCharacters = () => {
                 value={activePeriod}
                 onChange={(e) => setActivePeriod(e.target.value)}
                 className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] rounded-lg py-3 pl-12 pr-10 appearance-none outline-none focus:border-[#6b0f0d]/60 transition-colors font-body cursor-pointer shadow-inner">
-                <option value="">Tất cả thời kỳ</option>
+                <option value="">Tất cả triều đại</option>
                 {periods.map(p => <option key={p} value={p}>{p}</option>)}
               </select>
               <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#6b0f0d]/60 pointer-events-none">expand_more</span>

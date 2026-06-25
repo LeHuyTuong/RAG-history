@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { generateSlug } from '../../../utils/stringUtils';
-import { RichTextEditor, FormHeader, VietnamMap, TagInput } from '../../../components/admin';
-import { locationService, extractErrorMessage } from '../../../services';
+import { RichTextEditor, FormHeader, VietnamMap, EntityRelationInput } from '../../../components/admin';
+import { locationService, eventService, extractErrorMessage } from '../../../services';
 
 const LocationForm = () => {
   const { id } = useParams();
@@ -10,15 +10,41 @@ const LocationForm = () => {
   const isEdit = !!id;
 
   const [form, setForm] = useState({
-    name: '', slug: '', locationType: 'Cố đô/Thành quách', latitude: '', longitude: '', description: '', dynasty: [], status: 'draft'
+    name: '', slug: '', locationType: 'Cố đô/Thành quách', latitude: '', longitude: '', description: '', status: 'draft',
+    relatedEvents: []
   });
-  const [originalData, setOriginalData] = useState({});
-  const [availablePeriods, setAvailablePeriods] = useState([]);
+  const [originalData, setOriginalData] = useState({
+    originalEvents: []
+  });
+  const [availableEvents, setAvailableEvents] = useState([]);
 
   useEffect(() => {
-    if (isEdit) {
-      const fetchData = async () => {
+    const loadAllData = async () => {
+      try {
+        let eventsList = [];
         try {
+          eventsList = await eventService.listAll({ size: 500 });
+        } catch (err) {
+          console.error('Lỗi khi tải danh sách sự kiện:', err);
+          try {
+            const response = await fetch('/api/admin_events.json');
+            if (response.ok) {
+              const data = await response.json();
+              eventsList = data.events || [];
+            }
+          } catch (mockErr) {
+            console.error('Lỗi khi tải danh sách sự kiện từ mock:', mockErr);
+          }
+        }
+
+        const mappedEvents = eventsList.map(e => ({
+          id: e.id,
+          name: e.name || e.title,
+          locationRelations: e.locationRelations || []
+        }));
+        setAvailableEvents(mappedEvents);
+
+        if (isEdit) {
           let foundLocation = null;
 
           if (!isNaN(Number(id))) {
@@ -29,8 +55,6 @@ const LocationForm = () => {
             }
           }
 
-          // Removed localStorage fallback check
-
           if (!foundLocation) {
             const response = await fetch('/api/admin_locations.json');
             if (response.ok) {
@@ -40,8 +64,6 @@ const LocationForm = () => {
           }
 
           if (foundLocation) {
-            setOriginalData(foundLocation);
-            
             let initialLat = foundLocation.lat || foundLocation.latitude || '';
             let initialLng = foundLocation.lng || foundLocation.longitude || '';
             if (foundLocation.coords && typeof foundLocation.coords === 'string') {
@@ -52,12 +74,9 @@ const LocationForm = () => {
               }
             }
 
-            let initialDynasties = [];
-            if (foundLocation.dynasties && Array.isArray(foundLocation.dynasties)) {
-              initialDynasties = foundLocation.dynasties;
-            } else if (foundLocation.dynasty) {
-              initialDynasties = Array.isArray(foundLocation.dynasty) ? foundLocation.dynasty : [foundLocation.dynasty];
-            }
+            const matchedEvents = mappedEvents
+              .filter(e => e.locationRelations.some(rel => Number(rel.locationId) === Number(foundLocation.id)))
+              .map(e => e.name);
 
             setForm({
               name: foundLocation.name || '',
@@ -66,39 +85,79 @@ const LocationForm = () => {
               latitude: initialLat,
               longitude: initialLng,
               description: foundLocation.description || foundLocation.shortDesc || '',
-              dynasty: initialDynasties,
-              status: (foundLocation.status === 'published' || !foundLocation.status || foundLocation.status === 'Công khai') ? 'published' : 'draft'
+              status: (foundLocation.status === 'published' || !foundLocation.status || foundLocation.status === 'Công khai') ? 'published' : 'draft',
+              relatedEvents: matchedEvents
             });
-          }
-        } catch (error) {
-          console.error('Lỗi khi tải dữ liệu địa danh:', error);
-        }
-      };
-      fetchData();
-    }
 
-    const fetchPeriods = async () => {
-      try {
-        const response = await fetch('/api/admin_metadata.json');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.periods) {
-            setAvailablePeriods(data.periods.map(p => p.name));
+            setOriginalData({
+              ...foundLocation,
+              originalEvents: matchedEvents
+            });
           }
         }
       } catch (error) {
-        console.error('Lỗi tải danh sách triều đại:', error);
+        console.error('Lỗi khi tải dữ liệu địa danh:', error);
       }
     };
-    fetchPeriods();
+    loadAllData();
   }, [id, isEdit]);
 
-  const handleAddDynasty = (tag) => {
-    setForm(prev => ({ ...prev, dynasty: [...new Set([...(prev.dynasty || []), tag])] }));
+  const addEvent = (eventVal) => {
+    setForm(prev => ({
+      ...prev,
+      relatedEvents: [...new Set([...(prev.relatedEvents || []), eventVal])]
+    }));
   };
 
-  const handleRemoveDynasty = (tag) => {
-    setForm(prev => ({ ...prev, dynasty: prev.dynasty.filter(t => t !== tag) }));
+  const removeEvent = (eventToRemove) => {
+    setForm(prev => ({
+      ...prev,
+      relatedEvents: (prev.relatedEvents || []).filter(e => e !== eventToRemove)
+    }));
+  };
+
+  const updateEventLocationRelations = async (eventMatch, locationId, isAdd) => {
+    try {
+      const fullEvent = await eventService.getById(eventMatch.id);
+      if (!fullEvent) return;
+
+      let updatedRelations = [];
+      if (fullEvent.locationRelations) {
+        updatedRelations = fullEvent.locationRelations.map(r => ({
+          locationId: Number(r.locationId),
+          relationType: r.relationType || 'HAPPENED_AT'
+        }));
+      }
+
+      if (isAdd) {
+        const exists = updatedRelations.some(r => Number(r.locationId) === Number(locationId));
+        if (!exists) {
+          updatedRelations.push({
+            locationId: Number(locationId),
+            relationType: 'HAPPENED_AT'
+          });
+        }
+      } else {
+        updatedRelations = updatedRelations.filter(r => Number(r.locationId) !== Number(locationId));
+      }
+
+      const eventPayload = {
+        name: fullEvent.name,
+        slug: fullEvent.slug,
+        description: fullEvent.description,
+        periodId: fullEvent.period ? fullEvent.period.id : null,
+        startYear: fullEvent.startYear,
+        endYear: fullEvent.endYear,
+        startDate: fullEvent.startDate,
+        endDate: fullEvent.endDate,
+        certaintyLevel: fullEvent.certaintyLevel || 'CERTAIN',
+        locationRelations: updatedRelations
+      };
+
+      await eventService.update(fullEvent.id, eventPayload);
+    } catch (err) {
+      console.error(`Lỗi khi cập nhật quan hệ sự kiện ${eventMatch.name}:`, err);
+    }
   };
 
   const handleSave = async () => {
@@ -125,11 +184,45 @@ const LocationForm = () => {
         description: form.description
       };
 
+      let savedLocationId = Number(id);
       if (isEdit && !isNaN(Number(id))) {
         await locationService.update(Number(id), payload);
       } else {
-        await locationService.create(payload);
+        const newLocation = await locationService.create(payload);
+        if (newLocation && newLocation.id) {
+          savedLocationId = Number(newLocation.id);
+        }
       }
+
+      // Sync relationships
+      if (!isNaN(savedLocationId)) {
+        try {
+          const originalEvents = originalData.originalEvents || [];
+          const selectedEvents = form.relatedEvents || [];
+
+          const toDelete = originalEvents.filter(name => !selectedEvents.includes(name));
+          const toAdd = selectedEvents.filter(name => !originalEvents.includes(name));
+
+          // Run sync for deletions
+          for (const name of toDelete) {
+            const eventMatch = availableEvents.find(e => e.name === name);
+            if (eventMatch) {
+              await updateEventLocationRelations(eventMatch, savedLocationId, false);
+            }
+          }
+
+          // Run sync for additions
+          for (const name of toAdd) {
+            const eventMatch = availableEvents.find(e => e.name === name);
+            if (eventMatch) {
+              await updateEventLocationRelations(eventMatch, savedLocationId, true);
+            }
+          }
+        } catch (syncErr) {
+          console.error('Lỗi khi đồng bộ sự kiện liên quan:', syncErr);
+        }
+      }
+
       navigate('/admin/locations');
     } catch (error) {
       console.error('Lỗi khi lưu địa danh:', error);
@@ -237,17 +330,7 @@ const LocationForm = () => {
                     </div>
                   </div>
                 </div>
-                <div className="pt-4 border-t border-outline-variant/30 mt-4">
-                  <div className="bg-surface-low/30 p-4 rounded-2xl border border-outline-variant/40">
-                    <TagInput
-                      tags={form.dynasty}
-                      availableTags={availablePeriods.length > 0 ? availablePeriods : ['Nhà Đinh - Tiền Lê', 'Nhà Lý', 'Nhà Trần', 'Nhà Hậu Lê', 'Nhà Nguyễn']}
-                      onAddTag={handleAddDynasty}
-                      onRemoveTag={handleRemoveDynasty}
-                      label="Triều đại / Thời kỳ"
-                    />
-                  </div>
-                </div>
+
               </div>
             </section>
 
@@ -306,6 +389,23 @@ const LocationForm = () => {
                 </div>
 
                 <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10 mt-6">
+                  <span className="material-symbols-outlined text-[16px]">hub</span>
+                  Liên kết Thông tin
+                </h4>
+
+                <EntityRelationInput
+                  type="event"
+                  label="Sự kiện diễn ra tại đây"
+                  icon="event"
+                  itemIcon="event"
+                  entities={form.relatedEvents}
+                  availableEntities={availableEvents}
+                  onAdd={addEvent}
+                  onRemove={removeEvent}
+                  placeholder="Gõ & Enter để thêm sự kiện..."
+                />
+
+                <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10 mt-6">
                   <span className="material-symbols-outlined text-[14px]">visibility</span>
                   Bản xem trước Vị trí
                 </h4>
@@ -329,14 +429,14 @@ const LocationForm = () => {
 
                 {/* MINI MAP */}
                 <div className="aspect-[4/3] rounded-2xl bg-surface-low border-2 border-dashed border-outline-variant/60 overflow-hidden relative cursor-pointer group hover:border-primary/50 transition-all">
-                   <VietnamMap 
-                      lat={form.latitude} 
-                      lng={form.longitude} 
-                      className="w-full h-full opacity-70 group-hover:scale-110 group-hover:opacity-100 transition-all duration-700" 
-                   />
-                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary group-hover:-translate-y-6 transition-transform duration-500 drop-shadow-md opacity-0">
-                      <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>location_on</span>
-                   </div>
+                  <VietnamMap
+                    lat={form.latitude}
+                    lng={form.longitude}
+                    className="w-full h-full opacity-70 group-hover:scale-110 group-hover:opacity-100 transition-all duration-700"
+                  />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary group-hover:-translate-y-6 transition-transform duration-500 drop-shadow-md opacity-0">
+                    <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>location_on</span>
+                  </div>
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                     <p className="text-white text-[10px] font-bold uppercase tracking-widest text-center">Bấm để định vị trên bản đồ</p>
                   </div>

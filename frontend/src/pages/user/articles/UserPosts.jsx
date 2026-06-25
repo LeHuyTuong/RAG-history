@@ -4,8 +4,10 @@ import { Heart, MessageSquare } from 'lucide-react';
 import Pagination from '../../../components/common/Pagination';
 import { API_ENDPOINTS } from '../../../services/api';
 import apiClient, { mockClient } from '../../../services/apiClient';
+import { usePeriodColors } from '../../../hooks/usePeriodColors';
 
 const UserPosts = () => {
+  const { getPeriodStyle } = usePeriodColors();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPeriod, setFilterPeriod] = useState('');
   const [articles, setArticles] = useState([]);
@@ -42,6 +44,9 @@ const UserPosts = () => {
               ...dbItem,
               thumbnail_url: dbItem.thumbnailUrl || mockItem.thumbnail_url || "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg",
               dynasty: dbItem.tags?.[0]?.name || mockItem.dynasty || 'Lịch sử',
+              dynasties: dbItem.tags && dbItem.tags.length > 0
+                ? dbItem.tags.map(t => typeof t === 'object' ? t.name : t)
+                : (mockItem.tags || [mockItem.dynasty || 'Lịch sử']),
             };
           });
         } else {
@@ -51,6 +56,7 @@ const UserPosts = () => {
             id: mockItem.id || mockItem.post_id,
             thumbnail_url: mockItem.thumbnail_url || "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg",
             dynasty: mockItem.dynasty || 'Lịch sử',
+            dynasties: mockItem.tags || [mockItem.dynasty || 'Lịch sử'],
           }));
         }
 
@@ -71,7 +77,7 @@ const UserPosts = () => {
     String(a.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     String(a.summary || "").toLowerCase().includes(searchTerm.toLowerCase())
   ) && (
-      filterPeriod ? String(a.dynasty || "").includes(filterPeriod.replace('Triều ', '')) : true
+      filterPeriod ? (a.dynasties || [a.dynasty]).some(dyn => String(dyn || "").includes(filterPeriod.replace('Triều ', ''))) : true
     ));
 
   const totalPages = Math.ceil(filteredArticles.length / ITEMS_PER_PAGE);
@@ -80,7 +86,7 @@ const UserPosts = () => {
   // Reset pagination is now handled directly in input onChange handlers to satisfy eslint rules
 
   // Danh sách các triều đại để đồng bộ với data
-  const periods = [...new Set(articles.map(a => a.dynasty).filter(Boolean))];
+  const periods = [...new Set(articles.flatMap(a => a.dynasties || [a.dynasty]).filter(Boolean))];
 
   if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải bài viết...</div>;
 
@@ -142,7 +148,13 @@ const UserPosts = () => {
                 </div>
 
                 <div className="lg:col-span-5 p-12 flex flex-col justify-center bg-[#fcf9ee]/90 backdrop-blur-sm relative">
-                  <span className="text-[#6b0f0d]/80 font-body text-[10px] font-bold uppercase tracking-widest mb-3">{featuredArt.dynasty}</span>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {(featuredArt.dynasties || [featuredArt.dynasty]).map((dyn, idx) => (
+                      <span key={idx} className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border shadow-sm ${getPeriodStyle(dyn)}`}>
+                        {dyn}
+                      </span>
+                    ))}
+                  </div>
                   <Link to={`/articles/${featuredArt.slug}`}>
                     <h3 className="font-headline text-4xl text-[#2b0504] mb-6 leading-tight font-semibold hover:text-[#6b0f0d] transition-colors cursor-pointer tracking-tight">
                       {featuredArt.title}
@@ -195,7 +207,7 @@ const UserPosts = () => {
                 }}
                 className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] rounded-lg py-3 pl-12 pr-10 appearance-none outline-none focus:border-[#6b0f0d]/60 transition-colors font-body cursor-pointer shadow-inner"
               >
-                <option value="">Tất cả thời kỳ</option>
+                <option value="">Tất cả triều đại</option>
                 {periods.map(p => (
                   <option key={p} value={p}>{p}</option>
                 ))}
@@ -231,13 +243,23 @@ const UserPosts = () => {
                     />
                   </Link>
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201]/60 to-transparent opacity-70 pointer-events-none"></div>
-                  <div className="absolute bottom-4 left-4 z-10">
-                    <span className="bg-[#2b0504] text-[#ffe7b0] px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.2em] shadow-md border border-[#d99b4a]/30">{art.post_tags?.[0]?.tag_name}</span>
+                  <div className="absolute bottom-4 left-4 z-10 flex flex-wrap gap-1.5">
+                    {(art.dynasties || []).map((dyn, idx) => (
+                      <span key={idx} className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border shadow-md ${getPeriodStyle(dyn)}`}>
+                        {dyn}
+                      </span>
+                    ))}
                   </div>
                 </div>
 
                 <div className="p-6 flex flex-col flex-grow relative z-10">
-                  <span className="text-[#6b0f0d]/80 font-body text-[9px] font-bold uppercase tracking-widest mb-3 block">{art.dynasty}</span>
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {(art.dynasties || [art.dynasty]).map((dyn, idx) => (
+                      <span key={idx} className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border shadow-sm ${getPeriodStyle(dyn)}`}>
+                        {dyn}
+                      </span>
+                    ))}
+                  </div>
                   <Link to={`/articles/${art.slug}`}>
                     <h4 className="font-headline text-2xl text-[#2b0504] font-semibold group-hover:text-[#6b0f0d] transition-colors mb-4 leading-tight tracking-tight">
                       {art.title}
