@@ -261,11 +261,13 @@ class RagClientServiceImplTest {
     }
 
     private RagClientService newService() {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper()
+                .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         RagFeignClient feignClient = Feign.builder()
                 .client(new OkHttpClient())
                 .encoder(new JacksonEncoder(mapper))
                 .decoder(new JacksonDecoder(mapper))
+                .requestInterceptor(new com.example.historyrag.infrastructure.feign.TraceparentInterceptor())
                 .options(new Request.Options(5, TimeUnit.SECONDS, 5, TimeUnit.SECONDS, true))
                 .target(RagFeignClient.class, baseUrl);
         return new RagFeignClientAdapter(feignClient);
