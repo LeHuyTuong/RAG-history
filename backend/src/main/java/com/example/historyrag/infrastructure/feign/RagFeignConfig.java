@@ -16,6 +16,11 @@ import org.springframework.context.annotation.Configuration;
 public class RagFeignConfig {
 
     @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper().findAndRegisterModules();
+    }
+
+    @Bean
     public RagFeignClient ragFeignClient(
             @Value("${app.rag.base-url}") String baseUrl,
             @Value("${app.rag.request-timeout:60s}") String requestTimeout) {

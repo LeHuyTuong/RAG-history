@@ -25,7 +25,6 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/api/v1/admin/participations")
-@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class ParticipationController {
 
@@ -45,6 +44,7 @@ public class ParticipationController {
         return ResponseEntity.ok(ApiResponse.success("Lấy thông tin tham gia sự kiện thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<ParticipationResponse>> create(
             @Valid @RequestBody CreateParticipationRequest request) {
@@ -54,6 +54,7 @@ public class ParticipationController {
                 .body(ApiResponse.created("Tạo tham gia sự kiện thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ParticipationResponse>> update(
             @PathVariable Long id,
@@ -62,6 +63,7 @@ public class ParticipationController {
         return ResponseEntity.ok(ApiResponse.success("Cập nhật tham gia sự kiện thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         participationService.delete(id);

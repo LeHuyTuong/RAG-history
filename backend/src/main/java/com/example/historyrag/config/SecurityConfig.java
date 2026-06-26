@@ -34,7 +34,9 @@ public class SecurityConfig {
 
 
     private static final String[] WHITELIST = {
+            "/v3/api-docs",
             "/v3/api-docs/**",
+            "/swagger-ui",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/api/v1/auth/login",
@@ -77,6 +79,30 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(WHITELIST).permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET,
+                                "/api/v1/engagements",
+                                "/api/v1/engagements/**",
+                                "/api/v1/admin/posts",
+                                "/api/v1/admin/posts/**",
+                                "/api/v1/admin/locations",
+                                "/api/v1/admin/locations/**",
+                                "/api/v1/admin/persons",
+                                "/api/v1/admin/persons/**",
+                                "/api/v1/admin/events",
+                                "/api/v1/admin/events/**",
+                                "/api/v1/admin/periods",
+                                "/api/v1/admin/periods/**",
+                                "/api/v1/admin/sources",
+                                "/api/v1/admin/sources/**",
+                                "/api/v1/admin/tags",
+                                "/api/v1/admin/tags/**",
+                                "/api/v1/admin/participations",
+                                "/api/v1/admin/participations/**",
+                                "/api/v1/admin/settings",
+                                "/api/v1/admin/settings/**",
+                                "/api/v1/rag/chat",
+                                "/api/v1/rag/chat/**"
+                        ).permitAll()
                         .anyRequest().authenticated())
 
                 .oauth2ResourceServer(oauth2 -> oauth2

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { API_ENDPOINTS } from '../../../services/api';
-import apiClient, { mockClient } from '../../../services/apiClient';
+import apiClient from '../../../services/apiClient';
 const RecordDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -19,30 +19,21 @@ const RecordDetail = () => {
       try {
         let dbSource = null;
         try {
-          const response = await apiClient.get(`${API_ENDPOINTS.USER_RECORD_DETAIL}/${id}`);
+          const url = typeof API_ENDPOINTS.USER_RECORD_DETAIL === 'function' ? API_ENDPOINTS.USER_RECORD_DETAIL(id) : `${API_ENDPOINTS.USER_RECORD_DETAIL}/${id}`;
+          const response = await apiClient.get(url);
           dbSource = response.data?.data || response.data;
         } catch (apiErr) {
-          console.error('Failed to fetch record detail from API, trying mock:', apiErr);
+          console.error('Failed to fetch record detail from API:', apiErr);
         }
 
-        let mockItem = null;
-        try {
-          const mockRes = await mockClient.get('/api/user_records.json');
-          const mockRecords = mockRes.data || [];
-          mockItem = mockRecords.find(m => (m.id && m.id.toString() === id) || (m.slug && m.slug === id) || (m.record_id && m.record_id.toString() === id));
-        } catch (err) {
-          console.error('Error fetching mock records:', err);
-        }
-
-        if (dbSource || mockItem) {
+        if (dbSource) {
           setRecord({
-            coverImg: mockItem?.coverImg || 'https://via.placeholder.com/600x800',
-            ...mockItem,
             ...dbSource,
-            record_id: dbSource?.id || mockItem?.id || mockItem?.record_id,
-            title: dbSource?.name || mockItem?.name || mockItem?.title || '',
-            description: dbSource?.description || mockItem?.description || '',
-            archiveId: mockItem?.archiveId || `SRC-${dbSource?.id || id}`,
+            coverImg: dbSource.image || 'https://via.placeholder.com/600x800',
+            record_id: dbSource.id,
+            title: dbSource.name,
+            description: dbSource.description || '',
+            archiveId: `SRC-${dbSource.id || id}`,
           });
         }
       } catch (error) {

@@ -111,10 +111,26 @@ const MetadataManagement = () => {
           count: 0,
         }));
 
+        const formatYear = (y) => {
+          if (y === undefined || y === null || y === '') return '';
+          const val = parseInt(y, 10);
+          if (isNaN(val)) return y;
+          return val < 0 ? `${Math.abs(val)} TCN` : `${val}`;
+        };
+
+        const formatRange = (start, end) => {
+          const s = formatYear(start);
+          const e = formatYear(end);
+          if (!s && !e) return 'Chưa rõ';
+          if (!s) return `? - ${e}`;
+          if (!e) return `${s} - Nay`;
+          return `${s} - ${e}`;
+        };
+
         json.periods = livePeriods.map((p) => ({
           id: p.id,
           name: p.name,
-          range: `${p.startYear} - ${p.endYear}`,
+          range: formatRange(p.startYear, p.endYear),
           slug: p.slug,
           description: p.description,
         }));

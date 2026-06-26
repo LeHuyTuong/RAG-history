@@ -25,20 +25,8 @@ const Register = () => {
     try {
       await apiClient.post('/api/v1/auth/register', { name, email, password });
       
-      // Auto login after register
-      const loginRes = await apiClient.post('/api/v1/auth/login', { email, password });
-      const { accessToken } = loginRes.data?.data || loginRes.data;
-      localStorage.setItem("accessToken", accessToken);
-
-      const meRes = await apiClient.get('/api/v1/auth/me');
-      const user = meRes.data?.data || meRes.data;
-      localStorage.setItem("user", JSON.stringify(user));
-
-      if (user.role === 'ROLE_ADMIN') {
-        navigate("/admin");
-      } else {
-        navigate("/");
-      }
+      // Chuyển hướng sang trang đăng nhập sau khi đăng ký thành công
+      navigate("/login", { state: { message: "Đăng ký thành công! Vui lòng đăng nhập để tiếp tục." } });
     } catch (err) {
       if (err.response?.data?.details) {
         setError(err.response.data.details.join(", "));
@@ -103,6 +91,7 @@ const Register = () => {
                   className="w-full bg-white/90 border border-[#d9c7a7] focus:border-[#6b0000] py-3 pl-12 pr-4 text-sm outline-none font-body transition-colors text-[#2b1a16]"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  autoComplete="off"
                   required
                 />
               </div>
@@ -122,6 +111,7 @@ const Register = () => {
                   className="w-full bg-white/90 border border-[#d9c7a7] focus:border-[#6b0000] py-3 pl-12 pr-4 text-sm outline-none font-body transition-colors text-[#2b1a16]"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="off"
                   required
                 />
               </div>
@@ -146,6 +136,7 @@ const Register = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full bg-white/90 border border-[#d9c7a7] focus:border-[#6b0000] py-3 pl-12 pr-10 text-sm outline-none font-body transition-colors text-[#2b1a16]"
+                    autoComplete="new-password"
                     required
                   />
                   <button
@@ -174,6 +165,7 @@ const Register = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full bg-white/90 border border-[#d9c7a7] focus:border-[#6b0000] py-3 pl-12 pr-10 text-sm outline-none font-body transition-colors text-[#2b1a16]"
+                    autoComplete="new-password"
                     required
                   />
                   <button

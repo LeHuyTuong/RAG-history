@@ -260,14 +260,46 @@ const KnowledgeGraph = () => {
     {
       key: 'source',
       header: 'Thực thể nguồn',
-      render: (row) => (
-        <div className="flex items-center gap-3 py-1">
-          <div className="min-w-0">
-            <div className="font-headline font-bold text-on-surface truncate">{row.sourceName}</div>
-            <EntityBadge group={row.sourceGroup} />
+      render: (row) => {
+        const rawSourceId = String(row.sourceId).replace(/^(character|event|location)_/, '');
+        let editUrl = '';
+        if (row.sourceGroup === 'character') editUrl = `/admin/characters/edit/${rawSourceId}`;
+        else if (row.sourceGroup === 'event') editUrl = `/admin/events/edit/${rawSourceId}`;
+        else if (row.sourceGroup === 'location') editUrl = `/admin/locations/edit/${rawSourceId}`;
+
+        return (
+          <div className="flex items-center justify-between gap-3 py-1">
+            <div className="min-w-0">
+              <div className="font-headline font-bold text-on-surface truncate">{row.sourceName}</div>
+              <EntityBadge group={row.sourceGroup} />
+            </div>
+            <div className="flex gap-1 shrink-0">
+              {editUrl && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(editUrl);
+                  }}
+                  className="w-7 h-7 flex items-center justify-center bg-surface-low border border-outline-variant text-on-surface-variant hover:bg-primary hover:text-white rounded-lg transition-all cursor-pointer"
+                  title={`Chỉnh sửa ${row.sourceGroup === 'character' ? 'Nhân vật' : row.sourceGroup === 'event' ? 'Sự kiện' : 'Địa danh'}`}
+                >
+                  <span className="material-symbols-outlined text-[15px]">edit</span>
+                </button>
+              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/admin/hub/edit/${row.sourceId}`);
+                }}
+                className="w-7 h-7 flex items-center justify-center bg-surface-low border border-outline-variant text-on-surface-variant hover:bg-secondary hover:text-white rounded-lg transition-all cursor-pointer"
+                title="Chỉnh sửa liên kết của thực thể này"
+              >
+                <span className="material-symbols-outlined text-[15px]">hub</span>
+              </button>
+            </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       key: 'relation',
@@ -282,14 +314,46 @@ const KnowledgeGraph = () => {
     {
       key: 'target',
       header: 'Thực thể đích',
-      render: (row) => (
-        <div className="flex items-center gap-3 py-1">
-          <div className="min-w-0">
-            <div className="font-headline font-bold text-on-surface truncate">{row.targetName}</div>
-            <EntityBadge group={row.targetGroup} />
+      render: (row) => {
+        const rawTargetId = String(row.targetId).replace(/^(character|event|location)_/, '');
+        let editUrl = '';
+        if (row.targetGroup === 'character') editUrl = `/admin/characters/edit/${rawTargetId}`;
+        else if (row.targetGroup === 'event') editUrl = `/admin/events/edit/${rawTargetId}`;
+        else if (row.targetGroup === 'location') editUrl = `/admin/locations/edit/${rawTargetId}`;
+
+        return (
+          <div className="flex items-center justify-between gap-3 py-1">
+            <div className="min-w-0">
+              <div className="font-headline font-bold text-on-surface truncate">{row.targetName}</div>
+              <EntityBadge group={row.targetGroup} />
+            </div>
+            <div className="flex gap-1 shrink-0">
+              {editUrl && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(editUrl);
+                  }}
+                  className="w-7 h-7 flex items-center justify-center bg-surface-low border border-outline-variant text-on-surface-variant hover:bg-primary hover:text-white rounded-lg transition-all cursor-pointer"
+                  title={`Chỉnh sửa ${row.targetGroup === 'character' ? 'Nhân vật' : row.targetGroup === 'event' ? 'Sự kiện' : 'Địa danh'}`}
+                >
+                  <span className="material-symbols-outlined text-[15px]">edit</span>
+                </button>
+              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/admin/hub/edit/${row.targetId}`);
+                }}
+                className="w-7 h-7 flex items-center justify-center bg-surface-low border border-outline-variant text-on-surface-variant hover:bg-secondary hover:text-white rounded-lg transition-all cursor-pointer"
+                title="Chỉnh sửa liên kết của thực thể này"
+              >
+                <span className="material-symbols-outlined text-[15px]">hub</span>
+              </button>
+            </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       key: 'type',
@@ -429,12 +493,33 @@ const KnowledgeGraph = () => {
                 </p>
               </div>
               {selectedEntity && (
-                <button
-                  onClick={() => setSelectedEntity(null)}
-                  className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest border border-outline-variant rounded-lg hover:bg-surface-low transition-all"
-                >
-                  Xem toàn bộ
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => {
+                      let editUrl = '';
+                      const rawId = String(selectedEntity.id).replace(/^(character|event|location)_/, '');
+                      if (selectedEntity.group === 'character') editUrl = `/admin/characters/edit/${rawId}`;
+                      else if (selectedEntity.group === 'event') editUrl = `/admin/events/edit/${rawId}`;
+                      else if (selectedEntity.group === 'location') editUrl = `/admin/locations/edit/${rawId}`;
+                      if (editUrl) navigate(editUrl);
+                    }}
+                    className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest bg-primary text-white border border-primary rounded-lg hover:bg-primary/95 transition-all cursor-pointer"
+                  >
+                    Chỉnh sửa thực thể
+                  </button>
+                  <button
+                    onClick={() => navigate(`/admin/hub/edit/${selectedEntity.id}`)}
+                    className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest bg-surface-low border border-outline-variant hover:border-primary/50 text-on-surface-variant hover:text-primary rounded-lg transition-all cursor-pointer"
+                  >
+                    Chỉnh sửa liên kết
+                  </button>
+                  <button
+                    onClick={() => setSelectedEntity(null)}
+                    className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest border border-outline-variant rounded-lg hover:bg-surface-low transition-all cursor-pointer"
+                  >
+                    Xem toàn bộ
+                  </button>
+                </div>
               )}
             </div>
             <div ref={containerRef} className="relative h-[520px] bg-surface">
@@ -460,9 +545,24 @@ const KnowledgeGraph = () => {
                   width={dimensions.width}
                   height={dimensions.height}
                   graphData={selectedEntity ? previewGraphData : graphData}
-                  nodeLabel={() => ''}
+                  nodeLabel={(node) => {
+                    return `<div style="background:rgba(30,41,59,0.95);color:#fff;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:bold;line-height:1.4;box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+                      <div>${node.name} <span style="font-size:9px;opacity:0.7;padding-left:4px;">(${node.type})</span></div>
+                      <div style="font-weight:normal;opacity:0.8;font-size:9px;margin-top:4px;border-top:1px solid rgba(255,255,255,0.1);padding-top:4px;">
+                        Nhấp đúp để chỉnh sửa thực thể
+                      </div>
+                    </div>`;
+                  }}
                   nodeCanvasObject={drawNode}
                   onNodeClick={(node) => setSelectedEntity(node)}
+                  onNodeDoubleClick={(node) => {
+                    const rawId = String(node.id).replace(/^(character|event|location)_/, '');
+                    let editUrl = '';
+                    if (node.group === 'character') editUrl = `/admin/characters/edit/${rawId}`;
+                    else if (node.group === 'event') editUrl = `/admin/events/edit/${rawId}`;
+                    else if (node.group === 'location') editUrl = `/admin/locations/edit/${rawId}`;
+                    if (editUrl) navigate(editUrl);
+                  }}
                   linkDirectionalParticles={2}
                   linkDirectionalParticleSpeed={(d) => (d.value || 2) * 0.005}
                   linkColor={() => 'rgba(75, 0, 4, 0.2)'}
@@ -476,7 +576,16 @@ const KnowledgeGraph = () => {
                       typeof link.target === 'object'
                         ? link.target.name
                         : nodes.find((n) => n.id === link.target)?.name;
-                    return `<div style="background:rgba(30,41,59,0.95);color:#fff;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:bold;">${sName} → ${getRelationLabel(link.relation || 'Liên kết')} → ${tName}</div>`;
+                    return `<div style="background:rgba(30,41,59,0.95);color:#fff;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:bold;line-height:1.4;box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+                      <div>${sName} → ${getRelationLabel(link.relation || 'Liên kết')} → ${tName}</div>
+                      <div style="font-weight:normal;opacity:0.8;font-size:9px;margin-top:4px;border-top:1px solid rgba(255,255,255,0.1);padding-top:4px;">
+                        Nhấp đúp để chỉnh sửa các mối liên kết
+                      </div>
+                    </div>`;
+                  }}
+                  onLinkDoubleClick={(link) => {
+                    const sId = typeof link.source === 'object' ? link.source.id : link.source;
+                    navigate(`/admin/hub/edit/${sId}`);
                   }}
                   d3VelocityDecay={0.3}
                 />

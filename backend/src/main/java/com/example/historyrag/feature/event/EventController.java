@@ -25,7 +25,6 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/api/v1/admin/events")
-@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class EventController {
 
@@ -45,6 +44,7 @@ public class EventController {
         return ResponseEntity.ok(ApiResponse.success("Lấy thông tin sự kiện thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<EventResponse>> create(@Valid @RequestBody CreateEventRequest request) {
         EventResponse response = eventService.create(request);
@@ -53,6 +53,7 @@ public class EventController {
                 .body(ApiResponse.created("Tạo sự kiện thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<EventResponse>> update(
             @PathVariable Long id,
@@ -61,6 +62,7 @@ public class EventController {
         return ResponseEntity.ok(ApiResponse.success("Cập nhật sự kiện thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         eventService.delete(id);

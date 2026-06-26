@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import VietnamMap from '../../../components/VietnamMap';
 import { API_ENDPOINTS } from '../../../services/api';
-import apiClient, { mockClient } from '../../../services/apiClient';
+import apiClient from '../../../services/apiClient';
+import { mockClient } from '../../../services/api';
 
 const LocationDetail = () => {
   const { id } = useParams();
@@ -20,33 +21,34 @@ const LocationDetail = () => {
       try {
         let dbLocation = null;
         try {
-          const response = await apiClient.get(`${API_ENDPOINTS.USER_LOCATION_DETAIL}/${id}`);
+          const url = typeof API_ENDPOINTS.USER_LOCATION_DETAIL === 'function' ? API_ENDPOINTS.USER_LOCATION_DETAIL(id) : `${API_ENDPOINTS.USER_LOCATION_DETAIL}/${id}`;
+          const response = await apiClient.get(url);
           dbLocation = response.data?.data || response.data;
         } catch (apiErr) {
-          console.error('Failed to fetch location detail from API, trying mock:', apiErr);
+          console.error('Failed to fetch location detail from API:', apiErr);
         }
 
-        let mockItem = null;
+        let mockLocations = [];
         try {
           const mockRes = await mockClient.get('/api/user_locations.json');
-          const mockLocations = mockRes.data?.locations || mockRes.data || [];
-          mockItem = mockLocations.find(m => (m.id && m.id.toString() === id) || (m.slug && m.slug === id) || (m.location_id && m.location_id.toString() === id));
+          mockLocations = mockRes.data?.locations || mockRes.data || [];
         } catch (err) {
           console.error('Error fetching mock locations:', err);
         }
 
-        if (dbLocation || mockItem) {
+        if (dbLocation) {
+          const mockItem = mockLocations.find(m => m.slug === dbLocation.slug) || {};
+
           setLocation({
-            heroImg: mockItem?.heroImg || 'https://via.placeholder.com/800x400',
-            ...mockItem,
             ...dbLocation,
-            location_id: dbLocation?.id || mockItem?.id || mockItem?.location_id,
-            location_type: dbLocation?.locationType || mockItem?.location_type || 'REGION',
-            description: dbLocation?.description || mockItem?.description || '',
-            x: mockItem?.x !== undefined ? mockItem.x : 50,
-            y: mockItem?.y !== undefined ? mockItem.y : 50,
-            province: mockItem?.province || 'Việt Nam',
-            period: dbLocation?.period?.name || mockItem?.period || '',
+            heroImg: dbLocation.image || 'https://via.placeholder.com/800x400',
+            location_id: dbLocation.id,
+            location_type: dbLocation.locationType || mockItem.location_type || 'REGION',
+            description: dbLocation.description || mockItem.description || '',
+            x: mockItem.x !== undefined ? mockItem.x : 50,
+            y: mockItem.y !== undefined ? mockItem.y : 50,
+            province: mockItem.province || 'Việt Nam',
+            period: dbLocation.period?.name || mockItem.period || '',
           });
         }
       } catch (error) {
@@ -152,9 +154,9 @@ const LocationDetail = () => {
                   <VietnamMap
                     className="absolute inset-0 w-full h-full drop-shadow-[0_15px_30px_rgba(107,15,13,0.4)]"
                   />
-                  {/* Marker Cố Đô Huế: x=63%, y=50% */}
-                  <div className="absolute z-20" style={{ left: '63%', top: '50%' }}>
-                    <div className="relative flex items-center justify-center">
+                  {/* Dynamic Marker */}
+                  <div className="absolute z-20" style={{ left: `${location.x}%`, top: `${location.y}%` }}>
+                    <div className="relative flex items-center justify-center -translate-x-1/2 -translate-y-1/2">
                       <div className="absolute w-8 h-8 bg-[#d99b4a]/40 rounded-full animate-ping"></div>
                       <div className="relative w-6 h-6 flex items-center justify-center rounded-full bg-[#6b0f0d] border-2 border-[#f7d78a] shadow-lg">
                         <span className="material-symbols-outlined text-[12px] text-[#ffe7b0]">account_balance</span>

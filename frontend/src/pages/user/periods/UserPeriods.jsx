@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 import { API_ENDPOINTS } from '../../../services/api';
-import apiClient, { mockClient } from '../../../services/apiClient';
+import apiClient from '../../../services/apiClient';
 const UserPeriods = () => {
 
   const [periodsData, setPeriodsData] = useState([]);
@@ -28,37 +28,21 @@ const UserPeriods = () => {
           const response = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
           dbPeriods = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
         } catch (apiErr) {
-          console.error('Lỗi gọi API kỷ nguyên, chuyển sang dùng mock:', apiErr);
+          console.error('Lỗi gọi API kỷ nguyên:', apiErr);
         }
 
-        let mockPeriods = [];
-        try {
-          const mockRes = await mockClient.get('/api/user_periods.json');
-          mockPeriods = mockRes.data || [];
-        } catch (err) {
-          console.error('Error fetching mock periods:', err);
-        }
-
-        let merged = [];
-        if (dbPeriods.length > 0) {
-          merged = dbPeriods.map(dbItem => {
-            const mockItem = mockPeriods.find(m => m.slug === dbItem.slug) || {};
-            return {
-              ...mockItem,
-              ...dbItem,
-              period_id: dbItem.id,
-              range: dbItem.startYear !== undefined && dbItem.endYear !== undefined
-                ? `${Math.abs(dbItem.startYear)} ${dbItem.startYear < 0 ? 'TCN' : ''} - ${dbItem.endYear ? Math.abs(dbItem.endYear) + (dbItem.endYear < 0 ? ' TCN' : '') : 'Nay'}`
-                : mockItem.range || ''
-            };
-          });
-        } else {
-          merged = mockPeriods.map(mockItem => ({
-            ...mockItem,
-            period_id: mockItem.id || mockItem.period_id,
-            range: mockItem.range || ''
-          }));
-        }
+        let merged = dbPeriods.map(dbItem => ({
+          ...dbItem,
+          period_id: dbItem.id,
+          category: "Thời Kỳ",
+          name: dbItem.name,
+          range: dbItem.startYear !== undefined && dbItem.endYear !== undefined
+            ? `${Math.abs(dbItem.startYear)} ${dbItem.startYear < 0 ? 'TCN' : ''} - ${dbItem.endYear ? Math.abs(dbItem.endYear) + (dbItem.endYear < 0 ? ' TCN' : '') : 'Nay'}`
+            : '',
+          description: dbItem.description,
+          details: [],
+          image: dbItem.image || 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg'
+        }));
 
         // Apply custom period order if exists
         const periodOrderStr = localStorage.getItem('home_period_order') || localStorage.getItem('admin_period_order');

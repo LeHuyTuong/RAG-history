@@ -25,7 +25,6 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/api/v1/admin/sources")
-@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class SourceController {
 
@@ -45,6 +44,7 @@ public class SourceController {
         return ResponseEntity.ok(ApiResponse.success("Lấy thông tin nguồn tư liệu thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<SourceResponse>> create(@Valid @RequestBody CreateSourceRequest request) {
         SourceResponse response = sourceService.create(request);
@@ -53,6 +53,7 @@ public class SourceController {
                 .body(ApiResponse.created("Tạo nguồn tư liệu thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<SourceResponse>> update(
             @PathVariable Long id,
@@ -61,6 +62,7 @@ public class SourceController {
         return ResponseEntity.ok(ApiResponse.success("Cập nhật nguồn tư liệu thành công", response));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         sourceService.delete(id);

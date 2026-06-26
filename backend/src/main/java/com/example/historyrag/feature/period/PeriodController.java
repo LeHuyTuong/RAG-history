@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/admin/periods")
-@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class PeriodController {
 
@@ -31,6 +30,13 @@ public class PeriodController {
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<PeriodResponse>> getPeriodById(@PathVariable Long id) {
+        Period period = periodService.getPeriodEntityById(id);
+        return ResponseEntity.ok(ApiResponse.success(PeriodResponse.fromEntity(period)));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<PeriodResponse>> createPeriod(@RequestBody @Valid PeriodRequest request) {
         PeriodResponse result = periodService.createPeriod(request);
@@ -38,6 +44,7 @@ public class PeriodController {
                 .body(ApiResponse.success(result));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<PeriodResponse>> updatePeriod(
             @PathVariable Long id,
@@ -46,6 +53,7 @@ public class PeriodController {
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deletePeriod(@PathVariable Long id) {
         periodService.deletePeriod(id);

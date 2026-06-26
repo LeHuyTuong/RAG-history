@@ -140,17 +140,6 @@ const LocationManagement = () => {
       )
     },
     {
-      key: 'dynasties', header: 'Triều đại', render: (row) => (
-        <div className="flex flex-wrap gap-1">
-          {row.dynasties?.map((dynasty, idx) => (
-            <span key={idx} className={`border px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider ${getDynastyStyle(getDynastyLabel(dynasty))}`}>
-              {getDynastyLabel(dynasty)}
-            </span>
-          ))}
-        </div>
-      )
-    },
-    {
       key: 'status', header: 'Trạng thái', align: 'center', render: (row) => (
         <span className={`px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider border ${getStatusStyle(getNormalizedStatus(row.status))}`}>
           {getStatusLabel(getNormalizedStatus(row.status))}

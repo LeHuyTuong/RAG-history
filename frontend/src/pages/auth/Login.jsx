@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import apiClient from "../../services/apiClient";
 
 const Login = () => {
@@ -9,6 +9,8 @@ const Login = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [successMessage, setSuccessMessage] = useState(location.state?.message || "");
 
   useEffect(() => {
     const checkUser = async () => {
@@ -44,9 +46,9 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(user));
 
       if (user.role === 'ROLE_ADMIN') {
-        navigate("/admin");
+        window.location.href = "/admin";
       } else {
-        navigate("/");
+        window.location.href = "/";
       }
     } catch (err) {
       if (err.response?.status === 401) {
@@ -95,6 +97,12 @@ const Login = () => {
               Truy cập dữ liệu và không gian nghiên cứu cá nhân
             </p>
           </div>
+
+          {successMessage && (
+            <div className="mb-4 text-[#155724] text-sm font-bold font-body bg-[#d4edda] p-3 rounded text-center border border-[#c3e6cb]">
+              {successMessage}
+            </div>
+          )}
 
           {error && (
             <div className="mb-4 text-[#6b0000] text-sm font-bold font-body bg-[#6b0000]/10 p-3 rounded text-center border border-[#6b0000]/20">

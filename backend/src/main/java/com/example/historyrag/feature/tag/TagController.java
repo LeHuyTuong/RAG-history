@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/admin/tags")
-@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class TagController {
 
@@ -26,12 +25,14 @@ public class TagController {
         return ResponseEntity.ok(ApiResponse.success(tagService.getAllTags(pageable)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<TagResponse>> createTag(@RequestBody @Valid TagRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(tagService.createTag(request)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<TagResponse>> updateTag(
             @PathVariable Long id,
@@ -39,6 +40,7 @@ public class TagController {
         return ResponseEntity.ok(ApiResponse.success(tagService.updateTag(id, request)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteTag(@PathVariable Long id) {
         tagService.deleteTag(id);

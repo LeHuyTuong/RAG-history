@@ -10,6 +10,7 @@ export default function UserLocations() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDynasty, setSelectedDynasty] = useState('');
   const [locations, setLocations] = useState([]);
+  const [dynasties, setDynasties] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -35,6 +36,14 @@ export default function UserLocations() {
           mockLocations = mockRes.data?.locations || mockRes.data || [];
         } catch (err) {
           console.error('Error fetching mock locations:', err);
+        }
+
+        try {
+          const pRes = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
+          const rawPeriods = pRes.data?.data?.result || pRes.data?.data?.content || pRes.data?.data || [];
+          setDynasties(rawPeriods.map(p => p.name).filter(Boolean));
+        } catch (pErr) {
+          console.error('Lỗi gọi API thời kỳ:', pErr);
         }
 
         let merged = [];
@@ -90,9 +99,6 @@ export default function UserLocations() {
     );
   }
 
-  // Lấy các triều đại để đồng bộ với data
-  const dynasties = [...new Set(locations.map(l => l.period).filter(Boolean))];
-
   if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải địa danh...</div>;
 
   return (
@@ -136,7 +142,7 @@ export default function UserLocations() {
               onChange={e => setSelectedDynasty(e.target.value)}
               className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] rounded-lg py-3 pl-12 pr-10 appearance-none outline-none focus:border-[#6b0f0d]/60 transition-colors font-body cursor-pointer shadow-inner"
             >
-              <option value="">Tất cả thời kỳ</option>
+              <option value="">Tất cả triều đại</option>
               {dynasties.map(dyn => (
                 <option key={dyn} value={dyn}>{dyn}</option>
               ))}
@@ -182,10 +188,6 @@ export default function UserLocations() {
                     <div className="absolute top-4 left-4 bg-white/90 backdrop-blur text-[#9e1b1b] text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
                       <span className="material-symbols-outlined text-[14px]">location_on</span>
                       {loc.province}
-                    </div>
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
-                      <span className="material-symbols-outlined text-[14px]">calendar_today</span>
-                      {loc.period && loc.period.includes('Nhà') ? loc.period.replace('Nhà', 'Triều') : loc.period}
                     </div>
                   </div>
                   <div className="p-6 flex flex-col flex-1">
@@ -294,11 +296,6 @@ export default function UserLocations() {
                       <div className="absolute top-4 left-4 bg-white/90 backdrop-blur text-[#9e1b1b] text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
                         <span className="material-symbols-outlined text-[14px]">location_on</span>
                         {selectedSite.province}
-                      </div>
-                      {/* Period Badge */}
-                      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
-                        <span className="material-symbols-outlined text-[14px]">calendar_today</span>
-                        {selectedSite.period && selectedSite.period.includes('Nhà') ? selectedSite.period.replace('Nhà', 'Triều') : selectedSite.period}
                       </div>
                     </div>
 

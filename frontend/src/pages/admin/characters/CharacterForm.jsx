@@ -12,7 +12,7 @@ const CharacterForm = () => {
   const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
-    name: '', title: '', slug: '', years: '', biography: '', tags: [],
+    name: '', title: '', slug: '', birthYear: '', birthYearEra: 'SCN', deathYear: '', deathYearEra: 'SCN', biography: '', tags: [],
     relatedLocations: [], relatedCharacters: [], avatar: '', status: 'draft',
     parents: [], siblings: [], family: [],
     relatedEvents: []
@@ -25,85 +25,16 @@ const CharacterForm = () => {
   const [originalData, setOriginalData] = useState({});
 
   useEffect(() => {
-    if (isEdit) {
-      const fetchData = async () => {
-        try {
-          let foundChar = null;
-
-          if (!isNaN(Number(id))) {
-            try {
-              const response = await apiClient.get(`${API_ENDPOINTS.ADMIN_CHARACTERS}/${id}`);
-              const data = response.data?.data || response.data;
-              if (data) {
-                foundChar = data;
-                try {
-                  const partRes = await apiClient.get('/api/v1/admin/participations', {
-                    params: { personId: id, size: 500 }
-                  });
-                  const partData = partRes.data?.data?.result || partRes.data?.data || [];
-                  foundChar.relatedEvents = partData.map(p => p.event?.name).filter(Boolean);
-                  foundChar.originalParticipations = partData;
-                } catch (partErr) {
-                  console.error('Lỗi khi tải danh sách tham gia của nhân vật từ backend:', partErr);
-                }
-              }
-            } catch (err) {
-              console.error('Lỗi khi tải nhân vật từ backend:', err);
-            }
-          }
-
-          // Removed localStorage fallback check
-
-          if (!foundChar) {
-            const response = await mockClient.get('/api/admin_characters.json');
-            foundChar = response.data.characters?.find(c => String(c.id) === String(id));
-          }
-
-          if (foundChar) {
-            setOriginalData(foundChar);
-            let formattedYears = foundChar.years || '';
-            if (!formattedYears && (foundChar.birthDate || foundChar.deathDate)) {
-              const birthYear = foundChar.birthDate ? (typeof foundChar.birthDate === 'string' ? foundChar.birthDate.split('-')[0] : new Date(foundChar.birthDate).getFullYear()) : '?';
-              const deathYear = foundChar.deathDate ? (typeof foundChar.deathDate === 'string' ? foundChar.deathDate.split('-')[0] : new Date(foundChar.deathDate).getFullYear()) : '?';
-              formattedYears = `${birthYear} - ${deathYear}`;
-            }
-            setForm(prev => ({
-              ...prev,
-              name: foundChar.name || '',
-              slug: foundChar.slug || generateSlug(foundChar.name || ''),
-              realName: foundChar.realName || '',
-              title: foundChar.title || foundChar.role || '',
-              years: formattedYears,
-              dynasty: foundChar.dynasty || foundChar.period || 'Khác',
-              avatar: foundChar.avatar || null,
-              biography: foundChar.biography || foundChar.content || '',
-              tags: foundChar.dynasties ? foundChar.dynasties : (foundChar.dynasty ? (Array.isArray(foundChar.dynasty) ? foundChar.dynasty : [foundChar.dynasty]) : []),
-              status: (foundChar.status === 'published' || !foundChar.status || foundChar.status === 'Công khai') ? 'published' : 'draft',
-              relatedLocations: foundChar.relatedLocations || foundChar.relatedLocation || [],
-              relatedCharacters: foundChar.relatedCharacters || foundChar.relatedCharacter || [],
-              parents: foundChar.parents || foundChar.parent || [],
-              siblings: foundChar.siblings || [],
-              family: foundChar.family || [],
-              relatedEvents: foundChar.relatedEvents || []
-            }));
-          }
-        } catch (error) {
-          console.error('Lỗi tải dữ liệu nhân vật:', error);
-        }
-      };
-      fetchData();
-    }
-
-    const fetchAvailableData = async () => {
+    const loadAllData = async () => {
       try {
         const [locRes, charRes, metaRes, eventRes] = await Promise.all([
-          apiClient.get(API_ENDPOINTS.ADMIN_LOCATIONS, { params: { size: 500 } }),
-          apiClient.get(API_ENDPOINTS.ADMIN_CHARACTERS, { params: { size: 500 } }),
-          apiClient.get(API_ENDPOINTS.ADMIN_PERIODS, { params: { size: 500 } }),
-          apiClient.get(API_ENDPOINTS.ADMIN_EVENTS, { params: { size: 500 } })
+          apiClient.get(API_ENDPOINTS.ADMIN_LOCATIONS, { params: { size: 500 } }).catch(() => null),
+          apiClient.get(API_ENDPOINTS.ADMIN_CHARACTERS, { params: { size: 500 } }).catch(() => null),
+          apiClient.get(API_ENDPOINTS.ADMIN_PERIODS, { params: { size: 500 } }).catch(() => null),
+          apiClient.get(API_ENDPOINTS.ADMIN_EVENTS, { params: { size: 500 } }).catch(() => null)
         ]);
 
-        const locData = locRes.data?.data?.result || locRes.data?.data?.content || [];
+        const locData = locRes?.data?.data?.result || locRes?.data?.data?.content || [];
         setAvailableLocations(locData.map(l => ({
           id: l.id,
           name: l.name,
@@ -113,7 +44,7 @@ const CharacterForm = () => {
           status: 'PUBLISHED'
         })));
 
-        const charData = charRes.data?.data?.result || charRes.data?.data?.content || [];
+        const charData = charRes?.data?.data?.result || charRes?.data?.data?.content || [];
         setAvailableCharacters(charData.map(c => ({
           ...c,
           title: c.alias || '',
@@ -122,34 +53,124 @@ const CharacterForm = () => {
           status: c.status || 'published'
         })));
 
-        const periodsList = metaRes.data?.data?.result || metaRes.data?.data || [];
-        setAvailableTags(periodsList.map(p => p.name));
+        const periodsList = metaRes?.data?.data?.result || metaRes?.data?.data || [];
+        const periodsNames = periodsList.map(p => p.name);
+        setAvailableTags(periodsNames);
 
-        const eventData = eventRes.data?.data?.result || eventRes.data?.data?.content || [];
-        setAvailableEvents(eventData.map(e => ({
+        const eventData = eventRes?.data?.data?.result || eventRes?.data?.data?.content || [];
+        const mappedEvents = eventData.map(e => ({
           id: e.id,
           name: e.name || e.title,
+          period: e.period,
           status: 'PUBLISHED'
-        })));
-      } catch (error) {
-        console.error('Lỗi khi tải dữ liệu liên kết từ backend, dùng mock làm dự phòng:', error);
-        try {
-          const [locRes, charRes, metaRes, eventRes] = await Promise.all([
-            mockClient.get('/api/admin_locations.json').then(r => r.data),
-            mockClient.get('/api/admin_characters.json').then(r => r.data),
-            mockClient.get('/api/admin_metadata.json').then(r => r.data),
-            mockClient.get('/api/admin_events.json').then(r => r.data)
-          ]);
-          setAvailableLocations(locRes.locations || []);
-          setAvailableCharacters(charRes.characters || []);
-          setAvailableTags(metaRes.periods?.map(p => p.name) || []);
-          setAvailableEvents(eventRes.events?.map(e => ({ id: e.id, name: e.name || e.title })) || []);
-        } catch (e) {
-          console.error('Lỗi khi tải dữ liệu mock làm dự phòng:', e);
+        }));
+        setAvailableEvents(mappedEvents);
+
+        // Load character details if in edit mode
+        if (isEdit) {
+          let foundChar = null;
+          let mockChar = null;
+
+          try {
+            const mockRes = await mockClient.get('/api/admin_characters.json');
+            mockChar = mockRes.data.characters?.find(c => String(c.id) === String(id) || c.slug === id);
+          } catch (err) {
+            console.error('Lỗi khi tải nhân vật mock:', err);
+          }
+
+          if (!isNaN(Number(id))) {
+            try {
+              const response = await apiClient.get(`${API_ENDPOINTS.ADMIN_CHARACTERS}/${id}`);
+              const data = response.data?.data || response.data;
+              if (data) {
+                foundChar = {
+                  ...mockChar,
+                  ...data
+                };
+                try {
+                  const partRes = await apiClient.get('/api/v1/admin/participations', {
+                    params: { personId: id, size: 500 }
+                  });
+                  const partData = partRes.data?.data?.result || partRes.data?.data || [];
+                  foundChar.relatedEvents = partData.map(p => p.event?.name).filter(Boolean);
+                  foundChar.originalParticipations = partData;
+                } catch (partErr) {
+                  console.error('Lỗi khi tải danh sách tham gia của nhân vật:', partErr);
+                }
+              }
+            } catch (err) {
+              console.error('Lỗi khi tải nhân vật từ API:', err);
+            }
+          }
+
+          if (!foundChar) {
+            foundChar = mockChar;
+          }
+
+          if (foundChar) {
+            setOriginalData(foundChar);
+            const extractYearAndEra = (dateStr) => {
+              if (!dateStr) return { val: '', era: 'SCN' };
+              const isNegative = dateStr.startsWith('-');
+              const cleanStr = isNegative ? dateStr.substring(1) : dateStr;
+              const parts = cleanStr.split('-');
+              if (parts[0]) {
+                const y = parseInt(parts[0]);
+                if (!isNaN(y)) {
+                  return { val: y, era: isNegative ? 'TCN' : 'SCN' };
+                }
+              }
+              return { val: '', era: 'SCN' };
+            };
+            const birthYearObj = extractYearAndEra(foundChar.birthDate);
+            const deathYearObj = extractYearAndEra(foundChar.deathDate);
+
+            // Compute dynasties from mock data + participations
+            const dyns = new Set();
+            if (foundChar.dynasties) {
+              foundChar.dynasties.forEach(d => dyns.add(d));
+            } else if (foundChar.dynasty) {
+              dyns.add(foundChar.dynasty);
+            }
+            if (foundChar.originalParticipations) {
+              foundChar.originalParticipations.forEach(p => {
+                const eventMatch = mappedEvents.find(e => e.id === p.event?.id);
+                if (eventMatch && eventMatch.period?.name) {
+                  dyns.add(eventMatch.period.name);
+                }
+              });
+            }
+            const computedDynasties = Array.from(dyns);
+
+            setForm(prev => ({
+              ...prev,
+              name: foundChar.name || '',
+              slug: foundChar.slug || generateSlug(foundChar.name || ''),
+              realName: foundChar.realName || '',
+              title: foundChar.title || foundChar.role || '',
+              birthYear: birthYearObj.val,
+              birthYearEra: birthYearObj.era,
+              deathYear: deathYearObj.val,
+              deathYearEra: deathYearObj.era,
+              dynasty: computedDynasties.length > 0 ? computedDynasties[0] : 'Khác',
+              avatar: foundChar.avatar || null,
+              biography: foundChar.biography || foundChar.content || '',
+              tags: computedDynasties,
+              status: (foundChar.status === 'published' || !foundChar.status || foundChar.status === 'Công khai') ? 'published' : 'draft',
+              relatedLocations: foundChar.relatedLocations || foundChar.relatedLocation || [],
+              relatedCharacters: foundChar.relatedCharacters || foundChar.relatedCharacter || [],
+              parents: foundChar.parents || foundChar.parent || [],
+              siblings: foundChar.siblings || [],
+              family: foundChar.family || [],
+              relatedEvents: foundChar.relatedEvents || []
+            }));
+          }
         }
+      } catch (error) {
+        console.error('Lỗi khi tải toàn bộ dữ liệu:', error);
       }
     };
-    fetchAvailableData();
+    loadAllData();
   }, [id, isEdit]);
 
   const removeLocation = (locToRemove) => {
@@ -198,33 +219,51 @@ const CharacterForm = () => {
       return;
     }
 
+    if (form.birthYear !== '' && form.birthYear !== null && form.birthYear !== undefined) {
+      const bYear = parseInt(form.birthYear, 10);
+      if (isNaN(bYear) || bYear < 0) {
+        alert('Năm sinh phải là số nguyên dương lớn hơn hoặc bằng 0.');
+        return;
+      }
+    }
+    if (form.deathYear !== '' && form.deathYear !== null && form.deathYear !== undefined) {
+      const dYear = parseInt(form.deathYear, 10);
+      if (isNaN(dYear) || dYear < 0) {
+        alert('Năm mất phải là số nguyên dương lớn hơn hoặc bằng 0.');
+        return;
+      }
+    }
+
+    if (form.birthYear !== '' && form.birthYear !== null && form.birthYear !== undefined &&
+        form.deathYear !== '' && form.deathYear !== null && form.deathYear !== undefined) {
+      const bYear = parseInt(form.birthYear, 10);
+      const dYear = parseInt(form.deathYear, 10);
+      const birthVal = form.birthYearEra === 'TCN' ? -bYear : bYear;
+      const deathVal = form.deathYearEra === 'TCN' ? -dYear : dYear;
+      if (birthVal > deathVal) {
+        alert('Lỗi hợp lệ: Năm sinh không thể diễn ra sau năm mất.');
+        return;
+      }
+    }
+
     try {
       const { default: apiClient } = await import('../../../services/apiClient');
       const { API_ENDPOINTS } = await import('../../../services/api');
 
       let birthDate = null;
       let deathDate = null;
-      if (form.years) {
-        const match = form.years.match(/(-?\d+)\s*-\s*(-?\d+)/);
-        if (match) {
-          const birthYear = parseInt(match[1]);
-          const deathYear = parseInt(match[2]);
-          const padYear = (y) => {
-            if (y < 0) return null;
-            return String(y).padStart(4, '0');
-          };
-          const bYearStr = padYear(birthYear);
-          const dYearStr = padYear(deathYear);
-          if (bYearStr) birthDate = `${bYearStr}-01-01`;
-          if (dYearStr) deathDate = `${dYearStr}-01-01`;
-        } else {
-          const singleYearMatch = form.years.match(/(-?\d+)/);
-          if (singleYearMatch) {
-            const y = parseInt(singleYearMatch[1]);
-            if (y > 0) {
-              birthDate = `${String(y).padStart(4, '0')}-01-01`;
-            }
-          }
+      if (form.birthYear !== '' && form.birthYear !== null) {
+        const bYear = parseInt(form.birthYear);
+        if (!isNaN(bYear) && bYear >= 0) {
+          const sign = form.birthYearEra === 'TCN' ? '-' : '';
+          birthDate = `${sign}${String(bYear).padStart(4, '0')}-01-01`;
+        }
+      }
+      if (form.deathYear !== '' && form.deathYear !== null) {
+        const dYear = parseInt(form.deathYear);
+        if (!isNaN(dYear) && dYear >= 0) {
+          const sign = form.deathYearEra === 'TCN' ? '-' : '';
+          deathDate = `${sign}${String(dYear).padStart(4, '0')}-01-01`;
         }
       }
 
@@ -368,16 +407,45 @@ const CharacterForm = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2 col-span-1 md:col-span-2">
-                    <label className="block font-body text-[11px] font-bold uppercase text-on-surface-variant tracking-widest">Niên đại (Năm sinh - Năm mất)</label>
-                    <div className="bg-surface-low/50 border border-outline-variant/60 rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all p-1 h-12">
+                  <div className="space-y-2">
+                    <label className="block font-body text-[11px] font-bold uppercase text-on-surface-variant tracking-widest">Năm sinh</label>
+                    <div className="bg-surface-low/50 border border-outline-variant/60 rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all p-1 h-12 flex items-center">
                       <input
-                        type="text"
-                        value={form.years}
-                        onChange={e => setForm(prev => ({ ...prev, years: e.target.value }))}
-                        className="w-full h-full bg-transparent border-none px-3 font-body text-xs outline-none placeholder:text-outline-variant/60 font-bold"
-                        placeholder="Vd: 1228 - 1300, Thế kỷ 13, Không rõ..."
+                        type="number"
+                        value={form.birthYear}
+                        onChange={e => setForm(prev => ({ ...prev, birthYear: e.target.value }))}
+                        className="flex-grow h-full bg-transparent border-none px-3 font-body text-xs outline-none placeholder:text-outline-variant/60 font-bold text-on-surface"
+                        placeholder="Vd: 1228"
                       />
+                      <select
+                        value={form.birthYearEra}
+                        onChange={e => setForm(prev => ({ ...prev, birthYearEra: e.target.value }))}
+                        className="bg-transparent border-0 border-l border-outline-variant/40 px-2 h-full text-xs font-bold text-primary outline-none cursor-pointer"
+                      >
+                        <option value="SCN">SCN</option>
+                        <option value="TCN">TCN</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block font-body text-[11px] font-bold uppercase text-on-surface-variant tracking-widest">Năm mất</label>
+                    <div className="bg-surface-low/50 border border-outline-variant/60 rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all p-1 h-12 flex items-center">
+                      <input
+                        type="number"
+                        value={form.deathYear}
+                        onChange={e => setForm(prev => ({ ...prev, deathYear: e.target.value }))}
+                        className="flex-grow h-full bg-transparent border-none px-3 font-body text-xs outline-none placeholder:text-outline-variant/60 font-bold text-on-surface"
+                        placeholder="Vd: 1300"
+                      />
+                      <select
+                        value={form.deathYearEra}
+                        onChange={e => setForm(prev => ({ ...prev, deathYearEra: e.target.value }))}
+                        className="bg-transparent border-0 border-l border-outline-variant/40 px-2 h-full text-xs font-bold text-primary outline-none cursor-pointer"
+                      >
+                        <option value="SCN">SCN</option>
+                        <option value="TCN">TCN</option>
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -561,10 +629,20 @@ const CharacterForm = () => {
                   itemIcon="event"
                   entities={form.relatedEvents}
                   availableEntities={availableEvents}
-                  onAdd={(eventVal) => setForm(prev => ({
-                    ...prev,
-                    relatedEvents: [...new Set([...(prev.relatedEvents || []), eventVal])]
-                  }))}
+                  onAdd={(eventVal) => {
+                    const eventMatch = availableEvents.find(e => e.name === eventVal);
+                    const periodName = eventMatch?.period?.name;
+                    setForm(prev => {
+                      const newTags = (periodName && !prev.tags.includes(periodName))
+                        ? [...prev.tags, periodName]
+                        : prev.tags;
+                      return {
+                        ...prev,
+                        relatedEvents: [...new Set([...(prev.relatedEvents || []), eventVal])],
+                        tags: newTags
+                      };
+                    });
+                  }}
                   onRemove={(eventToRemove) => setForm(prev => ({
                     ...prev,
                     relatedEvents: prev.relatedEvents.filter(e => e !== eventToRemove)

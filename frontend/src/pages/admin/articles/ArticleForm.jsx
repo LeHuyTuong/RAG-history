@@ -1,9 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { generateSlug } from '../../../utils/stringUtils';
+import { generateSlug, stripHtml } from '../../../utils/stringUtils';
 import { RichTextEditor, ImageUpload, TagInput, FormHeader, EntityRelationInput } from '../../../components/admin';
 import { mockClient, extractErrorMessage, postService, tagService, eventService, sourceService } from '../../../services';
 import { API_ENDPOINTS } from '../../../services/api';
+
+const formatDateForInput = (dateStr) => {
+  if (!dateStr) return '';
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
+    return date.toISOString().split('T')[0];
+  } catch (e) {
+    return '';
+  }
+};
 
 const ArticleForm = () => {
   const { id } = useParams();
@@ -19,7 +30,7 @@ const ArticleForm = () => {
     slug: '',
     content: '',
     status: 'draft',
-    publishedAt: '',
+    publishedAt: new Date().toISOString().split('T')[0],
     tags: [],
     author: 'Admin',
     thumbnailUrl: null,
@@ -54,7 +65,7 @@ const ArticleForm = () => {
               slug: foundArticle.slug || generateSlug(foundArticle.title || ''),
               content: foundArticle.content || '',
               status: (foundArticle.status === 'published' || !foundArticle.status || foundArticle.status === 'Công khai' || foundArticle.status === 'PUBLISHED') ? 'published' : 'draft',
-              publishedAt: foundArticle.publishedAt || foundArticle.published_at || '',
+              publishedAt: formatDateForInput(foundArticle.publishedAt || foundArticle.published_at),
               tags: foundArticle.tags ? (Array.isArray(foundArticle.tags) ? foundArticle.tags.map(t => typeof t === 'object' ? (t.name || t.label || '') : t) : [foundArticle.tags]) : (foundArticle.period ? [foundArticle.period] : []),
               author: foundArticle.author || 'Admin',
               thumbnailUrl: null,
@@ -194,7 +205,7 @@ const ArticleForm = () => {
       const payload = {
         title: form.title.trim(),
         slug: check.slug,
-        summary: form.content ? form.content.substring(0, 150).replace(/<[^>]+>/g, '') + '...' : '',
+        summary: form.content ? stripHtml(form.content).substring(0, 150) + '...' : '',
         content: form.content,
         status: form.status === 'published' || form.status === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT',
         publishedAt: publishedInstant,

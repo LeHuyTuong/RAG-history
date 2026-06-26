@@ -13,6 +13,7 @@ import {
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { getDynastyLabel } from '../../../utils/dynastyUtils';
+import { stripHtml } from '../../../utils/stringUtils';
 
 import { eventService } from '../../../services';
 const EventManagement = () => {
@@ -58,12 +59,40 @@ const EventManagement = () => {
 
         const eventResult = { events: [], stats: { total: '0', published: '0' } };
 
+        const formatYear = (y) => {
+          if (y === undefined || y === null || y === '') return '';
+          const val = parseInt(y, 10);
+          if (isNaN(val)) return y;
+          return val < 0 ? `${Math.abs(val)} TCN` : `${val}`;
+        };
+
+        const formatRange = (start, end) => {
+          const s = formatYear(start);
+          const e = formatYear(end);
+          if (!s && !e) return 'Chưa rõ';
+          if (!s) return `? - ${e}`;
+          if (!e) return `${s} - ?`;
+          return `${s} - ${e}`;
+        };
+
+        const parseEventYear = (dateStr, fallbackYear) => {
+          if (!dateStr) return fallbackYear;
+          const isNegative = dateStr.startsWith('-');
+          const cleanStr = isNegative ? dateStr.substring(1) : dateStr;
+          const match = cleanStr.match(/^(\d{4})/);
+          if (match) {
+            const y = parseInt(match[1], 10);
+            return isNegative ? -y : y;
+          }
+          return fallbackYear;
+        };
+
         eventResult.events = content.map(e => ({
           ...e,
-          time: `${e.startYear || '?'} - ${e.endYear || '?'}`,
+          time: formatRange(parseEventYear(e.startDate, e.startYear), parseEventYear(e.endDate, e.endYear)),
           dynasty: e.period?.name || 'Chưa rõ',
           status: e.status || 'published',
-          sub: e.description ? e.description.replace(/<[^>]*>/g, '') : ''
+          sub: stripHtml(e.description)
         }));
 
         // Calculate stats dynamically based on actual data
@@ -137,9 +166,8 @@ const EventManagement = () => {
       )
     },
     {
-      key: 'time', header: 'Thời gian', render: (row) => (
-        <span className="font-body text-sm font-medium text-on-surface flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-[14px] text-on-surface-variant">schedule</span>
+      key: 'time', header: 'NIÊN ĐẠI', align: 'center', render: (row) => (
+        <span className="border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-surface-low text-on-surface-variant border-outline-variant">
           {row.time}
         </span>
       )

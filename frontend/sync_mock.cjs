@@ -332,7 +332,7 @@ const characters = personRows.map((cols, index) => {
   };
 });
 const userChars = {
-  periods: ["Tất cả thời kỳ"],
+  periods: ["Tất cả triều đại"],
   characters: characters
 };
 fs.writeFileSync(path.resolve(__dirname, 'public/api/user_characters.json'), JSON.stringify(userChars, null, 2));

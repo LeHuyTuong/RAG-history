@@ -41,7 +41,6 @@ import java.util.Locale;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
@@ -56,10 +55,29 @@ public class AuthServiceImpl implements AuthService {
     private final MemberService memberService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
-    @Value("${jwt.access-token-expiration}")
     private final long accessTokenExpiration;
-    @Value("${jwt.refresh-token-expiration}")
     private final long refreshTokenExpiration;
+
+    public AuthServiceImpl(
+            AuthenticationManager authenticationManager,
+            JwtEncoder jwtEncoder,
+            JwtDecoder jwtDecoder,
+            AdminService adminService,
+            MemberService memberService,
+            RefreshTokenRepository refreshTokenRepository,
+            PasswordEncoder passwordEncoder,
+            @Value("${jwt.access-token-expiration}") long accessTokenExpiration,
+            @Value("${jwt.refresh-token-expiration}") long refreshTokenExpiration) {
+        this.authenticationManager = authenticationManager;
+        this.jwtEncoder = jwtEncoder;
+        this.jwtDecoder = jwtDecoder;
+        this.adminService = adminService;
+        this.memberService = memberService;
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.accessTokenExpiration = accessTokenExpiration;
+        this.refreshTokenExpiration = refreshTokenExpiration;
+    }
 
     @Override
     @Transactional
