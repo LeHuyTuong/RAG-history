@@ -30,7 +30,7 @@ class Citation(BaseModel):
 class RagChatRequest(BaseModel):
     question: str
     topK: int | None = None  # None = dùng default_top_k từ config
-    useGraph: bool = False    # luôn False trong MVP; chừa chỗ cho Neo4j sau
+    useGraph: bool = False    # True để force graph; auto-detect qua _GRAPH_HINT_RE
     sourceIds: list[int] = []  # filter: chỉ search trong các source này
     tagIds: list[int] = []     # filter: chỉ search chunk có gắn tag này
     temperature: float = 0.2

@@ -12,7 +12,7 @@ Flow trong /rag/chat:
   5. citation_service.to_citations()  — map ScoredPoint → Citation objects
 
 Fallback: nếu không có hits hoặc LLM lỗi → trả _NO_DATA_MSG thay vì crash.
-Graph (Neo4j) chưa implement — useGraph luôn False trong MVP.
+Graph (Neo4j): dùng khi useGraph=True hoặc câu hỏi match _GRAPH_HINT_RE.
 """
 import json
 
@@ -152,9 +152,12 @@ async def _stream_chat_events(req: RagChatRequest):
     try:
         system_prompt = load_system_prompt()
         user_message = build_user_message(req.question, hits, graph_facts)
-        for chunk in generate_stream(system_prompt, user_message, req.temperature):
-            full_answer += chunk
-            yield _sse("chat.delta", {"text": chunk})
+        for kind, chunk in generate_stream(system_prompt, user_message, req.temperature):
+            if kind == "thinking":
+                yield _sse("chat.thinking", {"text": chunk})
+            else:
+                full_answer += chunk
+                yield _sse("chat.delta", {"text": chunk})
     except Exception:
         for event in _answer_events(_NO_DATA_MSG, [], True, bool(graph_facts)):
             yield event

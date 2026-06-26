@@ -98,18 +98,39 @@ def _write_tx(tx, point_id, doc_id, page, entities, relations):
         "MERGE (c:Chunk {pointId: $pid}) SET c.docId=$doc, c.page=$page, c.processed=true",
         pid=point_id, doc=doc_id, page=page,
     )
-    # 2. MERGE từng entity (gộp theo name); cập nhật type nếu chưa có
+
+    # Gom tất cả entity names (từ cả entities lẫn relations) rồi sort để
+    # mọi worker luôn acquire lock theo cùng thứ tự → phá vòng deadlock.
+    all_names: set[str] = set()
     for ent in entities:
         name = (ent.get("name") or "").strip()
-        if not name:
-            continue
+        if name:
+            all_names.add(name)
+    for rel in relations:
+        src = (rel.get("source") or "").strip()
+        tgt = (rel.get("target") or "").strip()
+        if src:
+            all_names.add(src)
+        if tgt:
+            all_names.add(tgt)
+
+    # Build type lookup từ entities để dùng ở bước MERGE
+    type_map: dict[str, str] = {
+        (ent.get("name") or "").strip(): (ent.get("type") or "").strip()
+        for ent in entities
+        if (ent.get("name") or "").strip()
+    }
+
+    # 2. MERGE tất cả entity theo thứ tự sort — lock acquisition order nhất quán
+    for name in sorted(all_names):
         tx.run(
             "MERGE (e:Entity {name: $name}) "
             "ON CREATE SET e.type=$type "
             "ON MATCH SET e.type=coalesce(e.type, $type)",
-            name=name, type=(ent.get("type") or "").strip(),
+            name=name, type=type_map.get(name, ""),
         )
-    # 3. MERGE quan hệ — lưu type quan hệ làm property để query linh hoạt
+
+    # 3. MERGE quan hệ — entities đã tồn tại nên không cần MERGE lại src/tgt
     for rel in relations:
         src = (rel.get("source") or "").strip()
         tgt = (rel.get("target") or "").strip()
@@ -117,8 +138,7 @@ def _write_tx(tx, point_id, doc_id, page, entities, relations):
         if not src or not tgt:
             continue
         tx.run(
-            "MERGE (a:Entity {name: $src}) "
-            "MERGE (b:Entity {name: $tgt}) "
+            "MATCH (a:Entity {name: $src}), (b:Entity {name: $tgt}) "
             "MERGE (a)-[r:REL {type: $rtype}]->(b) "
             "SET r.context=$ctx, r.page=$page, r.docId=$doc",
             src=src, tgt=tgt, rtype=rtype,
