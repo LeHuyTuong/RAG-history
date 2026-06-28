@@ -22,4 +22,6 @@ public interface PostService {
     long countPosts();
 
     long countPostsByStatus(PostStatus status);
+
+    int syncAllPublishedToRag();
 }
