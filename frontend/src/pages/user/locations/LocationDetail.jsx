@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import VietnamMap from '../../../components/VietnamMap';
+import { API_ENDPOINTS } from '../../../services/api';
+import apiClient from '../../../services/apiClient';
+import { mockClient } from '../../../services/api';
 
 const LocationDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [location, setLocation] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -15,10 +19,38 @@ const LocationDetail = () => {
   useEffect(() => {
     const fetchLocation = async () => {
       try {
-        const response = await fetch('/api/user_location_detail.json');
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        setLocation(data);
+        let dbLocation = null;
+        try {
+          const url = typeof API_ENDPOINTS.USER_LOCATION_DETAIL === 'function' ? API_ENDPOINTS.USER_LOCATION_DETAIL(id) : `${API_ENDPOINTS.USER_LOCATION_DETAIL}/${id}`;
+          const response = await apiClient.get(url);
+          dbLocation = response.data?.data || response.data;
+        } catch (apiErr) {
+          console.error('Failed to fetch location detail from API:', apiErr);
+        }
+
+        let mockLocations = [];
+        try {
+          const mockRes = await mockClient.get('/api/user_locations.json');
+          mockLocations = mockRes.data?.locations || mockRes.data || [];
+        } catch (err) {
+          console.error('Error fetching mock locations:', err);
+        }
+
+        if (dbLocation) {
+          const mockItem = mockLocations.find(m => m.slug === dbLocation.slug) || {};
+
+          setLocation({
+            ...dbLocation,
+            heroImg: dbLocation.image || 'https://via.placeholder.com/800x400',
+            location_id: dbLocation.id,
+            location_type: dbLocation.locationType || mockItem.location_type || 'REGION',
+            description: dbLocation.description || mockItem.description || '',
+            x: mockItem.x !== undefined ? mockItem.x : 50,
+            y: mockItem.y !== undefined ? mockItem.y : 50,
+            province: mockItem.province || 'Việt Nam',
+            period: dbLocation.period?.name || mockItem.period || '',
+          });
+        }
       } catch (error) {
         console.error('Error fetching location:', error);
       } finally {
@@ -44,13 +76,13 @@ const LocationDetail = () => {
           <div className="absolute inset-0 bg-[#fcf9ee]/5 mix-blend-overlay dong-son-pattern opacity-30 pointer-events-none"></div>
           <div className="max-w-[1440px] mx-auto w-full relative z-10">
             <span className="inline-block bg-[#6b0f0d] text-[#ffe7b0] px-6 py-1.5 font-body text-[10px] font-bold uppercase tracking-widest mb-6 shadow-lg border border-[#d99b4a]/40">
-              {location.category}
+              {location.category || location.location_type}
             </span>
             <h1 className="font-headline text-6xl md:text-8xl text-[#f7d78a] font-semibold tracking-tight mb-6">
               {location.name}
             </h1>
-            <p className="text-[#fcf9ee]/90 font-body text-[16px] max-w-2xl leading-relaxed">
-              {location.shortDesc}
+            <p className="text-[#fcf9ee]/90 font-body text-[16px] max-w-2xl leading-relaxed border-l-4 border-[#d99b4a] pl-6">
+              {location.shortDesc || location.description}
             </p>
           </div>
         </div>
@@ -68,14 +100,18 @@ const LocationDetail = () => {
                 Tầm quan trọng Lịch sử
               </h2>
               <div className="space-y-6 text-[#2b1a16]/80 text-[16px] leading-loose">
-                {location.importance.map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
+                {Array.isArray(location.importance) ? (
+                  location.importance.map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))
+                ) : typeof location.importance === 'string' ? (
+                  <p>{location.importance}</p>
+                ) : null}
               </div>
 
               {/* Stats Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 pt-8 border-t border-[#d99b4a]/20">
-                {location.stats.map((s, i) => (
+                {(location.stats || location.metrics || []).map((s, i) => (
                   <StatBox key={i} label={s.label} value={s.value} />
                 ))}
               </div>
@@ -93,7 +129,7 @@ const LocationDetail = () => {
               {/* Đường kẻ dọc giữa desktop */}
               <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-[2px] bg-[#d99b4a]/30"></div>
 
-              {location.timeline.map((item, i) => (
+              {(location.timeline || []).map((item, i) => (
                 <TimelineItem
                   key={i}
                   year={item.year} title={item.title}
@@ -118,9 +154,9 @@ const LocationDetail = () => {
                   <VietnamMap
                     className="absolute inset-0 w-full h-full drop-shadow-[0_15px_30px_rgba(107,15,13,0.4)]"
                   />
-                  {/* Marker Cố Đô Huế: x=63%, y=50% */}
-                  <div className="absolute z-20" style={{ left: '63%', top: '50%' }}>
-                    <div className="relative flex items-center justify-center">
+                  {/* Dynamic Marker */}
+                  <div className="absolute z-20" style={{ left: `${location.x}%`, top: `${location.y}%` }}>
+                    <div className="relative flex items-center justify-center -translate-x-1/2 -translate-y-1/2">
                       <div className="absolute w-8 h-8 bg-[#d99b4a]/40 rounded-full animate-ping"></div>
                       <div className="relative w-6 h-6 flex items-center justify-center rounded-full bg-[#6b0f0d] border-2 border-[#f7d78a] shadow-lg">
                         <span className="material-symbols-outlined text-[12px] text-[#ffe7b0]">account_balance</span>
@@ -130,11 +166,11 @@ const LocationDetail = () => {
                 </div>
               </div>
               <div className="absolute bottom-4 right-4 bg-[#6b0f0d] text-[#ffe7b0] px-3 py-1 font-body text-[10px] font-bold shadow-2xl border border-[#d99b4a]/40">
-                {location.location.lat}° N, {location.location.lng}° E
+                {location.location?.lat || location.latitude}° N, {location.location?.lng || location.longitude}° E
               </div>
             </div>
             <p className="text-[#2b1a16]/80 text-[14px] leading-relaxed border-l-2 border-[#d99b4a] pl-4">
-              {location.location.quote}
+              {location.location?.quote || ""}
             </p>
           </div>
 
@@ -143,7 +179,7 @@ const LocationDetail = () => {
             <div className="absolute inset-0 dong-son-pattern opacity-10 mix-blend-overlay"></div>
             <h4 className="font-headline text-2xl font-semibold mb-8 relative z-10 border-b border-[#d99b4a]/20 pb-4 text-[#f7d78a]">Nhân vật liên quan</h4>
             <div className="space-y-6 relative z-10">
-              {location.figures.map((fig, i) => (
+              {(location.figures || location.famousCharacters || []).map((fig, i) => (
                 <FigureItem
                   key={i}
                   name={fig.name}
@@ -152,8 +188,11 @@ const LocationDetail = () => {
                 />
               ))}
             </div>
-            <button className="w-full mt-10 py-3 border border-[#d99b4a]/40 text-[#f7d78a] text-[10px] font-bold uppercase tracking-widest hover:bg-[#d99b4a]/10 hover:text-white transition-all relative z-10 bg-[#1a0201]/40">
-              Xem phả hệ nhà Nguyễn
+            <button 
+              onClick={() => navigate('/characters')}
+              className="w-full mt-10 py-3 border border-[#d99b4a]/40 text-[#f7d78a] text-[10px] font-bold uppercase tracking-widest hover:bg-[#d99b4a]/10 hover:text-white transition-all relative z-10 bg-[#1a0201]/40"
+            >
+              Xem danh sách nhân vật
             </button>
           </div>
         </aside>
@@ -195,7 +234,7 @@ const TimelineItem = ({ year, title, desc, align }) => (
 );
 
 const FigureItem = ({ name, role, img }) => (
-  <Link to="#" className="flex items-center gap-4 p-3 hover:bg-[#1a0201]/40 transition-all border border-transparent hover:border-[#d99b4a]/30 rounded-sm">
+  <Link to="/characters" className="group flex items-center gap-4 p-3 hover:bg-[#1a0201]/40 transition-all border border-transparent hover:border-[#d99b4a]/30 rounded-sm">
     <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[#d99b4a]/60 shadow-xl p-0.5 bg-[#1a0201]">
       <img src={img} className="w-full h-full object-cover rounded-full grayscale-[0.5] group-hover:grayscale-0 transition-all" alt={name} />
     </div>

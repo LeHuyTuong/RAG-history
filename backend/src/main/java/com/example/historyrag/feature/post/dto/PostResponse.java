@@ -5,10 +5,12 @@ import com.example.historyrag.feature.event.Event;
 import com.example.historyrag.feature.post.Post;
 import com.example.historyrag.feature.post.PostStatus;
 import com.example.historyrag.feature.tag.Tag;
+import lombok.Builder;
 
 import java.time.Instant;
 import java.util.List;
 
+@Builder
 public record PostResponse(
         Long id,
         String title,
@@ -42,6 +44,7 @@ public record PostResponse(
         );
     }
 
+    @Builder
     public record AuthorResponse(
             Long id,
             String username,
@@ -61,6 +64,7 @@ public record PostResponse(
         }
     }
 
+    @Builder
     public record EventResponse(
             Long id,
             String name,
@@ -78,6 +82,7 @@ public record PostResponse(
         }
     }
 
+    @Builder
     public record TagResponse(
             Long id,
             String name,

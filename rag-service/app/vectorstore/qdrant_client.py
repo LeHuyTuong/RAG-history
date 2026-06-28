@@ -37,17 +37,19 @@ def get_client() -> QdrantClient:
 
 def ensure_collection(collection: str) -> None:
     """
-    Tạo collection nếu chưa có. Idempotent — gọi mỗi lần ingest đều an toàn.
+    Tạo collection nếu chưa có, và luôn đảm bảo payload index tồn tại.
+    Idempotent — gọi mỗi lần ingest đều an toàn (create_payload_index là no-op
+    nếu index đã có). Tách riêng 2 bước để collection cũ (tạo tay không có index)
+    cũng được vá tự động.
     Vector size lấy từ settings.embedding_dim: đổi embedding model thì phải
     tạo lại collection (xem ghi chú trong config.py).
     """
     client = get_client()
-    if client.collection_exists(collection):
-        return
-    client.create_collection(
-        collection_name=collection,
-        vectors_config=VectorParams(size=settings.embedding_dim, distance=Distance.COSINE),
-    )
+    if not client.collection_exists(collection):
+        client.create_collection(
+            collection_name=collection,
+            vectors_config=VectorParams(size=settings.embedding_dim, distance=Distance.COSINE),
+        )
     for field, schema in _INDEXED_FIELDS.items():
         client.create_payload_index(
             collection_name=collection,

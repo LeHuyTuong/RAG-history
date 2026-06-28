@@ -1,8 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StatsGrid } from '../../../components/admin';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+
+import { dashboardService } from '../../../services';
 
 const CHART_DATA = [35, 50, 25, 70, 45, 90, 60, 80, 40, 65, 85, 55, 75, 45, 60];
+const CHART_DATA_INTERACTIONS = [15, 30, 20, 45, 25, 65, 40, 50, 35, 40, 60, 45, 55, 30, 45];
+
+const chartData = CHART_DATA.map((viewsVal, i) => {
+  const day = i + 1;
+  const interactionsVal = CHART_DATA_INTERACTIONS[i];
+  return {
+    name: `Ngày ${day}`,
+    day: day,
+    views: viewsVal * 125,
+    interactions: interactionsVal * 45,
+  };
+});
+
+const CustomTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const value = payload[0].value;
+    const isViews = payload[0].name === 'views';
+    const iconName = isViews ? 'visibility' : 'forum';
+    const iconColor = isViews ? 'text-emerald-500' : 'text-amber-500';
+    const labelText = isViews ? 'Lượt xem' : 'Tương tác';
+
+    return (
+      <div className="bg-slate-800 text-white text-[11px] font-bold px-3 py-2 rounded-lg shadow-xl border border-white/10 flex flex-col gap-1">
+        <p className="opacity-70 text-[9px] font-bold uppercase tracking-wider">Ngày {data.day}</p>
+        <div className="flex items-center gap-1.5">
+          <span className={`material-symbols-outlined text-[14px] ${iconColor}`}>{iconName}</span>
+          <span>{labelText}: {value.toLocaleString()}</span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
 
 const QUICK_ACTIONS = [
   { id: 'event', icon: 'history_edu', label: 'Sự kiện', path: '/admin/events/new', colorClasses: 'hover:bg-amber-50 hover:border-amber-200 hover:text-amber-700' },
@@ -13,6 +50,7 @@ const QUICK_ACTIONS = [
 
 const AdminDashboard = () => {
   const [opacity, setOpacity] = useState(0);
+  const [activeChartTab, setActiveChartTab] = useState('views');
   const [dashboardData, setDashboardData] = useState({ stats: [], metadataStats: [], activities: [] });
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -22,10 +60,8 @@ const AdminDashboard = () => {
 
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch('/api/dashboard.json');
-        if (!response.ok) throw new Error('Network response was not ok');
-        const data = await response.json();
-        setDashboardData(data);
+        const data = await dashboardService.getDashboard();
+        setDashboardData(data || { stats: [], metadataStats: [], activities: [] });
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -103,12 +139,18 @@ const AdminDashboard = () => {
             </div>
 
             {/* Metadata Stats */}
-            <div className="bg-gradient-to-br from-surface-low to-white border border-outline-variant/30 rounded-[2rem] shadow-sm p-6 flex-1 flex flex-col justify-center relative overflow-hidden group">
+            <div
+              onClick={() => navigate('/admin/metadata')}
+              className="bg-gradient-to-br from-surface-low to-white border border-outline-variant/30 rounded-[2rem] shadow-sm hover:shadow-md p-6 flex-1 flex flex-col justify-center relative overflow-hidden group cursor-pointer transition-all duration-300 hover:-translate-y-1"
+            >
               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
-              <h3 className="font-headline text-lg text-primary font-bold italic mb-6 relative z-10 flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary/70 text-[20px]">database</span>
-                Hệ thống Dữ liệu
-              </h3>
+              <div className="flex justify-between items-center mb-6 relative z-10">
+                <h3 className="font-headline text-lg text-primary font-bold italic flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary/70 text-[20px]">database</span>
+                  Hệ thống Dữ liệu
+                </h3>
+                <span className="material-symbols-outlined text-primary/50 group-hover:text-primary group-hover:translate-x-1 transition-all">arrow_forward</span>
+              </div>
               <div className="space-y-4 relative z-10">
                 {dashboardData.metadataStats?.map((meta, i) => (
                   <div key={i} className="flex justify-between items-center bg-white p-3 rounded-xl border border-outline-variant/30 hover:border-primary/20 hover:shadow-sm transition-all">
@@ -133,35 +175,43 @@ const AdminDashboard = () => {
                 <p className="text-[11px] text-on-surface-variant font-bold uppercase tracking-widest mt-1">30 Ngày gần nhất</p>
               </div>
               <div className="flex gap-3 bg-surface-low p-1.5 rounded-full border border-outline-variant/50 shadow-inner">
-                <span className="px-4 py-1.5 bg-white text-primary text-[10px] font-bold rounded-full shadow-sm">LƯỢT XEM</span>
-                <span className="px-4 py-1.5 text-on-surface-variant text-[10px] font-bold rounded-full hover:bg-white/50 cursor-pointer transition-colors">TƯƠNG TÁC</span>
+                <span
+                  onClick={() => setActiveChartTab('views')}
+                  className={`px-4 py-1.5 text-[10px] font-bold rounded-full cursor-pointer transition-colors ${activeChartTab === 'views' ? 'bg-white text-primary shadow-sm' : 'text-on-surface-variant hover:bg-white/50'}`}
+                >LƯỢT XEM</span>
+                <span
+                  onClick={() => setActiveChartTab('interactions')}
+                  className={`px-4 py-1.5 text-[10px] font-bold rounded-full cursor-pointer transition-colors ${activeChartTab === 'interactions' ? 'bg-white text-primary shadow-sm' : 'text-on-surface-variant hover:bg-white/50'}`}
+                >TƯƠNG TÁC</span>
               </div>
             </div>
 
-            <div className="flex-1 flex items-end gap-3 h-72 mt-auto w-full relative z-10">
-              {/* Cột biểu đồ CSS với thiết kế bo tròn tinh tế */}
-              {CHART_DATA.map((h, i) => {
-                const isPeak = h >= 80;
-                return (
-                  <div key={i} className="flex-1 flex flex-col justify-end group/bar h-full">
-                    <div
-                      className={`w-full rounded-full transition-all duration-700 relative cursor-pointer ${isPeak ? 'bg-gradient-to-t from-primary/60 to-primary shadow-[0_0_15px_rgba(79,70,229,0.3)]' : 'bg-gradient-to-t from-emerald-500/20 to-emerald-400/40 hover:from-emerald-500/40 hover:to-emerald-400/60'}`}
-                      style={{ height: `${h}%` }}
-                    >
-                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-xl opacity-0 group-hover/bar:opacity-100 transition-all pointer-events-none whitespace-nowrap z-20 flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[12px] text-emerald-400">visibility</span>
-                        {h * 125}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            {/* Lưới nền nét đứt thanh lịch */}
-            <div className="absolute inset-x-8 bottom-8 top-32 flex flex-col justify-between pointer-events-none z-0">
-              <div className="border-t border-dashed border-outline-variant/40 w-full relative"><span className="absolute -top-3 -left-2 text-[9px] font-bold text-on-surface-variant/50">10k</span></div>
-              <div className="border-t border-dashed border-outline-variant/30 w-full relative"><span className="absolute -top-3 -left-2 text-[9px] font-bold text-on-surface-variant/50">5k</span></div>
-              <div className="border-t border-solid border-outline-variant/20 w-full relative"><span className="absolute -top-3 -left-2 text-[9px] font-bold text-on-surface-variant/50">0</span></div>
+            <div className="flex-1 h-72 mt-auto w-full relative z-10">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ddc0bd" opacity={0.3} vertical={false} />
+                  <XAxis
+                    dataKey="day"
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: '#6b7280', fontSize: 10, fontWeight: 700 }}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: '#6b7280', fontSize: 10, fontWeight: 700 }}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line
+                    type="monotone"
+                    dataKey={activeChartTab === 'views' ? 'views' : 'interactions'}
+                    stroke={activeChartTab === 'views' ? '#6B1515' : '#d97706'}
+                    strokeWidth={3}
+                    dot={{ r: 4, strokeWidth: 1, fill: '#fff' }}
+                    activeDot={{ r: 6, strokeWidth: 0, fill: activeChartTab === 'views' ? '#6B1515' : '#d97706' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
@@ -183,20 +233,21 @@ const AdminDashboard = () => {
                   {dashboardData.activities?.map((act, index) => {
                     const actColor = act.color || 'text-primary';
                     return (
-                    <div key={act.id || index} className="relative pl-10 group/act cursor-pointer">
-                      <div className={`absolute top-1 left-[7px] w-4 h-4 rounded-full flex items-center justify-center bg-white border-2 border-white shadow-sm z-10 transition-transform group-hover/act:scale-125 ${actColor.replace('text', 'bg').replace('bg-on-surface', 'bg-slate-400')}`}>
-                        <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-                      </div>
-
-                      <div className="bg-surface-low/50 group-hover/act:bg-surface p-3.5 rounded-2xl border border-outline-variant/30 group-hover/act:border-primary/20 group-hover/act:shadow-md transition-all duration-300">
-                        <div className="flex items-center gap-1.5 mb-2">
-                          <span className={`material-symbols-outlined text-[14px] ${actColor}`}>{act.icon}</span>
-                          <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest">{act.time}</p>
+                      <div key={act.id || index} className="relative pl-10 group/act cursor-pointer">
+                        <div className={`absolute top-1 left-[7px] w-4 h-4 rounded-full flex items-center justify-center bg-white border-2 border-white shadow-sm z-10 transition-transform group-hover/act:scale-125 ${actColor.replace('text', 'bg').replace('bg-on-surface', 'bg-slate-400')}`}>
+                          <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
                         </div>
-                        <p className="text-[12px] text-on-surface leading-relaxed" dangerouslySetInnerHTML={{ __html: act.textHtml || '' }}></p>
+
+                        <div className="bg-surface-low/50 group-hover/act:bg-surface p-3.5 rounded-2xl border border-outline-variant/30 group-hover/act:border-primary/20 group-hover/act:shadow-md transition-all duration-300">
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <span className={`material-symbols-outlined text-[14px] ${actColor}`}>{act.icon}</span>
+                            <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest">{act.time}</p>
+                          </div>
+                          <p className="text-[12px] text-on-surface leading-relaxed" dangerouslySetInnerHTML={{ __html: act.textHtml || '' }}></p>
+                        </div>
                       </div>
-                    </div>
-                  )})}
+                    )
+                  })}
                 </>
               )}
             </div>

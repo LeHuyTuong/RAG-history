@@ -1,0 +1,250 @@
+{
+  "source": {
+    "sourceId": 5,
+    "title": "Lịch sử Việt Nam tập 05 Từ năm 1802 đến năm 1858",
+    "pages": "1-722",
+    "chunks": 0
+  },
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Gia Long lên ngôi",
+      "question": "Nguyễn Ánh lên ngôi hoàng đế vào năm nào, lấy niên hiệu gì và đặt tên nước là gì?",
+      "expected_keywords": ["Gia Long", "1802", "Việt Nam", "lên ngôi"]
+    },
+    {
+      "id": 2,
+      "topic": "Gia Long lên ngôi",
+      "question": "Sự kiện Gia Long thống nhất đất nước năm 1802 có ý nghĩa lịch sử như thế nào sau nhiều thế kỷ phân liệt?",
+      "expected_keywords": ["thống nhất", "1802", "Gia Long", "lịch sử"]
+    },
+    {
+      "id": 3,
+      "topic": "Hành chính nhà Nguyễn",
+      "question": "Gia Long thiết lập bộ máy hành chính nhà nước trung ương như thế nào và học tập theo mô hình nào?",
+      "expected_keywords": ["hành chính", "lục bộ", "nhà Nguyễn", "Gia Long"]
+    },
+    {
+      "id": 4,
+      "topic": "Hành chính nhà Nguyễn",
+      "question": "Gia Long chia đất nước thành những đơn vị hành chính nào và Kinh đô được đặt ở đâu?",
+      "expected_keywords": ["Kinh đô Huế", "hành chính", "trấn", "dinh"]
+    },
+    {
+      "id": 5,
+      "topic": "Minh Mạng cải cách",
+      "question": "Minh Mạng thực hiện cuộc cải cách hành chính lớn nào năm 1831-1832 và kết quả ra sao?",
+      "expected_keywords": ["Minh Mạng", "1831-1832", "chia tỉnh", "30 tỉnh"]
+    },
+    {
+      "id": 6,
+      "topic": "Minh Mạng cải cách",
+      "question": "Chính sách đối nội của Minh Mạng đối với các tộc người thiểu số và đồng hóa văn hóa diễn ra như thế nào?",
+      "expected_keywords": ["Minh Mạng", "dân tộc thiểu số", "đồng hóa", "cải cách"]
+    },
+    {
+      "id": 7,
+      "topic": "Minh Mạng cải cách",
+      "question": "Minh Mạng cải cách chế độ khoa cử và giáo dục như thế nào để đào tạo đội ngũ quan lại?",
+      "expected_keywords": ["Minh Mạng", "khoa cử", "giáo dục", "Quốc Tử Giám"]
+    },
+    {
+      "id": 8,
+      "topic": "Kinh đô Huế",
+      "question": "Kinh đô Huế được xây dựng như thế nào và có những công trình kiến trúc tiêu biểu nào dưới thời Nguyễn?",
+      "expected_keywords": ["kinh đô Huế", "Đại Nội", "Ngọ Môn", "kiến trúc"]
+    },
+    {
+      "id": 9,
+      "topic": "Gia Định thành",
+      "question": "Gia Định thành được thành lập và tổ chức như thế nào dưới thời đầu nhà Nguyễn?",
+      "expected_keywords": ["Gia Định thành", "tổng trấn", "Nam Kỳ", "hành chính"]
+    },
+    {
+      "id": 10,
+      "topic": "Gia Định thành",
+      "question": "Lê Văn Duyệt với tư cách là Tổng trấn Gia Định thành có vai trò gì trong việc phát triển Nam Kỳ?",
+      "expected_keywords": ["Lê Văn Duyệt", "Tổng trấn", "Gia Định", "phát triển"]
+    },
+    {
+      "id": 11,
+      "topic": "Luật nhà Nguyễn",
+      "question": "Bộ Hoàng Việt luật lệ (Gia Long luật) được ban hành năm nào và có gì khác biệt so với Luật Hồng Đức?",
+      "expected_keywords": ["Hoàng Việt luật lệ", "Gia Long luật", "1815", "bộ luật"]
+    },
+    {
+      "id": 12,
+      "topic": "Kinh tế nông nghiệp",
+      "question": "Chính sách khuyến khích khai hoang và phát triển nông nghiệp của nhà Nguyễn đầu thế kỷ XIX như thế nào?",
+      "expected_keywords": ["khai hoang", "nông nghiệp", "đê điều", "thủy lợi"]
+    },
+    {
+      "id": 13,
+      "topic": "Kinh tế nông nghiệp",
+      "question": "Chế độ thuế khóa và tô thuế ở nông thôn dưới thời Nguyễn đầu thế kỷ XIX có đặc điểm gì?",
+      "expected_keywords": ["thuế", "tô thuế", "nông dân", "gánh nặng"]
+    },
+    {
+      "id": 14,
+      "topic": "Thương nghiệp",
+      "question": "Chính sách thương nghiệp của nhà Nguyễn với các nước phương Tây và các nước láng giềng như thế nào?",
+      "expected_keywords": ["thương nghiệp", "ngoại thương", "hạn chế", "phương Tây"]
+    },
+    {
+      "id": 15,
+      "topic": "Thiệu Trị",
+      "question": "Thiệu Trị kế thừa chính sách của Minh Mạng như thế nào và thái độ của ông đối với người phương Tây ra sao?",
+      "expected_keywords": ["Thiệu Trị", "phương Tây", "cấm đạo", "đối ngoại"]
+    },
+    {
+      "id": 16,
+      "topic": "Tự Đức",
+      "question": "Tự Đức lên ngôi vào năm nào và phải đối phó với những thách thức nào trong thời kỳ đầu trị vì?",
+      "expected_keywords": ["Tự Đức", "1847", "khởi nghĩa", "thách thức"]
+    },
+    {
+      "id": 17,
+      "topic": "Đối ngoại với Pháp",
+      "question": "Nhà Nguyễn thiết lập quan hệ ngoại giao với Pháp như thế nào trong những năm đầu thế kỷ XIX?",
+      "expected_keywords": ["Pháp", "ngoại giao", "nhà Nguyễn", "thương mại"]
+    },
+    {
+      "id": 18,
+      "topic": "Đối ngoại với Pháp",
+      "question": "Những yêu sách của Pháp đối với nhà Nguyễn trước năm 1858 bao gồm những vấn đề gì?",
+      "expected_keywords": ["Pháp", "yêu sách", "thông thương", "tự do truyền đạo"]
+    },
+    {
+      "id": 19,
+      "topic": "Đạo Thiên Chúa",
+      "question": "Tại sao nhà Nguyễn thực hiện chính sách cấm đạo Thiên Chúa giáo và điều này gây ra hậu quả gì?",
+      "expected_keywords": ["cấm đạo", "Thiên Chúa giáo", "nhà Nguyễn", "giáo sĩ"]
+    },
+    {
+      "id": 20,
+      "topic": "Đạo Thiên Chúa",
+      "question": "Chính sách cấm đạo của Minh Mạng có nội dung cụ thể như thế nào và ảnh hưởng đến quan hệ với Pháp ra sao?",
+      "expected_keywords": ["Minh Mạng", "cấm đạo", "giáo sĩ", "tử đạo"]
+    },
+    {
+      "id": 21,
+      "topic": "Khởi nghĩa Phan Bá Vành",
+      "question": "Khởi nghĩa Phan Bá Vành diễn ra ở đâu, vào thời gian nào và bị dập tắt như thế nào?",
+      "expected_keywords": ["Phan Bá Vành", "Nam Định", "nông dân", "khởi nghĩa"]
+    },
+    {
+      "id": 22,
+      "topic": "Khởi nghĩa Lê Văn Khôi",
+      "question": "Khởi nghĩa Lê Văn Khôi ở Gia Định năm 1833 bùng nổ vì nguyên nhân gì và diễn biến như thế nào?",
+      "expected_keywords": ["Lê Văn Khôi", "Gia Định", "1833", "thành Phiên An"]
+    },
+    {
+      "id": 23,
+      "topic": "Khởi nghĩa Lê Văn Khôi",
+      "question": "Nhà Nguyễn đã dập tắt khởi nghĩa Lê Văn Khôi như thế nào và sau đó xử lý những người liên quan ra sao?",
+      "expected_keywords": ["dập tắt", "Lê Văn Khôi", "xử lý", "giáo sĩ"]
+    },
+    {
+      "id": 24,
+      "topic": "Quan hệ với Anh-Mỹ",
+      "question": "Quan hệ của nhà Nguyễn với Anh và Mỹ trong nửa đầu thế kỷ XIX phát triển như thế nào?",
+      "expected_keywords": ["Anh", "Mỹ", "nhà Nguyễn", "thông thương"]
+    },
+    {
+      "id": 25,
+      "topic": "Quan hệ với Trung Quốc",
+      "question": "Quan hệ triều cống giữa nhà Nguyễn và nhà Thanh được thiết lập như thế nào và có ý nghĩa gì?",
+      "expected_keywords": ["triều cống", "nhà Thanh", "ngoại giao", "nhà Nguyễn"]
+    },
+    {
+      "id": 26,
+      "topic": "Quân sự nhà Nguyễn",
+      "question": "Hệ thống phòng thủ và quân sự của nhà Nguyễn được tổ chức như thế nào trong đầu thế kỷ XIX?",
+      "expected_keywords": ["quân đội", "thành lũy", "nhà Nguyễn", "phòng thủ"]
+    },
+    {
+      "id": 27,
+      "topic": "Văn hóa nhà Nguyễn",
+      "question": "Hoạt động biên soạn sử và địa lý dưới thời nhà Nguyễn để lại những tác phẩm lớn nào?",
+      "expected_keywords": ["Đại Nam thực lục", "Đại Nam nhất thống chí", "sử học", "biên soạn"]
+    },
+    {
+      "id": 28,
+      "topic": "Văn học nhà Nguyễn",
+      "question": "Truyện Kiều của Nguyễn Du ra đời trong bối cảnh nhà Nguyễn mới thành lập và tác phẩm này phản ánh gì?",
+      "expected_keywords": ["Truyện Kiều", "Nguyễn Du", "nhà Nguyễn", "xã hội"]
+    },
+    {
+      "id": 29,
+      "topic": "Thủ công nghiệp",
+      "question": "Thủ công nghiệp nhà nước và dân gian phát triển như thế nào dưới thời Nguyễn đầu thế kỷ XIX?",
+      "expected_keywords": ["thủ công nghiệp", "quan xưởng", "làng nghề", "nhà Nguyễn"]
+    },
+    {
+      "id": 30,
+      "topic": "Giao thông",
+      "question": "Đường thiên lý Bắc-Nam và hệ thống đường bộ được nhà Nguyễn xây dựng như thế nào?",
+      "expected_keywords": ["đường thiên lý", "giao thông", "trạm dịch", "nhà Nguyễn"]
+    },
+    {
+      "id": 31,
+      "topic": "Giáo dục khoa cử",
+      "question": "Chế độ khoa cử dưới thời nhà Nguyễn được tổ chức như thế nào và có gì khác so với thời Lê sơ?",
+      "expected_keywords": ["khoa thi", "tiến sĩ", "nhà Nguyễn", "Nho học"]
+    },
+    {
+      "id": 32,
+      "topic": "Dân số lãnh thổ",
+      "question": "Lãnh thổ Việt Nam dưới thời Gia Long có diện tích rộng lớn nhất lịch sử như thế nào?",
+      "expected_keywords": ["lãnh thổ", "Gia Long", "biên giới", "rộng lớn nhất"]
+    },
+    {
+      "id": 33,
+      "topic": "Hoàng Diệu",
+      "question": "Hoàng Diệu giữ chức vụ gì và có liên quan đến sự kiện lịch sử nào trong giai đoạn này?",
+      "expected_keywords": ["Hoàng Diệu", "Tổng đốc", "Hà Nội", "thủ thành"]
+    },
+    {
+      "id": 34,
+      "topic": "Quan hệ với Chân Lạp",
+      "question": "Nhà Nguyễn can thiệp vào nội tình Chân Lạp như thế nào trong những năm 1830-1840?",
+      "expected_keywords": ["Chân Lạp", "can thiệp", "Trấn Tây thành", "Nguyễn"]
+    },
+    {
+      "id": 35,
+      "topic": "Quan hệ với Xiêm",
+      "question": "Xung đột giữa nhà Nguyễn và Xiêm La (Thái Lan) ở khu vực Chân Lạp diễn ra như thế nào?",
+      "expected_keywords": ["Xiêm La", "Chân Lạp", "xung đột", "nhà Nguyễn"]
+    },
+    {
+      "id": 36,
+      "topic": "Tôn giáo",
+      "question": "Phật giáo, đạo Lão và Nho giáo có vai trò gì trong đời sống tinh thần người Việt đầu thế kỷ XIX?",
+      "expected_keywords": ["Phật giáo", "Nho giáo", "tín ngưỡng", "đời sống tinh thần"]
+    },
+    {
+      "id": 37,
+      "topic": "Minh Mạng đối ngoại",
+      "question": "Minh Mạng có thái độ như thế nào đối với việc thông thương và tiếp xúc với phương Tây?",
+      "expected_keywords": ["Minh Mạng", "bế quan tỏa cảng", "phương Tây", "thông thương"]
+    },
+    {
+      "id": 38,
+      "topic": "Xã hội đầu Nguyễn",
+      "question": "Tình trạng phân hóa giàu nghèo và mâu thuẫn xã hội ở nông thôn Việt Nam đầu thế kỷ XIX như thế nào?",
+      "expected_keywords": ["phân hóa", "địa chủ", "nông dân", "mâu thuẫn xã hội"]
+    },
+    {
+      "id": 39,
+      "topic": "Gia Long đối nội",
+      "question": "Gia Long đối xử như thế nào với những người từng theo Tây Sơn sau khi thống nhất đất nước?",
+      "expected_keywords": ["Gia Long", "Tây Sơn", "trả thù", "chính sách"]
+    },
+    {
+      "id": 40,
+      "topic": "Khủng hoảng trước 1858",
+      "question": "Những dấu hiệu khủng hoảng nào của triều Nguyễn đã xuất hiện trước khi Pháp tấn công năm 1858?",
+      "expected_keywords": ["khủng hoảng", "bảo thủ", "tài chính", "quân sự yếu"]
+    }
+  ]
+}

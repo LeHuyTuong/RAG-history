@@ -1,16 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAIChat } from "../hooks/useAIChat";
 
 const ChatBox = ({ isOpen, onClose }) => {
-  const [messages, setMessages] = useState([
+  const { messages, loading: isTyping, sendMessage } = useAIChat([
     {
-      id: 1,
+      id: "init-chatbox",
       role: "ai",
-      text: "Xin chào! Tôi là Trợ lý AI Sử Việt. Bạn muốn tìm hiểu về triều đại hay sự kiện lịch sử nào?",
+      content: "Xin chào! Tôi là Trợ lý AI Sử Việt. Bạn muốn tìm hiểu về triều đại hay sự kiện lịch sử nào?",
     },
   ]);
   const [inputValue, setInputValue] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -22,25 +22,10 @@ const ChatBox = ({ isOpen, onClose }) => {
   }, [messages, isTyping]);
 
   const handleSend = () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || isTyping) return;
 
-    const newUserMsg = { id: Date.now(), role: "user", text: inputValue };
-    setMessages((prev) => [...prev, newUserMsg]);
+    sendMessage(inputValue);
     setInputValue("");
-    setIsTyping(true);
-
-    // Mock AI response
-    setTimeout(() => {
-      setIsTyping(false);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          role: "ai",
-          text: "Cảm ơn bạn đã đặt câu hỏi. Hiện tại tôi đang trong quá trình học hỏi thêm dữ liệu lịch sử. Chức năng tra cứu tự động sẽ sớm được hoàn thiện!",
-        },
-      ]);
-    }, 1500);
   };
 
   const handleKeyDown = (e) => {
@@ -105,19 +90,48 @@ const ChatBox = ({ isOpen, onClose }) => {
                     <span className="material-symbols-outlined text-[15px] text-[#f7d78a]">auto_awesome</span>
                   </div>
                 )}
-                <div
-                  style={
-                    msg.role === "user" 
-                      ? { maxWidth: "80%", background: "linear-gradient(to bottom right, #7a1210, #6b0f0d)" }
-                      : { maxWidth: "80%", backgroundColor: "#ffffff" }
-                  }
-                  className={`relative p-3.5 px-4 rounded-[20px] text-[13.5px] font-body leading-relaxed shadow-sm ${
-                    msg.role === "user"
-                      ? "text-[#ffe7b0] rounded-br-sm border border-[#8b1512]/50"
-                      : "border border-[#d9c7a7]/60 text-[#2b1a16] rounded-bl-sm"
-                  }`}
-                >
-                  {msg.text}
+                <div className={`relative flex flex-col ${msg.role === "user" ? "items-end" : "items-start"} gap-2`} style={{ maxWidth: "80%" }}>
+                  <div
+                    style={
+                      msg.role === "user" 
+                        ? { background: "linear-gradient(to bottom right, #7a1210, #6b0f0d)" }
+                        : { backgroundColor: "#ffffff" }
+                    }
+                    className={`relative p-3.5 px-4 rounded-[20px] text-[13.5px] font-body leading-relaxed shadow-sm w-full ${
+                      msg.role === "user"
+                        ? "text-[#ffe7b0] rounded-br-sm border border-[#8b1512]/50"
+                        : "border border-[#d9c7a7]/60 text-[#2b1a16] rounded-bl-sm"
+                    }`}
+                  >
+                    {msg.text}
+                  </div>
+
+                  {msg.role === "ai" && msg.sources && msg.sources.length > 0 && (
+                    <div className="space-y-1 w-full pl-1 mt-1">
+                      <p className="font-body text-[8px] font-bold text-[#6b0f0d] uppercase tracking-widest flex items-center gap-1 opacity-75">
+                        <span className="material-symbols-outlined text-[10px]">link</span> Nguồn tham khảo
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {msg.sources.map((src, sIdx) => {
+                          const badge = (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-[#d9c7a7]/60 hover:border-[#6b0f0d]/50 hover:bg-[#ffe7b0]/20 text-[10.5px] text-[#6b0f0d] font-body font-bold transition-all cursor-pointer">
+                              {src.title}
+                              {src.url && (
+                                <span className="material-symbols-outlined text-[9px] text-primary">open_in_new</span>
+                              )}
+                            </span>
+                          );
+
+                          if (!src.url) return <span key={sIdx}>{badge}</span>;
+                          return (
+                            <a key={sIdx} href={src.url} target={src.url.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className="no-underline">
+                              {badge}
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -158,9 +172,9 @@ const ChatBox = ({ isOpen, onClose }) => {
               />
               <button
                 onClick={handleSend}
-                disabled={!inputValue.trim()}
+                disabled={!inputValue.trim() || isTyping}
                 style={{
-                  ...(inputValue.trim() ? { background: "linear-gradient(to right, #7a1210, #5a0c0a)" } : { backgroundColor: "#ccc" }),
+                  ...((inputValue.trim() && !isTyping) ? { background: "linear-gradient(to right, #7a1210, #5a0c0a)" } : { backgroundColor: "#ccc" }),
                   position: "absolute",
                   right: "6px",
                   top: "50%",

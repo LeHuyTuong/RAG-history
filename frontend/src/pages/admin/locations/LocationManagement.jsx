@@ -1,4 +1,4 @@
-import {  useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AdminLayout,
@@ -13,6 +13,11 @@ import {
   VietnamMap
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
+import { locationService } from '../../../services';
+import { getLocationLabel } from '../../../utils/locationTypeUtils';
+import { getDynastyLabel } from '../../../utils/dynastyUtils';
+// Static config (location type colors) - kept as a frontend constant
+import locationTypeColors from '../../../../public/api/location_type_colors.json';
 
 const LocationManagement = () => {
   const navigate = useNavigate();
@@ -23,21 +28,45 @@ const LocationManagement = () => {
   const [typeColors, setTypeColors] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const handleDelete = async () => {
+    if (deleteModal.id === null || deleteModal.id === undefined) return;
+
+    try {
+      await locationService.delete(deleteModal.id);
+      setData(prev => ({
+        ...prev,
+        locations: prev.locations.filter(loc => String(loc.id) !== String(deleteModal.id))
+      }));
+    } catch (error) {
+      console.error('Error deleting location:', error);
+    }
+
+    setDeleteModal({ open: false, name: '', id: null });
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [locRes, typeColorRes] = await Promise.all([
-          fetch('/api/admin_locations.json'),
-          fetch('/api/location_type_colors.json')
-        ]);
-        
-        if (!locRes.ok) throw new Error('Locations fetch failed');
-        const locResult = await locRes.json();
-        setData(locResult);
+        setLoading(true);
+        const { items: locations, totalElements } = await locationService.filter({ page: 0, size: 500 });
 
-        if (typeColorRes.ok) {
-          const typeColorResult = await typeColorRes.json();
-          setTypeColors(typeColorResult);
+        setData({
+          stats: [
+            { id: 1, label: 'Tổng số địa danh', value: totalElements || locations.length, icon: 'location_on', color: 'text-emerald-600' }
+          ],
+          locations: locations.map(l => ({
+            id: l.id,
+            name: l.name,
+            type: l.locationType || 'UNKNOWN',
+            coords: `${l.latitude || 0}, ${l.longitude || 0}`,
+            period: 'Chưa cập nhật',
+            dynasties: [],
+            status: 'PUBLISHED' // Bảng Location không có status, mặc định PUBLISHED
+          }))
+        });
+
+        if (locationTypeColors) {
+          setTypeColors(locationTypeColors);
         }
       } catch (error) {
         console.error('Error fetching locations data:', error);
@@ -48,12 +77,40 @@ const LocationManagement = () => {
     fetchData();
   }, []);
 
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
   const getTypeStyle = (type) => {
     if (!type || !typeColors) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
     const lowerType = type.toLowerCase();
-    
+
     if (typeColors[lowerType]) return typeColors[lowerType];
     return typeColors['default'] || 'bg-emerald-50 text-emerald-700 border-emerald-200';
+  };
+
+  const getNormalizedStatus = (status) => {
+    if (!status) return 'draft';
+    const normalized = status.toLowerCase().trim();
+    return normalized === 'published' || normalized === 'công khai' ? 'published' : 'draft';
+  };
+
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case 'published':
+        return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+      case 'draft':
+      default:
+        return 'bg-slate-100 text-slate-700 border-slate-200';
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'published': return 'Công khai';
+      case 'draft': return 'Bản nháp';
+      default: return 'Bản nháp';
+    }
   };
 
 
@@ -75,22 +132,18 @@ const LocationManagement = () => {
         </div>
       )
     },
-    { 
+    {
       key: 'type', header: 'Loại hình', render: (row) => (
         <span className={`border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getTypeStyle(row.type)}`}>
-          {row.type}
+          {getLocationLabel(row.type)}
         </span>
       )
     },
     {
-      key: 'dynasties', header: 'Triều đại', render: (row) => (
-        <div className="flex flex-wrap gap-1">
-          {row.dynasties?.map((dynasty, idx) => (
-            <span key={idx} className={`border px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider ${getDynastyStyle(dynasty)}`}>
-              {dynasty}
-            </span>
-          ))}
-        </div>
+      key: 'status', header: 'Trạng thái', align: 'center', render: (row) => (
+        <span className={`px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider border ${getStatusStyle(getNormalizedStatus(row.status))}`}>
+          {getStatusLabel(getNormalizedStatus(row.status))}
+        </span>
       )
     },
     {
@@ -106,7 +159,8 @@ const LocationManagement = () => {
   const filteredLocations = data.locations.filter(loc => {
     const matchSearch = loc.name?.toLowerCase().includes(filters.search.toLowerCase());
     const matchType = filters.type ? loc.type === filters.type : true;
-    return matchSearch && matchType;
+    const matchStatus = filters.status ? getNormalizedStatus(loc.status) === filters.status : true;
+    return matchSearch && matchType && matchStatus;
   });
 
   return (
@@ -127,23 +181,46 @@ const LocationManagement = () => {
         <div className="col-span-12 lg:col-span-9">
           <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">
             <div className="p-4 border-b border-outline-variant bg-surface-low/50">
-              <FilterBar>
-                <FilterInput
-                  label="Tìm kiếm:"
-                  placeholder="Nhập tên địa danh..."
-                  value={filters.search}
-                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                />
-                <FilterSelect
-                  label="Loại hình:"
-                  options={[
-                    { value: '', label: 'Tất cả loại hình' },
-                    ...Array.from(new Set(data.locations.map(l => l.type))).filter(Boolean).map(t => ({ value: t, label: t }))
-                  ]}
-                  value={filters.type}
-                  onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
-                />
-              </FilterBar>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="relative flex-1">
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                  <input
+                    type="text"
+                    placeholder="Tìm kiếm địa danh (Tên, tọa độ)..."
+                    value={filters.search}
+                    onChange={(e) => handleFilterChange('search', e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
+                  />
+                </div>
+                <div className="flex gap-4">
+                  <div className="relative">
+                    <select
+                      value={filters.type}
+                      onChange={(e) => handleFilterChange('type', e.target.value)}
+                      className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-emerald-500 hover:border-emerald-500/50 transition-all min-w-[160px]"
+                    >
+                      <option value="">Tất cả loại hình</option>
+                      {Array.from(new Set(data.locations.map(l => l.type))).filter(Boolean).map(t => (
+                        <option key={t} value={t}>{getLocationLabel(t)}</option>
+                      ))}
+                    </select>
+                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                  </div>
+
+                  <div className="relative">
+                    <select
+                      value={filters.status}
+                      onChange={(e) => handleFilterChange('status', e.target.value)}
+                      className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-emerald-500 hover:border-emerald-500/50 transition-all min-w-[150px]"
+                    >
+                      <option value="">Tất cả trạng thái</option>
+                      <option value="published">Công khai</option>
+                      <option value="draft">Bản nháp</option>
+                    </select>
+                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <DataTable
@@ -151,8 +228,10 @@ const LocationManagement = () => {
               data={filteredLocations}
               loading={loading}
               emptyMessage="Không tìm thấy địa danh nào phù hợp"
+              onRowClick={(row) => navigate(`/admin/locations/edit/${row.id}`)}
               rowKey="id"
               striped={false}
+              rowClassName={(row) => getNormalizedStatus(row.status) === 'published' ? 'bg-emerald-50/80 !font-semibold border-l-4 border-l-emerald-500 shadow-sm relative z-10' : ''}
               className="border-0 shadow-none rounded-none"
             />
           </div>
@@ -180,9 +259,7 @@ const LocationManagement = () => {
         onClose={() => setDeleteModal({ open: false })}
         type="delete"
         item={{ name: deleteModal.name }}
-        onConfirm={() => setDeleteModal({ open: false })}
-        title="Xác nhận xóa?"
-        description={`Bạn chắc chắn muốn xóa địa danh <br/><strong className="text-primary italic">"{deleteModal.name}"</strong>? <br/>Dữ liệu này không thể khôi phục.`}
+        onConfirm={handleDelete}
       />
     </AdminLayout>
   );

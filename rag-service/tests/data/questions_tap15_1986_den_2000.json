@@ -1,0 +1,250 @@
+{
+  "source": {
+    "sourceId": 15,
+    "title": "Lịch sử Việt Nam tập 15 Từ năm 1986 đến năm 2000",
+    "pages": "1-451",
+    "chunks": 0
+  },
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Đổi mới Đại hội VI",
+      "question": "Đại hội Đảng lần thứ VI họp vào tháng năm nào và đề ra đường lối Đổi mới với những nội dung cốt lõi gì?",
+      "expected_keywords": ["12/1986", "Đại hội VI", "Đổi mới", "kinh tế thị trường"]
+    },
+    {
+      "id": 2,
+      "topic": "Đổi mới Đại hội VI",
+      "question": "Tổng Bí thư Nguyễn Văn Linh được bầu tại Đại hội VI năm 1986 và có đóng góp gì cho công cuộc Đổi mới?",
+      "expected_keywords": ["Nguyễn Văn Linh", "Tổng Bí thư", "Đổi mới", "nói và làm"]
+    },
+    {
+      "id": 3,
+      "topic": "Kinh tế thị trường",
+      "question": "Khái niệm kinh tế thị trường định hướng xã hội chủ nghĩa được Việt Nam xác lập từ bao giờ và có ý nghĩa gì?",
+      "expected_keywords": ["kinh tế thị trường định hướng XHCN", "nhiều thành phần", "vai trò chủ đạo nhà nước", "Đổi mới"]
+    },
+    {
+      "id": 4,
+      "topic": "Xóa bỏ bao cấp",
+      "question": "Quá trình xóa bỏ chế độ bao cấp và tem phiếu ở Việt Nam diễn ra như thế nào sau năm 1986?",
+      "expected_keywords": ["xóa bỏ bao cấp", "tem phiếu", "giá thị trường", "tự do hóa giá cả"]
+    },
+    {
+      "id": 5,
+      "topic": "Khoán 10",
+      "question": "Nghị quyết 10 (Khoán 10) năm 1988 có nội dung gì và tác động như thế nào đến sản xuất nông nghiệp?",
+      "expected_keywords": ["Khoán 10", "1988", "giao đất cho hộ gia đình", "tăng năng suất lúa"]
+    },
+    {
+      "id": 6,
+      "topic": "Khoán 10",
+      "question": "Khoán 10 trong nông nghiệp đã giúp Việt Nam đạt được kết quả gì về sản lượng lương thực?",
+      "expected_keywords": ["xuất khẩu gạo", "an ninh lương thực", "tăng sản lượng", "1989"]
+    },
+    {
+      "id": 7,
+      "topic": "Luật Đầu tư nước ngoài",
+      "question": "Luật Đầu tư nước ngoài tại Việt Nam ban hành năm 1987 có nội dung gì và thu hút đầu tư ra sao?",
+      "expected_keywords": ["Luật Đầu tư 1987", "đầu tư nước ngoài", "FDI", "ưu đãi đầu tư"]
+    },
+    {
+      "id": 8,
+      "topic": "Thu hút đầu tư",
+      "question": "Những quốc gia và vùng lãnh thổ nào đầu tư nhiều nhất vào Việt Nam trong thập niên 1990?",
+      "expected_keywords": ["Đài Loan", "Hàn Quốc", "Nhật Bản", "FDI Việt Nam"]
+    },
+    {
+      "id": 9,
+      "topic": "Bình thường hóa Mỹ-Việt",
+      "question": "Quan hệ ngoại giao giữa Việt Nam và Mỹ được bình thường hóa vào ngày tháng năm nào?",
+      "expected_keywords": ["11/7/1995", "bình thường hóa", "Mỹ-Việt", "Clinton"]
+    },
+    {
+      "id": 10,
+      "topic": "Bình thường hóa Mỹ-Việt",
+      "question": "Những bước tiến nào trong quan hệ Việt Nam - Mỹ dẫn đến bình thường hóa năm 1995?",
+      "expected_keywords": ["MIA POW", "thăm dò bình thường hóa", "dỡ bỏ cấm vận", "1994"]
+    },
+    {
+      "id": 11,
+      "topic": "Gia nhập ASEAN",
+      "question": "Việt Nam gia nhập ASEAN vào ngày tháng năm nào và tại hội nghị nào?",
+      "expected_keywords": ["28/7/1995", "ASEAN", "Brunei", "thành viên thứ 7"]
+    },
+    {
+      "id": 12,
+      "topic": "Gia nhập ASEAN",
+      "question": "Việc Việt Nam gia nhập ASEAN năm 1995 có ý nghĩa gì đối với nền kinh tế và vị thế quốc tế?",
+      "expected_keywords": ["hội nhập khu vực", "ASEAN", "thị trường khu vực", "ngoại giao đa phương"]
+    },
+    {
+      "id": 13,
+      "topic": "Đổi mới chính trị",
+      "question": "Đổi mới chính trị ở Việt Nam sau năm 1986 diễn ra theo hướng nào và có những thành tựu gì?",
+      "expected_keywords": ["dân chủ hóa", "pháp quyền xã hội chủ nghĩa", "vai trò Quốc hội", "cải cách hành chính"]
+    },
+    {
+      "id": 14,
+      "topic": "Xóa đói giảm nghèo",
+      "question": "Chương trình xóa đói giảm nghèo ở Việt Nam trong thập niên 1990 đạt kết quả gì?",
+      "expected_keywords": ["xóa đói giảm nghèo", "tỷ lệ nghèo giảm", "chương trình 135", "cộng đồng nghèo"]
+    },
+    {
+      "id": 15,
+      "topic": "Phát triển kinh tế",
+      "question": "Tốc độ tăng trưởng GDP của Việt Nam trong thập niên 1990 đạt mức bao nhiêu và nhờ yếu tố gì?",
+      "expected_keywords": ["tăng trưởng GDP", "7-8%", "thập niên 1990", "Đổi mới kinh tế"]
+    },
+    {
+      "id": 16,
+      "topic": "Hiến pháp 1992",
+      "question": "Hiến pháp năm 1992 của Việt Nam có những điểm mới gì so với Hiến pháp 1980?",
+      "expected_keywords": ["Hiến pháp 1992", "kinh tế nhiều thành phần", "quyền tự do kinh doanh", "đổi mới"]
+    },
+    {
+      "id": 17,
+      "topic": "Đại hội Đảng VII",
+      "question": "Đại hội Đảng lần thứ VII năm 1991 đã xác định những mục tiêu và đường lối gì?",
+      "expected_keywords": ["Đại hội VII", "1991", "Cương lĩnh 1991", "chiến lược 2000"]
+    },
+    {
+      "id": 18,
+      "topic": "Đại hội Đảng VIII",
+      "question": "Đại hội Đảng lần thứ VIII năm 1996 đánh dấu bước chuyển gì trong công cuộc xây dựng đất nước?",
+      "expected_keywords": ["Đại hội VIII", "1996", "đẩy mạnh công nghiệp hóa hiện đại hóa", "nước công nghiệp"]
+    },
+    {
+      "id": 19,
+      "topic": "Đại hội Đảng IX",
+      "question": "Đại hội Đảng lần thứ IX năm 2001 đã bổ sung và phát triển đường lối Đổi mới như thế nào?",
+      "expected_keywords": ["Đại hội IX", "2001", "kinh tế thị trường định hướng XHCN", "Cương lĩnh bổ sung"]
+    },
+    {
+      "id": 20,
+      "topic": "Cải cách doanh nghiệp",
+      "question": "Quá trình cổ phần hóa doanh nghiệp nhà nước ở Việt Nam bắt đầu từ năm nào và theo hướng nào?",
+      "expected_keywords": ["cổ phần hóa", "doanh nghiệp nhà nước", "1992", "thí điểm"]
+    },
+    {
+      "id": 21,
+      "topic": "Kinh tế tư nhân",
+      "question": "Kinh tế tư nhân ở Việt Nam phát triển như thế nào sau khi Luật Doanh nghiệp tư nhân ra đời năm 1990?",
+      "expected_keywords": ["kinh tế tư nhân", "Luật Doanh nghiệp", "1990", "doanh nhân"]
+    },
+    {
+      "id": 22,
+      "topic": "Ngân hàng thương mại",
+      "question": "Hệ thống ngân hàng Việt Nam được cải cách như thế nào trong thập niên 1990?",
+      "expected_keywords": ["ngân hàng thương mại", "tách hệ thống ngân hàng", "tín dụng thị trường", "cải cách ngân hàng"]
+    },
+    {
+      "id": 23,
+      "topic": "Phát triển nông thôn",
+      "question": "Nông thôn Việt Nam phát triển như thế nào trong thập niên 1990 nhờ các chính sách Đổi mới?",
+      "expected_keywords": ["nông thôn đổi mới", "điện nông thôn", "giao thông nông thôn", "xóa đói"]
+    },
+    {
+      "id": 24,
+      "topic": "Xuất khẩu",
+      "question": "Xuất khẩu của Việt Nam phát triển như thế nào trong thập niên 1990 và những mặt hàng nào là chủ lực?",
+      "expected_keywords": ["xuất khẩu gạo", "dầu mỏ", "dệt may", "tăng trưởng xuất khẩu"]
+    },
+    {
+      "id": 25,
+      "topic": "Bình thường hóa Việt-Trung",
+      "question": "Quan hệ Việt Nam - Trung Quốc được bình thường hóa vào năm nào và qua sự kiện nào?",
+      "expected_keywords": ["1991", "bình thường hóa Việt-Trung", "hội nghị Thành Đô", "quan hệ ngoại giao"]
+    },
+    {
+      "id": 26,
+      "topic": "Quan hệ với EU",
+      "question": "Quan hệ Việt Nam - EU phát triển như thế nào trong giai đoạn 1990-2000?",
+      "expected_keywords": ["EU", "quan hệ kinh tế", "hợp tác phát triển", "mở rộng quan hệ"]
+    },
+    {
+      "id": 27,
+      "topic": "Dân số lao động",
+      "question": "Dân số và lực lượng lao động Việt Nam phát triển như thế nào trong thập niên 1990?",
+      "expected_keywords": ["dân số", "75-80 triệu", "lực lượng lao động", "cơ cấu dân số"]
+    },
+    {
+      "id": 28,
+      "topic": "Phát triển đô thị",
+      "question": "Các thành phố lớn của Việt Nam phát triển như thế nào trong giai đoạn 1986-2000?",
+      "expected_keywords": ["đô thị hóa", "thành phố Hồ Chí Minh", "Hà Nội", "phát triển đô thị"]
+    },
+    {
+      "id": 29,
+      "topic": "Khủng hoảng châu Á",
+      "question": "Khủng hoảng tài chính châu Á năm 1997-1998 ảnh hưởng như thế nào đến Việt Nam?",
+      "expected_keywords": ["khủng hoảng tài chính", "1997-1998", "FDI giảm", "tác động Việt Nam"]
+    },
+    {
+      "id": 30,
+      "topic": "Luật Đất đai",
+      "question": "Luật Đất đai năm 1993 quy định như thế nào về quyền sử dụng đất của người dân?",
+      "expected_keywords": ["Luật Đất đai 1993", "quyền sử dụng đất", "đất đai toàn dân", "chuyển nhượng"]
+    },
+    {
+      "id": 31,
+      "topic": "Cải cách hành chính",
+      "question": "Chương trình cải cách hành chính nhà nước của Việt Nam được triển khai như thế nào trong thập niên 1990?",
+      "expected_keywords": ["cải cách hành chính", "tinh giản biên chế", "thủ tục hành chính", "một cửa"]
+    },
+    {
+      "id": 32,
+      "topic": "Khu công nghiệp",
+      "question": "Hệ thống khu công nghiệp và khu chế xuất ở Việt Nam hình thành như thế nào trong thập niên 1990?",
+      "expected_keywords": ["khu công nghiệp", "khu chế xuất", "FDI", "Bình Dương Đồng Nai"]
+    },
+    {
+      "id": 33,
+      "topic": "Phong trào Đổi mới",
+      "question": "Bên cạnh kinh tế, Đổi mới văn hóa và tư tưởng ở Việt Nam diễn ra như thế nào sau 1986?",
+      "expected_keywords": ["đổi mới tư duy", "cởi mở văn hóa", "văn học Đổi mới", "báo chí"]
+    },
+    {
+      "id": 34,
+      "topic": "An ninh biển Đông",
+      "question": "Vấn đề Biển Đông và chủ quyền quần đảo Trường Sa - Hoàng Sa được Việt Nam đấu tranh như thế nào trong thập niên 1990?",
+      "expected_keywords": ["Biển Đông", "Trường Sa Hoàng Sa", "chủ quyền", "đấu tranh ngoại giao"]
+    },
+    {
+      "id": 35,
+      "topic": "Quan hệ Việt-Lào",
+      "question": "Quan hệ đặc biệt Việt Nam - Lào trong giai đoạn 1986-2000 được duy trì và phát triển như thế nào?",
+      "expected_keywords": ["Việt-Lào", "quan hệ đặc biệt", "hợp tác kinh tế", "đoàn kết"]
+    },
+    {
+      "id": 36,
+      "topic": "Giáo dục thập niên 1990",
+      "question": "Giáo dục và đào tạo của Việt Nam phát triển như thế nào trong giai đoạn 1986-2000?",
+      "expected_keywords": ["phổ cập tiểu học", "đại học phát triển", "giáo dục đào tạo", "xã hội hóa giáo dục"]
+    },
+    {
+      "id": 37,
+      "topic": "Y tế sức khỏe",
+      "question": "Hệ thống y tế và chăm sóc sức khỏe cộng đồng của Việt Nam được phát triển như thế nào sau Đổi mới?",
+      "expected_keywords": ["y tế cộng đồng", "trạm y tế xã", "bảo hiểm y tế", "sức khỏe nhân dân"]
+    },
+    {
+      "id": 38,
+      "topic": "Hội nhập quốc tế",
+      "question": "Việt Nam tham gia những tổ chức và diễn đàn quốc tế nào trong thập niên 1990?",
+      "expected_keywords": ["ASEAN", "APEC", "WTO đàm phán", "hội nhập quốc tế"]
+    },
+    {
+      "id": 39,
+      "topic": "Dầu khí",
+      "question": "Ngành dầu khí Việt Nam phát triển như thế nào trong thập niên 1990 và đóng góp gì cho ngân sách?",
+      "expected_keywords": ["Petrovietnam", "dầu thô xuất khẩu", "mỏ Bạch Hổ", "ngân sách quốc gia"]
+    },
+    {
+      "id": 40,
+      "topic": "Tổng kết Đổi mới",
+      "question": "Sau 15 năm Đổi mới (1986-2000), Việt Nam đã đạt được những thành tựu nổi bật nào?",
+      "expected_keywords": ["thoát khỏi khủng hoảng", "tăng trưởng kinh tế", "nâng cao đời sống", "vị thế quốc tế"]
+    }
+  ]
+}

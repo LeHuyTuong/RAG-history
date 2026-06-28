@@ -42,8 +42,8 @@ Nguyên tắc xuyên suốt:
 | `22-logical-erd-v2.md` | **Logical ERD v2** (dựng từ conceptual ERD mới): ánh xạ conceptual→logical, 4 điểm chạm RAG, chi tiết bảng cầu, index. Thay cho `20`. |
 | `23-physical-data-model.md` | **Physical data model** (17 bảng): quy ước MySQL 8/InnoDB/utf8mb4, ánh xạ kiểu dữ liệu, chiến lược FK ON DELETE, polymorphic `rag_chunk`. DDL chạy được ở `V1__init.sql`. |
 | `24-coding-standards.md` | **Coding standards** cheat-sheet: Java/Spring Boot naming (class/method/biến/layer/package) + REST API design (URL, method, status code, JSON, lỗi). Kèm ví dụ DO/DON'T. |
+| `28-neo4j-frontend-implementation-plan.md` | Plan triển khai Neo4j Graph RAG + Spring Boot graph gateway + frontend chat/family-tree UI. |
 
 ## Ghi chú triển khai
 
 Tài liệu này chỉ là thiết kế. Không có code ứng dụng được tạo trong bước này. Khi bắt đầu code, nên bám sát cấu trúc module và các rule trong `03-backend-module-architecture.md` và `04-module-communication-rules.md` trước tiên.
-

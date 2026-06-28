@@ -1,11 +1,25 @@
-import React, { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
+import { API_ENDPOINTS } from '../../../services/api';
+import apiClient, { mockClient } from '../../../services/apiClient';
 const PeriodDetail = () => {
   const { id } = useParams();
 
   const [period, setPeriod] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [relatedEvents, setRelatedEvents] = useState([]);
+
+  // Mapping period names to beautiful hero images
+  const getHeroImage = (periodName) => {
+    if (!periodName) return "/images/home.png";
+    const name = periodName.toLowerCase();
+    if (name.includes('hùng vương') || name.includes('hồng bàng')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuCVTT2QqvD6K9-wucC1WkR7VZnFnP0rjHn6TrcyVqbMkCLEt-GrSb7RFMcwfuFYl9579qyI-CbhlttwgMYFgZtqaEK6hcj7gIzEvC-x8r1WJkxShSTdvgJAiGZim3mnjYlIdJsvmeUw2bip5ou99uGqVBVApXptp6Lpy5LmjEOMY2yZYFGSQzjZdZ5ZBKHO-vZMXFRcwX7gOF6f0s6dB3ZlO7K3KuUYQcdtVpUeP-fDnTut1_okhKeJqvG2OJTJ0xZCroTJlNoWryp1";
+    if (name.includes('lý')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuB-vfyWu8AZJ8zXJcGYqxgtuwF8kgnNnxqHfqVCWu6IexNxd58MLyYryN2Pd4GPPIwQcgir92iGx39PPcocu5YwY0dKB88RM80ItVGkDs80nIlov0g4PRkKkWZqNqeAX2cgwfngoBoFqIt07Pir--2qzfNsUbTW8P_bXbYNjOL9IKt34YPVLuKa93Sk3GhQCaHLTecwGQGCZuSq0bnrOOq6oXKKmx5RiNGxRXHOQb6CiTjXlTeHajpZq_8iG4JClpUY9GWZsiRXvkTh";
+    if (name.includes('trần')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuBArlscw3wc_0llom4YXbNv7OUtmTW1u8adGJtB0r_R9ouLWRlOhBtwANhi8h-y-oKCXyjtcMAw-fv_DqJa8j9I0UYbf6VIaYfgHL50aCXOYoKCdQKYmjZdoMl1JYnzrRbkzkf79To66-2d-f1XfB1xrJTtxZoVqJiuNrqbgJSqttpHAF3wZGHnereJFQmlr7zvRv_OYZP3ifnXN8WYT8_1w8_n43OLOx1lJp01FpEjYuFGNSEqolT22CJMX1LelRwU2FVHe3Qq_fbP";
+    if (name.includes('lê')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuDDTXt3tOmQLzCboBJbQ63U5COKxdxaq5GrOn1775TXtXg3zq28AuTTb3mfVjKs6uj5Nkhc7auEFnCrMuCs6G4YIcZmzBgEE4ZdY3awqlP12VklH3BWkRe6Q83fhxNWatx1MbYcLIq7RztTsqI3HQRxPVW7T-TPQdwD7HM2eOSpwVHwup9Hp3K7KuNRjtoiaNSNbwvYXV_yv4pvRx5WIpTl05zH0YYusegbAB7v9qKEqrHI9SzL2DI2Hb0snIW35b9H7yKKrRRXIf79";
+    return "/images/home.png";
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -14,17 +28,54 @@ const PeriodDetail = () => {
   useEffect(() => {
     const fetchPeriod = async () => {
       try {
-        const response = await fetch('/api/user_period_detail.json');
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        setPeriod(data);
+        let dbPeriod = null;
+        try {
+          const url = typeof API_ENDPOINTS.USER_PERIOD_DETAIL === 'function' 
+            ? API_ENDPOINTS.USER_PERIOD_DETAIL(id) 
+            : `${API_ENDPOINTS.USER_PERIOD_DETAIL}/${id}`;
+          const response = await apiClient.get(url);
+          dbPeriod = response.data?.data || response.data;
+          
+          if (dbPeriod) {
+            setPeriod({
+              ...dbPeriod,
+              period_id: dbPeriod.id,
+              start_year: dbPeriod.startYear,
+              end_year: dbPeriod.endYear,
+              description: dbPeriod.description || '',
+            });
+          }
+        } catch (apiErr) {
+          console.error('Failed to fetch period detail from API:', apiErr);
+        }
       } catch (error) {
         console.error('Error fetching period:', error);
       } finally {
         setLoading(false);
       }
     };
+
+    const fetchEvents = async () => {
+      try {
+        let eventList = [];
+        try {
+          const response = await apiClient.get(API_ENDPOINTS.USER_EVENTS);
+          eventList = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
+          setRelatedEvents(eventList.slice(0, 3).map(e => ({
+            ...e,
+            year: e.startYear !== undefined ? e.startYear : '',
+            image: e.image || "/images/home.png"
+          })));
+        } catch (apiErr) {
+          console.error('Failed to fetch user events:', apiErr);
+        } 
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
+
     fetchPeriod();
+    fetchEvents();
   }, [id]);
 
   if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải thời kỳ...</div>;
@@ -40,136 +91,68 @@ const PeriodDetail = () => {
           <span className="material-symbols-outlined text-xs opacity-40">chevron_right</span>
           <Link to="/periods" className="hover:text-[#6b0f0d] transition-colors">Dòng thời gian</Link>
           <span className="material-symbols-outlined text-xs opacity-40">chevron_right</span>
-          <span className="text-[#6b0f0d] font-bold">{period.title}</span>
+          <span className="text-[#6b0f0d] font-bold">{period.name}</span>
         </nav>
 
-        {/* 1. HERO SECTION */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center mb-32">
-          <div className="lg:col-span-7 space-y-8">
-            <span className="inline-block bg-[#6b0f0d] text-[#ffe7b0] px-4 py-1 font-body text-[10px] font-bold uppercase tracking-[0.3em] shadow-sm border border-[#d99b4a]/40">Thời kỳ Hồng Bàng</span>
-            <h1 className="font-headline text-5xl md:text-7xl text-[#6b0f0d] font-semibold leading-tight tracking-tight">{period.title}</h1>
-            <p className="font-headline text-2xl text-[#2b0504] opacity-80">{period.subtitle}</p>
+        {/* 1. HERO SECTION & OVERVIEW */}
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center mb-32 relative">
+          <div className="lg:col-span-6 space-y-8 relative z-10">
+            <span className="inline-block bg-[#6b0f0d] text-[#ffe7b0] px-4 py-1 font-body text-[10px] font-bold uppercase tracking-[0.3em] shadow-sm border border-[#d99b4a]/40">
+              {period.start_year && period.end_year ? `Năm ${Math.abs(period.start_year)}${period.start_year < 0 ? ' TCN' : ''} - ${Math.abs(period.end_year)}${period.end_year < 0 ? ' TCN' : ''}` : 'Thời Kỳ Lịch Sử'}
+            </span>
+            <h1 className="font-headline text-5xl md:text-7xl text-[#6b0f0d] font-semibold leading-tight tracking-tight">
+              {period.name && period.name.includes('Nhà') ? period.name.replace('Nhà', 'Triều') : period.name}
+            </h1>
             <div className="h-1 w-24 bg-[#d99b4a]"></div>
-            <p className="font-body text-[16px] text-[#2b1a16]/90 leading-loose drop-cap">
-              Đây là buổi bình minh của lịch sử dân tộc Việt Nam, một kỷ nguyên huyền sử nơi các vị vua đầu tiên đã khai phá vùng đất Lĩnh Nam, đặt nền móng cho nền văn hiến rực rỡ.
+            
+            <p className="font-body text-[16px] leading-loose text-[#2b1a16]/90 pt-4 drop-cap whitespace-pre-line border-l-4 border-[#d99b4a] pl-6">
+              {period.description || "Nội dung tổng quan đang được cập nhật..."}
             </p>
           </div>
-          <div className="lg:col-span-5 relative group">
-            <div className="aspect-[4/5] overflow-hidden border-2 border-[#d99b4a]/40 shadow-2xl relative bg-[#fcf9ee] p-2">
+
+          <div className="lg:col-span-6 relative group">
+            <div className="aspect-[4/5] overflow-hidden border-2 border-[#d99b4a]/40 shadow-2xl relative bg-[#fcf9ee] p-2 transform rotate-2 group-hover:rotate-0 transition-transform duration-700">
               <div className="w-full h-full border border-[#d99b4a]/30 relative overflow-hidden">
-                <img src={period.heroImg} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 grayscale-[0.5] sepia-[0.3]" alt="Hero" />
-                <div className="absolute inset-0 border-[12px] border-[#fcf9ee]/20 pointer-events-none mix-blend-overlay"></div>
+                <img src={getHeroImage(period.name)} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 grayscale-[0.3] sepia-[0.3]" alt={period.name} />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201]/50 to-transparent pointer-events-none mix-blend-overlay"></div>
+                <div className="absolute inset-0 border-[12px] border-[#fcf9ee]/20 pointer-events-none"></div>
               </div>
             </div>
-            <div className="absolute -bottom-8 -right-8 w-40 h-40 opacity-20 dong-son-pattern animate-pulse pointer-events-none"></div>
+            <div className="absolute -bottom-12 -left-12 w-48 h-48 opacity-20 dong-son-pattern animate-pulse pointer-events-none z-0"></div>
           </div>
         </section>
 
-        {/* 2. HISTORICAL OVERVIEW */}
-        <section className="mb-32 grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 bg-[#fffdf8] border border-[#d99b4a]/40 p-12 shadow-md space-y-6 relative overflow-hidden">
-            <div className="absolute inset-0 bg-[#fcf9ee] opacity-40 dong-son-pattern"></div>
-            <div className="relative z-10">
-              <h3 className="font-headline text-3xl text-[#6b0f0d] font-semibold border-b border-[#d99b4a]/30 pb-4">Sự hình thành quốc gia</h3>
-              <p className="font-body text-[15px] leading-loose text-[#2b1a16]/80 pt-4">{period.formation}</p>
-              <div className="flex gap-8 pt-8">
-                {period.stats.map((s, i) => (
-                  <div key={i} className="text-center p-6 bg-[#fcf9ee] border border-[#d99b4a]/30 min-w-[140px] shadow-inner">
-                    <p className="font-headline text-4xl text-[#6b0f0d] font-bold">{s.value}</p>
-                    <p className="font-body text-[9px] font-bold text-[#2b0504]/60 uppercase tracking-widest mt-2">{s.label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="bg-[#6b0f0d] text-[#ffe7b0] p-12 flex flex-col justify-between shadow-xl relative overflow-hidden border border-[#d99b4a]/30">
-            <div className="absolute inset-0 opacity-10 dong-son-pattern mix-blend-overlay"></div>
-            <span className="material-symbols-outlined text-6xl text-[#d99b4a] opacity-30 absolute top-6 right-6">format_quote</span>
-            <p className="font-headline text-2xl italic leading-relaxed relative z-10 text-[#fcf9ee]">
-              "Núi Nghĩa Lĩnh uy nghi, sông Bạch Hạc cuộn chảy, hồn thiêng sông núi ngàn đời che chở cho con cháu Lạc Hồng."
-            </p>
-            <p className="font-body text-[10px] font-bold uppercase tracking-widest mt-12 opacity-80 text-[#d99b4a] relative z-10">— Cổ Thư Ghi Lại</p>
-          </div>
-        </section>
-
-        {/* 3. ARCHAEOLOGY SECTION */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-16 py-20 border-y border-[#d99b4a]/30 mb-32 relative">
-          <div className="absolute inset-0 bg-[#fcf9ee] opacity-30 dong-son-pattern"></div>
-          <div className="lg:col-span-5 space-y-8 relative z-10">
-            <h2 className="font-headline text-4xl text-[#6b0f0d] font-semibold tracking-tight">Minh chứng Khảo cổ</h2>
-            <div className="bg-[#fffdf8] p-8 border-l-4 border-[#6b0f0d] shadow-sm space-y-6 border-y border-r border-[#d99b4a]/20">
-              <h4 className="font-headline text-2xl text-[#2b0504] font-semibold">{period.archaeology.title}</h4>
-              <p className="font-body text-[15px] text-[#2b1a16]/80 leading-relaxed">{period.archaeology.desc}</p>
-              <ul className="space-y-4 pt-4 border-t border-[#d99b4a]/20">
-                {period.archaeology.features.map((f, i) => (
-                  <li key={i} className="flex gap-4 group">
-                    <span className="material-symbols-outlined text-[#d99b4a] group-hover:rotate-45 transition-transform">{f.icon}</span>
-                    <div>
-                      <p className="font-bold text-[#2b0504] text-[15px]">{f.title}</p>
-                      <p className="text-[14px] text-[#2b1a16]/70 leading-relaxed">{f.detail}</p>
+        {/* 2. RELATED EVENTS */}
+        {relatedEvents.length > 0 && (
+          <section className="mb-32">
+            <h2 className="font-headline text-4xl text-[#6b0f0d] font-semibold mb-12 flex items-center gap-4 border-b border-[#d99b4a]/30 pb-4">
+              <span className="material-symbols-outlined text-4xl text-[#d99b4a]">history</span>
+              Các Sự Kiện Tiêu Biểu
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {relatedEvents.map((evt, idx) => (
+                <Link to={`/events/${evt.id}`} key={idx} className="bg-[#fffdf8] border border-[#d99b4a]/30 rounded-xl overflow-hidden hover:shadow-[0_12px_30px_rgba(107,15,13,0.12)] transition-all duration-500 transform hover:-translate-y-1 group flex flex-col">
+                  <div className="h-48 relative overflow-hidden border-b border-[#d99b4a]/20">
+                    <img src={evt.image || "/images/home.png"} alt={evt.name} className="w-full h-full object-cover grayscale-[0.3] sepia-[0.2] group-hover:scale-105 transition-transform duration-700" />
+                    <div className="absolute top-3 right-3 bg-[#6b0f0d]/90 backdrop-blur-sm text-[#ffe7b0] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest border border-[#d99b4a]/40 z-10 shadow-lg">
+                      {evt.year}
                     </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          <div className="lg:col-span-7 flex items-center justify-center relative z-10">
-            <div className="w-full max-w-lg aspect-square rounded-full border-[20px] border-[#d99b4a]/10 flex items-center justify-center p-8 bg-[#fcf9ee] shadow-inner group overflow-hidden relative">
-              <div className="absolute inset-0 border border-[#d99b4a]/30 rounded-full m-4"></div>
-              <img src={period.archaeology.img} className="w-full h-full object-cover rounded-full shadow-2xl opacity-90 transition-transform duration-[10s] group-hover:rotate-45 grayscale-[0.2] sepia-[0.3]" alt="Drum" />
-            </div>
-            <div className="absolute top-0 right-0 lg:right-10 bg-[#6b0f0d] text-[#ffe7b0] px-6 py-2 font-body text-[10px] font-bold uppercase tracking-widest shadow-xl border border-[#d99b4a]/40">Di Sản Quốc Gia</div>
-          </div>
-        </section>
-
-        {/* 4. LEGENDS GRID */}
-        <section className="mb-32">
-          <h2 className="font-headline text-4xl text-[#6b0f0d] font-semibold text-center mb-16 tracking-tight flex items-center justify-center gap-4">
-            <span className="w-12 h-px bg-[#d99b4a]/50 hidden md:block"></span>
-            Nhân vật & Truyền thuyết
-            <span className="w-12 h-px bg-[#d99b4a]/50 hidden md:block"></span>
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {period.legends.map((l, i) => (
-              <div key={i} className="group cursor-pointer bg-[#fffdf8] p-4 border border-[#d99b4a]/30 shadow-md hover:shadow-xl transition-all duration-500">
-                <div className="aspect-video overflow-hidden border border-[#d99b4a]/20 mb-6 relative">
-                  <img src={l.img} className="w-full h-full object-cover grayscale-[0.6] sepia-[0.4] group-hover:grayscale-[0.2] group-hover:sepia-[0.2] transition-all duration-700 group-hover:scale-105" alt={l.title} />
-                  <div className="absolute inset-0 bg-[#6b0f0d]/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                </div>
-                <div className="px-2 pb-2 text-center">
-                  <h4 className="font-headline text-2xl text-[#2b0504] font-semibold group-hover:text-[#6b0f0d] transition-colors">{l.title}</h4>
-                  <p className="font-body text-[14px] text-[#2b1a16]/80 leading-relaxed mt-3">{l.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* 5. TIMELINE SECTION */}
-        <section className="mb-32 max-w-4xl mx-auto">
-          <h2 className="font-headline text-4xl text-[#6b0f0d] font-semibold mb-16 text-center tracking-tight flex items-center justify-center gap-4">
-            <span className="w-8 h-px bg-[#d99b4a]/50"></span>
-            Biên niên kỷ Hồng Bàng
-            <span className="w-8 h-px bg-[#d99b4a]/50"></span>
-          </h2>
-          <div className="relative border-l-2 border-[#d99b4a]/40 pl-12 space-y-12">
-            {period.timeline.map((t, i) => (
-              <div key={i} className="relative group">
-                {/* Timeline dot */}
-                <div className="absolute -left-[57px] top-0 w-4 h-4 rounded-full bg-[#6b0f0d] border-4 border-[#fbf6e8] shadow-[0_0_0_2px_rgba(217,155,74,0.4)] group-hover:scale-125 transition-transform"></div>
-
-                <div className="bg-[#fffdf8] p-8 border border-[#d99b4a]/30 shadow-sm hover:shadow-md transition-all relative">
-                  <div className="absolute inset-0 bg-[#fcf9ee] opacity-30 dong-son-pattern"></div>
-                  <div className="relative z-10">
-                    <span className="font-body text-[10px] font-bold text-[#6b0f0d] uppercase tracking-widest border-b border-[#d99b4a]/30 pb-1">{t.year}</span>
-                    <h4 className="font-headline text-2xl text-[#2b0504] font-semibold mt-4">{t.title}</h4>
-                    <p className="font-body text-[15px] text-[#2b1a16]/80 mt-3 leading-relaxed">{t.desc}</p>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+                  <div className="p-6 flex flex-col flex-grow relative">
+                    <div className="absolute inset-0 dong-son-pattern opacity-5 pointer-events-none mix-blend-overlay"></div>
+                    <h3 className="font-headline text-2xl font-bold text-[#6b0f0d] mb-3 group-hover:text-[#8b1512] transition-colors relative z-10 line-clamp-2">{evt.name}</h3>
+                    <p className="text-[#2b1a16]/70 text-[14px] leading-relaxed line-clamp-3 font-body italic relative z-10">
+                      {evt.description}
+                    </p>
+                    <div className="mt-auto pt-4 flex items-center justify-end text-[#d99b4a] font-bold text-[12px] uppercase tracking-widest relative z-10">
+                      Chi tiết <span className="material-symbols-outlined text-[16px] ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
       </main>
     </div>

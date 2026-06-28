@@ -1,10 +1,12 @@
 import { useState, useEffect, Fragment } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation, Link } from 'react-router-dom';
+import apiClient, { mockClient } from '../services/apiClient';
 import LogoutModal from './LogoutModal';
 
 const AdminLayout = () => {
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [siteName, setSiteName] = useState('Sử Việt');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -14,11 +16,32 @@ const AdminLayout = () => {
       navigate('/login');
     } else {
       const user = JSON.parse(savedUser);
-      if (user.role !== 'admin') {
+      if (user.role !== 'ROLE_ADMIN') {
         navigate('/');
       }
     }
   }, [navigate]);
+
+  useEffect(() => {
+    const customSettings = JSON.parse(localStorage.getItem('admin_new_settings') || '[]');
+    const siteNameParam = customSettings.find(p => p.key === 'site_name');
+    if (siteNameParam) {
+      setSiteName(siteNameParam.value);
+    } else {
+      mockClient.get('/api/admin_settings.json')
+        .then(res => {
+          const defaultSiteName = res.data.parameters?.find(p => p.key === 'site_name')?.value;
+          if (defaultSiteName) {
+            setSiteName(defaultSiteName);
+          }
+        })
+        .catch(err => console.error('Error loading settings:', err));
+    }
+  }, []);
+
+  useEffect(() => {
+    document.title = siteName + ' - Quản trị';
+  }, [siteName]);
 
   const menuItems = [
     { icon: 'dashboard', label: 'Tổng quan', path: '/admin' },
@@ -33,40 +56,48 @@ const AdminLayout = () => {
     { icon: 'group', label: 'Thành viên', path: '/admin/members' },
   ];
 
-  const handleConfirmLogout = () => {
-    localStorage.removeItem('user');
-    setIsLogoutOpen(false);
-    navigate('/login');
+  const handleConfirmLogout = async () => {
+    try {
+      await apiClient.post('/api/v1/auth/logout');
+    } catch (error) {
+      console.error("Logout error", error);
+    } finally {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
+      setIsLogoutOpen(false);
+      navigate('/login');
+    }
   };
+
 
   return (
     <div className="flex min-h-screen bg-surface">
       <div className="grain-overlay pointer-events-none fixed inset-0 z-0 opacity-5"></div>
 
-      <aside className={`${isSidebarOpen ? 'w-64' : 'w-[80px]'} h-screen sticky top-0 left-0 bg-[#6B1515] text-white flex flex-col py-6 shrink-0 z-50 border-r border-white/10 transition-all duration-300 overflow-hidden`}>
+      <aside className={`${isSidebarOpen ? 'w-64' : 'w-[80px]'} h-screen sticky top-0 left-0 bg-[#6b0f0d] text-[#ffe7b0] flex flex-col py-6 shrink-0 z-50 border-r border-[#d99b4a]/30 transition-all duration-300 overflow-hidden`}>
         <div className={`mb-8 cursor-pointer flex items-center ${isSidebarOpen ? 'px-8 justify-start' : 'justify-center'} transition-all`} onClick={() => navigate('/admin')}>
-          <h1 className="font-headline text-3xl text-[#f7d78a] font-bold tracking-wider hover:opacity-80 transition drop-shadow-md flex items-center gap-2">
-            <span className="material-symbols-outlined text-[28px] text-[#f7d78a] shrink-0">account_balance</span>
-            {isSidebarOpen && <span className="whitespace-nowrap transition-opacity duration-300">Sử Việt</span>}
+          <h1 className="font-headline text-3xl text-[#ffe7b0] font-bold tracking-wider hover:opacity-80 transition drop-shadow-md flex items-center gap-2">
+            <span className="material-symbols-outlined text-[28px] text-[#ffe7b0] shrink-0">account_balance</span>
+            {isSidebarOpen && <span className="whitespace-nowrap transition-opacity duration-300">{siteName}</span>}
           </h1>
         </div>
-        
+
         <nav className="flex-1 flex flex-col gap-0.5 overflow-y-auto custom-scrollbar px-3">
           {menuItems.map((item) => (
             <NavLink key={item.path} to={item.path} end={item.path === '/admin'} title={!isSidebarOpen ? item.label : undefined}
-              className={({ isActive }) => `flex items-center gap-4 py-3 rounded-lg transition-all ${isSidebarOpen ? 'px-4' : 'px-0 justify-center'} ${isActive ? 'bg-white/15 text-white border-l-4 border-[#FFFF00] font-bold' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}>
+              className={({ isActive }) => `flex items-center gap-4 py-3 rounded-lg transition-all ${isSidebarOpen ? 'px-4' : 'px-0 justify-center'} ${isActive ? 'bg-[#d99b4a]/20 text-[#ffe7b0] border-l-4 border-[#d99b4a] font-bold' : 'text-[#ffe7b0]/70 hover:bg-[#d99b4a]/10 hover:text-[#ffe7b0]'}`}>
               <span className="material-symbols-outlined text-[22px] shrink-0">{item.icon}</span>
               {isSidebarOpen && <span className="text-sm font-body font-medium whitespace-nowrap">{item.label}</span>}
             </NavLink>
           ))}
         </nav>
 
-        <div className="mt-auto pt-4 border-t border-white/10 px-3 space-y-1">
-          <NavLink to="/admin/settings" title={!isSidebarOpen ? "Cài đặt" : undefined} className={({ isActive }) => `flex items-center gap-4 py-3 rounded-lg transition-all ${isSidebarOpen ? 'px-4' : 'px-0 justify-center'} ${isActive ? 'bg-white/10 text-white font-bold' : 'text-white/60 hover:text-white'}`}>
+        <div className="mt-auto pt-4 border-t border-[#d99b4a]/20 px-3 space-y-1">
+          <NavLink to="/admin/settings" title={!isSidebarOpen ? "Cài đặt" : undefined} className={({ isActive }) => `flex items-center gap-4 py-3 rounded-lg transition-all ${isSidebarOpen ? 'px-4' : 'px-0 justify-center'} ${isActive ? 'bg-[#d99b4a]/20 text-[#ffe7b0] font-bold' : 'text-[#ffe7b0]/60 hover:text-[#ffe7b0]'}`}>
             <span className="material-symbols-outlined text-[22px] shrink-0">settings</span>
             {isSidebarOpen && <span className="text-sm font-body whitespace-nowrap">Cài đặt</span>}
           </NavLink>
-          <button onClick={() => setIsLogoutOpen(true)} title={!isSidebarOpen ? "Đăng xuất" : undefined} className={`w-full flex items-center gap-4 py-3 text-white/60 hover:text-red-400 transition-colors ${isSidebarOpen ? 'px-4' : 'px-0 justify-center'}`}>
+          <button onClick={() => setIsLogoutOpen(true)} title={!isSidebarOpen ? "Đăng xuất" : undefined} className={`w-full flex items-center gap-4 py-3 text-[#ffe7b0]/60 hover:text-[#ff6b6b] transition-colors ${isSidebarOpen ? 'px-4' : 'px-0 justify-center'}`}>
             <span className="material-symbols-outlined text-[22px] shrink-0">logout</span>
             {isSidebarOpen && <span className="text-sm font-body text-left whitespace-nowrap">Đăng xuất</span>}
           </button>
@@ -74,7 +105,7 @@ const AdminLayout = () => {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="h-14 bg-white/80 backdrop-blur-md border-b border-outline-variant flex items-center px-6 z-40 gap-4">
+        <header className="h-14 bg-[#FDFBF0] border-b border-[#d99b4a]/20 flex items-center px-6 z-40 gap-4">
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-1 text-on-surface hover:text-primary transition-colors flex items-center justify-center rounded hover:bg-surface-variant/30">
             <span className="material-symbols-outlined text-xl">menu</span>
           </button>

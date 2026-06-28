@@ -1,29 +1,28 @@
 package com.example.historyrag.feature.engagement;
 
+import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.exception.InvalidRequestException;
 import com.example.historyrag.feature.engagement.dto.EngagementModerationRequest;
 import com.example.historyrag.feature.engagement.dto.EngagementResponse;
-import org.springframework.data.domain.Page;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class EngagementServiceImpl implements EngagementService {
 
     private final EngagementRepository engagementRepository;
 
-    public EngagementServiceImpl(EngagementRepository engagementRepository) {
-        this.engagementRepository = engagementRepository;
-    }
     @Override
-    public Page<EngagementResponse> getPendingComments(Pageable pageable) {
-        return engagementRepository.findByEngagementTypeAndCommentStatus(
+    public ResultPaginationDTO getPendingComments(Pageable pageable) {
+        return ResultPaginationDTO.fromPage(engagementRepository.findByEngagementTypeAndCommentStatus(
                 EngagementType.COMMENT,
                 CommentStatus.PENDING,
                 pageable
-        ).map(EngagementResponse::fromEntity);
+        ).map(EngagementResponse::fromEntity));
     }
 
     @Override
@@ -37,5 +36,23 @@ public class EngagementServiceImpl implements EngagementService {
         }
         engagement.setCommentStatus(request.status());
         return EngagementResponse.fromEntity(engagementRepository.save(engagement));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countEngagements() {
+        return engagementRepository.count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countByType(EngagementType engagementType) {
+        return engagementRepository.countByEngagementType(engagementType);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countByTypeAndCommentStatus(EngagementType engagementType, CommentStatus commentStatus) {
+        return engagementRepository.countByEngagementTypeAndCommentStatus(engagementType, commentStatus);
     }
 }

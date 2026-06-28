@@ -1,0 +1,370 @@
+{
+  "source": {
+    "sourceId": 1,
+    "title": "Lịch sử Việt Nam tập 01 Từ khởi thủy đến thế kỷ X",
+    "pages": "1-673",
+    "chunks": 642
+  },
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Tiền sử",
+      "question": "Người vượn Homo erectus xuất hiện ở Việt Nam từ bao giờ và ở đâu?",
+      "expected_keywords": ["Homo erectus", "Núi Đọ", "Thanh Hóa", "đồ đá cũ"]
+    },
+    {
+      "id": 2,
+      "topic": "Tiền sử",
+      "question": "Văn hóa Hòa Bình là gì và có đặc điểm gì nổi bật?",
+      "expected_keywords": ["Hòa Bình", "đồ đá", "hang động", "nông nghiệp sơ khai"]
+    },
+    {
+      "id": 3,
+      "topic": "Tiền sử",
+      "question": "Trống đồng Đông Sơn có ý nghĩa gì trong lịch sử Việt Nam?",
+      "expected_keywords": ["Đông Sơn", "trống đồng", "đồ đồng", "văn hóa"]
+    },
+    {
+      "id": 4,
+      "topic": "Tiền sử",
+      "question": "Văn hóa Bắc Sơn khác với văn hóa Hòa Bình ở điểm nào?",
+      "expected_keywords": ["Bắc Sơn", "mài", "đồ đá", "Hòa Bình"]
+    },
+    {
+      "id": 5,
+      "topic": "Tiền sử",
+      "question": "Người nguyên thủy ở Việt Nam sống như thế nào trong thời đồ đá cũ?",
+      "expected_keywords": ["đồ đá cũ", "hái lượm", "săn bắt", "hang động"]
+    },
+    {
+      "id": 6,
+      "topic": "Văn Lang - Âu Lạc",
+      "question": "Nhà nước Văn Lang của các vua Hùng được thành lập vào thời kỳ nào và ở đâu?",
+      "expected_keywords": ["Hùng Vương", "Văn Lang", "Phú Thọ", "Phong Châu"]
+    },
+    {
+      "id": 7,
+      "topic": "Văn Lang - Âu Lạc",
+      "question": "An Dương Vương là ai và đã xây thành Cổ Loa như thế nào?",
+      "expected_keywords": ["An Dương Vương", "Cổ Loa", "Âu Lạc", "nỏ thần"]
+    },
+    {
+      "id": 8,
+      "topic": "Văn Lang - Âu Lạc",
+      "question": "Truyền thuyết nỏ thần và sự sụp đổ của Âu Lạc kể về điều gì?",
+      "expected_keywords": ["nỏ thần", "Triệu Đà", "Mị Châu", "Trọng Thủy"]
+    },
+    {
+      "id": 9,
+      "topic": "Văn Lang - Âu Lạc",
+      "question": "Tổ chức xã hội của nhà nước Văn Lang được sắp xếp như thế nào?",
+      "expected_keywords": ["Hùng Vương", "Lạc hầu", "Lạc tướng", "bộ lạc"]
+    },
+    {
+      "id": 10,
+      "topic": "Văn Lang - Âu Lạc",
+      "question": "Kinh tế của người Lạc Việt thời Văn Lang – Âu Lạc có những đặc điểm gì?",
+      "expected_keywords": ["lúa nước", "nông nghiệp", "lưỡi cày", "đồng bằng"]
+    },
+    {
+      "id": 11,
+      "topic": "Bắc thuộc lần 1",
+      "question": "Triệu Đà thôn tính Âu Lạc và lập nước Nam Việt như thế nào?",
+      "expected_keywords": ["Triệu Đà", "Nam Việt", "Âu Lạc", "179 TCN"]
+    },
+    {
+      "id": 12,
+      "topic": "Bắc thuộc lần 1",
+      "question": "Nhà Hán đô hộ Giao Chỉ và áp đặt chính sách gì lên người Việt?",
+      "expected_keywords": ["Giao Chỉ", "đô hộ", "thuế", "đồng hóa"]
+    },
+    {
+      "id": 13,
+      "topic": "Khởi nghĩa Hai Bà Trưng",
+      "question": "Hai Bà Trưng là ai và đã khởi nghĩa vào năm nào chống lại ai?",
+      "expected_keywords": ["Trưng Trắc", "Trưng Nhị", "40 sau CN", "Tô Định"]
+    },
+    {
+      "id": 14,
+      "topic": "Khởi nghĩa Hai Bà Trưng",
+      "question": "Khởi nghĩa Hai Bà Trưng kết thúc như thế nào và để lại ý nghĩa gì?",
+      "expected_keywords": ["Mã Viện", "Hát Giang", "hy sinh", "tinh thần"]
+    },
+    {
+      "id": 15,
+      "topic": "Bắc thuộc",
+      "question": "Khởi nghĩa Bà Triệu năm 248 diễn ra như thế nào?",
+      "expected_keywords": ["Bà Triệu", "248", "voi", "núi Nưa", "Thanh Hóa"]
+    },
+    {
+      "id": 16,
+      "topic": "Bắc thuộc",
+      "question": "Sĩ Nhiếp cai trị Giao Châu có những đóng góp gì cho văn hóa Việt Nam?",
+      "expected_keywords": ["Sĩ Nhiếp", "Giao Châu", "Nho học", "văn hóa Hán"]
+    },
+    {
+      "id": 17,
+      "topic": "Khởi nghĩa Lý Bí",
+      "question": "Khởi nghĩa Lý Bí năm 544 diễn ra như thế nào và lập nên nhà nước nào?",
+      "expected_keywords": ["Lý Bí", "Vạn Xuân", "544", "Lý Nam Đế"]
+    },
+    {
+      "id": 18,
+      "topic": "Khởi nghĩa Lý Bí",
+      "question": "Nước Vạn Xuân tồn tại bao lâu và kết thúc như thế nào?",
+      "expected_keywords": ["Vạn Xuân", "Triệu Quang Phục", "nhà Tùy", "đầm Dạ Trạch"]
+    },
+    {
+      "id": 19,
+      "topic": "Bắc thuộc",
+      "question": "Chính sách đồng hóa của nhà Đường đối với người Việt là gì?",
+      "expected_keywords": ["nhà Đường", "đô hộ", "An Nam đô hộ phủ", "thuế"]
+    },
+    {
+      "id": 20,
+      "topic": "Bắc thuộc",
+      "question": "Mai Thúc Loan khởi nghĩa vào năm nào và có những thành tựu gì?",
+      "expected_keywords": ["Mai Thúc Loan", "722", "Mai Hắc Đế", "Hoan Châu"]
+    },
+    {
+      "id": 21,
+      "topic": "Bắc thuộc",
+      "question": "Phùng Hưng (Bố Cái Đại Vương) đã làm gì để chống lại ách đô hộ của nhà Đường?",
+      "expected_keywords": ["Phùng Hưng", "Bố Cái", "Đại Vương", "đô hộ phủ"]
+    },
+    {
+      "id": 22,
+      "topic": "Tự chủ",
+      "question": "Khúc Thừa Dụ giành quyền tự chủ cho người Việt năm 905 như thế nào?",
+      "expected_keywords": ["Khúc Thừa Dụ", "905", "Tiết độ sứ", "tự chủ"]
+    },
+    {
+      "id": 23,
+      "topic": "Tự chủ",
+      "question": "Dương Đình Nghệ đã làm gì để bảo vệ nền tự chủ của Việt Nam?",
+      "expected_keywords": ["Dương Đình Nghệ", "930", "Nam Hán", "Kiều Công Tiễn"]
+    },
+    {
+      "id": 24,
+      "topic": "Ngô Quyền",
+      "question": "Ngô Quyền đã chuẩn bị gì trước trận Bạch Đằng năm 938?",
+      "expected_keywords": ["cọc nhọn", "Bạch Đằng", "thủy triều", "thuyền"]
+    },
+    {
+      "id": 25,
+      "topic": "Ngô Quyền",
+      "question": "Trận Bạch Đằng năm 938 diễn ra như thế nào và kết quả ra sao?",
+      "expected_keywords": ["Ngô Quyền", "Hoằng Thao", "Nam Hán", "độc lập"]
+    },
+    {
+      "id": 26,
+      "topic": "Ngô Quyền",
+      "question": "Ngô Quyền xưng vương và tổ chức triều đình như thế nào sau chiến thắng?",
+      "expected_keywords": ["Ngô Quyền", "Cổ Loa", "Vương", "triều đình"]
+    },
+    {
+      "id": 27,
+      "topic": "Tiền sử",
+      "question": "Nền văn hóa Sa Huỳnh ở miền Trung Việt Nam có những đặc trưng gì?",
+      "expected_keywords": ["Sa Huỳnh", "đồ gốm", "miền Trung", "mộ chum"]
+    },
+    {
+      "id": 28,
+      "topic": "Tiền sử",
+      "question": "Văn hóa Óc Eo ở Nam Bộ gắn liền với vương quốc nào và thể hiện điều gì?",
+      "expected_keywords": ["Óc Eo", "Phù Nam", "Nam Bộ", "thương mại"]
+    },
+    {
+      "id": 29,
+      "topic": "Bắc thuộc",
+      "question": "Tín ngưỡng và tôn giáo của người Việt trong thời Bắc thuộc phát triển như thế nào?",
+      "expected_keywords": ["Phật giáo", "tín ngưỡng", "thờ cúng tổ tiên", "dân gian"]
+    },
+    {
+      "id": 30,
+      "topic": "Bắc thuộc",
+      "question": "Người Việt chống lại chính sách đồng hóa của phong kiến phương Bắc bằng cách nào?",
+      "expected_keywords": ["tiếng Việt", "phong tục", "văn hóa", "bản sắc"]
+    },
+    {
+      "id": 31,
+      "topic": "Văn Lang - Âu Lạc",
+      "question": "Kỹ thuật luyện kim đồng thau của người Đông Sơn đạt trình độ như thế nào?",
+      "expected_keywords": ["đồng thau", "đúc", "kỹ thuật", "Đông Sơn"]
+    },
+    {
+      "id": 32,
+      "topic": "Bắc thuộc",
+      "question": "Trong thời Bắc thuộc, người Việt duy trì nền kinh tế như thế nào?",
+      "expected_keywords": ["nông nghiệp", "thủ công", "giao thương", "tự cung tự cấp"]
+    },
+    {
+      "id": 33,
+      "topic": "Ngô Quyền",
+      "question": "Sau khi Ngô Quyền mất, đất nước rơi vào tình trạng gì?",
+      "expected_keywords": ["loạn 12 sứ quân", "Ngô Xương Ngập", "nội loạn", "chia cắt"]
+    },
+    {
+      "id": 34,
+      "topic": "Bắc thuộc",
+      "question": "Giao thương giữa Giao Châu với các nước trong khu vực dưới thời Bắc thuộc ra sao?",
+      "expected_keywords": ["Giao Châu", "thương mại", "đường biển", "Ấn Độ"]
+    },
+    {
+      "id": 35,
+      "topic": "Văn Lang - Âu Lạc",
+      "question": "Tín ngưỡng thờ Hùng Vương có nguồn gốc và ý nghĩa như thế nào?",
+      "expected_keywords": ["Hùng Vương", "thờ cúng", "Đền Hùng", "Phú Thọ"]
+    },
+    {
+      "id": 36,
+      "topic": "Tiền sử",
+      "question": "Thời đại đồ đồng ở Việt Nam bắt đầu từ khi nào và có những di chỉ quan trọng nào?",
+      "expected_keywords": ["đồ đồng", "Phùng Nguyên", "di chỉ", "khảo cổ"]
+    },
+    {
+      "id": 37,
+      "topic": "Bắc thuộc",
+      "question": "Nho giáo được du nhập vào Giao Châu như thế nào dưới thời Bắc thuộc?",
+      "expected_keywords": ["Nho giáo", "học chữ Hán", "Tích Quang", "trường học"]
+    },
+    {
+      "id": 38,
+      "topic": "Bắc thuộc",
+      "question": "Cuộc khởi nghĩa của nhân dân Châu Hoan và Châu Ái thế kỷ VII–VIII có đặc điểm gì?",
+      "expected_keywords": ["Châu Hoan", "Châu Ái", "khởi nghĩa", "nhà Đường"]
+    },
+    {
+      "id": 39,
+      "topic": "Văn Lang - Âu Lạc",
+      "question": "Nghề dệt và thủ công nghiệp thời Văn Lang – Âu Lạc phát triển như thế nào?",
+      "expected_keywords": ["dệt", "tơ", "thủ công", "vải"]
+    },
+    {
+      "id": 40,
+      "topic": "Tự chủ",
+      "question": "Họ Khúc (Khúc Thừa Dụ, Khúc Hạo, Khúc Thừa Mỹ) có những đóng góp gì cho nền tự chủ Việt Nam?",
+      "expected_keywords": ["Khúc Thừa Dụ", "Khúc Hạo", "cải cách", "thuế"]
+    },
+    {
+      "id": 41,
+      "topic": "Tiền sử",
+      "question": "Thời đại đồ đá mới ở Việt Nam có những đặc trưng gì về đời sống và kỹ thuật chế tác?",
+      "expected_keywords": ["đồ đá mới", "mài nhẵn", "gốm", "nông nghiệp"]
+    },
+    {
+      "id": 42,
+      "topic": "Tiền sử",
+      "question": "Văn hóa Phùng Nguyên có vai trò gì trong quá trình chuyển sang thời đại đồng thau ở Việt Nam?",
+      "expected_keywords": ["Phùng Nguyên", "đồng thau", "đồ đồng", "tiền Đông Sơn"]
+    },
+    {
+      "id": 43,
+      "topic": "Văn Lang - Âu Lạc",
+      "question": "Nghề trồng lúa nước của cư dân Việt cổ thời Văn Lang – Âu Lạc đạt trình độ như thế nào?",
+      "expected_keywords": ["lúa nước", "canh tác", "đồng bằng", "thủy lợi"]
+    },
+    {
+      "id": 44,
+      "topic": "Văn Lang - Âu Lạc",
+      "question": "Tín ngưỡng thờ thần tự nhiên và vật tổ của người Việt cổ thời Văn Lang thể hiện ra sao?",
+      "expected_keywords": ["tín ngưỡng", "thờ thần", "vật tổ", "lễ hội"]
+    },
+    {
+      "id": 45,
+      "topic": "Bắc thuộc lần 1",
+      "question": "Nhà Hán tổ chức bộ máy cai trị ở Giao Châu theo hình thức nào?",
+      "expected_keywords": ["Giao Châu", "thái thú", "quận huyện", "đô hộ"]
+    },
+    {
+      "id": 46,
+      "topic": "Khởi nghĩa Hai Bà Trưng",
+      "question": "Thi Sách là ai và cái chết của ông liên quan thế nào đến việc Hai Bà Trưng nổi dậy?",
+      "expected_keywords": ["Thi Sách", "Trưng Trắc", "Tô Định", "nguyên nhân"]
+    },
+    {
+      "id": 47,
+      "topic": "Bắc thuộc",
+      "question": "Triệu Quang Phục (Triệu Việt Vương) duy trì kháng chiến ở đầm Dạ Trạch như thế nào sau khi Lý Bí thất bại?",
+      "expected_keywords": ["Triệu Quang Phục", "Dạ Trạch", "du kích", "Triệu Việt Vương"]
+    },
+    {
+      "id": 48,
+      "topic": "Bắc thuộc",
+      "question": "Lý Phật Tử lên ngôi sau Triệu Quang Phục và cai trị đến khi mất nước về tay nhà Tùy ra sao?",
+      "expected_keywords": ["Lý Phật Tử", "Vạn Xuân", "nhà Tùy", "593"]
+    },
+    {
+      "id": 49,
+      "topic": "Bắc thuộc",
+      "question": "Cao Biền xây thành Đại La và thực hiện chính sách thủy lợi gì ở Giao Châu thời Đường?",
+      "expected_keywords": ["Cao Biền", "Đại La", "thành", "kênh đào"]
+    },
+    {
+      "id": 50,
+      "topic": "Bắc thuộc",
+      "question": "Phật giáo du nhập vào Giao Châu theo con đường nào và ảnh hưởng đến đời sống người Việt ra sao?",
+      "expected_keywords": ["Phật giáo", "Giao Châu", "Ấn Độ", "Mâu Tử"]
+    },
+    {
+      "id": 51,
+      "topic": "Bắc thuộc",
+      "question": "Giao Châu giữ vai trò trung chuyển thương mại trên Con đường tơ lụa biển như thế nào?",
+      "expected_keywords": ["thương mại", "đường biển", "cảng", "Ấn Độ"]
+    },
+    {
+      "id": 52,
+      "topic": "Bắc thuộc",
+      "question": "Chữ Hán và giáo dục Nho học ảnh hưởng thế nào đến tầng lớp hào trưởng người Việt trong thời Bắc thuộc?",
+      "expected_keywords": ["chữ Hán", "Nho học", "hào trưởng", "giáo dục"]
+    },
+    {
+      "id": 53,
+      "topic": "Ngô Quyền",
+      "question": "Kiều Công Tiễn giết Dương Đình Nghệ và cầu cứu Nam Hán – sự kiện đó dẫn đến điều gì?",
+      "expected_keywords": ["Kiều Công Tiễn", "Dương Đình Nghệ", "Nam Hán", "phản bội"]
+    },
+    {
+      "id": 54,
+      "topic": "Tiền sử",
+      "question": "Bằng chứng khảo cổ sớm nhất về sự xuất hiện của con người ở Việt Nam là gì?",
+      "expected_keywords": ["người tối cổ", "hang động", "công cụ đá", "Thanh Hóa"]
+    },
+    {
+      "id": 55,
+      "topic": "Văn Lang - Âu Lạc",
+      "question": "Kinh đô Phong Châu của nước Văn Lang nằm ở đâu và có đặc điểm địa lý nào nổi bật?",
+      "expected_keywords": ["Phong Châu", "Bạch Hạc", "Phú Thọ", "kinh đô"]
+    },
+    {
+      "id": 56,
+      "topic": "Bắc thuộc",
+      "question": "Khởi nghĩa Lý Tự Tiên và Đinh Kiến cuối thế kỷ VII diễn ra như thế nào?",
+      "expected_keywords": ["Lý Tự Tiên", "Đinh Kiến", "khởi nghĩa", "nhà Đường"]
+    },
+    {
+      "id": 57,
+      "topic": "Bắc thuộc",
+      "question": "Tổ chức làng xã của người Việt trong thời Bắc thuộc có vai trò gì trong việc bảo tồn văn hóa?",
+      "expected_keywords": ["làng xã", "cộng đồng", "tự quản", "phong tục"]
+    },
+    {
+      "id": 58,
+      "topic": "Tự chủ",
+      "question": "Khúc Hạo đã thực hiện cải cách gì về thuế khóa và hành chính địa phương?",
+      "expected_keywords": ["Khúc Hạo", "thuế", "bình quân", "cải cách hành chính"]
+    },
+    {
+      "id": 59,
+      "topic": "Ngô Quyền",
+      "question": "Ngô Quyền có mối quan hệ gia đình như thế nào với Dương Đình Nghệ trước khi trở thành lãnh tụ?",
+      "expected_keywords": ["Ngô Quyền", "Dương Đình Nghệ", "con rể", "tướng"]
+    },
+    {
+      "id": 60,
+      "topic": "Tiền sử",
+      "question": "Văn hóa Đông Sơn có ảnh hưởng như thế nào đến các nền văn hóa khác trong khu vực Đông Nam Á?",
+      "expected_keywords": ["Đông Sơn", "Đông Nam Á", "trống đồng", "lan rộng"]
+    }
+  ]
+}

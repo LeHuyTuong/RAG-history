@@ -186,6 +186,14 @@ FastAPI base path: `/rag`.
 | `POST` | `/rag/chat` | Internal | Hỏi RAG chatbot, response JSON. | `RagChatRequest` | `RagChatResponse` | `200`, `500` |
 | `POST` | `/rag/chat/stream` | Internal | Hỏi RAG chatbot, response Server-Sent Events. | `RagChatRequest` | SSE events | `200`, `500` |
 
+## Spring Boot RAG gateway APIs
+
+Frontend gọi Spring Boot, không gọi FastAPI trực tiếp.
+
+| Method | URL | Purpose | Request body | Response body |
+|---|---|---|---|---|
+| `POST` | `/api/v1/rag/chat/stream` | Gateway SSE cho chatbot RAG. | `RagChatRequest`. | `text/event-stream`. |
+
 RAG ingest request:
 
 ```json
@@ -546,5 +554,4 @@ Code hiện tại không có enum `errorCode`; `ApiResponse.error` là nhãn tex
 | `PeriodRequest` | `endYear` | No | No annotation |
 | `PeriodRequest` | `description` | No | Max 100 |
 | `EngagementModerationRequest` | `status` | Yes | Not null; enum `PENDING`, `VISIBLE`, `HIDDEN` |
-
 

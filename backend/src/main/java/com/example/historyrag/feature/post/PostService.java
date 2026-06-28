@@ -18,4 +18,8 @@ public interface PostService {
     ResultPaginationDTO filter(PostFilterRequest filter, Pageable pageable);
 
     void delete(Long id);
+
+    long countPosts();
+
+    long countPostsByStatus(PostStatus status);
 }

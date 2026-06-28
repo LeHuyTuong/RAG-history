@@ -25,7 +25,26 @@
         {
           "id": 11,
           "name": "Nghiên cứu văn bia",
-          "count": 45
+          "count": 45,
+          "children": [
+            {
+              "id": 111,
+              "name": "Văn bia Chăm Pa",
+              "count": 12
+            },
+            {
+              "id": 112,
+              "name": "Văn bia thời Lý - Trần",
+              "count": 33,
+              "children": [
+                {
+                  "id": 1121,
+                  "name": "Bia Tháp Sùng Thiện Diên Linh",
+                  "count": 5
+                }
+              ]
+            }
+          ]
         },
         {
           "id": 12,
@@ -171,49 +190,125 @@
       "id": 1,
       "name": "Hồng Bàng",
       "range": "2879 TCN - 258 TCN",
-      "desc": "Kinh Dương Vương khởi đầu."
+      "desc": "Kinh Dương Vương khởi đầu.",
+      "emperors": [
+        {
+          "name": "Kinh Dương Vương",
+          "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY"
+        },
+        {
+          "name": "Hùng Vương",
+          "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY"
+        }
+      ]
     },
     {
       "id": 2,
       "name": "Nhà Ngô",
       "range": "939 - 965",
-      "desc": "Ngô Quyền xưng vương, chấm dứt Bắc thuộc."
+      "desc": "Ngô Quyền xưng vương, chấm dứt Bắc thuộc. Thời kỳ sau đó trải qua nhiều biến động dẫn đến loạn 12 sứ quân.",
+      "emperors": [
+        {
+          "name": "Ngô Quyền",
+          "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY"
+        },
+        {
+          "name": "Dương Tam Kha",
+          "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY"
+        },
+        {
+          "name": "Ngô Xương Ngập",
+          "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY"
+        },
+        {
+          "name": "Ngô Xương Văn",
+          "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY"
+        }
+      ]
     },
     {
       "id": 3,
       "name": "Nhà Đinh",
       "range": "968 - 980",
-      "desc": "Đinh Bộ Lĩnh dẹp loạn 12 sứ quân."
+      "desc": "Đinh Bộ Lĩnh dẹp loạn 12 sứ quân.",
+      "emperors": [
+        {
+          "name": "Đinh Tiên Hoàng",
+          "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY"
+        }
+      ]
     },
     {
       "id": 4,
       "name": "Nhà Lý",
       "range": "1009 - 1225",
-      "desc": "Dời đô về Thăng Long."
+      "desc": "Dời đô về Thăng Long.",
+      "emperors": [
+        {
+          "name": "Lý Thái Tổ",
+          "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY"
+        },
+        {
+          "name": "Lý Thường Kiệt",
+          "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY"
+        }
+      ]
     },
     {
       "id": 5,
       "name": "Nhà Trần",
       "range": "1225 - 1400",
-      "desc": "Đại thắng Nguyên Mông."
+      "desc": "Đại thắng Nguyên Mông.",
+      "emperors": [
+        {
+          "name": "Trần Thái Tông",
+          "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY"
+        },
+        {
+          "name": "Trần Hưng Đạo",
+          "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY"
+        }
+      ]
     },
     {
       "id": 6,
       "name": "Nhà Lê",
       "range": "1428 - 1789",
-      "desc": "Lê Lợi khởi nghĩa Lam Sơn."
+      "desc": "Lê Lợi khởi nghĩa Lam Sơn.",
+      "emperors": [
+        {
+          "name": "Lê Thái Tổ",
+          "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY"
+        }
+      ]
     },
     {
       "id": 7,
       "name": "Nhà Tây Sơn",
       "range": "1778 - 1802",
-      "desc": "Nguyễn Huệ đại phá quân Thanh."
+      "desc": "Nguyễn Huệ đại phá quân Thanh.",
+      "emperors": [
+        {
+          "name": "Quang Trung",
+          "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY"
+        }
+      ]
     },
     {
       "id": 8,
       "name": "Nhà Nguyễn",
       "range": "1802 - 1945",
-      "desc": "Gia Long thống nhất đất nước."
+      "desc": "Gia Long thống nhất đất nước.",
+      "emperors": [
+        {
+          "name": "Gia Long",
+          "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY"
+        },
+        {
+          "name": "Minh Mạng",
+          "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY"
+        }
+      ]
     }
   ]
 }

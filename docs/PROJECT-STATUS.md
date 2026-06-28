@@ -1,6 +1,6 @@
 # Project Status
 
-> Last updated: 2026-06-16 | By: Codex | Session: #10
+> Last updated: 2026-06-24 | By: Codex | Session: #17
 >
 > AI: update this file at the end of every session when asked.
 > Follow this exact format. Keep it concise — under 80 lines.
@@ -28,8 +28,21 @@
 - Enabled Flyway migrations for the backend, defaulted JPA DDL to `validate`, and adjusted cloud Docker env so TiDB Cloud runs without waiting for local MySQL.
 - Made the initial post full-text indexes TiDB-compatible in `V1__init.sql` by splitting title, summary, and content into separate single-column indexes; verified Flyway V1-V3 migrations plus Hibernate validation against TiDB Cloud.
 - Fixed login refresh-token persistence by removing premature Bean Validation from Hibernate-managed `RefreshToken.createdAt`.
+- Added OpenAI-style chat SSE design docs, FastAPI `/rag/chat/stream`, and Spring Boot `/api/v1/rag/chat/stream` SSE gateway.
+- Integrated local Viettel Java Foundation observability starter with Micrometer metrics bridge for backend tracing/metrics.
 - Added admin CRUD Post backend API with ResultPaginationDTO filtering, JWT admin author resolution, Post-Tag mapping, service/controller tests, and API docs.
 - Fixed post keyword filtering by casting searchable fields before `ilike`, avoiding Hibernate CLOB `lower()` errors on `summary` and `content`.
+- Added admin CRUD Location backend API with enum location types, ResultPaginationDTO filtering, validation, service/controller tests, and API docs.
+- Added admin CRUD Source backend API with source/reliability enums, ResultPaginationDTO filtering, validation, service/controller tests, and API docs.
+- Added admin CRUD Participation backend API with Event-Person mapping, enum roles, duplicate logical-key checks, ResultPaginationDTO filtering, validation, service/controller tests, and API docs.
+- Added admin CRUD Event backend API with Event-Period mapping, Event-Location relation replacement preserving relation type, certainty enum, filtering, validation, service/controller tests, and API docs.
+- Fixed Docker backend startup failure by switching to the Spring Boot 4 WebClient starter and adding an explicit shared `WebClient.Builder` bean.
+- Fixed local Docker database startup ordering by enabling the MySQL service by default and making backend wait for MySQL health before Flyway/JPA initialization.
+- Enabled Flyway baseline-on-migrate by default for local Docker so existing non-empty MySQL schemas without `flyway_schema_history` can start cleanly.
+- Made `V2__sample_data.sql` idempotent with `INSERT IGNORE` so local seed data can coexist with previously created dev rows.
+- Added nginx SPA route fallback for the Dockerized frontend so direct routes like `/login` serve React's `index.html`.
+- Standardized feature services/controllers on Lombok `@RequiredArgsConstructor`, added builders to DTO records, and removed manual constructors from feature entities.
+- Refactored feature service dependencies so service implementations no longer inject repositories from other feature packages; cross-feature access now goes through service interfaces.
 
 ## In Progress
 _Nothing._

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate, NavLink } from "react-router-dom";
 import LogoutModal from "./LogoutModal";
 import ChatBox from "./ChatBox";
+import apiClient from "../services/apiClient";
+
+import { mockClient } from "../services/apiClient";
 
 const HEADER_HEIGHT = 80;
 
@@ -13,17 +16,47 @@ const UserLayout = () => {
 
   const navigate = useNavigate();
 
+  const [siteName, setSiteName] = useState('Sử Việt');
+
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) setUser(JSON.parse(savedUser));
   }, []);
 
-  const handleConfirmLogout = () => {
-    localStorage.removeItem("user");
-    setIsLogoutOpen(false);
-    setUser(null);
-    navigate("/");
-    window.location.reload();
+  useEffect(() => {
+    const customSettings = JSON.parse(localStorage.getItem('admin_new_settings') || '[]');
+    const siteNameParam = customSettings.find(p => p.key === 'site_name');
+    if (siteNameParam) {
+      setSiteName(siteNameParam.value);
+    } else {
+      mockClient.get('/api/admin_settings.json')
+        .then(res => {
+          const defaultSiteName = res.data.parameters?.find(p => p.key === 'site_name')?.value;
+          if (defaultSiteName) {
+            setSiteName(defaultSiteName);
+          }
+        })
+        .catch(err => console.error('Error loading settings:', err));
+    }
+  }, []);
+
+  useEffect(() => {
+    document.title = siteName;
+  }, [siteName]);
+
+  const handleConfirmLogout = async () => {
+    try {
+      await apiClient.post('/api/v1/auth/logout');
+    } catch (error) {
+      console.error("Logout error", error);
+    } finally {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      setIsLogoutOpen(false);
+      setUser(null);
+      navigate("/login");
+      window.location.reload();
+    }
   };
 
 
@@ -50,10 +83,10 @@ const UserLayout = () => {
             {/* Logo */}
             <Link
               to={user?.role === 'admin' ? '/admin' : '/'}
-              className="shrink-0 font-headline text-4xl lg:text-[42px] font-bold text-[#f7d78a] tracking-wider hover:opacity-80 transition drop-shadow-md flex items-center gap-3"
+              className="shrink-0 font-headline text-[26px] lg:text-[30px] font-bold text-[#f7d78a] tracking-wider hover:opacity-80 transition drop-shadow-md flex items-center gap-3"
             >
-              <span className="material-symbols-outlined text-[32px] lg:text-[40px] text-[#8b1512]">account_balance</span>
-              Sử Việt
+              <span className="material-symbols-outlined text-[28px] lg:text-[32px] text-[#f7d78a]">account_balance</span>
+              {siteName}
             </Link>
 
             {/* Menu */}
@@ -144,7 +177,7 @@ const UserLayout = () => {
         <div className="max-w-[1440px] mx-auto px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 gap-12 text-center md:text-left">
           <div className="space-y-4">
             <h4 className="font-headline text-2xl text-primary font-bold italic">
-              Sử Việt
+              {siteName}
             </h4>
 
             <p className="text-on-surface-variant text-sm max-w-md mx-auto md:mx-0 leading-relaxed font-body">
@@ -172,7 +205,7 @@ const UserLayout = () => {
             <div className="p-8 font-body text-[#2b1a16] space-y-6 max-h-[70vh] overflow-y-auto">
               <div className="space-y-2">
                 <h4 className="font-bold text-lg text-[#6b0f0d] flex items-center gap-2"><span className="material-symbols-outlined text-[#d99b4a]">verified</span> 1. Mục đích hoạt động</h4>
-                <p className="pl-8 leading-relaxed opacity-90">Hệ thống <strong className="text-[#8b1512]">Sử Việt</strong> được xây dựng với mục đích lưu trữ, bảo tồn và lan tỏa các giá trị lịch sử, văn hóa truyền thống của dân tộc Việt Nam đến với đông đảo công chúng.</p>
+                <p className="pl-8 leading-relaxed opacity-90">Hệ thống <strong className="text-[#8b1512]">{siteName}</strong> được xây dựng với mục đích lưu trữ, bảo tồn và lan tỏa các giá trị lịch sử, văn hóa truyền thống của dân tộc Việt Nam đến với đông đảo công chúng.</p>
               </div>
               <div className="space-y-2">
                 <h4 className="font-bold text-lg text-[#6b0f0d] flex items-center gap-2"><span className="material-symbols-outlined text-[#d99b4a]">gavel</span> 2. Trách nhiệm người dùng</h4>
@@ -180,7 +213,7 @@ const UserLayout = () => {
               </div>
               <div className="space-y-2">
                 <h4 className="font-bold text-lg text-[#6b0f0d] flex items-center gap-2"><span className="material-symbols-outlined text-[#d99b4a]">copyright</span> 3. Bản quyền nội dung</h4>
-                <p className="pl-8 leading-relaxed opacity-90">Mọi dữ liệu lịch sử được tham khảo từ các nguồn chính thống và các bộ chính sử. Vui lòng ghi rõ nguồn "Sử Việt" khi trích dẫn lại các nội dung phân tích hoặc hình ảnh thuộc bản quyền của hệ thống.</p>
+                <p className="pl-8 leading-relaxed opacity-90">Mọi dữ liệu lịch sử được tham khảo từ các nguồn chính thống và các bộ chính sử. Vui lòng ghi rõ nguồn "{siteName}" khi trích dẫn lại các nội dung phân tích hoặc hình ảnh thuộc bản quyền của hệ thống.</p>
               </div>
             </div>
             <div className="p-4 border-t border-[#d99b4a]/30 bg-[#fcf9ee] text-right">

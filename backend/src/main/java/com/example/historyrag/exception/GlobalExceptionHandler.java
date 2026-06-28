@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
@@ -43,6 +44,13 @@ public class GlobalExceptionHandler {
         @ExceptionHandler(AuthorizationDeniedException.class)
         public ResponseEntity<ApiResponse<Void>> handleAuthorizationDenied(AuthorizationDeniedException ex) {
                 log.warn("AuthorizationDeniedException: {}", ex.getMessage());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body(ApiResponse.forbidden("Bạn không có quyền truy cập tài nguyên này"));
+        }
+
+        @ExceptionHandler(AccessDeniedException.class)
+        public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
+                log.warn("AccessDeniedException: {}", ex.getMessage());
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                                 .body(ApiResponse.forbidden("Bạn không có quyền truy cập tài nguyên này"));
         }

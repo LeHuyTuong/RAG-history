@@ -1,18 +1,20 @@
-import {  useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  PageHeader, 
-  AdminLayout, 
-  StatsGrid, 
+import {
+  PageHeader,
+  AdminLayout,
+  StatsGrid,
   FilterBar,
   FilterInput,
   FilterSelect,
-  DataTable, 
-  ActionModal, 
-  TableActions 
+  DataTable,
+  ActionModal,
+  TableActions
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 
+import { API_ENDPOINTS } from '../../../services/api';
+import apiClient, { mockClient } from '../../../services/apiClient';
 const RecordManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, itemName: '', id: null });
@@ -20,6 +22,27 @@ const RecordManagement = () => {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ search: '', type: '', dynasty: '' });
   const { periodColors, getPeriodStyle: getDynastyStyle } = usePeriodColors();
+
+  const handleDelete = async () => {
+    if (deleteModal.id === null || deleteModal.id === undefined) return;
+    const deleteId = deleteModal.id;
+
+    try {
+      if (!isNaN(Number(deleteId))) {
+        await apiClient.delete(`${API_ENDPOINTS.ADMIN_SOURCES}/${deleteId}`);
+      }
+
+      setData(prev => ({
+        ...prev,
+        records: prev.records.filter(r => String(r.id) !== String(deleteId))
+      }));
+
+      setDeleteModal({ open: false, itemName: '', id: null });
+    } catch (e) {
+      console.error('Lỗi khi xóa sử liệu:', e);
+      alert('Có lỗi xảy ra khi xóa sử liệu!');
+    }
+  };
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -36,9 +59,43 @@ const RecordManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/admin_records.json');
-        if (!response.ok) throw new Error('Network response was not ok');
-        const result = await response.json();
+        let result = null;
+        try {
+          const response = await apiClient.get('/api/v1/admin/sources?size=500');
+          const rawItems = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
+          if (Array.isArray(rawItems)) {
+            result = {
+              stats: {
+                total: { value: String(rawItems.length), sub: 'bộ sử liệu' },
+                pending: { value: '0', sub: 'Không có chờ duyệt' }
+              },
+              records: rawItems.map(item => {
+                let typeLabel = 'Bộ chính sử';
+                if (item.sourceType === 'BOOK') typeLabel = 'Bộ chính sử';
+                else if (item.sourceType === 'ARTICLE') typeLabel = 'Dã sử';
+                else if (item.sourceType === 'MANUAL') typeLabel = 'Thần tích';
+                else if (item.sourceType) typeLabel = item.sourceType;
+
+                return {
+                  id: item.id,
+                  name: item.title || item.name || '',
+                  author: item.author || 'N/A',
+                  type: typeLabel,
+                  dynasty: item.period?.name || item.dynasty || 'Không rõ',
+                  icon: item.sourceType === 'BOOK' ? 'menu_book' : item.sourceType === 'ARTICLE' ? 'auto_stories' : 'description'
+                };
+              })
+            };
+          }
+        } catch (apiErr) {
+          console.error('Lỗi khi tải sử liệu từ API, chuyển sang mock:', apiErr);
+        }
+
+        if (!result) {
+          const response = await mockClient.get('/api/admin_records.json');
+          result = response.data || { stats: { total: { value: '0', sub: '' }, pending: { value: '0', sub: '' } }, records: [] };
+        }
+
         setData(result);
       } catch (error) {
         console.error('Error fetching records data:', error);
@@ -70,14 +127,14 @@ const RecordManagement = () => {
         </div>
       )
     },
-    { 
+    {
       key: 'type', header: 'Loại hình', render: (row) => (
         <span className="px-3 py-1 bg-primary/5 text-primary border border-primary/20 rounded-full text-[10px] font-bold uppercase tracking-wider">
           {row.type}
         </span>
       )
     },
-    { 
+    {
       key: 'dynasty', header: 'Triều đại', render: (row) => (
         <span className={`border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getDynastyStyle(row.dynasty)}`}>
           {row.dynasty}
@@ -107,44 +164,59 @@ const RecordManagement = () => {
 
         {/* BENTO STATS */}
         <div className="mb-6">
-          <StatsGrid 
+          <StatsGrid
             stats={[
               { label: 'Tổng số sử liệu', value: data.stats.total.value, sub: data.stats.total.sub, icon: 'history_edu' },
               { label: 'Đang chờ duyệt', value: data.stats.pending.value, sub: data.stats.pending.sub, icon: 'pending_actions' }
-            ]} 
-            loading={loading} 
+            ]}
+            loading={loading}
           />
         </div>
 
         {/* FILTER & DATA TABLE */}
         <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">
           <div className="p-4 border-b border-outline-variant bg-surface-low/50">
-            <FilterBar>
-              <FilterInput
-                label="Tìm kiếm:"
-                placeholder="Nhập tên sử liệu, tác giả..."
-                value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
-              />
-              <FilterSelect
-                label="Loại hình:"
-                options={[
-                  { value: '', label: 'Tất cả loại hình' },
-                  ...Array.from(new Set(data.records.map(r => r.type))).filter(Boolean).map(t => ({ value: t, label: t }))
-                ]}
-                value={filters.type}
-                onChange={(e) => handleFilterChange('type', e.target.value)}
-              />
-              <FilterSelect
-                label="Triều đại:"
-                options={[
-                  { value: '', label: 'Tất cả triều đại' },
-                  ...Array.from(new Set(data.records.map(r => r.dynasty))).filter(Boolean).map(d => ({ value: d, label: d }))
-                ]}
-                value={filters.dynasty}
-                onChange={(e) => handleFilterChange('dynasty', e.target.value)}
-              />
-            </FilterBar>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                <input
+                  type="text"
+                  placeholder="Nhập tên sử liệu, tác giả..."
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-amber-700 focus:ring-2 focus:ring-amber-700/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
+                />
+              </div>
+              <div className="flex gap-4">
+                <div className="relative">
+                  <select
+                    value={filters.type}
+                    onChange={(e) => handleFilterChange('type', e.target.value)}
+                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-amber-700 hover:border-amber-700/50 transition-all min-w-[160px]"
+                  >
+                    <option value="">Tất cả loại hình</option>
+                    {Array.from(new Set(data.records.map(r => r.type))).filter(Boolean).map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+
+                <div className="relative">
+                  <select
+                    value={filters.dynasty}
+                    onChange={(e) => handleFilterChange('dynasty', e.target.value)}
+                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-amber-700 hover:border-amber-700/50 transition-all min-w-[160px]"
+                  >
+                    <option value="">Tất cả triều đại</option>
+                    {Array.from(new Set(data.records.map(r => r.dynasty))).filter(Boolean).map(d => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="p-0">
@@ -153,6 +225,7 @@ const RecordManagement = () => {
               data={filteredRecords}
               loading={loading}
               emptyMessage="Không tìm thấy sử liệu nào phù hợp"
+              onRowClick={(row) => navigate(`/admin/records/edit/${row.id}`)}
               rowKey="id"
               striped={false}
               className="border-0 shadow-none rounded-none"
@@ -163,11 +236,10 @@ const RecordManagement = () => {
 
       <ActionModal
         isOpen={deleteModal.open}
-        onClose={() => setDeleteModal({ open: false, itemName: '', id: null })}
+        onClose={() => setDeleteModal({ open: false })}
         type="delete"
         item={{ name: deleteModal.itemName }}
-        onConfirm={() => { alert('Đã xóa'); setDeleteModal({ open: false, itemName: '', id: null }); }}
-        description={`Bạn có chắc chắn muốn xóa bản ghi <br/><strong className="text-primary italic">"${deleteModal.itemName}"</strong>? <br/>Hệ thống RAG sẽ bị ảnh hưởng bởi việc này.`}
+        onConfirm={handleDelete}
       />
     </AdminLayout>
   );

@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,8 @@ public class AuthController {
     private final AuthService authService;
     private final long refreshTokenExpiration;
 
-    public AuthController(AuthService authService,
+    public AuthController(
+            AuthService authService,
             @Value("${jwt.refresh-token-expiration}") long refreshTokenExpiration) {
         this.authService = authService;
         this.refreshTokenExpiration = refreshTokenExpiration;

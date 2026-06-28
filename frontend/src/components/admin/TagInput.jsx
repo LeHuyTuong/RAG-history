@@ -1,19 +1,24 @@
 import {  useState  } from 'react';
 import { getTagStyle } from '../../utils/tagUtils';
 
-const TagInput = ({ tags, availableTags, onAddTag, onRemoveTag, label = "Phân loại" }) => {
+const TagInput = ({ tags, availableTags, onAddTag, onRemoveTag, label = "Triều đại" }) => {
   const [tagInput, setTagInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const safeTags = tags || [];
 
-  const getLabel = (t) => t.label || t.name;
-  const getCategory = (t) => t.category || t.type || 'Khác';
+  const getLabel = (t) => (typeof t === 'string' ? t : (t.label || t.name || ''));
+  const getCategory = (t) => (typeof t === 'string' ? 'Khác' : (t.category || t.type || 'Khác'));
 
-  const filteredTags = (availableTags || []).filter(t =>
-    getLabel(t).toLowerCase().includes(tagInput.toLowerCase()) &&
-    !safeTags.find(existing => existing.toLowerCase().replace(/\s+/g, '') === getLabel(t).toLowerCase().replace(/\s+/g, ''))
-  );
+  const filteredTags = (availableTags || []).filter(t => {
+    const label = getLabel(t);
+    if (!label) return false;
+    return label.toLowerCase().includes(tagInput.toLowerCase()) &&
+      !safeTags.find(existing => {
+        const existingLabel = getLabel(existing);
+        return existingLabel.toLowerCase().replace(/\s+/g, '') === label.toLowerCase().replace(/\s+/g, '');
+      });
+  });
 
   const handleAdd = (tagName) => {
     if (!tagName.trim()) return;
@@ -73,9 +78,9 @@ const TagInput = ({ tags, availableTags, onAddTag, onRemoveTag, label = "Phân l
         
         {showSuggestions && filteredTags.length > 0 && (
           <div className="absolute z-20 top-full left-0 right-0 mt-2 bg-white border border-outline-variant/60 shadow-xl max-h-60 overflow-y-auto rounded-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
-            {filteredTags.map(t => (
+            {filteredTags.map((t, i) => (
               <div
-                key={t.id}
+                key={typeof t === 'string' ? t + i : t.id || i}
                 onMouseDown={(e) => {
                   e.preventDefault();
                   handleAdd(getLabel(t));

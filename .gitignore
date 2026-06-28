@@ -38,6 +38,9 @@ dist/
 # ===== Claude / AI tools =====
 .claude/
 
+# ===== Local ADR drafts =====
+docs/adr/
+
 # ===== OS =====
 .DS_Store
 Thumbs.db

@@ -1,8 +1,12 @@
-import React, { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+
+import { API_ENDPOINTS } from '../../../services/api';
+import apiClient from '../../../services/apiClient';
 
 const CharacterDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [character, setCharacter] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -14,10 +18,75 @@ const CharacterDetail = () => {
   useEffect(() => {
     const fetchCharacter = async () => {
       try {
-        const response = await fetch('/api/user_character_detail.json');
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        setCharacter(data);
+        let dbPerson = null;
+        try {
+          const url = typeof API_ENDPOINTS.USER_CHARACTER_DETAIL === 'function' ? API_ENDPOINTS.USER_CHARACTER_DETAIL(id) : `${API_ENDPOINTS.USER_CHARACTER_DETAIL}/${id}`;
+          const response = await apiClient.get(url);
+          dbPerson = response.data?.data || response.data;
+        } catch (apiErr) {
+          console.error('Failed to fetch character detail from API:', apiErr);
+        }
+
+        let dbParts = [];
+        let relatedLocations = [];
+        let relatedPosts = [];
+        try {
+          const partsRes = await apiClient.get('/api/v1/admin/participations', { params: { personId: id } });
+          dbParts = partsRes.data?.data?.result || partsRes.data?.data || [];
+          
+          if (dbParts.length > 0) {
+            const eventIds = dbParts.map(p => p.event?.id).filter(Boolean);
+            
+            const eventsRes = await apiClient.get(API_ENDPOINTS.USER_EVENTS, { params: { size: 500 } });
+            const allEvents = eventsRes.data?.data?.result || eventsRes.data?.data?.content || eventsRes.data?.data || [];
+            const characterEvents = allEvents.filter(e => eventIds.includes(e.id));
+            
+            const locsMap = new Map();
+            characterEvents.forEach(ev => {
+              if (ev.locationRelations) {
+                ev.locationRelations.forEach(loc => {
+                  locsMap.set(loc.locationId, {
+                    id: loc.locationId,
+                    name: loc.name,
+                    slug: loc.slug,
+                    type: loc.locationType
+                  });
+                });
+              }
+            });
+            relatedLocations = Array.from(locsMap.values());
+            
+            try {
+              const postsRes = await apiClient.get(API_ENDPOINTS.USER_ARTICLES, { params: { size: 500 } });
+              const allPosts = postsRes.data?.data?.result || postsRes.data?.data?.content || postsRes.data?.data || [];
+              relatedPosts = allPosts.filter(post => post.event?.id && eventIds.includes(post.event.id));
+            } catch (err) {
+              console.error('Error fetching related posts for character:', err);
+            }
+          }
+        } catch (err) {
+          console.error('Error fetching character associations:', err);
+        }
+
+        if (dbPerson) {
+          setCharacter({
+            ...dbPerson,
+            person_id: dbPerson.id,
+            portrait: dbPerson.image || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+            biography: dbPerson.biography || '',
+            description: dbPerson.biography || '',
+            dynastyTitle: dbPerson.dynasty?.name || 'Vương triều',
+            templeName: dbPerson.templeName || 'N/A',
+            eraName: dbPerson.eraName || 'N/A',
+            reign: dbPerson.reign || 'N/A',
+            quote: dbPerson.quote || 'Tâm tồn thiên hạ, trí độ vạn dân.',
+            milestones: [],
+            relatedFigures: [],
+            steleImg: "/images/home.png",
+            relatedLocations,
+            relatedArticles: relatedPosts
+          });
+        }
       } catch (error) {
         console.error('Error fetching character details:', error);
       } finally {
@@ -47,7 +116,7 @@ const CharacterDetail = () => {
                 <img src={character.portrait} className="w-full aspect-[3/4] object-cover transition-transform duration-1000 group-hover:scale-105 grayscale-[0.3] sepia-[0.2] contrast-100 group-hover:grayscale-0 group-hover:sepia-0 opacity-90 group-hover:opacity-100" alt="Portrait" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201] via-[#6b0f0d]/60 to-transparent opacity-80 pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-10 z-10">
-                  <span className="inline-block px-4 py-1.5 bg-[#fcf9ee]/20 backdrop-blur-sm border border-[#d99b4a]/60 text-[#ffe7b0] font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-4 shadow-md">{character.dynastyTitle}</span>
+                  <span className="inline-block px-4 py-1.5 bg-[#fcf9ee]/20 backdrop-blur-sm border border-[#d99b4a]/60 text-[#ffe7b0] font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-4 shadow-md">{character.dynastyTitle && character.dynastyTitle.includes('Nhà') ? character.dynastyTitle.replace('Nhà', 'Triều') : character.dynastyTitle}</span>
                   <h1 className="font-headline text-5xl md:text-6xl text-[#ffe7b0] font-bold tracking-tight leading-tight drop-shadow-md">{character.name}</h1>
                 </div>
               </div>
@@ -67,9 +136,10 @@ const CharacterDetail = () => {
                 {character.quote}
               </p>
             </div>
-            <p className="font-body text-lg text-[#2b1a16]/80 leading-loose">
-              {character.description}
-            </p>
+            <div 
+              className="font-body text-lg text-[#2b1a16]/90 leading-loose border-l-4 border-[#d99b4a] pl-6 space-y-4 ql-editor"
+              dangerouslySetInnerHTML={{ __html: character.description }}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
               <ActionCard icon="auto_stories" title="Gia thế & Xuất thân" desc="Chi tiết về dòng tộc Lê ở Lam Sơn và lý do dấy binh." />
@@ -87,7 +157,7 @@ const CharacterDetail = () => {
           </div>
 
           <div className="max-w-4xl mx-auto relative border-l border-[#d99b4a]/40 pl-10 space-y-16">
-            {character.milestones.map((m, i) => (
+            {(character.milestones || []).map((m, i) => (
               <div key={i} className="relative group">
                 {/* Nút tròn mốc thời gian */}
                 <div className={`absolute -left-[44.5px] top-0 w-3 h-3 rounded-full z-10 transition-transform group-hover:scale-150 ${m.isSpecial ? 'bg-[#6b0f0d] shadow-[0_0_15px_rgba(107,15,13,0.4)]' : 'bg-[#fffdf8] border-2 border-[#d99b4a]'}`}></div>
@@ -108,8 +178,8 @@ const CharacterDetail = () => {
         <section className="mb-32">
           <h2 className="font-headline text-3xl text-[#6b0f0d] font-semibold mb-12 text-center tracking-tight">Nhân Vật Liên Quan</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {character.relatedFigures.map((fig, i) => (
-              <Link to="#" key={i} className="group flex items-center gap-6 p-4 border border-[#d99b4a]/30 bg-[#fffdf8]/60 hover:bg-[#fffdf8] hover:border-[#d99b4a]/60 transition-all shadow-sm">
+            {(character.relatedFigures || []).map((fig, i) => (
+              <Link to="/characters" key={i} className="group flex items-center gap-6 p-4 border border-[#d99b4a]/30 bg-[#fffdf8]/60 hover:bg-[#fffdf8] hover:border-[#d99b4a]/60 transition-all shadow-sm">
                 <img src={fig.img} className="w-20 h-20 rounded-full object-cover grayscale-[0.3] sepia-[0.2] group-hover:grayscale-0 group-hover:sepia-0 border-2 border-[#d99b4a]/40" alt={fig.name} />
                 <div>
                   <h5 className="font-headline text-xl text-[#6b0f0d] font-semibold group-hover:text-[#2b0504] transition-colors">{fig.name}</h5>
@@ -132,7 +202,10 @@ const CharacterDetail = () => {
               <p className="font-body text-[#2b1a16]/80 leading-relaxed">
                 Bia Vĩnh Lăng do Nguyễn Trãi soạn, khắc trên đá nguyên khối đặt tại Lam Kinh. Đây là bảo vật quốc gia ghi nhận công đức to lớn của Lê Thái Tổ trong sự nghiệp bình Ngô kiến quốc, mang giá trị văn chương và lịch sử vô giá.
               </p>
-              <button className="text-[#ffe7b0] bg-[#6b0f0d] px-6 py-2.5 font-body text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#2b0504] transition-colors shadow-md">
+              <button
+                onClick={() => navigate('/locations')}
+                className="text-[#ffe7b0] bg-[#6b0f0d] px-6 py-2.5 font-body text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#2b0504] transition-colors shadow-md"
+              >
                 Khám phá thêm
               </button>
             </div>
@@ -145,10 +218,16 @@ const CharacterDetail = () => {
         {/* 5. NEXT NAVIGATION */}
         <section className="border-t border-[#d99b4a]/30 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex gap-4">
-            <button className="flex items-center gap-3 px-8 py-3 border border-[#d99b4a]/60 text-[#6b0f0d] font-body text-[10px] font-bold uppercase tracking-widest hover:bg-[#d99b4a]/10 transition-all bg-[#fffdf8]">
+            <button
+              onClick={() => navigate('/characters')}
+              className="flex items-center gap-3 px-8 py-3 border border-[#d99b4a]/60 text-[#6b0f0d] font-body text-[10px] font-bold uppercase tracking-widest hover:bg-[#d99b4a]/10 transition-all bg-[#fffdf8]"
+            >
               <span className="material-symbols-outlined text-[14px]">arrow_back</span> Nhân vật trước
             </button>
-            <button className="flex items-center gap-3 px-8 py-3 bg-[#6b0f0d] text-[#ffe7b0] font-body text-[10px] font-bold uppercase tracking-widest hover:bg-[#2b0504] transition-all shadow-md">
+            <button
+              onClick={() => navigate('/characters')}
+              className="flex items-center gap-3 px-8 py-3 bg-[#6b0f0d] text-[#ffe7b0] font-body text-[10px] font-bold uppercase tracking-widest hover:bg-[#2b0504] transition-all shadow-md"
+            >
               Nhân vật tiếp theo <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
             </button>
           </div>

@@ -1,5 +1,6 @@
-import {  useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { StatsGrid } from '../../../components/admin';
+import { aiService, mockClient, ENDPOINTS } from '../../../services';
 
 const AiManagement = () => {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -9,10 +10,14 @@ const AiManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/admin_ai.json');
-        if (!response.ok) throw new Error('Network response was not ok');
-        const result = await response.json();
-        setData(result);
+        let payload = null;
+        try {
+          payload = await aiService.getStats();
+        } catch (e) {
+          const fallback = await mockClient.get(ENDPOINTS.MOCK.ADMIN_AI);
+          payload = fallback.data;
+        }
+        setData(payload || { stats: [], history: [] });
       } catch (error) {
         console.error('Error fetching AI data:', error);
       } finally {
@@ -22,9 +27,15 @@ const AiManagement = () => {
     fetchData();
   }, []);
 
-  const handleSync = () => {
+  const handleSync = async () => {
     setIsSyncing(true);
-    setTimeout(() => setIsSyncing(false), 3000);
+    try {
+      await aiService.syncIndex();
+    } catch (e) {
+      console.error('Lỗi khi gọi syncIndex:', e);
+    } finally {
+      setTimeout(() => setIsSyncing(false), 3000);
+    }
   };
 
   return (
@@ -35,14 +46,14 @@ const AiManagement = () => {
           <h2 className="font-headline text-4xl text-primary font-bold italic tracking-tight">Quản trị Trí tuệ Nhân tạo</h2>
           <p className="text-on-surface-variant text-sm mt-2 italic">Cấu hình mô hình RAG (Retrieval-Augmented Generation) và nạp tri thức sử liệu.</p>
         </div>
-        <button 
+        <button
           onClick={handleSync}
           disabled={isSyncing}
           className={`bg-primary text-white px-8 py-3 rounded-lg font-headline font-bold uppercase text-xs tracking-widest shadow-xl transition-all flex items-center gap-2 ${isSyncing ? 'opacity-50' : 'hover:brightness-110'}`}
         >
           <span className={`material-symbols-outlined text-sm ${isSyncing ? 'animate-spin' : ''}`}>
             {isSyncing ? 'sync' : 'neurology'}
-          </span> 
+          </span>
           {isSyncing ? 'ĐANG TỐI ƯU VECTOR...' : 'TÁI CẤU TRÚC NÃO BỘ'}
         </button>
       </div>
@@ -81,8 +92,8 @@ const AiManagement = () => {
 
             <div className="space-y-4">
               <label className="font-body text-[10px] font-bold uppercase opacity-60 block">System Prompt (Chỉ thị cốt lõi)</label>
-              <textarea 
-                rows="5" 
+              <textarea
+                rows="5"
                 className="w-full bg-surface-low border border-outline-variant p-4 rounded font-body text-sm italic"
                 defaultValue={"Bạn là một Sử Quan đại thần triều đình, có nhiệm vụ giải đáp sử liệu dựa trên các văn bản được cung cấp. Hãy sử dụng ngôn ngữ trang trọng, chuẩn xác và luôn trích dẫn nguồn từ các bộ quốc sử."}
               />
@@ -108,7 +119,7 @@ const AiManagement = () => {
               {loading ? (
                 <div className="text-center py-4 font-body text-sm text-on-surface-variant">Đang tải lịch sử...</div>
               ) : (
-                data.history.map((file, i) => (
+                (data.history || []).map((file, i) => (
                   <div key={i} className="flex items-center justify-between group">
                     <div className="flex items-center gap-3">
                       <span className="material-symbols-outlined text-on-surface-variant text-sm">description</span>

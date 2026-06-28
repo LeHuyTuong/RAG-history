@@ -1,9 +1,12 @@
 package com.example.historyrag.feature.auth.dto;
 
+
+import lombok.Builder;
 import com.example.historyrag.feature.user.Member;
 
 import java.time.Instant;
 
+@Builder
 public record RegisterResponse(
         Long id,
         String username,

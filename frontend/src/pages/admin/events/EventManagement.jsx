@@ -1,4 +1,4 @@
-import {  useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AdminLayout,
@@ -12,21 +12,98 @@ import {
   TableActions
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
+import { getDynastyLabel } from '../../../utils/dynastyUtils';
+import { stripHtml } from '../../../utils/stringUtils';
 
+import { eventService } from '../../../services';
 const EventManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, itemName: '', id: null });
   const [data, setData] = useState({ stats: { total: '0', published: '0' }, events: [] });
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({ search: '', dynasty: '', year: '' });
+  const [filters, setFilters] = useState({ search: '', dynasty: '', year: '', status: '' });
   const { periodColors, getPeriodStyle: getDynastyStyle } = usePeriodColors();
+
+  const handleDelete = async () => {
+    if (deleteModal.id === null || deleteModal.id === undefined) return;
+    const deleteId = deleteModal.id;
+
+    try {
+      await eventService.delete(deleteId);
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    }
+
+    setData(prev => {
+      const nextEvents = prev.events.filter(e => String(e.id) !== String(deleteId));
+      return {
+        ...prev,
+        stats: {
+          total: (nextEvents.length).toLocaleString(),
+          published: (nextEvents.filter(e => {
+            const s = e.status || '';
+            return s.toLowerCase() === 'published' || s.toLowerCase() === 'công khai';
+          }).length).toLocaleString()
+        },
+        events: nextEvents
+      };
+    });
+
+    setDeleteModal({ open: false, itemName: '', id: null });
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const eventRes = await fetch('/api/admin_events.json');
-        if (!eventRes.ok) throw new Error('Events fetch failed');
-        const eventResult = await eventRes.json();
+        const { items: content } = await eventService.filter({ page: 0, size: 500 });
+
+        const eventResult = { events: [], stats: { total: '0', published: '0' } };
+
+        const formatYear = (y) => {
+          if (y === undefined || y === null || y === '') return '';
+          const val = parseInt(y, 10);
+          if (isNaN(val)) return y;
+          return val < 0 ? `${Math.abs(val)} TCN` : `${val}`;
+        };
+
+        const formatRange = (start, end) => {
+          const s = formatYear(start);
+          const e = formatYear(end);
+          if (!s && !e) return 'Chưa rõ';
+          if (!s) return `? - ${e}`;
+          if (!e) return `${s} - ?`;
+          return `${s} - ${e}`;
+        };
+
+        const parseEventYear = (dateStr, fallbackYear) => {
+          if (!dateStr) return fallbackYear;
+          const isNegative = dateStr.startsWith('-');
+          const cleanStr = isNegative ? dateStr.substring(1) : dateStr;
+          const match = cleanStr.match(/^(\d{4})/);
+          if (match) {
+            const y = parseInt(match[1], 10);
+            return isNegative ? -y : y;
+          }
+          return fallbackYear;
+        };
+
+        eventResult.events = content.map(e => ({
+          ...e,
+          time: formatRange(parseEventYear(e.startDate, e.startYear), parseEventYear(e.endDate, e.endYear)),
+          dynasty: e.period?.name || 'Chưa rõ',
+          status: e.status || 'published',
+          sub: stripHtml(e.description)
+        }));
+
+        // Calculate stats dynamically based on actual data
+        eventResult.stats = {
+          total: eventResult.events.length.toLocaleString(),
+          published: eventResult.events.filter(e => {
+            const s = e.status || '';
+            return s.toLowerCase() === 'published' || s.toLowerCase() === 'công khai';
+          }).length.toLocaleString()
+        };
+
         setData(eventResult);
       } catch (error) {
         console.error('Error fetching event data:', error);
@@ -41,12 +118,37 @@ const EventManagement = () => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
+  const getNormalizedStatus = (status) => {
+    if (!status) return 'draft';
+    const normalized = status.toLowerCase().trim();
+    return normalized === 'published' || normalized === 'công khai' ? 'published' : 'draft';
+  };
+
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case 'published':
+        return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+      case 'draft':
+      default:
+        return 'bg-slate-100 text-slate-700 border-slate-200';
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'published': return 'Công khai';
+      case 'draft': return 'Bản nháp';
+      default: return 'Bản nháp';
+    }
+  };
+
   const filteredEvents = data.events.filter(event => {
     const matchSearch = event.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
       event.sub?.toLowerCase().includes(filters.search.toLowerCase());
     const matchDynasty = filters.dynasty ? event.dynasty === filters.dynasty : true;
     const matchYear = filters.year ? event.time?.includes(filters.year) : true;
-    return matchSearch && matchDynasty && matchYear;
+    const matchStatus = filters.status ? getNormalizedStatus(event.status) === filters.status : true;
+    return matchSearch && matchDynasty && matchYear && matchStatus;
   });
 
   const columns = [
@@ -64,17 +166,33 @@ const EventManagement = () => {
       )
     },
     {
-      key: 'time', header: 'Thời gian', render: (row) => (
-        <span className="font-body text-sm font-medium text-on-surface flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-[14px] text-on-surface-variant">schedule</span>
+      key: 'time', header: 'NIÊN ĐẠI', align: 'center', render: (row) => (
+        <span className="border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-surface-low text-on-surface-variant border-outline-variant">
           {row.time}
         </span>
       )
     },
     {
-      key: 'dynasty', header: 'Triều đại', render: (row) => (
-        <span className={`border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getDynastyStyle(row.dynasty)}`}>
-          {row.dynasty}
+      key: 'dynasty', header: 'Triều đại', align: 'center', render: (row) => {
+        const dynasties = Array.isArray(row.dynasties) && row.dynasties.length > 0
+          ? row.dynasties
+          : (row.dynasty ? (Array.isArray(row.dynasty) ? row.dynasty : [row.dynasty]) : []);
+
+        return (
+          <div className="flex flex-wrap items-center justify-center gap-1 max-w-[200px] mx-auto">
+            {dynasties.map((d, i) => (
+              <span key={i} className={`border px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${getDynastyStyle(getDynastyLabel(d))}`}>
+                {getDynastyLabel(d)}
+              </span>
+            ))}
+          </div>
+        );
+      }
+    },
+    {
+      key: 'status', header: 'Trạng thái', align: 'center', render: (row) => (
+        <span className={`px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider border ${getStatusStyle(getNormalizedStatus(row.status))}`}>
+          {getStatusLabel(getNormalizedStatus(row.status))}
         </span>
       )
     },
@@ -113,30 +231,46 @@ const EventManagement = () => {
         {/* FILTER & TABLE SECTION */}
         <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">
           <div className="p-4 border-b border-outline-variant bg-surface-low/50">
-            <FilterBar>
-              <FilterInput
-                label="Tìm kiếm:"
-                placeholder="Nhập tên sự kiện..."
-                value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
-              />
-              <FilterSelect
-                label="Triều đại:"
-                options={[
-                  { value: '', label: 'Tất cả triều đại' },
-                  ...Array.from(new Set(data.events.map(e => e.dynasty))).filter(Boolean).map(d => ({ value: d, label: d }))
-                ]}
-                value={filters.dynasty}
-                onChange={(e) => handleFilterChange('dynasty', e.target.value)}
-              />
-              <FilterInput
-                label="Năm:"
-                placeholder="Nhập năm..."
-                type="number"
-                value={filters.year}
-                onChange={(e) => handleFilterChange('year', e.target.value)}
-              />
-            </FilterBar>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                <input
+                  type="text"
+                  placeholder="Nhập tên sự kiện..."
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
+                />
+              </div>
+              <div className="flex gap-4">
+                <div className="relative">
+                  <select
+                    value={filters.dynasty}
+                    onChange={(e) => handleFilterChange('dynasty', e.target.value)}
+                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-indigo-500 hover:border-indigo-500/50 transition-all min-w-[160px]"
+                  >
+                    <option value="">Tất cả triều đại</option>
+                    {Array.from(new Set(data.events.map(e => e.dynasty))).filter(Boolean).map(d => (
+                      <option key={d} value={d}>{getDynastyLabel(d)}</option>
+                    ))}
+                  </select>
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+
+                <div className="relative">
+                  <select
+                    value={filters.status}
+                    onChange={(e) => handleFilterChange('status', e.target.value)}
+                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-indigo-500 hover:border-indigo-500/50 transition-all min-w-[150px]"
+                  >
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="published">Công khai</option>
+                    <option value="draft">Bản nháp</option>
+                  </select>
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="p-0">
@@ -145,8 +279,10 @@ const EventManagement = () => {
               data={filteredEvents}
               loading={loading}
               emptyMessage="Không có sự kiện nào"
+              onRowClick={(row) => navigate(`/admin/events/edit/${row.id}`)}
               rowKey="id"
               striped={false}
+              rowClassName={(row) => getNormalizedStatus(row.status) === 'published' ? 'bg-emerald-50/80 !font-semibold border-l-4 border-l-emerald-500 shadow-sm relative z-10' : ''}
               className="border-0 shadow-none rounded-none"
             />
           </div>
@@ -155,10 +291,10 @@ const EventManagement = () => {
 
       <ActionModal
         isOpen={deleteModal.open}
-        onClose={() => setDeleteModal({ ...deleteModal, open: false })}
+        onClose={() => setDeleteModal({ open: false })}
         type="delete"
         item={{ name: deleteModal.itemName }}
-        onConfirm={() => { alert('Đã xóa'); setDeleteModal({ ...deleteModal, open: false }); }}
+        onConfirm={handleDelete}
       />
     </AdminLayout>
   );

@@ -1,8 +1,11 @@
 package com.example.historyrag.feature.tag.dto;
 
+
+import lombok.Builder;
 import com.example.historyrag.feature.tag.Tag;
 import java.time.Instant;
 
+@Builder
 public record TagResponse(
         Long id,
         String name,

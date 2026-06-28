@@ -2,17 +2,17 @@ package com.example.historyrag.feature.admin;
 
 import com.example.historyrag.feature.admin.dto.DashboardResponse;
 import com.example.historyrag.feature.engagement.CommentStatus;
-import com.example.historyrag.feature.engagement.EngagementRepository;
+import com.example.historyrag.feature.engagement.EngagementService;
 import com.example.historyrag.feature.engagement.EngagementType;
-import com.example.historyrag.feature.event.EventRepository;
-import com.example.historyrag.feature.location.LocationRepository;
-import com.example.historyrag.feature.period.PeriodRepository;
-import com.example.historyrag.feature.person.PersonRepository;
-import com.example.historyrag.feature.post.PostRepository;
+import com.example.historyrag.feature.event.EventService;
+import com.example.historyrag.feature.location.LocationService;
+import com.example.historyrag.feature.period.PeriodService;
+import com.example.historyrag.feature.person.PersonService;
+import com.example.historyrag.feature.post.PostService;
 import com.example.historyrag.feature.post.PostStatus;
-import com.example.historyrag.feature.source.SourceRepository;
-import com.example.historyrag.feature.tag.TagRepository;
-import com.example.historyrag.feature.user.MemberRepository;
+import com.example.historyrag.feature.source.SourceService;
+import com.example.historyrag.feature.tag.TagService;
+import com.example.historyrag.feature.user.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,76 +28,76 @@ import static org.mockito.Mockito.when;
 class AdminDashboardServiceImplTest {
 
     @Mock
-    private AdminRepository adminRepository;
+    private AdminService adminService;
 
     @Mock
-    private MemberRepository memberRepository;
+    private MemberService memberService;
 
     @Mock
-    private PostRepository postRepository;
+    private PostService postService;
 
     @Mock
-    private EventRepository eventRepository;
+    private EventService eventService;
 
     @Mock
-    private PersonRepository personRepository;
+    private PersonService personService;
 
     @Mock
-    private LocationRepository locationRepository;
+    private LocationService locationService;
 
     @Mock
-    private SourceRepository sourceRepository;
+    private SourceService sourceService;
 
     @Mock
-    private TagRepository tagRepository;
+    private TagService tagService;
 
     @Mock
-    private PeriodRepository periodRepository;
+    private PeriodService periodService;
 
     @Mock
-    private EngagementRepository engagementRepository;
+    private EngagementService engagementService;
 
     private AdminDashboardServiceImpl adminDashboardService;
 
     @BeforeEach
     void setUp() {
         adminDashboardService = new AdminDashboardServiceImpl(
-                adminRepository,
-                memberRepository,
-                postRepository,
-                eventRepository,
-                personRepository,
-                locationRepository,
-                sourceRepository,
-                tagRepository,
-                periodRepository,
-                engagementRepository);
+                adminService,
+                memberService,
+                postService,
+                eventService,
+                personService,
+                locationService,
+                sourceService,
+                tagService,
+                periodService,
+                engagementService);
     }
 
     @Test
-    @DisplayName("Should return dashboard counts from Spring Data JPA repositories")
+    @DisplayName("Should return dashboard counts from feature services")
     void getDashboard_existingData_returnsDashboardSummary() {
-        when(adminRepository.count()).thenReturn(2L);
-        when(memberRepository.count()).thenReturn(40L);
-        when(postRepository.count()).thenReturn(12L);
-        when(postRepository.countByStatus(PostStatus.PUBLISHED)).thenReturn(8L);
-        when(postRepository.countByStatus(PostStatus.DRAFT)).thenReturn(3L);
-        when(postRepository.countByStatus(PostStatus.ARCHIVED)).thenReturn(1L);
-        when(eventRepository.count()).thenReturn(6L);
-        when(personRepository.count()).thenReturn(9L);
-        when(locationRepository.count()).thenReturn(5L);
-        when(sourceRepository.count()).thenReturn(11L);
-        when(tagRepository.count()).thenReturn(7L);
-        when(periodRepository.count()).thenReturn(4L);
-        when(engagementRepository.count()).thenReturn(100L);
-        when(engagementRepository.countByEngagementType(EngagementType.COMMENT)).thenReturn(20L);
-        when(engagementRepository.countByEngagementTypeAndCommentStatus(
+        when(adminService.countAdmins()).thenReturn(2L);
+        when(memberService.countMembers()).thenReturn(40L);
+        when(postService.countPosts()).thenReturn(12L);
+        when(postService.countPostsByStatus(PostStatus.PUBLISHED)).thenReturn(8L);
+        when(postService.countPostsByStatus(PostStatus.DRAFT)).thenReturn(3L);
+        when(postService.countPostsByStatus(PostStatus.ARCHIVED)).thenReturn(1L);
+        when(eventService.countEvents()).thenReturn(6L);
+        when(personService.countPersons()).thenReturn(9L);
+        when(locationService.countLocations()).thenReturn(5L);
+        when(sourceService.countSources()).thenReturn(11L);
+        when(tagService.countTags()).thenReturn(7L);
+        when(periodService.countPeriods()).thenReturn(4L);
+        when(engagementService.countEngagements()).thenReturn(100L);
+        when(engagementService.countByType(EngagementType.COMMENT)).thenReturn(20L);
+        when(engagementService.countByTypeAndCommentStatus(
                 EngagementType.COMMENT, CommentStatus.PENDING))
                 .thenReturn(2L);
-        when(engagementRepository.countByEngagementTypeAndCommentStatus(
+        when(engagementService.countByTypeAndCommentStatus(
                 EngagementType.COMMENT, CommentStatus.VISIBLE))
                 .thenReturn(17L);
-        when(engagementRepository.countByEngagementTypeAndCommentStatus(
+        when(engagementService.countByTypeAndCommentStatus(
                 EngagementType.COMMENT, CommentStatus.HIDDEN))
                 .thenReturn(1L);
 

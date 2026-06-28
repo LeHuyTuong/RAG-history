@@ -35,9 +35,9 @@ public class Location extends BaseEntity {
     @Column(name = "slug", nullable = false)
     private String slug;
 
-    @Size(max = 50)
+    @Enumerated(EnumType.STRING)
     @Column(name = "location_type", length = 50)
-    private String locationType;
+    private LocationType locationType;
 
     @Column(name = "latitude", precision = 9, scale = 6)
     private BigDecimal latitude;

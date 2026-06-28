@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { AdminLayout, PageHeader, DataTable, StatsGrid, FilterBar, FilterInput, FilterSelect } from '../../../components/admin';
+import { AdminLayout, PageHeader, DataTable, StatsGrid, FilterBar, FilterInput, FilterSelect, ActionModal } from '../../../components/admin';
 
+import { API_ENDPOINTS, mockClient } from '../../../services';
 const MemberManagement = () => {
   const navigate = useNavigate();
   // State quản lý các loại Modal
@@ -24,12 +25,28 @@ const MemberManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/admin_members.json');
-        if (!response.ok) throw new Error('Network response was not ok');
-        const result = await response.json();
-        setData(result);
+        setLoading(true);
+        const response = await mockClient.get('/api/admin_members.json');
+        const payload = response.data || {};
+        const membersList = payload.members || [];
+
+        setData({
+          stats: payload.stats || [
+            { id: 1, label: 'Tổng số thành viên', value: membersList.length, icon: 'group', color: 'text-indigo-600' },
+            { id: 2, label: 'Thành viên đang khóa', value: membersList.filter(m => m.status === 'locked').length, icon: 'lock', color: 'text-rose-600' }
+          ],
+          members: membersList.map(m => ({
+            id: m.id,
+            name: m.name || m.fullName || m.username,
+            email: m.email || '',
+            role: m.role || 'Thành viên',
+            joinDate: m.joinDate || '',
+            status: m.status === 'locked' ? 'locked' : 'active',
+            raw: m
+          }))
+        });
       } catch (error) {
-        console.error('Error fetching members data:', error);
+        console.error('Error fetching members data from mock:', error);
       } finally {
         setLoading(false);
       }
@@ -38,6 +55,67 @@ const MemberManagement = () => {
   }, []);
 
   const closeModal = () => setActiveModal({ type: null, data: null });
+
+  const handleDelete = async () => {
+    if (!activeModal.data || activeModal.data.id === null || activeModal.data.id === undefined) return;
+    const deleteId = activeModal.data.id;
+
+    try {
+      // Simulate delete locally
+      setData(prev => {
+        const remaining = prev.members.filter(m => String(m.id) !== String(deleteId));
+        return {
+          stats: prev.stats.map(s => {
+            if (s.label === 'Tổng số thành viên') return { ...s, value: remaining.length };
+            if (s.label === 'Thành viên đang khóa') return { ...s, value: remaining.filter(m => m.status === 'locked').length };
+            return s;
+          }),
+          members: remaining
+        };
+      });
+      alert('Đã xóa thành viên (chế độ mock)!');
+    } catch (error) {
+      console.error('Error deleting member:', error);
+    } finally {
+      closeModal();
+    }
+  };
+
+  const handleLock = async () => {
+    if (!activeModal.data || activeModal.data.id === null || activeModal.data.id === undefined) return;
+    const lockId = activeModal.data.id;
+    
+    const currentStatus = activeModal.data.status;
+    const newStatus = currentStatus === 'active' ? 'locked' : 'active';
+    
+    try {
+      // Simulate lock/unlock locally
+      setData(prev => {
+        const updated = prev.members.map(m => {
+          if (String(m.id) === String(lockId)) {
+            return {
+              ...m,
+              status: newStatus,
+              raw: { ...m.raw, status: newStatus }
+            };
+          }
+          return m;
+        });
+        return {
+          stats: prev.stats.map(s => {
+            if (s.label === 'Thành viên đang khóa') return { ...s, value: updated.filter(m => m.status === 'locked').length };
+            return s;
+          }),
+          members: updated
+        };
+      });
+      alert(`Đã ${newStatus === 'locked' ? 'khóa' : 'mở khóa'} thành viên (chế độ mock)!`);
+    } catch (error) {
+      console.error('Error locking/unlocking member:', error);
+    } finally {
+      closeModal();
+    }
+  };
 
   const columns = [
     {
@@ -107,40 +185,45 @@ const MemberManagement = () => {
 
         {/* STATS GRID */}
         <div className="mb-6">
-          <StatsGrid stats={data.stats} loading={loading} />
+          <StatsGrid stats={data.stats.map(({ sub, ...rest }) => rest)} loading={loading} />
         </div>
 
         {/* FILTER & MEMBER TABLE */}
         <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">
           <div className="p-4 border-b border-outline-variant bg-surface-low/50">
-            <FilterBar>
-              <FilterInput
-                label="Tìm kiếm:"
-                placeholder="Nhập tên thành viên..."
-                value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
-              />
-              <FilterSelect
-                label="Trạng thái:"
-                options={[
-                  { value: '', label: 'Tất cả trạng thái' },
-                  { value: 'active', label: 'Hoạt động' },
-                  { value: 'locked', label: 'Đã khóa' }
-                ]}
-                value={filters.status}
-                onChange={(e) => handleFilterChange('status', e.target.value)}
-              />
-            </FilterBar>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                <input
+                  type="text"
+                  placeholder="Nhập tên thành viên..."
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
+                />
+              </div>
+              <div className="flex gap-4">
+                <div className="relative">
+                  <select
+                    value={filters.status}
+                    onChange={(e) => handleFilterChange('status', e.target.value)}
+                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[150px]"
+                  >
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="active">Hoạt động</option>
+                    <option value="locked">Đã khóa</option>
+                  </select>
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="p-0">
             <DataTable
               columns={columns}
               data={filteredMembers}
-              loading={loading}
-              emptyMessage="Không tìm thấy thành viên nào phù hợp"
-              rowKey="id"
-              striped={false}
+              rowClassName={(row) => row.status === 'active' ? 'bg-emerald-50/80 !font-semibold border-l-4 border-l-emerald-500 shadow-sm relative z-10' : ''}
               className="border-0 shadow-none rounded-none"
             />
           </div>
@@ -149,7 +232,8 @@ const MemberManagement = () => {
 
       {/* --- MODAL SYSTEM --- */}
       {activeModal.type === 'view' && <QuickViewModal data={activeModal.data} onClose={closeModal} />}
-      {activeModal.type === 'lock' && <LockConfirmModal data={activeModal.data} onClose={closeModal} />}
+      {activeModal.type === 'lock' && <LockConfirmModal data={activeModal.data} onClose={closeModal} onConfirm={handleLock} />}
+      {activeModal.type === 'delete' && <DeleteConfirmModal data={activeModal.data} onClose={closeModal} onConfirm={handleDelete} />}
     </AdminLayout>
   );
 };
@@ -162,7 +246,7 @@ const QuickViewModal = ({ data, onClose }) => (
     <div className="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row animate-in fade-in zoom-in duration-300">
       <div className="w-full md:w-1/3 bg-primary text-white p-8 flex flex-col items-center text-center">
         <div className="w-24 h-24 rounded-full border-4 border-accent overflow-hidden mb-4 shadow-lg">
-          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAT7Eun6P5a5j9t0Ha7agNr8GmSebCaslKHDba0sUNVH_N_52BCgWQcOKpY3iGdks_qyGhVU9048F4D1LkVsKeVN8s86BCO5TAJj2l2o0ArnWCoqDZUUXPpxZtesKwdi4JGNu3X0EoPzZlT5dgkxjU2GawsCkoLCy0vjYeOP9QSq4zU8gkPiKcSHBLMoIpgNFgNSgWSv3gTB1Y-zSwP7wGtCvPoQOwj3iJp8fRj35VGrIerPL8IypAGaB5cuukoelC1JFRbLwD1CWY" alt="avatar" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png" alt="avatar" />
         </div>
         <h3 className="font-headline text-2xl font-bold">{data.name}</h3>
         <div className="mt-8 space-y-3 text-[11px] w-full text-left opacity-80 border-t border-white/20 pt-6">
@@ -186,19 +270,27 @@ const QuickViewModal = ({ data, onClose }) => (
 );
 
 // MODAL 2: XÁC NHẬN KHÓA
-const LockConfirmModal = ({ data, onClose }) => (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-    <div className="bg-white w-full max-w-sm rounded-xl shadow-2xl p-8 text-center animate-in fade-in zoom-in duration-300 border-t-8 border-red-600">
-      <span className="material-symbols-outlined text-red-600 text-5xl mb-4">block</span>
-      <h3 className="font-headline text-2xl font-bold text-primary mb-2 italic">Khóa tài khoản?</h3>
-      <p className="text-sm text-on-surface-variant mb-6 font-body leading-relaxed">Xác nhận đình chỉ quyền truy cập của <br /><strong>"{data.name}"</strong> vào hệ thống Sử Việt?</p>
-      <textarea className="w-full bg-surface-low border border-outline-variant p-3 text-xs mb-6 rounded outline-none focus:ring-1 focus:ring-red-600" placeholder="Nhập lý do khóa..." />
-      <div className="flex gap-3 font-body text-[11px] font-bold">
-        <button onClick={onClose} className="flex-1 py-3 border border-outline rounded-lg hover:bg-surface-low">HỦY BỎ</button>
-        <button onClick={() => { alert('Đã khóa'); onClose() }} className="flex-1 py-3 bg-red-600 text-white rounded-lg shadow-md">XÁC NHẬN KHÓA</button>
-      </div>
-    </div>
-  </div>
+const LockConfirmModal = ({ data, onClose, onConfirm }) => (
+  <ActionModal
+    isOpen={true}
+    onClose={onClose}
+    type="lock"
+    item={data}
+    onConfirm={onConfirm}
+  >
+    <textarea className="w-full bg-surface-low border border-outline-variant p-3 text-xs mb-2 mt-4 rounded outline-none focus:ring-1 focus:ring-red-600" placeholder="Nhập lý do khóa..." />
+  </ActionModal>
+);
+
+// MODAL 3: XÁC NHẬN XÓA
+const DeleteConfirmModal = ({ data, onClose, onConfirm }) => (
+  <ActionModal
+    isOpen={true}
+    onClose={onClose}
+    type="delete"
+    item={data}
+    onConfirm={onConfirm}
+  />
 );
 
 export default MemberManagement;

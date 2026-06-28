@@ -1,25 +1,55 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import apiClient from "../../services/apiClient";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    const role = username.toLowerCase().includes('admin') ? 'admin' : 'user';
-    localStorage.setItem('user', JSON.stringify({ username: username || 'Người Dùng Mới', role }));
-    if (role === 'admin') {
-      navigate("/admin");
-    } else {
-      navigate("/");
+    if (password !== confirmPassword) {
+      setError("Mật khẩu xác nhận không khớp!");
+      return;
+    }
+    setError("");
+    setLoading(true);
+
+    try {
+      await apiClient.post('/api/v1/auth/register', { name, email, password });
+      
+      // Chuyển hướng sang trang đăng nhập sau khi đăng ký thành công
+      navigate("/login", { state: { message: "Đăng ký thành công! Vui lòng đăng nhập để tiếp tục." } });
+    } catch (err) {
+      if (err.response?.data?.details) {
+        setError(err.response.data.details.join(", "));
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Có lỗi xảy ra khi đăng ký. Vui lòng thử lại.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#2b0504] px-4 py-10 flex items-center justify-center">
+      {/* Nút Back to Home */}
+      <Link 
+        to="/" 
+        className="absolute top-6 left-6 md:top-10 md:left-10 z-50 flex items-center gap-2 text-[#fff7df]/80 hover:text-[#f7d78a] hover:-translate-x-1 transition-all group"
+      >
+        <span className="material-symbols-outlined text-[24px]">arrow_back</span>
+        <span className="font-body font-bold text-[13px] uppercase tracking-widest hidden md:block">Về trang chủ</span>
+      </Link>
       {/* Background giống Home */}
       <div className="absolute inset-0 z-0">
         <img
@@ -59,6 +89,9 @@ const Register = () => {
                   type="text"
                   placeholder="Nhập họ và tên"
                   className="w-full bg-white/90 border border-[#d9c7a7] focus:border-[#6b0000] py-3 pl-12 pr-4 text-sm outline-none font-body transition-colors text-[#2b1a16]"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoComplete="off"
                   required
                 />
               </div>
@@ -66,18 +99,19 @@ const Register = () => {
 
             <div className="space-y-1.5">
               <label className="font-body text-[11px] text-[#2b1a16] uppercase tracking-wider font-bold">
-                Tên đăng nhập
+                Email
               </label>
               <div className="relative group">
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#2b1a16]/40 group-focus-within:text-[#6b0000] transition-colors text-[20px]">
-                  badge
+                  email
                 </span>
                 <input
-                  type="text"
-                  placeholder="Nhập tên đăng nhập"
+                  type="email"
+                  placeholder="Nhập địa chỉ email"
                   className="w-full bg-white/90 border border-[#d9c7a7] focus:border-[#6b0000] py-3 pl-12 pr-4 text-sm outline-none font-body transition-colors text-[#2b1a16]"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="off"
                   required
                 />
               </div>
@@ -99,7 +133,10 @@ const Register = () => {
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="w-full bg-white/90 border border-[#d9c7a7] focus:border-[#6b0000] py-3 pl-12 pr-10 text-sm outline-none font-body transition-colors text-[#2b1a16]"
+                    autoComplete="new-password"
                     required
                   />
                   <button
@@ -125,7 +162,10 @@ const Register = () => {
                   <input
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full bg-white/90 border border-[#d9c7a7] focus:border-[#6b0000] py-3 pl-12 pr-10 text-sm outline-none font-body transition-colors text-[#2b1a16]"
+                    autoComplete="new-password"
                     required
                   />
                   <button
@@ -141,15 +181,24 @@ const Register = () => {
               </div>
             </div>
 
+            {error && (
+              <div className="text-[#6b0000] text-sm font-bold font-body bg-[#6b0000]/10 p-2 rounded text-center border border-[#6b0000]/20">
+                {error}
+              </div>
+            )}
+
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full bg-[#6b0000] text-[#fff7df] h-[52px] font-body font-bold uppercase tracking-wide text-sm hover:bg-[#8b1512] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg"
+                disabled={loading}
+                className="w-full bg-[#6b0000] text-[#fff7df] h-[52px] font-body font-bold uppercase tracking-wide text-sm hover:bg-[#8b1512] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                <span>Tạo tài khoản</span>
-                <span className="material-symbols-outlined text-[20px]">
-                  person_add
-                </span>
+                <span>{loading ? "Đang xử lý..." : "Tạo tài khoản"}</span>
+                {!loading && (
+                  <span className="material-symbols-outlined text-[20px]">
+                    person_add
+                  </span>
+                )}
               </button>
             </div>
           </form>

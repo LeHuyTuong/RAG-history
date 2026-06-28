@@ -3,7 +3,7 @@ const TableActions = ({ onEdit, onDelete, onArchive, extraActions }) => {
     <div className="flex justify-end gap-2">
       {onEdit && (
         <button
-          onClick={onEdit}
+          onClick={(e) => { e.stopPropagation(); onEdit(e); }}
           className="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-500 hover:text-white hover:shadow-md hover:-translate-y-0.5 rounded-lg transition-all duration-300"
           title="Chỉnh sửa"
         >
@@ -12,7 +12,7 @@ const TableActions = ({ onEdit, onDelete, onArchive, extraActions }) => {
       )}
       {onArchive && (
         <button
-          onClick={onArchive}
+          onClick={(e) => { e.stopPropagation(); onArchive(e); }}
           className="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-500 hover:text-white hover:shadow-md hover:-translate-y-0.5 rounded-lg transition-all duration-300"
           title="Lưu trữ"
         >
@@ -21,7 +21,7 @@ const TableActions = ({ onEdit, onDelete, onArchive, extraActions }) => {
       )}
       {onDelete && (
         <button
-          onClick={onDelete}
+          onClick={(e) => { e.stopPropagation(); onDelete(e); }}
           className="w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-500 hover:text-white hover:shadow-md hover:-translate-y-0.5 rounded-lg transition-all duration-300"
           title="Xóa bỏ"
         >

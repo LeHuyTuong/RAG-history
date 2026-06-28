@@ -1,0 +1,250 @@
+{
+  "source": {
+    "sourceId": 11,
+    "title": "Lịch sử Việt Nam tập 11 Từ năm 1951 đến năm 1954",
+    "pages": "1-498",
+    "chunks": 0
+  },
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Đại hội Đảng II",
+      "question": "Đại hội Đại biểu toàn quốc lần thứ II của Đảng họp vào năm nào, ở đâu và quyết định đổi tên Đảng thành gì?",
+      "expected_keywords": ["1951", "Chiêm Hóa", "Đảng Lao động Việt Nam", "Đại hội II"]
+    },
+    {
+      "id": 2,
+      "topic": "Đảng Lao động Việt Nam",
+      "question": "Tại Đại hội II năm 1951, Đảng đã xác định đường lối cách mạng Việt Nam như thế nào?",
+      "expected_keywords": ["cách mạng dân tộc dân chủ nhân dân", "đường lối", "kháng chiến kiến quốc", "Hồ Chí Minh"]
+    },
+    {
+      "id": 3,
+      "topic": "Đảng Lao động Việt Nam",
+      "question": "Ai được bầu làm Tổng Bí thư Đảng Lao động Việt Nam tại Đại hội II năm 1951?",
+      "expected_keywords": ["Trường Chinh", "Tổng Bí thư", "Đại hội II", "Đảng Lao động Việt Nam"]
+    },
+    {
+      "id": 4,
+      "topic": "Mặt trận Liên Việt",
+      "question": "Mặt trận Liên hiệp Quốc dân Việt Nam (Liên Việt) được thành lập năm 1951 trên cơ sở nào?",
+      "expected_keywords": ["Mặt trận Liên Việt", "Việt Minh", "hợp nhất", "1951"]
+    },
+    {
+      "id": 5,
+      "topic": "Chiến dịch Trung Du",
+      "question": "Chiến dịch Trung Du (12/1950-1/1951) có mục tiêu gì và kết quả ra sao?",
+      "expected_keywords": ["Trung Du", "Vĩnh Yên", "1951", "tiêu diệt sinh lực địch"]
+    },
+    {
+      "id": 6,
+      "topic": "Chiến dịch Đường 18",
+      "question": "Chiến dịch Đường 18 năm 1951 diễn ra ở khu vực nào và đạt kết quả gì?",
+      "expected_keywords": ["Đường 18", "Quảng Yên", "1951", "tiêu hao sinh lực"]
+    },
+    {
+      "id": 7,
+      "topic": "Chiến dịch Hà Nam Ninh",
+      "question": "Chiến dịch Hà Nam Ninh (5-6/1951) nhằm vào mục tiêu gì và diễn ra như thế nào?",
+      "expected_keywords": ["Hà Nam Ninh", "1951", "đồng bằng", "căng kéo phân tán địch"]
+    },
+    {
+      "id": 8,
+      "topic": "Chiến dịch Hòa Bình",
+      "question": "Chiến dịch Hòa Bình (1951-1952) diễn ra như thế nào và ý nghĩa của nó là gì?",
+      "expected_keywords": ["Hòa Bình", "1951-1952", "phá bình định", "vùng tự do"]
+    },
+    {
+      "id": 9,
+      "topic": "Chiến dịch Tây Bắc",
+      "question": "Chiến dịch Tây Bắc năm 1952 đạt được kết quả gì về mặt lãnh thổ giải phóng?",
+      "expected_keywords": ["Tây Bắc", "1952", "Nghĩa Lộ", "vùng giải phóng Tây Bắc"]
+    },
+    {
+      "id": 10,
+      "topic": "Chiến dịch Thượng Lào",
+      "question": "Chiến dịch Thượng Lào năm 1953 có ý nghĩa chiến lược gì đối với liên minh Việt-Lào?",
+      "expected_keywords": ["Thượng Lào", "1953", "liên minh Việt-Lào-Khmer", "Sầm Nưa"]
+    },
+    {
+      "id": 11,
+      "topic": "Kế hoạch Navarre",
+      "question": "Kế hoạch Navarre của Pháp được đề ra năm 1953 có nội dung gì và mục tiêu chiến lược ra sao?",
+      "expected_keywords": ["Navarre", "1953", "tập trung binh lực", "giành thế chủ động"]
+    },
+    {
+      "id": 12,
+      "topic": "Điện Biên Phủ - chuẩn bị",
+      "question": "Quân Pháp xây dựng tập đoàn cứ điểm Điện Biên Phủ vào cuối năm 1953 nhằm mục đích gì?",
+      "expected_keywords": ["tập đoàn cứ điểm", "Điện Biên Phủ", "lôi kéo chủ lực", "bẫy chiến lược"]
+    },
+    {
+      "id": 13,
+      "topic": "Điện Biên Phủ - quyết định",
+      "question": "Quyết định mở chiến dịch Điện Biên Phủ được đưa ra trong hoàn cảnh nào và ai là người quyết định thay đổi từ đánh nhanh thắng nhanh sang đánh chắc tiến chắc?",
+      "expected_keywords": ["Võ Nguyên Giáp", "đánh chắc tiến chắc", "thay đổi phương án", "Điện Biên Phủ"]
+    },
+    {
+      "id": 14,
+      "topic": "Điện Biên Phủ - chiến dịch",
+      "question": "Chiến dịch Điện Biên Phủ gồm mấy đợt tấn công và diễn ra trong thời gian bao lâu?",
+      "expected_keywords": ["3 đợt", "56 ngày đêm", "Điện Biên Phủ", "chiến dịch"]
+    },
+    {
+      "id": 15,
+      "topic": "Điện Biên Phủ - chiến dịch",
+      "question": "Trận Him Lam ngày 13/3/1954 có ý nghĩa gì trong chiến dịch Điện Biên Phủ?",
+      "expected_keywords": ["Him Lam", "13/3/1954", "đợt 1", "tấn công mở màn"]
+    },
+    {
+      "id": 16,
+      "topic": "Điện Biên Phủ - chiến thắng",
+      "question": "Chiến dịch Điện Biên Phủ kết thúc vào ngày tháng năm nào với kết quả như thế nào?",
+      "expected_keywords": ["7/5/1954", "De Castries", "toàn thắng", "Điện Biên Phủ"]
+    },
+    {
+      "id": 17,
+      "topic": "Điện Biên Phủ - ý nghĩa",
+      "question": "Chiến thắng Điện Biên Phủ có ý nghĩa lịch sử như thế nào đối với Việt Nam và phong trào giải phóng dân tộc thế giới?",
+      "expected_keywords": ["chấm dứt thực dân Pháp", "phong trào giải phóng dân tộc", "Điện Biên Phủ", "buộc đàm phán"]
+    },
+    {
+      "id": 18,
+      "topic": "Võ Nguyên Giáp",
+      "question": "Đại tướng Võ Nguyên Giáp đã tổ chức và chỉ huy chiến dịch Điện Biên Phủ như thế nào?",
+      "expected_keywords": ["Võ Nguyên Giáp", "Tổng Tư lệnh", "chiến dịch Điện Biên Phủ", "chỉ huy"]
+    },
+    {
+      "id": 19,
+      "topic": "Hội nghị Geneva",
+      "question": "Hội nghị Geneva về Đông Dương năm 1954 được tổ chức với sự tham gia của những nước nào?",
+      "expected_keywords": ["Geneva", "1954", "các cường quốc", "Pháp Việt Nam Trung Quốc Liên Xô"]
+    },
+    {
+      "id": 20,
+      "topic": "Hiệp định Geneva",
+      "question": "Hiệp định Geneva về Đông Dương ký ngày 21/7/1954 có những nội dung chính gì?",
+      "expected_keywords": ["21/7/1954", "vĩ tuyến 17", "tổng tuyển cử", "ngừng bắn"]
+    },
+    {
+      "id": 21,
+      "topic": "Vĩ tuyến 17",
+      "question": "Hiệp định Geneva quy định vĩ tuyến 17 là ranh giới giới tuyến quân sự tạm thời có nghĩa như thế nào?",
+      "expected_keywords": ["vĩ tuyến 17", "ranh giới quân sự tạm thời", "tổng tuyển cử thống nhất", "không phải biên giới"]
+    },
+    {
+      "id": 22,
+      "topic": "Tập kết chuyển quân",
+      "question": "Việc tập kết chuyển quân sau Hiệp định Geneva diễn ra như thế nào?",
+      "expected_keywords": ["tập kết", "300 ngày", "chuyển quân", "miền Bắc miền Nam"]
+    },
+    {
+      "id": 23,
+      "topic": "Hậu phương kháng chiến",
+      "question": "Hậu phương kháng chiến ở khu IV và Việt Bắc đã đóng góp như thế nào cho chiến dịch Điện Biên Phủ?",
+      "expected_keywords": ["dân công", "xe đạp thồ", "hậu phương", "cung cấp lương thực đạn dược"]
+    },
+    {
+      "id": 24,
+      "topic": "Cải cách ruộng đất",
+      "question": "Cải cách ruộng đất ở vùng tự do miền Bắc bắt đầu được thực hiện từ năm nào và có nội dung gì?",
+      "expected_keywords": ["cải cách ruộng đất", "1953", "chia ruộng đất cho nông dân", "địa chủ phong kiến"]
+    },
+    {
+      "id": 25,
+      "topic": "Đấu tranh ngoại giao",
+      "question": "Đoàn đại biểu Việt Nam Dân chủ Cộng hòa tại Hội nghị Geneva do ai dẫn đầu và đã đấu tranh như thế nào?",
+      "expected_keywords": ["Phạm Văn Đồng", "đoàn đại biểu", "Geneva", "đấu tranh ngoại giao"]
+    },
+    {
+      "id": 26,
+      "topic": "Chiến dịch Điện Biên Phủ - hậu cần",
+      "question": "Công tác hậu cần phục vụ chiến dịch Điện Biên Phủ được tổ chức như thế nào?",
+      "expected_keywords": ["hậu cần", "đường Tuần Giáo", "dân công", "vận chuyển lương thực đạn dược"]
+    },
+    {
+      "id": 27,
+      "topic": "Phong trào đấu tranh toàn quốc",
+      "question": "Trong khi chiến dịch Điện Biên Phủ diễn ra, ở các vùng khác trong cả nước đã có những hoạt động phối hợp gì?",
+      "expected_keywords": ["phối hợp chiến trường", "đồng bằng Bắc Bộ", "miền Trung", "phân tán lực lượng địch"]
+    },
+    {
+      "id": 28,
+      "topic": "Liên minh chiến đấu",
+      "question": "Liên minh chiến đấu Việt-Lào-Khmer được tăng cường như thế nào trong giai đoạn 1951-1954?",
+      "expected_keywords": ["Liên minh Việt-Lào-Khmer", "Pathet Lào", "Khmer Issarak", "liên minh chiến đấu"]
+    },
+    {
+      "id": 29,
+      "topic": "Mỹ can thiệp",
+      "question": "Mỹ đã can thiệp vào cuộc chiến tranh Đông Dương như thế nào trong giai đoạn 1950-1954?",
+      "expected_keywords": ["viện trợ Mỹ", "MAAG", "can thiệp", "tài trợ chiến tranh"]
+    },
+    {
+      "id": 30,
+      "topic": "Đợt 2 chiến dịch ĐBP",
+      "question": "Đợt tấn công thứ hai trong chiến dịch Điện Biên Phủ (30/3-26/4/1954) tập trung vào những mục tiêu nào?",
+      "expected_keywords": ["đợt 2", "đồi A1 C1 D1 E1", "30/3/1954", "siết chặt vòng vây"]
+    },
+    {
+      "id": 31,
+      "topic": "Pháo binh Điện Biên Phủ",
+      "question": "Pháo binh đã đóng vai trò như thế nào trong chiến thắng Điện Biên Phủ?",
+      "expected_keywords": ["pháo binh", "kéo pháo vào trận địa", "Điện Biên Phủ", "hỏa lực pháo"]
+    },
+    {
+      "id": 32,
+      "topic": "Chiến tranh nhân dân",
+      "question": "Nghệ thuật chiến tranh nhân dân của Việt Nam được thể hiện như thế nào qua các chiến dịch 1951-1954?",
+      "expected_keywords": ["chiến tranh nhân dân", "toàn dân đánh giặc", "quân sự chính trị kết hợp", "chiến tranh du kích"]
+    },
+    {
+      "id": 33,
+      "topic": "Ý nghĩa Hiệp định Geneva",
+      "question": "Hiệp định Geneva năm 1954 có ý nghĩa như thế nào đối với Việt Nam và Đông Dương?",
+      "expected_keywords": ["buộc Pháp rút quân", "độc lập chủ quyền", "kết thúc chiến tranh", "Đông Dương"]
+    },
+    {
+      "id": 34,
+      "topic": "Những hạn chế Hiệp định Geneva",
+      "question": "Hiệp định Geneva năm 1954 có những hạn chế gì và tại sao Việt Nam không đạt được tất cả mục tiêu đề ra?",
+      "expected_keywords": ["chia cắt đất nước", "áp lực cường quốc", "chưa thống nhất", "hạn chế"]
+    },
+    {
+      "id": 35,
+      "topic": "Chiến dịch 1953",
+      "question": "Chiến dịch Đông-Xuân 1953-1954 đã phối hợp tấn công trên những hướng nào để phân tán lực lượng Pháp?",
+      "expected_keywords": ["Tây Bắc", "Trung Lào", "Tây Nguyên", "phân tán lực lượng địch"]
+    },
+    {
+      "id": 36,
+      "topic": "Khôi phục kinh tế",
+      "question": "Kinh tế vùng tự do được khôi phục và phát triển như thế nào trong giai đoạn 1951-1954?",
+      "expected_keywords": ["khôi phục sản xuất", "vùng tự do", "tăng gia sản xuất", "cải cách ruộng đất"]
+    },
+    {
+      "id": 37,
+      "topic": "Xây dựng chính quyền",
+      "question": "Hệ thống chính quyền kháng chiến từ trung ương đến địa phương được củng cố như thế nào trong giai đoạn 1951-1954?",
+      "expected_keywords": ["chính quyền kháng chiến", "ủy ban hành chính kháng chiến", "xây dựng chính quyền", "liên khu"]
+    },
+    {
+      "id": 38,
+      "topic": "Ký kết Geneva",
+      "question": "Lễ ký kết Hiệp định Geneva diễn ra vào ngày tháng năm nào và những văn kiện nào được ký?",
+      "expected_keywords": ["21/7/1954", "ký kết", "Hiệp định đình chiến", "Geneva"]
+    },
+    {
+      "id": 39,
+      "topic": "Giai đoạn kháng chiến",
+      "question": "Cuộc kháng chiến chống Pháp của Việt Nam từ 1945 đến 1954 kéo dài trong bao nhiêu năm và kết thúc với kết quả như thế nào?",
+      "expected_keywords": ["9 năm kháng chiến", "chống Pháp", "thắng lợi", "Điện Biên Phủ"]
+    },
+    {
+      "id": 40,
+      "topic": "Tiếp quản Hà Nội",
+      "question": "Quân đội Nhân dân Việt Nam tiếp quản Hà Nội vào ngày tháng năm nào sau Hiệp định Geneva?",
+      "expected_keywords": ["10/10/1954", "tiếp quản Hà Nội", "quân Pháp rút", "Thủ đô giải phóng"]
+    }
+  ]
+}

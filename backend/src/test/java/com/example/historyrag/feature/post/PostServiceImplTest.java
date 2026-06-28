@@ -4,15 +4,16 @@ import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.exception.DuplicateResourceException;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.feature.admin.Admin;
-import com.example.historyrag.feature.admin.AdminRepository;
+import com.example.historyrag.feature.admin.AdminService;
 import com.example.historyrag.feature.event.Event;
-import com.example.historyrag.feature.event.EventRepository;
+import com.example.historyrag.feature.event.EventService;
 import com.example.historyrag.feature.post.dto.CreatePostRequest;
 import com.example.historyrag.feature.post.dto.PostFilterRequest;
 import com.example.historyrag.feature.post.dto.PostResponse;
 import com.example.historyrag.feature.post.dto.UpdatePostRequest;
+import com.example.historyrag.feature.rag.RagService;
 import com.example.historyrag.feature.tag.Tag;
-import com.example.historyrag.feature.tag.TagRepository;
+import com.example.historyrag.feature.tag.TagService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,19 +42,22 @@ class PostServiceImplTest {
     private PostRepository postRepository;
 
     @Mock
-    private AdminRepository adminRepository;
+    private AdminService adminService;
 
     @Mock
-    private EventRepository eventRepository;
+    private EventService eventService;
 
     @Mock
-    private TagRepository tagRepository;
+    private TagService tagService;
+
+    @Mock
+    private RagService ragService;
 
     private PostServiceImpl postService;
 
     @BeforeEach
     void setUp() {
-        postService = new PostServiceImpl(postRepository, adminRepository, eventRepository, tagRepository);
+        postService = new PostServiceImpl(postRepository, adminService, eventService, tagService, ragService);
     }
 
     @Test
@@ -65,9 +69,9 @@ class PostServiceImplTest {
         CreatePostRequest request = createRequest(PostStatus.PUBLISHED, null, event.getId(), List.of(tag.getId()));
 
         when(postRepository.existsBySlug("chien-thang-bach-dang")).thenReturn(false);
-        when(adminRepository.findById(admin.getId())).thenReturn(Optional.of(admin));
-        when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
-        when(tagRepository.findAllById(List.of(tag.getId()))).thenReturn(List.of(tag));
+        when(adminService.getAdminEntityById(admin.getId())).thenReturn(admin);
+        when(eventService.getEventEntityById(event.getId())).thenReturn(event);
+        when(tagService.getTagsByIds(List.of(tag.getId()))).thenReturn(List.of(tag));
         when(postRepository.save(any(Post.class))).thenAnswer(invocation -> {
             Post saved = invocation.getArgument(0);
             saved.setId(10L);
@@ -102,8 +106,9 @@ class PostServiceImplTest {
         Admin admin = admin(1L);
         CreatePostRequest request = createRequest(PostStatus.DRAFT, null, null, List.of(99L));
         when(postRepository.existsBySlug(request.slug())).thenReturn(false);
-        when(adminRepository.findById(admin.getId())).thenReturn(Optional.of(admin));
-        when(tagRepository.findAllById(List.of(99L))).thenReturn(List.of());
+        when(adminService.getAdminEntityById(admin.getId())).thenReturn(admin);
+        when(tagService.getTagsByIds(List.of(99L)))
+                .thenThrow(new ResourceNotFoundException("Thẻ", "id", 99L));
 
         assertThrows(ResourceNotFoundException.class, () -> postService.create(request, admin.getId()));
 
@@ -193,9 +198,9 @@ class PostServiceImplTest {
         Event event = event(2L);
         Tag tag = tag(3L);
         CreatePostRequest request = createRequest(PostStatus.DRAFT, null, event.getId(), List.of(tag.getId()));
-        when(adminRepository.findById(admin.getId())).thenReturn(Optional.of(admin));
-        when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
-        when(tagRepository.findAllById(List.of(tag.getId()))).thenReturn(List.of(tag));
+        when(adminService.getAdminEntityById(admin.getId())).thenReturn(admin);
+        when(eventService.getEventEntityById(event.getId())).thenReturn(event);
+        when(tagService.getTagsByIds(List.of(tag.getId()))).thenReturn(List.of(tag));
         when(postRepository.save(any(Post.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         postService.create(request, admin.getId());

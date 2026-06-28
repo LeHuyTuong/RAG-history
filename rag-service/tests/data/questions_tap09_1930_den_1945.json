@@ -1,0 +1,250 @@
+{
+  "source": {
+    "sourceId": 9,
+    "title": "Lịch sử Việt Nam tập 09 Từ năm 1930 đến năm 1945",
+    "pages": "1-761",
+    "chunks": 0
+  },
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Xô viết Nghệ Tĩnh",
+      "question": "Phong trào Xô viết Nghệ Tĩnh bùng nổ vào năm nào và ở những tỉnh nào?",
+      "expected_keywords": ["Nghệ An", "Hà Tĩnh", "1930", "Xô viết"]
+    },
+    {
+      "id": 2,
+      "topic": "Xô viết Nghệ Tĩnh",
+      "question": "Các Xô viết ở Nghệ Tĩnh đã thực hiện những biện pháp gì sau khi nắm chính quyền ở nông thôn?",
+      "expected_keywords": ["chia ruộng đất", "xóa nợ", "bãi bỏ thuế", "vũ trang tự vệ"]
+    },
+    {
+      "id": 3,
+      "topic": "Xô viết Nghệ Tĩnh",
+      "question": "Thực dân Pháp đã dùng biện pháp gì để đàn áp phong trào Xô viết Nghệ Tĩnh năm 1931?",
+      "expected_keywords": ["khủng bố trắng", "máy bay", "bộ binh", "bắt bớ tàn sát"]
+    },
+    {
+      "id": 4,
+      "topic": "Khủng bố trắng",
+      "question": "Chính sách khủng bố trắng của thực dân Pháp sau phong trào 1930-1931 đã gây ra hậu quả gì cho Đảng Cộng sản Đông Dương?",
+      "expected_keywords": ["tổ chức bị phá vỡ", "cán bộ bị bắt", "Trung ương", "cơ sở bị tan rã"]
+    },
+    {
+      "id": 5,
+      "topic": "Phục hồi Đảng",
+      "question": "Quá trình phục hồi tổ chức Đảng sau cuộc khủng bố trắng 1931-1932 diễn ra như thế nào?",
+      "expected_keywords": ["Ban Chỉ huy hải ngoại", "tái lập", "xứ ủy", "Chi bộ"]
+    },
+    {
+      "id": 6,
+      "topic": "Phục hồi Đảng",
+      "question": "Hội nghị Ban Chấp hành Trung ương Đảng tháng 6 năm 1934 có ý nghĩa gì trong quá trình phục hồi phong trào cách mạng?",
+      "expected_keywords": ["phục hồi tổ chức", "Lê Hồng Phong", "đường lối", "Ban Chấp hành Trung ương"]
+    },
+    {
+      "id": 7,
+      "topic": "Mặt trận Bình dân",
+      "question": "Chính sách của Mặt trận Bình dân Pháp sau khi thắng cử năm 1936 đã tác động như thế nào đến phong trào cách mạng ở Đông Dương?",
+      "expected_keywords": ["Mặt trận Bình dân", "ân xá chính trị phạm", "tự do báo chí", "hoạt động công khai"]
+    },
+    {
+      "id": 8,
+      "topic": "Mặt trận Dân chủ 1936",
+      "question": "Mặt trận Dân chủ Đông Dương được thành lập năm 1936 có mục tiêu và thành phần như thế nào?",
+      "expected_keywords": ["Mặt trận Dân chủ", "chống phát xít", "chống phản động thuộc địa", "tập hợp lực lượng"]
+    },
+    {
+      "id": 9,
+      "topic": "Hoạt động công khai 1936-1939",
+      "question": "Đảng Cộng sản Đông Dương đã sử dụng những hình thức đấu tranh công khai nào trong giai đoạn 1936-1939?",
+      "expected_keywords": ["báo chí", "nghị trường", "mít tinh", "đấu tranh hợp pháp"]
+    },
+    {
+      "id": 10,
+      "topic": "Hoạt động công khai 1936-1939",
+      "question": "Phong trào Đông Dương đại hội năm 1936 diễn ra như thế nào và đạt được kết quả gì?",
+      "expected_keywords": ["Đông Dương đại hội", "dân nguyện", "ủy ban hành động", "thỉnh nguyện thư"]
+    },
+    {
+      "id": 11,
+      "topic": "Nhật vào Đông Dương",
+      "question": "Nhật Bản tiến vào Đông Dương năm 1940 trong hoàn cảnh nào và Pháp đã phản ứng ra sao?",
+      "expected_keywords": ["Nhật Bản", "1940", "Pháp đầu hàng", "Hiệp ước Pháp-Nhật"]
+    },
+    {
+      "id": 12,
+      "topic": "Nhật vào Đông Dương",
+      "question": "Chế độ cai trị của Nhật-Pháp ở Đông Dương trong giai đoạn 1940-1945 có đặc điểm gì nổi bật?",
+      "expected_keywords": ["hai tầng áp bức", "Nhật-Pháp", "bóc lột", "nhổ lúa trồng đay"]
+    },
+    {
+      "id": 13,
+      "topic": "Bắc Sơn khởi nghĩa",
+      "question": "Khởi nghĩa Bắc Sơn tháng 9 năm 1940 nổ ra trong hoàn cảnh nào và có kết quả ra sao?",
+      "expected_keywords": ["Bắc Sơn", "Lạng Sơn", "1940", "đội du kích Bắc Sơn"]
+    },
+    {
+      "id": 14,
+      "topic": "Nam Kỳ khởi nghĩa",
+      "question": "Khởi nghĩa Nam Kỳ ngày 23 tháng 11 năm 1940 bùng nổ vì lý do gì và bị dập tắt như thế nào?",
+      "expected_keywords": ["Nam Kỳ", "1940", "Pháp đàn áp", "tổ chức Đảng bị tổn thất"]
+    },
+    {
+      "id": 15,
+      "topic": "Nam Kỳ khởi nghĩa",
+      "question": "Bài học kinh nghiệm nào được rút ra từ thất bại của khởi nghĩa Nam Kỳ năm 1940?",
+      "expected_keywords": ["thời cơ chưa chín muồi", "lực lượng vũ trang", "phối hợp", "bài học thất bại"]
+    },
+    {
+      "id": 16,
+      "topic": "Việt Minh thành lập",
+      "question": "Mặt trận Việt Minh được thành lập vào ngày tháng năm nào và tại hội nghị nào?",
+      "expected_keywords": ["Việt Minh", "19/5/1941", "Hội nghị Trung ương VIII", "Pác Bó"]
+    },
+    {
+      "id": 17,
+      "topic": "Việt Minh thành lập",
+      "question": "Cương lĩnh và nhiệm vụ chính của Mặt trận Việt Minh khi mới thành lập là gì?",
+      "expected_keywords": ["đánh Pháp đuổi Nhật", "giải phóng dân tộc", "Mặt trận Việt Minh", "đoàn kết toàn dân"]
+    },
+    {
+      "id": 18,
+      "topic": "Hồ Chí Minh về nước",
+      "question": "Lãnh tụ Nguyễn Ái Quốc về nước vào năm nào và đặt căn cứ địa ở đâu?",
+      "expected_keywords": ["Pác Bó", "Cao Bằng", "1941", "Nguyễn Ái Quốc"]
+    },
+    {
+      "id": 19,
+      "topic": "Căn cứ địa cách mạng",
+      "question": "Căn cứ địa Việt Bắc được xây dựng và mở rộng trong những năm 1941-1945 như thế nào?",
+      "expected_keywords": ["Việt Bắc", "căn cứ địa", "khu giải phóng", "chiến khu"]
+    },
+    {
+      "id": 20,
+      "topic": "Đội Việt Nam Tuyên truyền Giải phóng quân",
+      "question": "Đội Việt Nam Tuyên truyền Giải phóng quân được thành lập vào ngày tháng năm nào và do ai chỉ huy?",
+      "expected_keywords": ["22/12/1944", "Võ Nguyên Giáp", "Việt Nam Tuyên truyền Giải phóng quân", "Cao Bằng"]
+    },
+    {
+      "id": 21,
+      "topic": "Đội Việt Nam Tuyên truyền Giải phóng quân",
+      "question": "Nhiệm vụ chính của Đội Việt Nam Tuyên truyền Giải phóng quân khi mới thành lập là gì?",
+      "expected_keywords": ["tuyên truyền", "vũ trang", "chính trị là chính", "chiến đấu"]
+    },
+    {
+      "id": 22,
+      "topic": "Nạn đói 1945",
+      "question": "Nạn đói năm 1945 ở miền Bắc đã cướp đi sinh mạng của bao nhiêu người và nguyên nhân chính là gì?",
+      "expected_keywords": ["2 triệu người", "nhổ lúa trồng đay", "Nhật-Pháp", "nạn đói"]
+    },
+    {
+      "id": 23,
+      "topic": "Nạn đói 1945",
+      "question": "Đảng và Việt Minh đã làm gì để giải quyết nạn đói trong những tháng đầu năm 1945?",
+      "expected_keywords": ["phá kho thóc", "chia thóc cho dân", "cứu đói", "Việt Minh"]
+    },
+    {
+      "id": 24,
+      "topic": "Nhật đảo chính Pháp",
+      "question": "Nhật đảo chính Pháp vào ngày tháng năm nào và diễn ra như thế nào trên toàn cõi Đông Dương?",
+      "expected_keywords": ["9/3/1945", "đảo chính", "Pháp đầu hàng", "Nhật độc chiếm Đông Dương"]
+    },
+    {
+      "id": 25,
+      "topic": "Nhật đảo chính Pháp",
+      "question": "Sau cuộc đảo chính 9/3/1945, Nhật Bản đã dựng lên chính phủ bù nhìn nào ở Việt Nam?",
+      "expected_keywords": ["Trần Trọng Kim", "chính phủ bù nhìn", "Bảo Đại", "Đế quốc Việt Nam"]
+    },
+    {
+      "id": 26,
+      "topic": "Chỉ thị Nhật-Pháp bắn nhau",
+      "question": "Chỉ thị 'Nhật-Pháp bắn nhau và hành động của chúng ta' của Đảng tháng 3/1945 có nội dung chính là gì?",
+      "expected_keywords": ["thời cơ", "khởi nghĩa từng phần", "phát động chiến tranh du kích", "tổng khởi nghĩa"]
+    },
+    {
+      "id": 27,
+      "topic": "Khu giải phóng Việt Bắc",
+      "question": "Khu giải phóng Việt Bắc được thành lập vào tháng 6 năm 1945 bao gồm những tỉnh nào?",
+      "expected_keywords": ["Cao Bằng", "Bắc Kạn", "Lạng Sơn", "Khu giải phóng"]
+    },
+    {
+      "id": 28,
+      "topic": "Hội nghị Tân Trào",
+      "question": "Quốc dân đại hội Tân Trào tháng 8/1945 đã quyết định những vấn đề gì?",
+      "expected_keywords": ["Tổng khởi nghĩa", "Tân Trào", "Ủy ban Dân tộc Giải phóng", "Hồ Chí Minh"]
+    },
+    {
+      "id": 29,
+      "topic": "Cách mạng tháng Tám",
+      "question": "Lệnh Tổng khởi nghĩa tháng Tám 1945 được ban bố vào ngày tháng năm nào?",
+      "expected_keywords": ["13/8/1945", "Ủy ban Khởi nghĩa toàn quốc", "lệnh Tổng khởi nghĩa", "quân sự"]
+    },
+    {
+      "id": 30,
+      "topic": "Cách mạng tháng Tám",
+      "question": "Tổng khởi nghĩa Cách mạng tháng Tám tại Hà Nội diễn ra vào ngày nào và kết quả ra sao?",
+      "expected_keywords": ["19/8/1945", "Hà Nội", "khởi nghĩa thắng lợi", "Việt Minh"]
+    },
+    {
+      "id": 31,
+      "topic": "Cách mạng tháng Tám",
+      "question": "Cuộc Cách mạng tháng Tám 1945 diễn ra trong bao nhiêu ngày và đã lật đổ những chế độ nào?",
+      "expected_keywords": ["15 ngày", "phong kiến", "thực dân Pháp", "Nhật Bản"]
+    },
+    {
+      "id": 32,
+      "topic": "Cách mạng tháng Tám",
+      "question": "Vua Bảo Đại thoái vị vào ngày nào và đã trao ấn kiếm cho đại diện Chính phủ lâm thời ở đâu?",
+      "expected_keywords": ["25/8/1945", "Bảo Đại thoái vị", "Huế", "ấn kiếm"]
+    },
+    {
+      "id": 33,
+      "topic": "Tuyên ngôn Độc lập",
+      "question": "Chủ tịch Hồ Chí Minh đọc Tuyên ngôn Độc lập vào ngày tháng năm nào và tại đâu?",
+      "expected_keywords": ["2/9/1945", "Ba Đình", "Tuyên ngôn Độc lập", "Hà Nội"]
+    },
+    {
+      "id": 34,
+      "topic": "Tuyên ngôn Độc lập",
+      "question": "Tuyên ngôn Độc lập ngày 2/9/1945 tuyên bố những điều gì về quyền lợi và nền độc lập của Việt Nam?",
+      "expected_keywords": ["độc lập tự do", "nước Việt Nam Dân chủ Cộng hòa", "quyền tự do", "đã thành lập"]
+    },
+    {
+      "id": 35,
+      "topic": "Ý nghĩa Cách mạng tháng Tám",
+      "question": "Cách mạng tháng Tám 1945 có ý nghĩa lịch sử như thế nào đối với dân tộc Việt Nam?",
+      "expected_keywords": ["phá vỡ xiềng xích", "giành độc lập", "chấm dứt ách thực dân", "nhà nước dân chủ nhân dân"]
+    },
+    {
+      "id": 36,
+      "topic": "Đảng Cộng sản Đông Dương",
+      "question": "Đảng Cộng sản Đông Dương được thành lập vào ngày tháng năm nào và do ai sáng lập?",
+      "expected_keywords": ["3/2/1930", "Nguyễn Ái Quốc", "Hội nghị hợp nhất", "Đảng Cộng sản Đông Dương"]
+    },
+    {
+      "id": 37,
+      "topic": "Hội nghị Trung ương VIII",
+      "question": "Hội nghị Trung ương Đảng lần VIII (5/1941) do ai chủ trì và đã quyết định những vấn đề gì?",
+      "expected_keywords": ["Nguyễn Ái Quốc", "giải phóng dân tộc", "Việt Minh", "Hội nghị Trung ương VIII"]
+    },
+    {
+      "id": 38,
+      "topic": "An toàn khu",
+      "question": "Các an toàn khu (ATK) được xây dựng trong giai đoạn 1941-1945 ở những vùng nào của Việt Nam?",
+      "expected_keywords": ["Việt Bắc", "Tân Trào", "Định Hóa", "an toàn khu"]
+    },
+    {
+      "id": 39,
+      "topic": "Lực lượng vũ trang cách mạng",
+      "question": "Lực lượng vũ trang cách mạng đã phát triển như thế nào từ năm 1941 đến năm 1945?",
+      "expected_keywords": ["du kích", "Cứu quốc quân", "Việt Nam Tuyên truyền Giải phóng quân", "Vệ quốc đoàn"]
+    },
+    {
+      "id": 40,
+      "topic": "Chính phủ lâm thời",
+      "question": "Chính phủ lâm thời nước Việt Nam Dân chủ Cộng hòa được thành lập vào ngày tháng năm nào và do ai đứng đầu?",
+      "expected_keywords": ["28/8/1945", "Hồ Chí Minh", "Chủ tịch", "Chính phủ lâm thời"]
+    }
+  ]
+}

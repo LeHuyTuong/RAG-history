@@ -34,11 +34,16 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus
+
+logging:
+  pattern:
+    level: "%5p [history-rag-backend,%X{traceId},%X{spanId}]"
 
 app:
   rag:
     base-url: ${RAG_SERVICE_URL:http://localhost:8001}
+    request-timeout: ${RAG_SERVICE_REQUEST_TIMEOUT:60s}
   upload:
     base-path: ${UPLOAD_BASE_PATH:./uploads}
   cors:

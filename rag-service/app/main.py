@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.chat_routes import router as chat_router
 from app.api.ingest_routes import router as ingest_router
+from app.api.retrieve_routes import router as retrieve_router
 
 app = FastAPI(title="RAG History Service", version="1.0.0")
 
@@ -26,3 +27,4 @@ app.add_middleware(
 
 app.include_router(chat_router, prefix="/rag")
 app.include_router(ingest_router, prefix="/rag")
+app.include_router(retrieve_router, prefix="/rag")

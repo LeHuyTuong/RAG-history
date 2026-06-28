@@ -67,6 +67,12 @@ def ingest(req: RagIngestRequest) -> RagIngestResponse:
     delete_by_source_id(collection, req.sourceId)
     upsert(collection, ids, vectors, payloads)
 
+    if req.buildGraph:
+        from app.services.graph_ingest_service import trigger_graph_build_async
+        chunk_data = [(str(ids[i]), chunks[i].page_number, chunks[i].text)
+                      for i in range(len(chunks))]
+        trigger_graph_build_async(req.sourceId, chunk_data)
+
     return RagIngestResponse(
         sourceId=req.sourceId,
         status="COMPLETED",

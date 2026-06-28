@@ -3,14 +3,14 @@ package com.example.historyrag.feature.auth;
 import com.example.historyrag.exception.DuplicateResourceException;
 import com.example.historyrag.exception.InvalidTokenException;
 import com.example.historyrag.feature.admin.Admin;
-import com.example.historyrag.feature.admin.AdminRepository;
+import com.example.historyrag.feature.admin.AdminService;
 import com.example.historyrag.feature.auth.dto.AuthUserResponse;
 import com.example.historyrag.feature.auth.dto.LoginRequest;
 import com.example.historyrag.feature.auth.dto.LoginResponse;
 import com.example.historyrag.feature.auth.dto.RegisterRequest;
 import com.example.historyrag.feature.auth.dto.RegisterResponse;
 import com.example.historyrag.feature.user.Member;
-import com.example.historyrag.feature.user.MemberRepository;
+import com.example.historyrag.feature.user.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,10 +50,10 @@ class AuthServiceImplTest {
     private JwtDecoder jwtDecoder;
 
     @Mock
-    private AdminRepository adminRepository;
+    private AdminService adminService;
 
     @Mock
-    private MemberRepository memberRepository;
+    private MemberService memberService;
 
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
@@ -69,8 +69,8 @@ class AuthServiceImplTest {
                 authenticationManager,
                 jwtEncoder,
                 jwtDecoder,
-                adminRepository,
-                memberRepository,
+                adminService,
+                memberService,
                 refreshTokenRepository,
                 passwordEncoder,
                 900,
@@ -82,7 +82,8 @@ class AuthServiceImplTest {
     @DisplayName("Should login member and store hashed refresh token")
     void login_memberCredentials_returnsTokensAndStoresRefreshToken() {
         Member member = member(1L, "member@example.com", "member", "Member Name");
-        when(memberRepository.findByEmail("member@example.com")).thenReturn(Optional.of(member));
+        when(adminService.findAdminByEmail("member@example.com")).thenReturn(Optional.empty());
+        when(memberService.findMemberByEmail("member@example.com")).thenReturn(Optional.of(member));
         when(jwtEncoder.encode(any(JwtEncoderParameters.class)))
                 .thenReturn(jwt("access-token"), jwt("refresh-token"));
 
@@ -111,12 +112,12 @@ class AuthServiceImplTest {
     @DisplayName("Should register member with generated username when username is omitted")
     void register_missingUsername_generatesUsernameAndSavesMember() {
         RegisterRequest request = new RegisterRequest(null, "Nguyen Van A", "nguyenvana@example.com", "password123");
-        when(adminRepository.existsByEmail(request.email())).thenReturn(false);
-        when(memberRepository.existsByEmail(request.email())).thenReturn(false);
-        when(adminRepository.existsByUsername("nguyenvana")).thenReturn(false);
-        when(memberRepository.existsByUsername("nguyenvana")).thenReturn(false);
+        when(adminService.existsByEmail(request.email())).thenReturn(false);
+        when(memberService.existsByEmail(request.email())).thenReturn(false);
+        when(adminService.existsByUsername("nguyenvana")).thenReturn(false);
+        when(memberService.existsByUsername("nguyenvana")).thenReturn(false);
         when(passwordEncoder.encode("password123")).thenReturn("encoded-password");
-        when(memberRepository.save(any(Member.class))).thenAnswer(invocation -> {
+        when(memberService.saveMember(any(Member.class))).thenAnswer(invocation -> {
             Member member = invocation.getArgument(0);
             member.setId(10L);
             return member;
@@ -131,7 +132,7 @@ class AuthServiceImplTest {
         assertEquals(Member.UserStatus.ACTIVE, response.status());
 
         ArgumentCaptor<Member> captor = ArgumentCaptor.forClass(Member.class);
-        verify(memberRepository).save(captor.capture());
+        verify(memberService).saveMember(captor.capture());
         Member savedMember = captor.getValue();
         assertEquals("encoded-password", savedMember.getPasswordHash());
         assertEquals("nguyenvana", savedMember.getUsername());
@@ -141,7 +142,7 @@ class AuthServiceImplTest {
     @DisplayName("Should reject register when email exists in admin table")
     void register_emailExistsInAdmin_throwsDuplicateResourceException() {
         RegisterRequest request = new RegisterRequest("admin", "Admin", "admin@example.com", "password123");
-        when(adminRepository.existsByEmail(request.email())).thenReturn(true);
+        when(adminService.existsByEmail(request.email())).thenReturn(true);
 
         DuplicateResourceException exception = assertThrows(
                 DuplicateResourceException.class,
@@ -149,7 +150,7 @@ class AuthServiceImplTest {
         );
 
         assertTrue(exception.getMessage().contains("email"));
-        verify(memberRepository, never()).save(any(Member.class));
+        verify(memberService, never()).saveMember(any(Member.class));
     }
 
     @Test
@@ -237,7 +238,7 @@ class AuthServiceImplTest {
     @DisplayName("Should return admin profile from getMe when account type is ADMIN")
     void getMe_adminAccount_returnsAdminResponse() {
         Admin admin = admin(99L, "admin@example.com", "admin", "Admin Name");
-        when(adminRepository.findByEmail("admin@example.com")).thenReturn(Optional.of(admin));
+        when(adminService.findAdminByEmail("admin@example.com")).thenReturn(Optional.of(admin));
 
         AuthUserResponse response = authService.getMe("admin@example.com", "ADMIN");
 

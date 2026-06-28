@@ -1,10 +1,12 @@
 package com.example.historyrag.feature.tag;
 
 import com.example.historyrag.dto.ApiResponse;
+import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.feature.tag.dto.TagRequest;
 import com.example.historyrag.feature.tag.dto.TagResponse;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
+import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,26 +15,24 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/admin/tags")
-@PreAuthorize("hasRole('ADMIN')")
+@RequiredArgsConstructor
 public class TagController {
 
     private final TagService tagService;
 
-    public TagController(TagService tagService) {
-        this.tagService = tagService;
-    }
-
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<TagResponse>>> getAllTags(Pageable pageable) {
+    public ResponseEntity<ApiResponse<ResultPaginationDTO>> getAllTags(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(tagService.getAllTags(pageable)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<TagResponse>> createTag(@RequestBody @Valid TagRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(tagService.createTag(request)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<TagResponse>> updateTag(
             @PathVariable Long id,
@@ -40,6 +40,7 @@ public class TagController {
         return ResponseEntity.ok(ApiResponse.success(tagService.updateTag(id, request)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteTag(@PathVariable Long id) {
         tagService.deleteTag(id);

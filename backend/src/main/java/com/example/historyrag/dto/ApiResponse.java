@@ -13,18 +13,14 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
 
-    // ========== FIELDS ==========
 
     private int statusCode;
     private String message;
 
-    // Chỉ có khi SUCCESS
     private T data;
 
-    // Chỉ có khi ERROR
     private String error;
 
-    // Chỉ có khi VALIDATION ERROR (nhiều lỗi)
     private List<String> details;
 
     // ========== CONSTRUCTORS ==========
@@ -32,14 +28,12 @@ public class ApiResponse<T> {
     public ApiResponse() {
     }
 
-    // Constructor cho Success
     private ApiResponse(int statusCode, String message, T data) {
         this.statusCode = statusCode;
         this.message = message;
         this.data = data;
     }
 
-    // Constructor cho Error
     private ApiResponse(int statusCode, String message, String error, List<String> details) {
         this.statusCode = statusCode;
         this.message = message;
@@ -47,7 +41,6 @@ public class ApiResponse<T> {
         this.details = details;
     }
 
-    // ========== SUCCESS METHODS ==========
 
     public static <T> ApiResponse<T> success(T data) {
         return new ApiResponse<>(200, "Success", data);
@@ -65,7 +58,7 @@ public class ApiResponse<T> {
         return new ApiResponse<>(201, message, data);
     }
 
-    // ========== ERROR METHODS ==========
+
 
     public static <T> ApiResponse<T> notFound(String message) {
         return new ApiResponse<>(404, message, "Not Found", null);

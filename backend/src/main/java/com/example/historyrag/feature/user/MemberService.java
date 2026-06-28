@@ -1,21 +1,23 @@
 package com.example.historyrag.feature.user;
 
-import com.example.historyrag.feature.user.dto.UpdateUserRequest;
-import com.example.historyrag.feature.user.dto.UserResponse;
+import com.example.historyrag.feature.user.dto.MemberRequest;
+import com.example.historyrag.feature.user.dto.MemberResponse;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface MemberService {
 
-    UserResponse getUserById(Long id);
+    MemberResponse createMember(MemberRequest request);
+    MemberResponse updateMember(Long id, MemberRequest request);
+    void deleteMember(Long id);
 
-    UserResponse getUserByEmail(String email);
+    long countMembers();
 
-    UserResponse updateUser(Long id, UpdateUserRequest request);
+    Optional<Member> findMemberByEmail(String email);
 
-    void deleteUser(Long id);
+    boolean existsByEmail(String email);
 
-    List<UserResponse> getAllUsers();
+    boolean existsByUsername(String username);
 
-    UserResponse getCurrentUser();
+    Member saveMember(Member member);
 }

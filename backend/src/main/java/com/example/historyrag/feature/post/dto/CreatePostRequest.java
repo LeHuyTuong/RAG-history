@@ -1,5 +1,7 @@
 package com.example.historyrag.feature.post.dto;
 
+
+import lombok.Builder;
 import com.example.historyrag.feature.post.PostStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -8,6 +10,7 @@ import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 
+@Builder
 public record CreatePostRequest(
         @NotBlank(message = "Title is required")
         @Size(max = 100, message = "Title must not exceed 100 characters")

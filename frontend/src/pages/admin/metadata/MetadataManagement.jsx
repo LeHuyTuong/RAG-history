@@ -1,7 +1,82 @@
-import {  useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader, AdminLayout, StatsGrid, ActionModal } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
+import { metadataService, mockClient, ENDPOINTS, tagService, periodService } from '../../../services';
+
+const CategoryTreeItem = ({ category, level = 0, onEdit, onDelete, onAddChild }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const hasChildren = category.children && category.children.length > 0;
+
+  return (
+    <div className={level === 0 ? "border border-outline-variant rounded-xl overflow-hidden shadow-sm bg-white mb-4" : ""}>
+      <div
+        className={`p-3 flex justify-between items-center group transition-colors ${level === 0 ? 'bg-surface-low/50 border-b border-outline-variant/50' : 'border-b border-outline-variant/30 hover:bg-surface-low last:border-0'}`}
+        style={{ paddingLeft: `${1 + level * 1.5}rem` }}
+      >
+        <div className="flex items-center gap-3">
+          {hasChildren ? (
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="w-5 h-5 flex items-center justify-center text-on-surface-variant hover:bg-outline-variant/30 rounded transition-all"
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                {isExpanded ? 'expand_more' : 'chevron_right'}
+              </span>
+            </button>
+          ) : (
+            <div className="w-5 h-5 flex items-center justify-center text-outline-variant/30">
+              <span className="material-symbols-outlined text-[14px]">remove</span>
+            </div>
+          )}
+
+          <span className={`material-symbols-outlined ${level === 0 ? 'text-primary' : 'text-on-surface-variant text-lg'}`}>
+            {level === 0 ? 'folder_open' : (hasChildren ? 'folder' : 'article')}
+          </span>
+          <div>
+            <p className={`font-bold text-sm ${level === 0 ? 'text-on-surface' : 'text-on-surface/90'}`}>{category.name}</p>
+            {category.description && <p className="text-[11px] text-on-surface-variant italic mt-0.5">{category.description}</p>}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {category.count !== undefined && (
+            <span className="text-[10px] font-bold bg-surface-variant/30 text-on-surface-variant px-2 py-1 rounded-full mr-2 hidden sm:inline-block">
+              {category.count} bài viết
+            </span>
+          )}
+          <div className={`flex gap-1.5 ${level === 0 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
+            <button onClick={() => onAddChild(category.id)} className="w-7 h-7 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded transition-all hover:bg-emerald-500 hover:text-white" title="Thêm danh mục con">
+              <span className="material-symbols-outlined text-[14px]">add</span>
+            </button>
+            <button onClick={() => onEdit(category.id)} className="w-7 h-7 flex items-center justify-center bg-blue-50 text-blue-600 rounded transition-all hover:bg-blue-500 hover:text-white" title="Chỉnh sửa">
+              <span className="material-symbols-outlined text-[14px]">edit_note</span>
+            </button>
+            <button onClick={() => onDelete('danh mục', category)} className="w-7 h-7 flex items-center justify-center bg-rose-50 text-rose-600 rounded transition-all hover:bg-rose-500 hover:text-white" title="Xóa">
+              <span className="material-symbols-outlined text-[14px]">delete</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {isExpanded && hasChildren && (
+        <div className={`border-l-2 border-outline-variant/30 ${level === 0 ? 'ml-[38px] my-2' : 'ml-[22px]'}`}>
+          {category.children.map(child => (
+            <CategoryTreeItem
+              key={child.id}
+              category={child}
+              level={level + 1}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onAddChild={onAddChild}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const MetadataManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, type: '', name: '', id: null });
@@ -13,13 +88,70 @@ const MetadataManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [metaRes, colorsRes] = await Promise.all([
-          fetch('/api/admin_metadata.json'),
-          fetch('/api/tag_colors.json')
-        ]);
+        // 1. Static metadata (categories + stats) from the JSON fixture.
+        const staticRes = await mockClient.get(ENDPOINTS.MOCK.ADMIN_METADATA);
+        const colorsRes = await mockClient.get(ENDPOINTS.MOCK.TAG_COLORS);
 
-        if (metaRes.ok) setData(await metaRes.json());
-        if (colorsRes.ok) setTagColors(await colorsRes.json());
+        const json = staticRes.data;
+        if (json.stats) {
+          json.stats = json.stats.filter((s) => s.label !== 'Danh mục chính');
+        }
+
+        // 2. Tags + periods from the backend (via metadataService).
+        const { tags: liveTags = [], periods: livePeriods = [] } =
+          await metadataService.fetchOverview().catch((err) => {
+            console.error('Lỗi khi fetch overview metadata:', err);
+            return { tags: [], periods: [] };
+          });
+
+        json.tags = liveTags.map((t) => ({
+          id: t.id,
+          name: t.name,
+          slug: t.slug,
+          count: 0,
+        }));
+
+        const formatYear = (y) => {
+          if (y === undefined || y === null || y === '') return '';
+          const val = parseInt(y, 10);
+          if (isNaN(val)) return y;
+          return val < 0 ? `${Math.abs(val)} TCN` : `${val}`;
+        };
+
+        const formatRange = (start, end) => {
+          const s = formatYear(start);
+          const e = formatYear(end);
+          if (!s && !e) return 'Chưa rõ';
+          if (!s) return `? - ${e}`;
+          if (!e) return `${s} - Nay`;
+          return `${s} - ${e}`;
+        };
+
+        json.periods = livePeriods.map((p) => ({
+          id: p.id,
+          name: p.name,
+          range: formatRange(p.startYear, p.endYear),
+          slug: p.slug,
+          description: p.description,
+        }));
+
+        // Sort periods chronologically
+        const parseStartYear = (rangeStr) => {
+          if (!rangeStr) return 999999;
+          const startPart = rangeStr.split('-')[0] || '';
+          const yearMatch = startPart.match(/\d+/);
+          if (!yearMatch) return 999999;
+          let year = parseInt(yearMatch[0], 10);
+          if (startPart.toUpperCase().includes('TCN')) year = -year;
+          return year;
+        };
+
+        if (json.periods) {
+          json.periods.sort((a, b) => parseStartYear(a.range) - parseStartYear(b.range));
+        }
+
+        setData(json);
+        setTagColors(colorsRes.data);
       } catch (error) {
         console.error('Error fetching metadata:', error);
       } finally {
@@ -28,6 +160,28 @@ const MetadataManagement = () => {
     };
     fetchData();
   }, []);
+
+  const handlePeriodDragStart = (e, index) => {
+    e.dataTransfer.setData('text/plain', String(index));
+  };
+
+  const handlePeriodDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handlePeriodDrop = (e, dropIndex) => {
+    e.preventDefault();
+    const dragIndexStr = e.dataTransfer.getData('text/plain');
+    if (dragIndexStr === '') return;
+    const dragIndex = parseInt(dragIndexStr, 10);
+    if (dragIndex === dropIndex) return;
+
+    const updatedPeriods = [...data.periods];
+    const [draggedItem] = updatedPeriods.splice(dragIndex, 1);
+    updatedPeriods.splice(dropIndex, 0, draggedItem);
+
+    setData((prev) => ({ ...prev, periods: updatedPeriods }));
+  };
 
   const getTagStyle = (tagName) => {
     if (!tagName || !tagColors) return 'text-primary bg-primary/10 border-primary/20';
@@ -41,7 +195,7 @@ const MetadataManagement = () => {
     const lower = tagName.toLowerCase();
 
     // 1. Check if it matches period colors
-    for (const key in periodColors) {
+    for (const key in periodColors || {}) {
       if (key !== 'default' && lower.includes(key)) return periodColors[key];
     }
 
@@ -68,13 +222,42 @@ const MetadataManagement = () => {
     return palettes[index];
   };
 
-  const openDelete = (type, item) => setDeleteModal({ open: true, type, name: item.name, id: item.id });
+  const openDelete = (type, item) =>
+    setDeleteModal({ open: true, type, name: item.name, id: item.id });
+
+  const handleDeleteConfirm = async () => {
+    const { type, id } = deleteModal;
+    if (id === null || id === undefined) return;
+
+    try {
+      if (type === 'danh mục') {
+        const deleteRecursive = (cats) =>
+          cats
+            .filter((c) => c.id !== id)
+            .map((c) => ({
+              ...c,
+              children: c.children ? deleteRecursive(c.children) : [],
+            }));
+        setData((prev) => ({ ...prev, categories: deleteRecursive(prev.categories) }));
+      } else if (type === 'thẻ') {
+        await tagService.delete(id);
+        setData((prev) => ({ ...prev, tags: prev.tags.filter((t) => t.id !== id) }));
+      } else if (type === 'thời kỳ') {
+        await periodService.delete(id);
+        setData((prev) => ({ ...prev, periods: prev.periods.filter((p) => p.id !== id) }));
+      }
+      setDeleteModal({ open: false, type: '', name: '', id: null });
+    } catch (e) {
+      console.error('Lỗi khi xóa siêu dữ liệu:', e);
+      alert('Có lỗi xảy ra khi xóa siêu dữ liệu!');
+    }
+  };
 
   return (
     <AdminLayout>
       <PageHeader
         title="Quản lý Siêu dữ liệu"
-        subtitle="Quản lý danh mục, thẻ phân loại và dòng thời gian cho toàn bộ hệ thống lưu trữ."
+        subtitle="Quản lý thẻ phân loại và dòng thời gian cho toàn bộ hệ thống lưu trữ."
         icon="database"
       />
 
@@ -82,129 +265,9 @@ const MetadataManagement = () => {
         <StatsGrid stats={data.stats} loading={loading} />
       </div>
 
-      <div className="grid grid-cols-12 gap-8 items-start">
-        {/* QUẢN LÝ DANH MỤC */}
-        <section className="col-span-12 lg:col-span-5 bg-white border border-outline-variant p-6 rounded-xl shadow-sm">
-          <div className="flex justify-between items-center border-b border-outline-variant pb-3 mb-6">
-            <h3 className="font-headline text-xl text-primary font-bold flex items-center gap-2">
-              <span className="material-symbols-outlined">account_tree</span> Phân cấp Danh mục
-            </h3>
-            <button onClick={() => navigate('/admin/metadata/categories/new')} className="text-[10px] font-bold uppercase border border-primary text-primary px-3 py-1.5 rounded hover:bg-primary/5 transition-all flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm">add</span> Danh mục
-            </button>
-          </div>
-          <div className="space-y-4">
-            {loading ? (
-              <div className="text-center py-4 font-body text-sm text-on-surface-variant">Đang tải danh mục...</div>
-            ) : (
-              data.categories.map(cat => (
-                <div key={cat.id} className="border border-outline-variant rounded-xl overflow-hidden shadow-sm bg-white">
-                  <div className="p-4 bg-surface-low/50 flex justify-between items-center group border-b border-outline-variant/50">
-                    <div className="flex items-center gap-3">
-                      <span className="material-symbols-outlined text-primary text-xl">folder_open</span>
-                      <div>
-                        <p className="font-bold text-sm text-on-surface">{cat.name}</p>
-                        <p className="text-[11px] text-on-surface-variant italic mt-0.5">{cat.description || cat.sub}</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => navigate(`/admin/metadata/categories/edit/${cat.id}`)} className="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-md transition-all hover:bg-blue-500 hover:text-white" title="Chỉnh sửa">
-                        <span className="material-symbols-outlined text-[16px]">edit_note</span>
-                      </button>
-                      <button onClick={() => openDelete('danh mục', cat)} className="w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-600 rounded-md transition-all hover:bg-rose-500 hover:text-white" title="Xóa">
-                        <span className="material-symbols-outlined text-[16px]">delete</span>
-                      </button>
-                    </div>
-                  </div>
-                  {cat.children && cat.children.length > 0 && (
-                    <div className="bg-white">
-                      {cat.children.map(child => (
-                        <div key={child.id} className="flex justify-between items-center px-4 py-3 pl-12 border-b border-outline-variant/30 last:border-0 hover:bg-surface-low transition-colors">
-                          <div className="flex items-center gap-3">
-                            <span className="material-symbols-outlined text-on-surface-variant text-lg">subdirectory_arrow_right</span>
-                            <span className="text-sm font-medium text-on-surface">{child.name}</span>
-                          </div>
-                          <span className="text-[10px] font-bold bg-surface-variant/30 text-on-surface-variant px-2 py-1 rounded-full">
-                            {child.count} bài viết
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
-        </section>
-
-        {/* QUẢN LÝ THẺ (TAGS) */}
-        <section className="col-span-12 lg:col-span-7 bg-white border border-outline-variant p-6 rounded-xl shadow-sm">
-          <div className="flex justify-between items-center border-b border-outline-variant pb-3 mb-6">
-            <h3 className="font-headline text-xl text-primary font-bold flex items-center gap-2">
-              <span className="material-symbols-outlined">sell</span> Quản lý Thẻ (Tags)
-            </h3>
-            <button onClick={() => navigate('/admin/metadata/tags/new')} className="text-[10px] font-bold uppercase border border-primary text-primary px-3 py-1.5 rounded hover:bg-primary/5 transition-all flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm">add</span> Thẻ Tags
-            </button>
-          </div>
-          <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-            {loading ? (
-              <div className="text-center py-4 font-body text-sm text-on-surface-variant">Đang tải thẻ...</div>
-            ) : (
-              Object.entries(
-                data.tags.reduce((acc, tag) => {
-                  const type = tag.type || 'Khác';
-                  if (!acc[type]) acc[type] = [];
-                  acc[type].push(tag);
-                  return acc;
-                }, {})
-              ).map(([type, tags]) => (
-                <div key={type} className="border border-outline-variant rounded-xl overflow-hidden shadow-sm bg-white">
-                  <div className="px-4 py-3 bg-surface-low/50 border-b border-outline-variant flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${getTagStyle(type)}`}>
-                      {type}
-                    </span>
-                    <span className="text-xs text-on-surface-variant font-medium">({tags.length} thẻ)</span>
-                  </div>
-                  <table className="w-full text-left">
-                    <tbody className="text-sm">
-                      {tags.map(tag => (
-                        <tr key={tag.id} className="hover:bg-surface-low transition-all group border-b border-outline-variant/30 last:border-0">
-                          <td className="py-3 px-4">
-                            <span className={`px-3 py-1.5 rounded-full text-[10px] font-bold border font-body inline-flex items-center gap-1.5 shadow-sm ${getIndividualTagStyle(tag.name)}`}>
-                              #{tag.name}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 w-48 hidden sm:table-cell">
-                            <div className="flex items-center gap-3">
-                              <div className="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
-                                <div className="bg-accent h-full" style={{ width: `${tag.usage}%` }}></div>
-                              </div>
-                              <span className="font-body text-[10px] font-bold w-8">{tag.count}</span>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 text-right w-24">
-                            <div className="flex justify-end gap-2">
-                              <button onClick={() => navigate(`/admin/metadata/tags/edit/${tag.id}`)} className="w-7 h-7 flex items-center justify-center bg-blue-50 text-blue-600 rounded-md transition-all hover:bg-blue-500 hover:text-white" title="Chỉnh sửa">
-                                <span className="material-symbols-outlined text-[16px]">edit_note</span>
-                              </button>
-                              <button onClick={() => openDelete('thẻ', tag)} className="w-7 h-7 flex items-center justify-center bg-rose-50 text-rose-600 rounded-md transition-all hover:bg-rose-500 hover:text-white" title="Xóa">
-                                <span className="material-symbols-outlined text-[16px]">delete</span>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ))
-            )}
-          </div>
-        </section>
-
+      <div className="space-y-8">
         {/* QUẢN LÝ THỜI KỲ (PERIODS) */}
-        <section className="col-span-12 bg-surface-low border border-outline-variant p-8 rounded-xl shadow-sm">
+        <section className="bg-surface-low border border-outline-variant p-8 rounded-xl shadow-sm">
           <div className="flex justify-between items-center mb-8">
             <h3 className="font-headline text-2xl text-primary font-bold italic">Dòng chảy Thời kỳ (Timeline)</h3>
             <button onClick={() => navigate('/admin/metadata/periods/new')} className="text-[10px] font-bold uppercase border border-primary text-primary px-3 py-1.5 rounded hover:bg-primary/5 transition-all flex items-center gap-1">
@@ -213,20 +276,47 @@ const MetadataManagement = () => {
           </div>
           <div className="relative">
             <div className="absolute top-1/2 left-0 right-0 h-[1px] border-t-2 border-dashed border-accent/40 hidden md:block z-0 pointer-events-none"></div>
-            
+
             <div className="flex gap-4 overflow-x-auto custom-scrollbar pb-4 pt-2 px-2 snap-x relative z-10 items-stretch">
               {loading ? (
                 <div className="w-full text-center py-4 font-body text-sm text-on-surface-variant">Đang tải thời kỳ...</div>
               ) : (
-                data.periods.map(p => (
-                  <div key={p.id} draggable="true" className="shrink-0 w-48 cursor-move relative p-3.5 border rounded-xl transition-all hover:-translate-y-1 hover:shadow-xl group bg-white border-outline-variant snap-center flex flex-col justify-between">
+                data.periods.map((p, index) => (
+                  <div
+                    key={p.id}
+                    draggable="true"
+                    onDragStart={(e) => handlePeriodDragStart(e, index)}
+                    onDragOver={handlePeriodDragOver}
+                    onDrop={(e) => handlePeriodDrop(e, index)}
+                    className="shrink-0 w-48 cursor-move relative p-3.5 border rounded-xl transition-all hover:-translate-y-1 hover:shadow-xl group bg-white border-outline-variant snap-center flex flex-col justify-between"
+                  >
                     <div>
                       <div className="absolute top-1.5 right-1.5 text-on-surface-variant opacity-20 group-hover:opacity-60 transition-opacity">
                         <span className="material-symbols-outlined text-[15px]">drag_indicator</span>
                       </div>
                       <span className="font-body text-[9px] font-bold uppercase tracking-widest text-on-surface-variant bg-surface-low px-1.5 py-1 rounded border border-outline-variant/50 inline-block">{p.range}</span>
                       <h4 className="font-headline font-bold text-base mt-2 text-primary pr-4 leading-tight">{p.name}</h4>
+                      {p.philosophy && <p className="text-[10px] font-bold text-accent italic mt-0.5">{p.philosophy}</p>}
                       <p className="text-[11px] mt-1.5 italic leading-snug text-on-surface-variant line-clamp-3">{p.desc}</p>
+
+                      {p.emperors && p.emperors.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-outline-variant/30 flex items-center gap-2">
+                          <div className="flex -space-x-2">
+                            {p.emperors.map((emp, i) => (
+                              <img
+                                key={i}
+                                src={emp.img}
+                                alt={emp.name}
+                                title={emp.name}
+                                className="w-6 h-6 rounded-full border-2 border-white bg-surface-variant object-cover shadow-sm transition-all hover:scale-125 z-10 hover:z-20 relative"
+                              />
+                            ))}
+                          </div>
+                          <span className="text-[9px] font-body text-on-surface-variant uppercase tracking-widest font-bold">
+                            {p.emperors.length} Vị Vua
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="flex justify-end gap-1.5 mt-3 pt-2.5 border-t border-outline-variant/50 transition-all">
                       <button onClick={() => navigate(`/admin/metadata/periods/edit/${p.id}`)} className="w-6 h-6 flex items-center justify-center bg-blue-50 text-blue-600 rounded transition-all hover:bg-blue-500 hover:text-white" title="Chỉnh sửa">
@@ -242,18 +332,103 @@ const MetadataManagement = () => {
             </div>
           </div>
         </section>
+
+        {/* QUẢN LÝ THẺ (TAGS) */}
+        <section className="bg-white border border-outline-variant p-8 rounded-xl shadow-sm">
+          <div className="flex justify-between items-center border-b border-outline-variant pb-4 mb-6">
+            <div>
+              <h3 className="font-headline text-2xl text-primary font-bold flex items-center gap-2">
+                <span className="material-symbols-outlined text-2xl">sell</span> Phân loại theo Thẻ (Tags)
+              </h3>
+              <p className="text-xs text-on-surface-variant mt-1">Quản lý danh sách các từ khóa, nhãn phân loại theo từng chủ đề hệ thống.</p>
+            </div>
+            <button onClick={() => navigate('/admin/metadata/tags/new')} className="text-[10px] font-bold uppercase border border-primary text-primary px-3 py-1.5 rounded hover:bg-primary/5 transition-all flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">add</span> Thẻ Tags
+            </button>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-12 font-body text-sm text-on-surface-variant">Đang tải thẻ...</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Object.entries(
+                data.tags.reduce((acc, tag) => {
+                  const type = tag.type || 'Khác';
+                  if (!acc[type]) acc[type] = [];
+                  acc[type].push(tag);
+                  return acc;
+                }, {})
+              ).map(([type, tags]) => (
+                <TagGroupCard
+                  key={type}
+                  type={type}
+                  tags={tags}
+                  getTagStyle={getTagStyle}
+                  getIndividualTagStyle={getIndividualTagStyle}
+                  navigate={navigate}
+                  openDelete={openDelete}
+                />
+              ))}
+            </div>
+          )}
+        </section>
       </div>
+
       {/* MODAL XÓA CHUNG */}
       <ActionModal
         isOpen={deleteModal.open}
         onClose={() => setDeleteModal({ ...deleteModal, open: false })}
         type="delete"
         item={{ name: deleteModal.name }}
-        onConfirm={() => { alert('Đã xóa'); setDeleteModal({ ...deleteModal, open: false }); }}
-        title={`Xác nhận xóa ${deleteModal.type}?`}
-        description={`Dữ liệu của <strong>"${deleteModal.name}"</strong> sẽ bị gỡ bỏ vĩnh viễn khỏi các liên kết sử liệu.`}
+        onConfirm={handleDeleteConfirm}
       />
     </AdminLayout>
+  );
+};
+
+const TagGroupCard = ({ type, tags, getTagStyle, getIndividualTagStyle, navigate, openDelete }) => {
+  return (
+    <div className="border border-outline-variant rounded-xl overflow-hidden shadow-sm bg-white flex flex-col h-[400px]">
+      <div className="px-4 py-3.5 bg-surface-low/50 border-b border-outline-variant flex justify-between items-center shrink-0">
+        <div className="flex items-center gap-2">
+          <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${getTagStyle(type)}`}>
+            {type}
+          </span>
+          <span className="text-xs text-on-surface-variant font-medium">({tags.length} thẻ)</span>
+        </div>
+        <button
+          onClick={() => navigate(`/admin/metadata/tags/new?type=${encodeURIComponent(type)}`)}
+          className="w-7 h-7 flex items-center justify-center text-primary bg-primary/10 hover:bg-primary hover:text-white rounded transition-all"
+          title={`Thêm thẻ mới vào ${type}`}
+        >
+          <span className="material-symbols-outlined text-[16px]">add</span>
+        </button>
+      </div>
+
+      <div className="flex-grow overflow-y-auto p-4 custom-scrollbar space-y-3">
+        {tags.map(tag => (
+          <div key={tag.id} className="flex justify-between items-center group/tag border-b border-outline-variant/30 pb-2.5 last:border-0 last:pb-0">
+            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border font-body inline-flex items-center gap-1.5 shadow-sm ${getIndividualTagStyle(tag.name)}`}>
+              #{tag.name}
+            </span>
+            <div className="flex items-center gap-3">
+              <span className="font-body text-[10px] font-bold text-on-surface-variant/70">{tag.count || 0} bài</span>
+              <div className="flex gap-1 opacity-0 group-hover/tag:opacity-100 transition-opacity">
+                <button onClick={() => navigate(`/admin/metadata/tags/edit/${tag.id}`)} className="w-6 h-6 flex items-center justify-center bg-blue-50 text-blue-600 rounded transition-all hover:bg-blue-500 hover:text-white" title="Sửa">
+                  <span className="material-symbols-outlined text-[13px]">edit_note</span>
+                </button>
+                <button onClick={() => openDelete('thẻ', tag)} className="w-6 h-6 flex items-center justify-center bg-rose-50 text-rose-600 rounded transition-all hover:bg-rose-500 hover:text-white" title="Xóa">
+                  <span className="material-symbols-outlined text-[13px]">delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+        {tags.length === 0 && (
+          <div className="text-center py-8 text-xs text-on-surface-variant italic">Không có thẻ nào</div>
+        )}
+      </div>
+    </div>
   );
 };
 

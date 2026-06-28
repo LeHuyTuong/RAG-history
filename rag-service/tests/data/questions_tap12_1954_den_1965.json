@@ -1,0 +1,250 @@
+{
+  "source": {
+    "sourceId": 12,
+    "title": "Lịch sử Việt Nam tập 12 Từ năm 1954 đến năm 1965",
+    "pages": "1-543",
+    "chunks": 0
+  },
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Miền Nam sau Geneva",
+      "question": "Sau Hiệp định Geneva, Mỹ và chính quyền Ngô Đình Diệm đã làm gì để ngăn cản tổng tuyển cử thống nhất đất nước?",
+      "expected_keywords": ["phá hoại tổng tuyển cử", "Ngô Đình Diệm", "từ chối hiệp thương", "Mỹ-Diệm"]
+    },
+    {
+      "id": 2,
+      "topic": "Chính quyền Ngô Đình Diệm",
+      "question": "Chính quyền Ngô Đình Diệm thiết lập bộ máy cai trị ở miền Nam như thế nào trong giai đoạn 1954-1956?",
+      "expected_keywords": ["Ngô Đình Diệm", "Việt Nam Cộng hòa", "độc tài", "bộ máy kìm kẹp"]
+    },
+    {
+      "id": 3,
+      "topic": "Đấu tranh đòi thi hành Geneva",
+      "question": "Nhân dân miền Nam đã đấu tranh đòi thi hành Hiệp định Geneva như thế nào trong giai đoạn 1954-1956?",
+      "expected_keywords": ["đấu tranh chính trị", "hiệp thương tổng tuyển cử", "đấu tranh hòa bình", "đòi dân sinh dân chủ"]
+    },
+    {
+      "id": 4,
+      "topic": "Luật 10/59",
+      "question": "Luật 10/59 của chính quyền Diệm có nội dung gì và được áp dụng như thế nào?",
+      "expected_keywords": ["Luật 10/59", "máy chém", "tử hình", "đàn áp cách mạng"]
+    },
+    {
+      "id": 5,
+      "topic": "Khủng bố trắng miền Nam",
+      "question": "Chiến dịch tố cộng diệt cộng của Diệm đã gây ra tổn thất gì cho lực lượng cách mạng miền Nam?",
+      "expected_keywords": ["tố cộng diệt cộng", "khủng bố", "cán bộ bị bắt giết", "lực lượng cách mạng tổn thất"]
+    },
+    {
+      "id": 6,
+      "topic": "Nghị quyết 15",
+      "question": "Nghị quyết 15 của Ban Chấp hành Trung ương Đảng năm 1959 có nội dung gì và ý nghĩa như thế nào?",
+      "expected_keywords": ["Nghị quyết 15", "1959", "bạo lực cách mạng", "đấu tranh vũ trang"]
+    },
+    {
+      "id": 7,
+      "topic": "Phong trào Đồng Khởi",
+      "question": "Phong trào Đồng Khởi năm 1960 khởi đầu ở đâu và lan rộng như thế nào?",
+      "expected_keywords": ["Đồng Khởi", "Bến Tre", "1960", "lan rộng toàn miền Nam"]
+    },
+    {
+      "id": 8,
+      "topic": "Phong trào Đồng Khởi",
+      "question": "Kết quả của phong trào Đồng Khởi năm 1960 là gì về mặt lãnh thổ và lực lượng cách mạng?",
+      "expected_keywords": ["vùng giải phóng mở rộng", "chính quyền cách mạng", "tiêu diệt ấp chiến lược", "lực lượng vũ trang"]
+    },
+    {
+      "id": 9,
+      "topic": "MTDTGPMN 1960",
+      "question": "Mặt trận Dân tộc Giải phóng miền Nam Việt Nam được thành lập vào ngày tháng năm nào và cương lĩnh của Mặt trận là gì?",
+      "expected_keywords": ["20/12/1960", "MTDTGPMN", "Mặt trận Dân tộc Giải phóng", "độc lập dân chủ hòa bình"]
+    },
+    {
+      "id": 10,
+      "topic": "MTDTGPMN 1960",
+      "question": "Mặt trận Dân tộc Giải phóng miền Nam Việt Nam bao gồm những lực lượng nào và ai đứng đầu?",
+      "expected_keywords": ["Nguyễn Hữu Thọ", "Chủ tịch", "liên minh các lực lượng", "mọi tầng lớp nhân dân"]
+    },
+    {
+      "id": 11,
+      "topic": "Chiến lược Chiến tranh đặc biệt",
+      "question": "Chiến lược Chiến tranh đặc biệt của Mỹ ở miền Nam trong giai đoạn 1961-1965 có nội dung cốt lõi là gì?",
+      "expected_keywords": ["Chiến tranh đặc biệt", "cố vấn Mỹ", "quân ngụy", "ấp chiến lược"]
+    },
+    {
+      "id": 12,
+      "topic": "Ấp chiến lược",
+      "question": "Chương trình ấp chiến lược của Mỹ-Diệm có mục đích gì và đã thất bại như thế nào?",
+      "expected_keywords": ["ấp chiến lược", "kiểm soát dân", "tách dân khỏi cách mạng", "phá ấp chiến lược"]
+    },
+    {
+      "id": 13,
+      "topic": "Quân Giải phóng",
+      "question": "Quân Giải phóng miền Nam được thành lập vào năm nào và phát triển như thế nào?",
+      "expected_keywords": ["Quân Giải phóng", "1961", "Quân đội nhân dân", "lực lượng vũ trang miền Nam"]
+    },
+    {
+      "id": 14,
+      "topic": "Chiến thắng Ấp Bắc",
+      "question": "Trận Ấp Bắc ngày 2/1/1963 có ý nghĩa gì đối với cuộc chiến tranh chống Chiến tranh đặc biệt?",
+      "expected_keywords": ["Ấp Bắc", "2/1/1963", "đánh bại trực thăng Mỹ", "chiến thắng Ấp Bắc"]
+    },
+    {
+      "id": 15,
+      "topic": "Đảo chính Diệm 1963",
+      "question": "Đảo chính lật đổ Ngô Đình Diệm xảy ra vào ngày tháng năm nào và do ai chủ mưu?",
+      "expected_keywords": ["1/11/1963", "Dương Văn Minh", "đảo chính Diệm", "Mỹ đồng ý"]
+    },
+    {
+      "id": 16,
+      "topic": "Đảo chính Diệm 1963",
+      "question": "Mỹ đã có thái độ như thế nào đối với chính quyền Diệm trước khi xảy ra cuộc đảo chính năm 1963?",
+      "expected_keywords": ["Mỹ bất mãn", "Diệm thất bại", "thay ngựa giữa dòng", "tín hiệu đảo chính"]
+    },
+    {
+      "id": 17,
+      "topic": "Miền Bắc xây dựng CNXH",
+      "question": "Miền Bắc thực hiện kế hoạch 3 năm khôi phục kinh tế (1955-1957) và đạt kết quả gì?",
+      "expected_keywords": ["khôi phục kinh tế", "kế hoạch 3 năm", "1955-1957", "miền Bắc xây dựng"]
+    },
+    {
+      "id": 18,
+      "topic": "Cải cách ruộng đất miền Bắc",
+      "question": "Cải cách ruộng đất ở miền Bắc (1953-1956) đã chia ruộng cho bao nhiêu nông dân và có sai lầm gì?",
+      "expected_keywords": ["cải cách ruộng đất", "chia ruộng đất", "sai lầm", "sửa sai"]
+    },
+    {
+      "id": 19,
+      "topic": "Hợp tác hóa nông nghiệp",
+      "question": "Phong trào hợp tác hóa nông nghiệp ở miền Bắc trong những năm 1958-1960 diễn ra như thế nào?",
+      "expected_keywords": ["hợp tác xã nông nghiệp", "hợp tác hóa", "tập thể hóa", "sản xuất tập thể"]
+    },
+    {
+      "id": 20,
+      "topic": "Kế hoạch 5 năm lần I",
+      "question": "Kế hoạch Nhà nước 5 năm lần thứ nhất ở miền Bắc (1961-1965) có những mục tiêu gì?",
+      "expected_keywords": ["kế hoạch 5 năm", "1961-1965", "công nghiệp hóa", "xây dựng CNXH"]
+    },
+    {
+      "id": 21,
+      "topic": "Phong trào Ba sẵn sàng",
+      "question": "Phong trào Ba sẵn sàng ở miền Bắc bắt đầu từ năm nào và có nội dung gì?",
+      "expected_keywords": ["Ba sẵn sàng", "thanh niên", "sẵn sàng chiến đấu sản xuất học tập", "1964"]
+    },
+    {
+      "id": 22,
+      "topic": "Phong trào Ba đảm đang",
+      "question": "Phong trào Ba đảm đang của phụ nữ miền Bắc có nội dung gì và ý nghĩa ra sao?",
+      "expected_keywords": ["Ba đảm đang", "phụ nữ", "sản xuất chiến đấu", "đảm nhiệm công việc nam giới"]
+    },
+    {
+      "id": 23,
+      "topic": "Đại hội Đảng III",
+      "question": "Đại hội Đảng lần thứ III năm 1960 đã xác định đường lối cách mạng như thế nào cho cả hai miền?",
+      "expected_keywords": ["Đại hội III", "1960", "cách mạng xã hội chủ nghĩa miền Bắc", "cách mạng dân tộc dân chủ miền Nam"]
+    },
+    {
+      "id": 24,
+      "topic": "Vận chuyển chi viện",
+      "question": "Đường Trường Sơn (đường mòn Hồ Chí Minh) được mở vào năm nào và có vai trò gì?",
+      "expected_keywords": ["đường Trường Sơn", "1959", "chi viện miền Nam", "Đoàn 559"]
+    },
+    {
+      "id": 25,
+      "topic": "Đoàn tàu không số",
+      "question": "Đường vận chuyển chi viện miền Nam trên biển của Đoàn tàu không số bắt đầu hoạt động năm nào?",
+      "expected_keywords": ["tàu không số", "đường Hồ Chí Minh trên biển", "1961", "Đoàn 125"]
+    },
+    {
+      "id": 26,
+      "topic": "Phật giáo 1963",
+      "question": "Cuộc đấu tranh của Phật giáo miền Nam năm 1963 chống chính quyền Diệm diễn ra vì lý do gì?",
+      "expected_keywords": ["Phật giáo", "kỳ thị tôn giáo", "1963", "tự thiêu"]
+    },
+    {
+      "id": 27,
+      "topic": "Quân sự miền Nam",
+      "question": "Lực lượng vũ trang giải phóng miền Nam phát triển như thế nào từ năm 1960 đến 1965?",
+      "expected_keywords": ["lực lượng vũ trang", "du kích", "bộ đội địa phương", "chủ lực"]
+    },
+    {
+      "id": 28,
+      "topic": "Cố vấn Mỹ",
+      "question": "Số lượng cố vấn quân sự Mỹ ở miền Nam tăng lên như thế nào trong giai đoạn 1961-1964?",
+      "expected_keywords": ["cố vấn Mỹ", "MAAG", "tăng quân", "can thiệp trực tiếp"]
+    },
+    {
+      "id": 29,
+      "topic": "Đường lối cách mạng miền Nam",
+      "question": "Nghị quyết Đại hội Đảng III năm 1960 chỉ ra nhiệm vụ cách mạng ở miền Nam là gì?",
+      "expected_keywords": ["giải phóng miền Nam", "cách mạng dân tộc dân chủ", "chống Mỹ xâm lược", "chống chính quyền tay sai"]
+    },
+    {
+      "id": 30,
+      "topic": "Công nghiệp hóa miền Bắc",
+      "question": "Những công trình công nghiệp lớn nào được xây dựng ở miền Bắc trong kế hoạch 5 năm 1961-1965?",
+      "expected_keywords": ["Khu công nghiệp Việt Trì", "gang thép Thái Nguyên", "công nghiệp hóa", "xây dựng cơ sở vật chất"]
+    },
+    {
+      "id": 31,
+      "topic": "Sự kiện Vịnh Bắc Bộ",
+      "question": "Sự kiện Vịnh Bắc Bộ tháng 8/1964 đã được Mỹ sử dụng như thế nào để leo thang chiến tranh?",
+      "expected_keywords": ["Vịnh Bắc Bộ", "8/1964", "cớ để leo thang", "Nghị quyết Vịnh Bắc Bộ"]
+    },
+    {
+      "id": 32,
+      "topic": "Chính phủ CHMNVN",
+      "question": "Chính phủ Cách mạng Lâm thời Cộng hòa miền Nam Việt Nam được thành lập vào năm nào?",
+      "expected_keywords": ["Chính phủ Cách mạng Lâm thời", "CHMNVN", "1969", "Nguyễn Hữu Thọ"]
+    },
+    {
+      "id": 33,
+      "topic": "Xây dựng văn hóa miền Bắc",
+      "question": "Nền giáo dục và văn hóa ở miền Bắc phát triển như thế nào trong giai đoạn 1954-1965?",
+      "expected_keywords": ["xóa mù chữ", "phổ cập giáo dục", "đại học", "văn hóa giáo dục"]
+    },
+    {
+      "id": 34,
+      "topic": "Thống nhất Tổ quốc",
+      "question": "Quan hệ giữa miền Bắc và miền Nam trong giai đoạn 1954-1965 được duy trì như thế nào?",
+      "expected_keywords": ["chi viện miền Nam", "hậu phương lớn", "chiến trường lớn", "hai nhiệm vụ chiến lược"]
+    },
+    {
+      "id": 35,
+      "topic": "Phụ nữ cách mạng",
+      "question": "Phụ nữ miền Nam đã đóng góp như thế nào trong phong trào đấu tranh giai đoạn 1954-1965?",
+      "expected_keywords": ["đội quân tóc dài", "phụ nữ miền Nam", "biểu tình", "đấu tranh chính trị"]
+    },
+    {
+      "id": 36,
+      "topic": "Thiết quân luật",
+      "question": "Sau các cuộc đảo chính năm 1963-1964, tình hình chính trị miền Nam diễn biến như thế nào?",
+      "expected_keywords": ["đảo chính liên tiếp", "bất ổn chính trị", "chính quyền Sài Gòn", "Mỹ lo ngại"]
+    },
+    {
+      "id": 37,
+      "topic": "Nông thôn miền Nam",
+      "question": "Vùng giải phóng ở nông thôn miền Nam mở rộng như thế nào trong giai đoạn 1960-1965?",
+      "expected_keywords": ["vùng giải phóng", "nông thôn miền Nam", "Mặt trận kiểm soát", "tan rã ấp chiến lược"]
+    },
+    {
+      "id": 38,
+      "topic": "Đô thị miền Nam",
+      "question": "Phong trào đấu tranh đô thị ở miền Nam giai đoạn 1954-1965 có những đặc điểm gì?",
+      "expected_keywords": ["đô thị", "học sinh sinh viên", "công nhân", "đấu tranh chính trị đô thị"]
+    },
+    {
+      "id": 39,
+      "topic": "Tổng thống Mỹ Kennedy",
+      "question": "Chính sách của Tổng thống Kennedy đối với Việt Nam trong giai đoạn 1961-1963 là gì?",
+      "expected_keywords": ["Kennedy", "Chiến tranh đặc biệt", "tăng cố vấn", "kiểm soát leo thang"]
+    },
+    {
+      "id": 40,
+      "topic": "Miền Bắc chi viện",
+      "question": "Miền Bắc chi viện cho miền Nam những gì trong giai đoạn 1954-1965?",
+      "expected_keywords": ["cán bộ chi viện", "vũ khí đạn dược", "Đoàn 559", "hậu phương miền Bắc"]
+    }
+  ]
+}

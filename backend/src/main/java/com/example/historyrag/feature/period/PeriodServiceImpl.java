@@ -1,22 +1,21 @@
 package com.example.historyrag.feature.period;
 
+import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.exception.ConflictException;
 import com.example.historyrag.feature.period.dto.PeriodRequest;
 import com.example.historyrag.feature.period.dto.PeriodResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class PeriodServiceImpl implements PeriodService {
 
     private final PeriodRepository periodRepository;
-
-    public PeriodServiceImpl(PeriodRepository periodRepository) {
-        this.periodRepository = periodRepository;
-    }
 
     @Override
     @Transactional
@@ -63,14 +62,14 @@ public class PeriodServiceImpl implements PeriodService {
     }
 
     @Override
-    public Page<PeriodResponse> getAllPeriods(String keyword, Pageable pageable) {
+    public ResultPaginationDTO getAllPeriods(String keyword, Pageable pageable) {
         Page<Period> periods;
         if (keyword != null && !keyword.isBlank()) {
             periods = periodRepository.findByNameContainingIgnoreCase(keyword, pageable);
         } else {
             periods = periodRepository.findAll(pageable);
         }
-        return periods.map(PeriodResponse::fromEntity);
+        return ResultPaginationDTO.fromPage(periods.map(PeriodResponse::fromEntity));
     }
 
     @Override
@@ -80,5 +79,18 @@ public class PeriodServiceImpl implements PeriodService {
             throw new ResourceNotFoundException("Period", "id", id);
         }
         periodRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countPeriods() {
+        return periodRepository.count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Period getPeriodEntityById(Long id) {
+        return periodRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Thời kỳ", "id", id));
     }
 }

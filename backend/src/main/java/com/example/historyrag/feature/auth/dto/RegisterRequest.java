@@ -1,7 +1,10 @@
 package com.example.historyrag.feature.auth.dto;
 
+
+import lombok.Builder;
 import jakarta.validation.constraints.*;
 
+@Builder
 public record RegisterRequest(
         @Size(max = 50, message = "Username không được quá 50 ký tự")
         String username,

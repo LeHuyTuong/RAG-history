@@ -15,13 +15,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 
 import java.util.Arrays;
 
@@ -34,15 +34,17 @@ public class SecurityConfig {
 
 
     private static final String[] WHITELIST = {
+            "/v3/api-docs",
             "/v3/api-docs/**",
+            "/swagger-ui",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/api/v1/auth/login",
             "/api/v1/auth/register",
             "/api/v1/auth/refresh",
             "/api/v1/auth/logout",
-            "/actuator/health",
-            "/uploads/**"
+            "/uploads/**",
+            "/actuator/health"
     };
 
     @Bean
@@ -57,7 +59,8 @@ public class SecurityConfig {
                 Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
         configuration.setAllowedHeaders(
-                Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
+                Arrays.asList("Authorization", "Content-Type", "Cache-Control", "traceparent", "tracestate"));
+        configuration.setExposedHeaders(Arrays.asList("traceparent", "tracestate"));
 
         configuration.setAllowCredentials(true);
 
@@ -74,7 +77,32 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(WHITELIST).permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET,
+                                "/api/v1/engagements",
+                                "/api/v1/engagements/**",
+                                "/api/v1/admin/posts",
+                                "/api/v1/admin/posts/**",
+                                "/api/v1/admin/locations",
+                                "/api/v1/admin/locations/**",
+                                "/api/v1/admin/persons",
+                                "/api/v1/admin/persons/**",
+                                "/api/v1/admin/events",
+                                "/api/v1/admin/events/**",
+                                "/api/v1/admin/periods",
+                                "/api/v1/admin/periods/**",
+                                "/api/v1/admin/sources",
+                                "/api/v1/admin/sources/**",
+                                "/api/v1/admin/tags",
+                                "/api/v1/admin/tags/**",
+                                "/api/v1/admin/participations",
+                                "/api/v1/admin/participations/**",
+                                "/api/v1/admin/settings",
+                                "/api/v1/admin/settings/**",
+                                "/api/v1/rag/chat",
+                                "/api/v1/rag/chat/**"
+                        ).permitAll()
                         .anyRequest().authenticated())
 
                 .oauth2ResourceServer(oauth2 -> oauth2

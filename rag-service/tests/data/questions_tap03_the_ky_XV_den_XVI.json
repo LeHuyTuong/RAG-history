@@ -1,0 +1,250 @@
+{
+  "source": {
+    "sourceId": 3,
+    "title": "Lịch sử Việt Nam tập 03 Từ thế kỷ XV đến thế kỷ XVI",
+    "pages": "1-680",
+    "chunks": 0
+  },
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Nhà Hồ",
+      "question": "Hồ Quý Ly thành lập nhà Hồ vào năm nào và đặt quốc hiệu là gì?",
+      "expected_keywords": ["Hồ Quý Ly", "nhà Hồ", "1400", "Đại Ngu"]
+    },
+    {
+      "id": 2,
+      "topic": "Nhà Hồ",
+      "question": "Những cải cách kinh tế quan trọng nào được Hồ Quý Ly thực hiện trong thời gian nắm quyền?",
+      "expected_keywords": ["tiền giấy", "hạn điền", "hạn nô", "cải cách"]
+    },
+    {
+      "id": 3,
+      "topic": "Nhà Hồ",
+      "question": "Nhà Hồ sụp đổ vào năm nào và trước sự tấn công của lực lượng nào?",
+      "expected_keywords": ["1407", "nhà Minh", "xâm lược", "sụp đổ"]
+    },
+    {
+      "id": 4,
+      "topic": "Minh thuộc",
+      "question": "Nhà Minh đã thực hiện những chính sách đồng hóa nào đối với người Việt trong thời kỳ Bắc thuộc lần thứ tư?",
+      "expected_keywords": ["đồng hóa", "phong tục", "tiếng Hán", "nhà Minh"]
+    },
+    {
+      "id": 5,
+      "topic": "Minh thuộc",
+      "question": "Chính sách bóc lột kinh tế của nhà Minh đối với Đại Việt trong giai đoạn 1407-1427 diễn ra như thế nào?",
+      "expected_keywords": ["thuế khóa", "cống nạp", "vơ vét", "Minh thuộc"]
+    },
+    {
+      "id": 6,
+      "topic": "Lam Sơn",
+      "question": "Lê Lợi phát động khởi nghĩa Lam Sơn vào năm nào và ở đâu?",
+      "expected_keywords": ["Lê Lợi", "Lam Sơn", "1418", "Thanh Hóa"]
+    },
+    {
+      "id": 7,
+      "topic": "Lam Sơn",
+      "question": "Nguyễn Trãi đóng vai trò gì trong khởi nghĩa Lam Sơn và ông đã đóng góp những gì về mặt tư tưởng?",
+      "expected_keywords": ["Nguyễn Trãi", "mưu sĩ", "tư tưởng nhân nghĩa", "Bình Ngô sách"]
+    },
+    {
+      "id": 8,
+      "topic": "Lam Sơn",
+      "question": "Trận Chi Lăng - Xương Giang năm 1427 có ý nghĩa như thế nào đối với kết cục của khởi nghĩa Lam Sơn?",
+      "expected_keywords": ["Chi Lăng", "Xương Giang", "1427", "tiêu diệt viện binh"]
+    },
+    {
+      "id": 9,
+      "topic": "Bình Ngô đại cáo",
+      "question": "Bình Ngô đại cáo được Nguyễn Trãi viết vào năm nào và nhân dịp nào?",
+      "expected_keywords": ["Bình Ngô đại cáo", "Nguyễn Trãi", "1428", "tuyên ngôn độc lập"]
+    },
+    {
+      "id": 10,
+      "topic": "Bình Ngô đại cáo",
+      "question": "Tư tưởng cốt lõi của Bình Ngô đại cáo về chủ quyền và độc lập dân tộc là gì?",
+      "expected_keywords": ["nhân nghĩa", "độc lập", "bản sắc văn hóa", "nền văn hiến"]
+    },
+    {
+      "id": 11,
+      "topic": "Lê sơ",
+      "question": "Lê Thái Tổ lên ngôi vào năm nào và đặt tên nước là gì?",
+      "expected_keywords": ["Lê Thái Tổ", "1428", "Đại Việt", "lên ngôi"]
+    },
+    {
+      "id": 12,
+      "topic": "Lê sơ",
+      "question": "Vua Lê Thái Tổ đã thực hiện những cải cách ruộng đất nào sau khi đánh đuổi quân Minh?",
+      "expected_keywords": ["quân điền", "phân phong", "ruộng đất", "công điền"]
+    },
+    {
+      "id": 13,
+      "topic": "Lê Thánh Tông",
+      "question": "Lê Thánh Tông trị vì trong thời gian nào và những thành tựu nổi bật nào được ghi nhận dưới triều ông?",
+      "expected_keywords": ["Lê Thánh Tông", "1460-1497", "Hồng Đức", "cải cách"]
+    },
+    {
+      "id": 14,
+      "topic": "Lê Thánh Tông",
+      "question": "Lê Thánh Tông đã mở rộng lãnh thổ Đại Việt về phía Nam bằng cách nào?",
+      "expected_keywords": ["mở rộng lãnh thổ", "Chiêm Thành", "1471", "Nam tiến"]
+    },
+    {
+      "id": 15,
+      "topic": "Luật Hồng Đức",
+      "question": "Bộ Luật Hồng Đức được ban hành dưới triều vua nào và có những đặc điểm gì nổi bật?",
+      "expected_keywords": ["Lê Thánh Tông", "Quốc triều hình luật", "bảo vệ phụ nữ", "Hồng Đức"]
+    },
+    {
+      "id": 16,
+      "topic": "Luật Hồng Đức",
+      "question": "Luật Hồng Đức quy định như thế nào về quyền lợi của phụ nữ so với các bộ luật phong kiến đương thời?",
+      "expected_keywords": ["quyền phụ nữ", "thừa kế", "hôn nhân", "bảo vệ"]
+    },
+    {
+      "id": 17,
+      "topic": "Giáo dục khoa cử",
+      "question": "Quốc Tử Giám được mở rộng và phát triển như thế nào dưới thời Lê sơ?",
+      "expected_keywords": ["Quốc Tử Giám", "giáo dục", "Lê sơ", "đào tạo quan lại"]
+    },
+    {
+      "id": 18,
+      "topic": "Giáo dục khoa cử",
+      "question": "Chế độ khoa cử dưới thời Lê sơ được tổ chức như thế nào và tần suất thi cử ra sao?",
+      "expected_keywords": ["khoa thi", "tiến sĩ", "hương thi", "hội thi"]
+    },
+    {
+      "id": 19,
+      "topic": "Giáo dục khoa cử",
+      "question": "Bia tiến sĩ ở Văn Miếu - Quốc Tử Giám được dựng lên trong thời kỳ nào và nhằm mục đích gì?",
+      "expected_keywords": ["bia tiến sĩ", "Văn Miếu", "Lê sơ", "tôn vinh"]
+    },
+    {
+      "id": 20,
+      "topic": "Hành chính Lê sơ",
+      "question": "Lê Thánh Tông đã cải cách bộ máy hành chính nhà nước như thế nào để tập trung quyền lực?",
+      "expected_keywords": ["lục bộ", "xóa bỏ tể tướng", "tập quyền", "cải cách hành chính"]
+    },
+    {
+      "id": 21,
+      "topic": "Hành chính Lê sơ",
+      "question": "Dưới thời Lê Thánh Tông, đất nước được chia thành bao nhiêu đạo và cách tổ chức hành chính địa phương như thế nào?",
+      "expected_keywords": ["13 đạo", "thừa tuyên", "hành chính địa phương", "Lê Thánh Tông"]
+    },
+    {
+      "id": 22,
+      "topic": "Kinh tế thế kỷ XV",
+      "question": "Chính sách phát triển nông nghiệp của nhà nước Lê sơ trong thế kỷ XV bao gồm những biện pháp nào?",
+      "expected_keywords": ["khuyến nông", "đê điều", "thủy lợi", "khai hoang"]
+    },
+    {
+      "id": 23,
+      "topic": "Kinh tế thế kỷ XV",
+      "question": "Thủ công nghiệp và thương nghiệp phát triển như thế nào dưới thời Lê sơ trong thế kỷ XV?",
+      "expected_keywords": ["thủ công nghiệp", "làng nghề", "ngoại thương", "buôn bán"]
+    },
+    {
+      "id": 24,
+      "topic": "Văn hóa Lê sơ",
+      "question": "Nền văn học chữ Nôm phát triển như thế nào dưới thời Lê sơ và những tác giả tiêu biểu là ai?",
+      "expected_keywords": ["chữ Nôm", "Nguyễn Trãi", "Lê Thánh Tông", "văn học"]
+    },
+    {
+      "id": 25,
+      "topic": "Văn hóa Lê sơ",
+      "question": "Hội Tao Đàn do Lê Thánh Tông thành lập có vai trò gì trong đời sống văn hóa thời Lê sơ?",
+      "expected_keywords": ["Hội Tao Đàn", "Lê Thánh Tông", "văn học", "thơ văn"]
+    },
+    {
+      "id": 26,
+      "topic": "Quân sự Lê sơ",
+      "question": "Chế độ quân dịch và tổ chức quân đội thời Lê sơ được xây dựng theo nguyên tắc nào?",
+      "expected_keywords": ["ngụ binh ư nông", "quân đội", "lính", "quân dịch"]
+    },
+    {
+      "id": 27,
+      "topic": "Đối ngoại Lê sơ",
+      "question": "Quan hệ ngoại giao giữa Đại Việt và nhà Minh được thiết lập như thế nào sau khi giành lại độc lập năm 1428?",
+      "expected_keywords": ["triều cống", "nhà Minh", "ngoại giao", "bang giao"]
+    },
+    {
+      "id": 28,
+      "topic": "Nhà Mạc",
+      "question": "Mạc Đăng Dung cướp ngôi nhà Lê vào năm nào và dựng lên triều đại nào?",
+      "expected_keywords": ["Mạc Đăng Dung", "1527", "nhà Mạc", "cướp ngôi"]
+    },
+    {
+      "id": 29,
+      "topic": "Nhà Mạc",
+      "question": "Nhà Mạc đã có những chính sách gì để củng cố quyền lực và phát triển kinh tế trong thế kỷ XVI?",
+      "expected_keywords": ["nhà Mạc", "khoa cử", "kinh tế", "chính sách"]
+    },
+    {
+      "id": 30,
+      "topic": "Lê-Mạc tranh hùng",
+      "question": "Lực lượng phù Lê diệt Mạc được tập hợp như thế nào và do ai lãnh đạo ban đầu?",
+      "expected_keywords": ["phù Lê", "Nguyễn Kim", "diệt Mạc", "trung hưng"]
+    },
+    {
+      "id": 31,
+      "topic": "Lê-Mạc tranh hùng",
+      "question": "Cuộc chiến tranh Lê-Mạc kéo dài bao lâu và kết thúc như thế nào?",
+      "expected_keywords": ["Lê-Mạc", "nội chiến", "Nam triều", "Bắc triều"]
+    },
+    {
+      "id": 32,
+      "topic": "Lê-Mạc tranh hùng",
+      "question": "Nhà Mạc nhượng đất cho nhà Minh như thế nào để được công nhận và điều này gây ra hậu quả gì?",
+      "expected_keywords": ["nhượng đất", "nhà Minh", "thần phục", "lãnh thổ"]
+    },
+    {
+      "id": 33,
+      "topic": "Kinh tế thế kỷ XVI",
+      "question": "Hoạt động buôn bán với thương nhân nước ngoài diễn ra như thế nào ở Đại Việt trong thế kỷ XVI?",
+      "expected_keywords": ["thương nhân", "buôn bán", "ngoại thương", "thế kỷ XVI"]
+    },
+    {
+      "id": 34,
+      "topic": "Xã hội Lê sơ",
+      "question": "Cơ cấu xã hội thời Lê sơ được phân chia như thế nào và vị trí của tầng lớp nông dân ra sao?",
+      "expected_keywords": ["nông dân", "tầng lớp xã hội", "quan lại", "dân thường"]
+    },
+    {
+      "id": 35,
+      "topic": "Tôn giáo tín ngưỡng",
+      "question": "Phật giáo và Nho giáo có vai trò như thế nào trong đời sống tín ngưỡng và chính trị thời Lê sơ?",
+      "expected_keywords": ["Nho giáo", "Phật giáo", "độc tôn", "tín ngưỡng"]
+    },
+    {
+      "id": 36,
+      "topic": "Sử học Lê sơ",
+      "question": "Những bộ sử lớn nào được biên soạn dưới thời Lê sơ và ai là tác giả tiêu biểu?",
+      "expected_keywords": ["Đại Việt sử ký toàn thư", "Ngô Sĩ Liên", "biên soạn", "sử học"]
+    },
+    {
+      "id": 37,
+      "topic": "Kiến trúc Lê sơ",
+      "question": "Những công trình kiến trúc tiêu biểu nào được xây dựng dưới thời Lê sơ?",
+      "expected_keywords": ["kiến trúc", "cung điện", "Lam Kinh", "đền thờ"]
+    },
+    {
+      "id": 38,
+      "topic": "Lê Thánh Tông",
+      "question": "Bản đồ Hồng Đức được vẽ dưới thời Lê Thánh Tông có ý nghĩa gì đối với lịch sử địa lý Việt Nam?",
+      "expected_keywords": ["bản đồ Hồng Đức", "lãnh thổ", "địa lý", "Lê Thánh Tông"]
+    },
+    {
+      "id": 39,
+      "topic": "Khoa học kỹ thuật",
+      "question": "Thành tựu y học và thiên văn học dưới thời Lê sơ có những đóng góp nào đáng chú ý?",
+      "expected_keywords": ["y học", "thiên văn", "Lê sơ", "khoa học"]
+    },
+    {
+      "id": 40,
+      "topic": "Suy thoái Lê sơ",
+      "question": "Những nguyên nhân nào dẫn đến sự suy yếu của nhà Lê sơ vào cuối thế kỷ XV đầu thế kỷ XVI?",
+      "expected_keywords": ["suy yếu", "nội loạn", "quyền thần", "khủng hoảng"]
+    }
+  ]
+}

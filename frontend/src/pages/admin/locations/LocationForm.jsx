@@ -1,7 +1,8 @@
-import {  useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { generateSlug } from '../../../utils/stringUtils';
-import { RichTextEditor, FormHeader, VietnamMap } from '../../../components/admin';
+import { RichTextEditor, FormHeader, VietnamMap, EntityRelationInput } from '../../../components/admin';
+import { locationService, eventService, extractErrorMessage } from '../../../services';
 
 const LocationForm = () => {
   const { id } = useParams();
@@ -9,32 +10,226 @@ const LocationForm = () => {
   const isEdit = !!id;
 
   const [form, setForm] = useState({
-    name: '', slug: '', locationType: 'Cố đô/Thành quách', latitude: '', longitude: '', description: ''
+    name: '', slug: '', locationType: 'Cố đô/Thành quách', latitude: '', longitude: '', description: '', status: 'draft',
+    relatedEvents: []
   });
+  const [originalData, setOriginalData] = useState({
+    originalEvents: []
+  });
+  const [availableEvents, setAvailableEvents] = useState([]);
 
   useEffect(() => {
-    if (isEdit) {
-      const fetchData = async () => {
+    const loadAllData = async () => {
+      try {
+        let eventsList = [];
         try {
-          const response = await fetch('/api/user_location_detail.json');
-          if (response.ok) {
-            const data = await response.json();
+          eventsList = await eventService.listAll({ size: 500 });
+        } catch (err) {
+          console.error('Lỗi khi tải danh sách sự kiện:', err);
+          try {
+            const response = await fetch('/api/admin_events.json');
+            if (response.ok) {
+              const data = await response.json();
+              eventsList = data.events || [];
+            }
+          } catch (mockErr) {
+            console.error('Lỗi khi tải danh sách sự kiện từ mock:', mockErr);
+          }
+        }
+
+        const mappedEvents = eventsList.map(e => ({
+          id: e.id,
+          name: e.name || e.title,
+          locationRelations: e.locationRelations || []
+        }));
+        setAvailableEvents(mappedEvents);
+
+        if (isEdit) {
+          let foundLocation = null;
+
+          if (!isNaN(Number(id))) {
+            try {
+              foundLocation = await locationService.getById(Number(id));
+            } catch (err) {
+              console.error('Lỗi khi tải địa danh từ backend:', err);
+            }
+          }
+
+          if (!foundLocation) {
+            const response = await fetch('/api/admin_locations.json');
+            if (response.ok) {
+              const data = await response.json();
+              foundLocation = data.locations?.find(l => String(l.id) === String(id));
+            }
+          }
+
+          if (foundLocation) {
+            let initialLat = foundLocation.lat || foundLocation.latitude || '';
+            let initialLng = foundLocation.lng || foundLocation.longitude || '';
+            if (foundLocation.coords && typeof foundLocation.coords === 'string') {
+              const [latStr, lngStr] = foundLocation.coords.split(',');
+              if (latStr && lngStr) {
+                initialLat = latStr.trim();
+                initialLng = lngStr.trim();
+              }
+            }
+
+            const matchedEvents = mappedEvents
+              .filter(e => e.locationRelations.some(rel => Number(rel.locationId) === Number(foundLocation.id)))
+              .map(e => e.name);
+
             setForm({
-              name: data.name || '',
-              slug: generateSlug(data.name || ''),
-              locationType: data.category || 'Cố đô/Thành quách',
-              latitude: data.location?.lat || '',
-              longitude: data.location?.lng || '',
-              description: data.shortDesc || ''
+              name: foundLocation.name || '',
+              slug: foundLocation.slug || generateSlug(foundLocation.name || ''),
+              locationType: foundLocation.type || foundLocation.locationType || 'Cố đô/Thành quách',
+              latitude: initialLat,
+              longitude: initialLng,
+              description: foundLocation.description || foundLocation.shortDesc || '',
+              status: (foundLocation.status === 'published' || !foundLocation.status || foundLocation.status === 'Công khai') ? 'published' : 'draft',
+              relatedEvents: matchedEvents
+            });
+
+            setOriginalData({
+              ...foundLocation,
+              originalEvents: matchedEvents
             });
           }
-        } catch (error) {
-          console.error('Lỗi khi tải dữ liệu địa danh:', error);
         }
-      };
-      fetchData();
-    }
+      } catch (error) {
+        console.error('Lỗi khi tải dữ liệu địa danh:', error);
+      }
+    };
+    loadAllData();
   }, [id, isEdit]);
+
+  const addEvent = (eventVal) => {
+    setForm(prev => ({
+      ...prev,
+      relatedEvents: [...new Set([...(prev.relatedEvents || []), eventVal])]
+    }));
+  };
+
+  const removeEvent = (eventToRemove) => {
+    setForm(prev => ({
+      ...prev,
+      relatedEvents: (prev.relatedEvents || []).filter(e => e !== eventToRemove)
+    }));
+  };
+
+  const updateEventLocationRelations = async (eventMatch, locationId, isAdd) => {
+    try {
+      const fullEvent = await eventService.getById(eventMatch.id);
+      if (!fullEvent) return;
+
+      let updatedRelations = [];
+      if (fullEvent.locationRelations) {
+        updatedRelations = fullEvent.locationRelations.map(r => ({
+          locationId: Number(r.locationId),
+          relationType: r.relationType || 'HAPPENED_AT'
+        }));
+      }
+
+      if (isAdd) {
+        const exists = updatedRelations.some(r => Number(r.locationId) === Number(locationId));
+        if (!exists) {
+          updatedRelations.push({
+            locationId: Number(locationId),
+            relationType: 'HAPPENED_AT'
+          });
+        }
+      } else {
+        updatedRelations = updatedRelations.filter(r => Number(r.locationId) !== Number(locationId));
+      }
+
+      const eventPayload = {
+        name: fullEvent.name,
+        slug: fullEvent.slug,
+        description: fullEvent.description,
+        periodId: fullEvent.period ? fullEvent.period.id : null,
+        startYear: fullEvent.startYear,
+        endYear: fullEvent.endYear,
+        startDate: fullEvent.startDate,
+        endDate: fullEvent.endDate,
+        certaintyLevel: fullEvent.certaintyLevel || 'CERTAIN',
+        locationRelations: updatedRelations
+      };
+
+      await eventService.update(fullEvent.id, eventPayload);
+    } catch (err) {
+      console.error(`Lỗi khi cập nhật quan hệ sự kiện ${eventMatch.name}:`, err);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      // Map frontend location type to backend enum
+      let backendType = 'CITY';
+      const typeMap = {
+        'Cố đô / Thành quách': 'CAPITAL',
+        'Cố đô/Thành quách': 'CAPITAL',
+        'Ải / Chiến trường': 'BATTLEFIELD',
+        'Di tích tôn giáo': 'TEMPLE',
+        'Làng nghề truyền thống': 'PROVINCE'
+      };
+      if (typeMap[form.locationType]) {
+        backendType = typeMap[form.locationType];
+      }
+
+      const payload = {
+        name: form.name,
+        slug: form.slug,
+        locationType: backendType,
+        latitude: form.latitude ? parseFloat(form.latitude) : null,
+        longitude: form.longitude ? parseFloat(form.longitude) : null,
+        description: form.description
+      };
+
+      let savedLocationId = Number(id);
+      if (isEdit && !isNaN(Number(id))) {
+        await locationService.update(Number(id), payload);
+      } else {
+        const newLocation = await locationService.create(payload);
+        if (newLocation && newLocation.id) {
+          savedLocationId = Number(newLocation.id);
+        }
+      }
+
+      // Sync relationships
+      if (!isNaN(savedLocationId)) {
+        try {
+          const originalEvents = originalData.originalEvents || [];
+          const selectedEvents = form.relatedEvents || [];
+
+          const toDelete = originalEvents.filter(name => !selectedEvents.includes(name));
+          const toAdd = selectedEvents.filter(name => !originalEvents.includes(name));
+
+          // Run sync for deletions
+          for (const name of toDelete) {
+            const eventMatch = availableEvents.find(e => e.name === name);
+            if (eventMatch) {
+              await updateEventLocationRelations(eventMatch, savedLocationId, false);
+            }
+          }
+
+          // Run sync for additions
+          for (const name of toAdd) {
+            const eventMatch = availableEvents.find(e => e.name === name);
+            if (eventMatch) {
+              await updateEventLocationRelations(eventMatch, savedLocationId, true);
+            }
+          }
+        } catch (syncErr) {
+          console.error('Lỗi khi đồng bộ sự kiện liên quan:', syncErr);
+        }
+      }
+
+      navigate('/admin/locations');
+    } catch (error) {
+      console.error('Lỗi khi lưu địa danh:', error);
+      const errMsg = extractErrorMessage(error, 'Có lỗi xảy ra khi lưu địa danh!');
+      alert(errMsg);
+    }
+  };
 
   return (
     <div className="flex-grow bg-surface min-h-screen animate-in fade-in duration-500 pb-20">
@@ -46,7 +241,7 @@ const LocationForm = () => {
           icon="my_location"
           isEdit={isEdit}
           onCancel={() => navigate('/admin/locations')}
-          onSave={() => { }}
+          onSave={handleSave}
         />
 
         <div className="grid grid-cols-12 gap-8 items-start">
@@ -135,6 +330,7 @@ const LocationForm = () => {
                     </div>
                   </div>
                 </div>
+
               </div>
             </section>
 
@@ -161,19 +357,65 @@ const LocationForm = () => {
 
           {/* RIGHT COLUMN: PREVIEW & MAP */}
           <aside className="col-span-12 lg:col-span-4 space-y-6">
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-1 rounded-3xl shadow-xl sticky top-8 hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 overflow-hidden">
-              <div className="bg-surface/95 backdrop-blur-xl p-6 rounded-[22px] text-center h-full border border-white/10 flex flex-col">
-                <p className="font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant flex items-center justify-center gap-2 mb-6">
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-1 rounded-3xl shadow-xl sticky top-8 hover:shadow-2xl hover:scale-[1.02] transition-all duration-500">
+              <div className="bg-surface/95 backdrop-blur-xl p-6 rounded-[22px] text-center h-full border border-white/10 flex flex-col space-y-6">
+
+                <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10">
+                  <span className="material-symbols-outlined text-[16px]">tune</span>
+                  Cấu hình Địa danh
+                </h4>
+
+                {/* Publishing Info */}
+                <div className="space-y-4 relative z-10 text-left">
+                  <p className="font-body text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[14px]">publish</span> Xuất bản
+                  </p>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Trạng thái</label>
+                      <div className="relative">
+                        <select
+                          value={form.status}
+                          onChange={e => setForm({ ...form, status: e.target.value })}
+                          className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-sm font-bold text-on-surface outline-none cursor-pointer hover:border-emerald-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all appearance-none"
+                        >
+                          <option value="draft">Bản nháp</option>
+                          <option value="published">Công khai</option>
+                        </select>
+                        <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10 mt-6">
+                  <span className="material-symbols-outlined text-[16px]">hub</span>
+                  Liên kết Thông tin
+                </h4>
+
+                <EntityRelationInput
+                  type="event"
+                  label="Sự kiện diễn ra tại đây"
+                  icon="event"
+                  itemIcon="event"
+                  entities={form.relatedEvents}
+                  availableEntities={availableEvents}
+                  onAdd={addEvent}
+                  onRemove={removeEvent}
+                  placeholder="Gõ & Enter để thêm sự kiện..."
+                />
+
+                <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10 mt-6">
                   <span className="material-symbols-outlined text-[14px]">visibility</span>
                   Bản xem trước Vị trí
-                </p>
+                </h4>
 
                 {/* DYNAMIC CONTENT */}
                 <div className="flex flex-col items-center relative flex-1 mb-6">
                   <div className="absolute inset-0 bg-primary/5 rounded-full blur-3xl -z-10"></div>
 
                   <div className="px-4 py-1.5 text-white text-[10px] font-bold rounded-full mb-3 uppercase tracking-widest shadow-sm ring-2 ring-white/50 bg-gradient-to-r from-primary to-indigo-600">
-                    {form.locationType || 'Phân loại'}
+                    {form.locationType || 'Loại hình'}
                   </div>
 
                   <h4 className="font-headline text-3xl font-bold bg-gradient-to-r from-gray-900 to-primary bg-clip-text text-transparent transition-all duration-300 mb-2">
@@ -187,14 +429,14 @@ const LocationForm = () => {
 
                 {/* MINI MAP */}
                 <div className="aspect-[4/3] rounded-2xl bg-surface-low border-2 border-dashed border-outline-variant/60 overflow-hidden relative cursor-pointer group hover:border-primary/50 transition-all">
-                   <VietnamMap 
-                      lat={form.latitude} 
-                      lng={form.longitude} 
-                      className="w-full h-full opacity-70 group-hover:scale-110 group-hover:opacity-100 transition-all duration-700" 
-                   />
-                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary group-hover:-translate-y-6 transition-transform duration-500 drop-shadow-md opacity-0">
-                      <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>location_on</span>
-                   </div>
+                  <VietnamMap
+                    lat={form.latitude}
+                    lng={form.longitude}
+                    className="w-full h-full opacity-70 group-hover:scale-110 group-hover:opacity-100 transition-all duration-700"
+                  />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary group-hover:-translate-y-6 transition-transform duration-500 drop-shadow-md opacity-0">
+                    <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>location_on</span>
+                  </div>
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                     <p className="text-white text-[10px] font-bold uppercase tracking-widest text-center">Bấm để định vị trên bản đồ</p>
                   </div>

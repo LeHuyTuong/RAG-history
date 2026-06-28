@@ -5,14 +5,15 @@ import com.example.historyrag.exception.InvalidRequestException;
 import com.example.historyrag.exception.InvalidTokenException;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.feature.admin.Admin;
-import com.example.historyrag.feature.admin.AdminRepository;
+import com.example.historyrag.feature.admin.AdminService;
 import com.example.historyrag.feature.auth.dto.AuthUserResponse;
 import com.example.historyrag.feature.auth.dto.LoginRequest;
 import com.example.historyrag.feature.auth.dto.LoginResponse;
 import com.example.historyrag.feature.auth.dto.RegisterRequest;
 import com.example.historyrag.feature.auth.dto.RegisterResponse;
 import com.example.historyrag.feature.user.Member;
-import com.example.historyrag.feature.user.MemberRepository;
+import com.example.historyrag.feature.user.MemberService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,18 +51,19 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtEncoder jwtEncoder;
     private final JwtDecoder jwtDecoder;
-    private final AdminRepository adminRepository;
-    private final MemberRepository memberRepository;
+    private final AdminService adminService;
+    private final MemberService memberService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final long accessTokenExpiration;
     private final long refreshTokenExpiration;
 
-    public AuthServiceImpl(AuthenticationManager authenticationManager,
+    public AuthServiceImpl(
+            AuthenticationManager authenticationManager,
             JwtEncoder jwtEncoder,
             JwtDecoder jwtDecoder,
-            AdminRepository adminRepository,
-            MemberRepository memberRepository,
+            AdminService adminService,
+            MemberService memberService,
             RefreshTokenRepository refreshTokenRepository,
             PasswordEncoder passwordEncoder,
             @Value("${jwt.access-token-expiration}") long accessTokenExpiration,
@@ -69,8 +71,8 @@ public class AuthServiceImpl implements AuthService {
         this.authenticationManager = authenticationManager;
         this.jwtEncoder = jwtEncoder;
         this.jwtDecoder = jwtDecoder;
-        this.adminRepository = adminRepository;
-        this.memberRepository = memberRepository;
+        this.adminService = adminService;
+        this.memberService = memberService;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.accessTokenExpiration = accessTokenExpiration;
@@ -95,7 +97,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public RegisterResponse register(RegisterRequest request) {
-        if (adminRepository.existsByEmail(request.email()) || memberRepository.existsByEmail(request.email())) {
+        if (adminService.existsByEmail(request.email()) || memberService.existsByEmail(request.email())) {
             throw new DuplicateResourceException("Account", "email", request.email());
         }
 
@@ -107,7 +109,7 @@ public class AuthServiceImpl implements AuthService {
         member.setFullName(request.name());
         member.setStatus(Member.UserStatus.valueOf(ACTIVE_STATUS));
 
-        Member saved = memberRepository.save(member);
+        Member saved = memberService.saveMember(member);
         log.info("Member registered successfully: id={}", saved.getId());
         return RegisterResponse.fromEntity(saved);
     }
@@ -148,12 +150,12 @@ public class AuthServiceImpl implements AuthService {
     @Transactional(readOnly = true)
     public AuthUserResponse getMe(String email, String accountType) {
         if (AuthAccount.ADMIN_ACCOUNT_TYPE.equals(accountType)) {
-            Admin admin = adminRepository.findByEmail(email)
+            Admin admin = adminService.findAdminByEmail(email)
                     .orElseThrow(() -> new ResourceNotFoundException("Admin", "email", email));
             return AuthUserResponse.fromAdmin(admin);
         }
         if (AuthAccount.MEMBER_ACCOUNT_TYPE.equals(accountType)) {
-            Member member = memberRepository.findByEmail(email)
+            Member member = memberService.findMemberByEmail(email)
                     .orElseThrow(() -> new ResourceNotFoundException("Member", "email", email));
             return AuthUserResponse.fromMember(member);
         }
@@ -163,9 +165,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private AuthAccount findAccountByEmail(String email) {
-        return adminRepository.findByEmail(email)
+        return adminService.findAdminByEmail(email)
                 .map(admin -> AuthAccount.fromAdmin(admin))
-                .or(() -> memberRepository.findByEmail(email).map(AuthAccount::fromMember))
+                .or(() -> memberService.findMemberByEmail(email).map(AuthAccount::fromMember))
                 .orElseThrow(() -> new ResourceNotFoundException("Account", "email", email));
     }
 
@@ -270,7 +272,7 @@ public class AuthServiceImpl implements AuthService {
 
         String candidate = baseUsername;
         int suffix = 1;
-        while (adminRepository.existsByUsername(candidate) || memberRepository.existsByUsername(candidate)) {
+        while (adminService.existsByUsername(candidate) || memberService.existsByUsername(candidate)) {
             String suffixText = String.valueOf(suffix);
             int maxBaseLength = 50 - suffixText.length();
             candidate = baseUsername.substring(0, Math.min(baseUsername.length(), maxBaseLength)) + suffixText;

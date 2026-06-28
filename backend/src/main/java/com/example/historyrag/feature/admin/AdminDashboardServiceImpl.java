@@ -3,17 +3,18 @@ package com.example.historyrag.feature.admin;
 import com.example.historyrag.feature.admin.dto.DashboardActivityResponse;
 import com.example.historyrag.feature.admin.dto.DashboardResponse;
 import com.example.historyrag.feature.engagement.CommentStatus;
-import com.example.historyrag.feature.engagement.EngagementRepository;
+import com.example.historyrag.feature.engagement.EngagementService;
 import com.example.historyrag.feature.engagement.EngagementType;
-import com.example.historyrag.feature.event.EventRepository;
-import com.example.historyrag.feature.location.LocationRepository;
-import com.example.historyrag.feature.period.PeriodRepository;
-import com.example.historyrag.feature.person.PersonRepository;
-import com.example.historyrag.feature.post.PostRepository;
+import com.example.historyrag.feature.event.EventService;
+import com.example.historyrag.feature.location.LocationService;
+import com.example.historyrag.feature.period.PeriodService;
+import com.example.historyrag.feature.person.PersonService;
+import com.example.historyrag.feature.post.PostService;
 import com.example.historyrag.feature.post.PostStatus;
-import com.example.historyrag.feature.source.SourceRepository;
-import com.example.historyrag.feature.tag.TagRepository;
-import com.example.historyrag.feature.user.MemberRepository;
+import com.example.historyrag.feature.source.SourceService;
+import com.example.historyrag.feature.tag.TagService;
+import com.example.historyrag.feature.user.MemberService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,64 +22,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class AdminDashboardServiceImpl implements AdminDashboardService {
 
-    private final AdminRepository adminRepository;
-    private final MemberRepository memberRepository;
-    private final PostRepository postRepository;
-    private final EventRepository eventRepository;
-    private final PersonRepository personRepository;
-    private final LocationRepository locationRepository;
-    private final SourceRepository sourceRepository;
-    private final TagRepository tagRepository;
-    private final PeriodRepository periodRepository;
-    private final EngagementRepository engagementRepository;
-
-    public AdminDashboardServiceImpl(
-            AdminRepository adminRepository,
-            MemberRepository memberRepository,
-            PostRepository postRepository,
-            EventRepository eventRepository,
-            PersonRepository personRepository,
-            LocationRepository locationRepository,
-            SourceRepository sourceRepository,
-            TagRepository tagRepository,
-            PeriodRepository periodRepository,
-            EngagementRepository engagementRepository) {
-        this.adminRepository = adminRepository;
-        this.memberRepository = memberRepository;
-        this.postRepository = postRepository;
-        this.eventRepository = eventRepository;
-        this.personRepository = personRepository;
-        this.locationRepository = locationRepository;
-        this.sourceRepository = sourceRepository;
-        this.tagRepository = tagRepository;
-        this.periodRepository = periodRepository;
-        this.engagementRepository = engagementRepository;
-    }
+    private final AdminService adminService;
+    private final MemberService memberService;
+    private final PostService postService;
+    private final EventService eventService;
+    private final PersonService personService;
+    private final LocationService locationService;
+    private final SourceService sourceService;
+    private final TagService tagService;
+    private final PeriodService periodService;
+    private final EngagementService engagementService;
 
     @Override
     @Transactional(readOnly = true)
     public DashboardResponse getDashboard() {
-        long totalAdmins = adminRepository.count();
-        long totalMembers = memberRepository.count();
-        long totalPosts = postRepository.count();
-        long publishedPosts = postRepository.countByStatus(PostStatus.PUBLISHED);
-        long draftPosts = postRepository.countByStatus(PostStatus.DRAFT);
-        long archivedPosts = postRepository.countByStatus(PostStatus.ARCHIVED);
-        long totalEvents = eventRepository.count();
-        long totalPersons = personRepository.count();
-        long totalLocations = locationRepository.count();
-        long totalSources = sourceRepository.count();
-        long totalTags = tagRepository.count();
-        long totalPeriods = periodRepository.count();
-        long totalEngagements = engagementRepository.count();
-        long totalComments = engagementRepository.countByEngagementType(EngagementType.COMMENT);
-        long pendingComments = engagementRepository.countByEngagementTypeAndCommentStatus(
+        long totalAdmins = adminService.countAdmins();
+        long totalMembers = memberService.countMembers();
+        long totalPosts = postService.countPosts();
+        long publishedPosts = postService.countPostsByStatus(PostStatus.PUBLISHED);
+        long draftPosts = postService.countPostsByStatus(PostStatus.DRAFT);
+        long archivedPosts = postService.countPostsByStatus(PostStatus.ARCHIVED);
+        long totalEvents = eventService.countEvents();
+        long totalPersons = personService.countPersons();
+        long totalLocations = locationService.countLocations();
+        long totalSources = sourceService.countSources();
+        long totalTags = tagService.countTags();
+        long totalPeriods = periodService.countPeriods();
+        long totalEngagements = engagementService.countEngagements();
+        long totalComments = engagementService.countByType(EngagementType.COMMENT);
+        long pendingComments = engagementService.countByTypeAndCommentStatus(
                 EngagementType.COMMENT, CommentStatus.PENDING);
-        long visibleComments = engagementRepository.countByEngagementTypeAndCommentStatus(
+        long visibleComments = engagementService.countByTypeAndCommentStatus(
                 EngagementType.COMMENT, CommentStatus.VISIBLE);
-        long hiddenComments = engagementRepository.countByEngagementTypeAndCommentStatus(
+        long hiddenComments = engagementService.countByTypeAndCommentStatus(
                 EngagementType.COMMENT, CommentStatus.HIDDEN);
 
         return new DashboardResponse(

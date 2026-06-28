@@ -1,0 +1,250 @@
+{
+  "source": {
+    "sourceId": 13,
+    "title": "Lịch sử Việt Nam tập 13 Từ năm 1965 đến năm 1975",
+    "pages": "1-591",
+    "chunks": 0
+  },
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Mỹ leo thang chiến tranh",
+      "question": "Mỹ chính thức đưa quân chiến đấu vào miền Nam Việt Nam vào tháng năm nào và lý do là gì?",
+      "expected_keywords": ["3/1965", "lính thủy đánh bộ", "Đà Nẵng", "quân chiến đấu Mỹ"]
+    },
+    {
+      "id": 2,
+      "topic": "Chiến tranh cục bộ",
+      "question": "Chiến lược Chiến tranh cục bộ của Mỹ ở miền Nam (1965-1968) có đặc điểm gì khác với Chiến tranh đặc biệt?",
+      "expected_keywords": ["quân Mỹ trực tiếp chiến đấu", "tìm diệt", "bình định", "chiến tranh cục bộ"]
+    },
+    {
+      "id": 3,
+      "topic": "Đánh phá miền Bắc",
+      "question": "Mỹ bắt đầu ném bom miền Bắc từ năm nào và chiến dịch ném bom đầu tiên có tên là gì?",
+      "expected_keywords": ["1965", "chiến dịch Sấm Rền", "ném bom miền Bắc", "leo thang"]
+    },
+    {
+      "id": 4,
+      "topic": "Đánh phá miền Bắc",
+      "question": "Miền Bắc đã đánh trả cuộc chiến tranh phá hoại của Mỹ như thế nào trong giai đoạn 1965-1968?",
+      "expected_keywords": ["phòng không nhân dân", "tên lửa", "pháo cao xạ", "dân quân tự vệ"]
+    },
+    {
+      "id": 5,
+      "topic": "Chống Mỹ toàn quốc",
+      "question": "Miền Bắc vừa sản xuất vừa chiến đấu đã động viên những lực lượng gì để phục vụ cuộc kháng chiến?",
+      "expected_keywords": ["thanh niên xung phong", "dân quân tự vệ", "chi viện miền Nam", "vừa sản xuất vừa chiến đấu"]
+    },
+    {
+      "id": 6,
+      "topic": "Trận Ia Đrăng",
+      "question": "Trận Ia Đrăng cuối năm 1965 có ý nghĩa gì đối với cuộc chiến tranh cục bộ?",
+      "expected_keywords": ["Ia Đrăng", "1965", "trực thăng vận", "chủ lực đối đầu"]
+    },
+    {
+      "id": 7,
+      "topic": "Chiến thắng mùa khô",
+      "question": "Quân Giải phóng đã đánh bại hai cuộc phản công chiến lược mùa khô của Mỹ năm 1965-1966 và 1966-1967 như thế nào?",
+      "expected_keywords": ["mùa khô", "phản công chiến lược", "thất bại", "Chiến lược bị phá sản"]
+    },
+    {
+      "id": 8,
+      "topic": "Tổng tiến công Mậu Thân",
+      "question": "Cuộc Tổng tiến công và nổi dậy Tết Mậu Thân 1968 diễn ra vào ngày tháng năm nào và tấn công vào những mục tiêu nào?",
+      "expected_keywords": ["Tết Mậu Thân", "30/1/1968", "đô thị miền Nam", "đại sứ quán Mỹ"]
+    },
+    {
+      "id": 9,
+      "topic": "Tổng tiến công Mậu Thân",
+      "question": "Ý nghĩa và tác động của cuộc Tổng tiến công Tết Mậu Thân 1968 đối với chiến lược chiến tranh của Mỹ là gì?",
+      "expected_keywords": ["lung lay ý chí", "Mỹ chấn động", "Johnson từ chối tái cử", "thay đổi chiến lược"]
+    },
+    {
+      "id": 10,
+      "topic": "Mỹ xuống thang",
+      "question": "Tổng thống Johnson đã tuyên bố hạn chế ném bom miền Bắc và không tái tranh cử vào tháng năm nào?",
+      "expected_keywords": ["Johnson", "3/1968", "hạn chế ném bom", "không tái tranh cử"]
+    },
+    {
+      "id": 11,
+      "topic": "Đàm phán Paris",
+      "question": "Hội nghị Paris về Việt Nam bắt đầu từ năm nào và diễn ra như thế nào trong giai đoạn đầu?",
+      "expected_keywords": ["Paris", "1968", "đàm phán bốn bên", "kéo dài"]
+    },
+    {
+      "id": 12,
+      "topic": "Việt Nam hóa chiến tranh",
+      "question": "Chiến lược Việt Nam hóa chiến tranh của Nixon có nội dung gì và thực chất là gì?",
+      "expected_keywords": ["Việt Nam hóa chiến tranh", "Nixon", "rút quân Mỹ", "tăng cường ngụy quân"]
+    },
+    {
+      "id": 13,
+      "topic": "Việt Nam hóa chiến tranh",
+      "question": "Chiến lược Việt Nam hóa chiến tranh của Nixon thất bại vì những nguyên nhân nào?",
+      "expected_keywords": ["thất bại", "ngụy quân không đủ sức", "giải phóng vùng nông thôn", "quân sự yếu"]
+    },
+    {
+      "id": 14,
+      "topic": "Chiến dịch đường 9 Nam Lào",
+      "question": "Chiến dịch đường 9 - Nam Lào năm 1971 diễn ra như thế nào và kết quả ra sao?",
+      "expected_keywords": ["đường 9 Nam Lào", "1971", "Lam Sơn 719", "đánh bại VNCH"]
+    },
+    {
+      "id": 15,
+      "topic": "Chiến dịch đường 9 Nam Lào",
+      "question": "Ý nghĩa chiến lược của chiến thắng đường 9 - Nam Lào năm 1971 là gì?",
+      "expected_keywords": ["bảo vệ đường Trường Sơn", "đánh bại Việt Nam hóa", "mở rộng vùng giải phóng Lào", "ý nghĩa chiến lược"]
+    },
+    {
+      "id": 16,
+      "topic": "Mỹ ném bom B52",
+      "question": "Mỹ đã sử dụng B52 ném bom Hà Nội và Hải Phòng vào tháng 12 năm 1972 nhằm mục đích gì?",
+      "expected_keywords": ["B52", "12/1972", "ném bom Hà Nội Hải Phòng", "áp lực đàm phán"]
+    },
+    {
+      "id": 17,
+      "topic": "Điện Biên Phủ trên không",
+      "question": "Chiến thắng Điện Biên Phủ trên không tháng 12/1972 đạt được kết quả gì và có ý nghĩa như thế nào?",
+      "expected_keywords": ["Điện Biên Phủ trên không", "bắn hạ B52", "12 ngày đêm", "buộc Mỹ ký Hiệp định"]
+    },
+    {
+      "id": 18,
+      "topic": "Hiệp định Paris",
+      "question": "Hiệp định Paris về chấm dứt chiến tranh và lập lại hòa bình ở Việt Nam được ký vào ngày tháng năm nào?",
+      "expected_keywords": ["27/1/1973", "Hiệp định Paris", "ký kết", "chấm dứt chiến tranh"]
+    },
+    {
+      "id": 19,
+      "topic": "Hiệp định Paris",
+      "question": "Nội dung chính của Hiệp định Paris ngày 27/1/1973 là gì?",
+      "expected_keywords": ["Mỹ rút quân", "ngừng bắn", "trao trả tù binh", "quyền tự quyết miền Nam"]
+    },
+    {
+      "id": 20,
+      "topic": "Sau Hiệp định Paris",
+      "question": "Sau Hiệp định Paris, chính quyền Sài Gòn vi phạm hiệp định như thế nào?",
+      "expected_keywords": ["vi phạm hiệp định", "tràn lấn", "bình định", "không thi hành"]
+    },
+    {
+      "id": 21,
+      "topic": "Chiến dịch Tây Nguyên",
+      "question": "Chiến dịch Tây Nguyên tháng 3/1975 mở đầu cuộc Tổng tiến công như thế nào?",
+      "expected_keywords": ["Tây Nguyên", "3/1975", "Ban Mê Thuột", "mở đầu tổng tấn công"]
+    },
+    {
+      "id": 22,
+      "topic": "Giải phóng Huế Đà Nẵng",
+      "question": "Huế và Đà Nẵng được giải phóng vào những ngày nào trong tháng 3 năm 1975?",
+      "expected_keywords": ["Huế", "Đà Nẵng", "3/1975", "giải phóng"]
+    },
+    {
+      "id": 23,
+      "topic": "Chiến dịch Hồ Chí Minh",
+      "question": "Chiến dịch Hồ Chí Minh bắt đầu vào ngày nào và kết thúc khi nào?",
+      "expected_keywords": ["26/4/1975", "30/4/1975", "Chiến dịch Hồ Chí Minh", "giải phóng Sài Gòn"]
+    },
+    {
+      "id": 24,
+      "topic": "Chiến dịch Hồ Chí Minh",
+      "question": "Chiến dịch Hồ Chí Minh kết thúc bằng sự kiện nào vào ngày 30/4/1975?",
+      "expected_keywords": ["30/4/1975", "Dinh Độc Lập", "xe tăng tiến vào", "Dương Văn Minh đầu hàng"]
+    },
+    {
+      "id": 25,
+      "topic": "Giải phóng miền Nam",
+      "question": "Miền Nam Việt Nam được giải phóng hoàn toàn vào ngày tháng năm nào?",
+      "expected_keywords": ["30/4/1975", "giải phóng hoàn toàn miền Nam", "thống nhất", "kết thúc chiến tranh"]
+    },
+    {
+      "id": 26,
+      "topic": "Giải phóng miền Nam",
+      "question": "Ý nghĩa lịch sử của Đại thắng mùa Xuân 1975 đối với Việt Nam và thế giới là gì?",
+      "expected_keywords": ["giải phóng miền Nam", "thống nhất đất nước", "kết thúc chiến tranh", "ý nghĩa lịch sử"]
+    },
+    {
+      "id": 27,
+      "topic": "Hậu phương kháng chiến",
+      "question": "Miền Bắc đã đóng vai trò hậu phương lớn như thế nào trong cuộc kháng chiến chống Mỹ giai đoạn 1965-1975?",
+      "expected_keywords": ["hậu phương lớn", "chi viện", "sức người sức của", "miền Bắc xã hội chủ nghĩa"]
+    },
+    {
+      "id": 28,
+      "topic": "Đường Trường Sơn",
+      "question": "Đường Trường Sơn (đường mòn Hồ Chí Minh) đã vận chuyển bao nhiêu và đóng vai trò gì trong thắng lợi 1975?",
+      "expected_keywords": ["Trường Sơn", "chi viện", "vận chuyển", "huyết mạch kháng chiến"]
+    },
+    {
+      "id": 29,
+      "topic": "Ngoại giao kháng chiến",
+      "question": "Việt Nam đã tranh thủ sự ủng hộ quốc tế như thế nào trong cuộc kháng chiến chống Mỹ?",
+      "expected_keywords": ["Liên Xô", "Trung Quốc", "viện trợ quốc tế", "phong trào hòa bình"]
+    },
+    {
+      "id": 30,
+      "topic": "Phong trào phản chiến",
+      "question": "Phong trào phản chiến ở Mỹ có tác động như thế nào đến chính sách chiến tranh của Mỹ ở Việt Nam?",
+      "expected_keywords": ["phong trào phản chiến", "Mỹ", "áp lực dư luận", "rút quân"]
+    },
+    {
+      "id": 31,
+      "topic": "Chiến dịch Xuân-Hè 1972",
+      "question": "Cuộc Tiến công chiến lược Xuân-Hè 1972 của Quân Giải phóng diễn ra trên những hướng nào?",
+      "expected_keywords": ["Xuân-Hè 1972", "Quảng Trị", "Tây Nguyên", "Đông Nam Bộ"]
+    },
+    {
+      "id": 32,
+      "topic": "Quảng Trị 1972",
+      "question": "Tỉnh Quảng Trị được giải phóng vào tháng 5/1972 như thế nào và có ý nghĩa gì?",
+      "expected_keywords": ["Quảng Trị", "5/1972", "giải phóng", "vùng giải phóng"]
+    },
+    {
+      "id": 33,
+      "topic": "Lực lượng vũ trang",
+      "question": "Quân đội nhân dân Việt Nam phát triển về quy mô và trang bị như thế nào trong giai đoạn 1965-1975?",
+      "expected_keywords": ["quân đội nhân dân", "trang bị hiện đại", "quân chủ lực", "phát triển lực lượng"]
+    },
+    {
+      "id": 34,
+      "topic": "Vùng giải phóng",
+      "question": "Vùng giải phóng ở miền Nam mở rộng như thế nào trong giai đoạn 1965-1975?",
+      "expected_keywords": ["vùng giải phóng", "chính quyền cách mạng", "mở rộng", "nông thôn miền Nam"]
+    },
+    {
+      "id": 35,
+      "topic": "Tướng Mỹ",
+      "question": "Tướng Westmoreland đã chỉ huy quân Mỹ ở miền Nam Việt Nam theo chiến lược gì?",
+      "expected_keywords": ["Westmoreland", "tìm diệt", "tiêu hao sinh lực", "chiến lược quân sự"]
+    },
+    {
+      "id": 36,
+      "topic": "Thống nhất đất nước",
+      "question": "Sau giải phóng miền Nam 30/4/1975, tiến trình thống nhất đất nước về mặt nhà nước diễn ra như thế nào?",
+      "expected_keywords": ["Hội nghị Hiệp thương", "1975", "tổng tuyển cử", "thống nhất về mặt nhà nước"]
+    },
+    {
+      "id": 37,
+      "topic": "Giải phóng quần đảo",
+      "question": "Các đảo và quần đảo nào ở biển Đông được giải phóng trong tháng 4 và 5 năm 1975?",
+      "expected_keywords": ["Trường Sa", "Côn Đảo", "giải phóng", "4-5/1975"]
+    },
+    {
+      "id": 38,
+      "topic": "Mỹ rút quân",
+      "question": "Quân Mỹ rút khỏi Việt Nam vào năm nào và số lượng quân tối đa là bao nhiêu?",
+      "expected_keywords": ["1973", "rút quân", "500 ngàn quân", "Hiệp định Paris"]
+    },
+    {
+      "id": 39,
+      "topic": "Trận cuối cùng",
+      "question": "Dinh Độc Lập được quân Giải phóng chiếm vào lúc mấy giờ ngày 30/4/1975?",
+      "expected_keywords": ["11 giờ 30 phút", "30/4/1975", "Dinh Độc Lập", "xe tăng húc cổng"]
+    },
+    {
+      "id": 40,
+      "topic": "Nguyên nhân thắng lợi",
+      "question": "Những nguyên nhân nào dẫn đến thắng lợi hoàn toàn của cuộc kháng chiến chống Mỹ cứu nước năm 1975?",
+      "expected_keywords": ["lãnh đạo đúng đắn của Đảng", "tinh thần yêu nước", "sự ủng hộ quốc tế", "sức mạnh tổng hợp"]
+    }
+  ]
+}

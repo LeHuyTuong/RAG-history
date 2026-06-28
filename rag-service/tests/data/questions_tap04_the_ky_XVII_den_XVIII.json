@@ -1,0 +1,250 @@
+{
+  "source": {
+    "sourceId": 4,
+    "title": "Lịch sử Việt Nam tập 04 Từ thế kỷ XVII đến thế kỷ XVIII",
+    "pages": "1-650",
+    "chunks": 0
+  },
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Phân tranh Trịnh-Nguyễn",
+      "question": "Cuộc phân tranh Trịnh-Nguyễn bắt đầu vào năm nào và do nguyên nhân trực tiếp nào?",
+      "expected_keywords": ["Trịnh-Nguyễn", "phân tranh", "1627", "nội chiến"]
+    },
+    {
+      "id": 2,
+      "topic": "Ranh giới sông Gianh",
+      "question": "Sông Gianh (Linh Giang) trở thành ranh giới phân chia Đàng Trong và Đàng Ngoài vào thời điểm nào?",
+      "expected_keywords": ["sông Gianh", "ranh giới", "Đàng Trong", "Đàng Ngoài"]
+    },
+    {
+      "id": 3,
+      "topic": "Đàng Ngoài",
+      "question": "Chúa Trịnh nắm quyền lực thực tế ở Đàng Ngoài như thế nào trong khi vua Lê chỉ còn là hình thức?",
+      "expected_keywords": ["chúa Trịnh", "vua Lê", "quyền lực", "Đàng Ngoài"]
+    },
+    {
+      "id": 4,
+      "topic": "Đàng Ngoài",
+      "question": "Kinh tế Đàng Ngoài trong thế kỷ XVII-XVIII có những đặc điểm gì và gặp phải những khó khăn nào?",
+      "expected_keywords": ["kinh tế Đàng Ngoài", "nông nghiệp", "khủng hoảng", "đói kém"]
+    },
+    {
+      "id": 5,
+      "topic": "Đàng Ngoài",
+      "question": "Các cuộc khởi nghĩa nông dân ở Đàng Ngoài trong thế kỷ XVIII phản ánh điều gì về tình hình xã hội?",
+      "expected_keywords": ["khởi nghĩa nông dân", "Đàng Ngoài", "bất ổn", "tô thuế"]
+    },
+    {
+      "id": 6,
+      "topic": "Đàng Trong",
+      "question": "Các chúa Nguyễn đã mở rộng lãnh thổ về phía Nam như thế nào trong thế kỷ XVII-XVIII?",
+      "expected_keywords": ["chúa Nguyễn", "Nam tiến", "mở rộng lãnh thổ", "Đàng Trong"]
+    },
+    {
+      "id": 7,
+      "topic": "Đàng Trong",
+      "question": "Phú Xuân (Huế) trở thành trung tâm của chúa Nguyễn ở Đàng Trong vào thời điểm nào?",
+      "expected_keywords": ["Phú Xuân", "Huế", "chúa Nguyễn", "kinh đô"]
+    },
+    {
+      "id": 8,
+      "topic": "Đàng Trong thương mại",
+      "question": "Hội An phát triển thành trung tâm thương mại lớn như thế nào dưới thời các chúa Nguyễn?",
+      "expected_keywords": ["Hội An", "thương cảng", "thương nhân nước ngoài", "buôn bán"]
+    },
+    {
+      "id": 9,
+      "topic": "Đàng Trong thương mại",
+      "question": "Thương nhân Nhật Bản, Trung Quốc và phương Tây đóng vai trò gì trong nền kinh tế Đàng Trong thế kỷ XVII?",
+      "expected_keywords": ["thương nhân Nhật Bản", "Hoa kiều", "VOC", "ngoại thương"]
+    },
+    {
+      "id": 10,
+      "topic": "Hà Tiên",
+      "question": "Mạc Cửu đã khai phá vùng Hà Tiên như thế nào và tình nguyện thần phục chúa Nguyễn vào năm nào?",
+      "expected_keywords": ["Mạc Cửu", "Hà Tiên", "khai phá", "thần phục Nguyễn"]
+    },
+    {
+      "id": 11,
+      "topic": "Hà Tiên",
+      "question": "Mạc Thiên Tứ đã phát triển Hà Tiên thành trung tâm văn hóa như thế nào trong thế kỷ XVIII?",
+      "expected_keywords": ["Mạc Thiên Tứ", "Hà Tiên", "văn hóa", "Chiêu Anh Các"]
+    },
+    {
+      "id": 12,
+      "topic": "Mở rộng phía Nam",
+      "question": "Vùng đất Nam Bộ được sáp nhập vào lãnh thổ Đại Việt như thế nào trong thế kỷ XVII-XVIII?",
+      "expected_keywords": ["Nam Bộ", "Chân Lạp", "di dân", "khai hoang"]
+    },
+    {
+      "id": 13,
+      "topic": "Mở rộng phía Nam",
+      "question": "Gia Định (vùng Sài Gòn ngày nay) được khai phá và hành chính hóa như thế nào dưới thời chúa Nguyễn?",
+      "expected_keywords": ["Gia Định", "Nguyễn Hữu Cảnh", "khai phá", "hành chính"]
+    },
+    {
+      "id": 14,
+      "topic": "Chiêm Thành",
+      "question": "Quá trình suy vong của Chiêm Thành và sự sáp nhập vào Đại Việt diễn ra như thế nào trong giai đoạn này?",
+      "expected_keywords": ["Chiêm Thành", "suy vong", "sáp nhập", "Panduranga"]
+    },
+    {
+      "id": 15,
+      "topic": "Xã hội Đàng Trong",
+      "question": "Cơ cấu dân cư ở Đàng Trong có gì đặc biệt so với Đàng Ngoài về thành phần tộc người?",
+      "expected_keywords": ["di dân", "người Việt", "Chăm", "Khmer"]
+    },
+    {
+      "id": 16,
+      "topic": "Trịnh cải cách",
+      "question": "Những cải cách của chính quyền chúa Trịnh ở Đàng Ngoài trong thế kỷ XVIII nhằm giải quyết vấn đề gì?",
+      "expected_keywords": ["cải cách", "chúa Trịnh", "ruộng đất", "tài chính"]
+    },
+    {
+      "id": 17,
+      "topic": "Thiên Chúa giáo",
+      "question": "Thiên Chúa giáo du nhập vào Đàng Trong và Đàng Ngoài như thế nào trong thế kỷ XVII và gặp phải phản ứng gì?",
+      "expected_keywords": ["Thiên Chúa giáo", "truyền giáo", "cấm đạo", "chữ Quốc ngữ"]
+    },
+    {
+      "id": 18,
+      "topic": "Chữ Quốc ngữ",
+      "question": "Alexandre de Rhodes đóng vai trò như thế nào trong việc hình thành chữ Quốc ngữ trong thế kỷ XVII?",
+      "expected_keywords": ["Alexandre de Rhodes", "chữ Quốc ngữ", "La tinh hóa", "từ điển"]
+    },
+    {
+      "id": 19,
+      "topic": "Tây Sơn",
+      "question": "Khởi nghĩa Tây Sơn bùng nổ vào năm nào, do ai lãnh đạo và xuất phát từ vùng nào?",
+      "expected_keywords": ["Tây Sơn", "1771", "Nguyễn Nhạc", "Bình Định"]
+    },
+    {
+      "id": 20,
+      "topic": "Tây Sơn",
+      "question": "Ba anh em Tây Sơn gồm những ai và vai trò của từng người trong phong trào là gì?",
+      "expected_keywords": ["Nguyễn Nhạc", "Nguyễn Huệ", "Nguyễn Lữ", "Tây Sơn"]
+    },
+    {
+      "id": 21,
+      "topic": "Tây Sơn",
+      "question": "Phong trào Tây Sơn thu hút được sự tham gia của những tầng lớp xã hội nào?",
+      "expected_keywords": ["nông dân", "thương nhân", "dân tộc thiểu số", "Tây Sơn"]
+    },
+    {
+      "id": 22,
+      "topic": "Tây Sơn diệt Nguyễn",
+      "question": "Tây Sơn tiêu diệt chính quyền chúa Nguyễn ở Đàng Trong vào năm nào và như thế nào?",
+      "expected_keywords": ["diệt Nguyễn", "Tây Sơn", "1777", "Đàng Trong"]
+    },
+    {
+      "id": 23,
+      "topic": "Rạch Gầm-Xoài Mút",
+      "question": "Trận Rạch Gầm-Xoài Mút năm 1785 diễn ra như thế nào và kết quả là gì?",
+      "expected_keywords": ["Rạch Gầm-Xoài Mút", "1785", "Nguyễn Huệ", "quân Xiêm"]
+    },
+    {
+      "id": 24,
+      "topic": "Rạch Gầm-Xoài Mút",
+      "question": "Chiến thuật quân sự của Nguyễn Huệ trong trận Rạch Gầm-Xoài Mút có điểm gì đặc biệt?",
+      "expected_keywords": ["phục kích", "thủy chiến", "chiến thuật", "Nguyễn Huệ"]
+    },
+    {
+      "id": 25,
+      "topic": "Tây Sơn diệt Trịnh",
+      "question": "Nguyễn Huệ ra Bắc lần đầu năm 1786 và tiêu diệt chính quyền chúa Trịnh như thế nào?",
+      "expected_keywords": ["Nguyễn Huệ", "1786", "diệt Trịnh", "Đàng Ngoài"]
+    },
+    {
+      "id": 26,
+      "topic": "Vua Quang Trung",
+      "question": "Nguyễn Huệ lên ngôi hoàng đế vào năm nào và lấy niên hiệu là gì?",
+      "expected_keywords": ["Nguyễn Huệ", "Quang Trung", "1788", "lên ngôi"]
+    },
+    {
+      "id": 27,
+      "topic": "Đại phá Thanh",
+      "question": "Vua Quang Trung đại phá quân Thanh vào dịp Tết năm nào và những trận đánh quan trọng nào diễn ra?",
+      "expected_keywords": ["đại phá quân Thanh", "1789", "Đống Đa", "Ngọc Hồi"]
+    },
+    {
+      "id": 28,
+      "topic": "Đại phá Thanh",
+      "question": "Tốc độ hành quân và chiến lược của vua Quang Trung trong chiến dịch đại phá quân Thanh năm 1789 có đặc điểm gì?",
+      "expected_keywords": ["hành quân thần tốc", "Quang Trung", "chiến lược", "Tết Kỷ Dậu"]
+    },
+    {
+      "id": 29,
+      "topic": "Cải cách Tây Sơn",
+      "question": "Vua Quang Trung đã thực hiện những cải cách gì về kinh tế, văn hóa và giáo dục?",
+      "expected_keywords": ["chiếu khuyến nông", "chữ Nôm", "cải cách", "Quang Trung"]
+    },
+    {
+      "id": 30,
+      "topic": "Cải cách Tây Sơn",
+      "question": "Quang Trung đề cao chữ Nôm như thế nào và điều này có ý nghĩa gì đối với văn hóa dân tộc?",
+      "expected_keywords": ["chữ Nôm", "ngôn ngữ dân tộc", "giáo dục", "Quang Trung"]
+    },
+    {
+      "id": 31,
+      "topic": "Sụp đổ Tây Sơn",
+      "question": "Sau khi vua Quang Trung mất năm 1792, nhà Tây Sơn suy yếu như thế nào?",
+      "expected_keywords": ["Quang Trung mất", "1792", "Quang Toản", "suy yếu"]
+    },
+    {
+      "id": 32,
+      "topic": "Nguyễn Ánh",
+      "question": "Nguyễn Ánh đã tập hợp lực lượng và từng bước chiến thắng Tây Sơn như thế nào?",
+      "expected_keywords": ["Nguyễn Ánh", "Gia Định", "tập hợp lực lượng", "đánh Tây Sơn"]
+    },
+    {
+      "id": 33,
+      "topic": "Kinh tế thế kỷ XVII-XVIII",
+      "question": "Hoạt động thương mại quốc tế ở Đàng Trong thế kỷ XVII có những đặc điểm gì nổi bật?",
+      "expected_keywords": ["thương mại quốc tế", "Đàng Trong", "tơ lụa", "gốm sứ"]
+    },
+    {
+      "id": 34,
+      "topic": "Kinh tế thế kỷ XVII-XVIII",
+      "question": "Sự phát triển của làng nghề thủ công và chợ làng ở Đàng Ngoài thế kỷ XVII-XVIII diễn ra như thế nào?",
+      "expected_keywords": ["làng nghề", "thủ công", "chợ", "Đàng Ngoài"]
+    },
+    {
+      "id": 35,
+      "topic": "Văn học nghệ thuật",
+      "question": "Truyện Kiều của Nguyễn Du được sáng tác trong bối cảnh lịch sử như thế nào của cuối thế kỷ XVIII?",
+      "expected_keywords": ["Nguyễn Du", "Truyện Kiều", "cuối thế kỷ XVIII", "văn học"]
+    },
+    {
+      "id": 36,
+      "topic": "Văn học nghệ thuật",
+      "question": "Thơ văn của Hồ Xuân Hương phản ánh điều gì về xã hội và địa vị phụ nữ thế kỷ XVIII?",
+      "expected_keywords": ["Hồ Xuân Hương", "phụ nữ", "xã hội", "thế kỷ XVIII"]
+    },
+    {
+      "id": 37,
+      "topic": "Tôn giáo thế kỷ XVII-XVIII",
+      "question": "Phật giáo ở Đàng Trong phát triển như thế nào dưới sự bảo trợ của các chúa Nguyễn?",
+      "expected_keywords": ["Phật giáo", "chúa Nguyễn", "chùa chiền", "Đàng Trong"]
+    },
+    {
+      "id": 38,
+      "topic": "Quân sự Tây Sơn",
+      "question": "Lực lượng quân sự Tây Sơn được tổ chức như thế nào và điểm mạnh của họ là gì?",
+      "expected_keywords": ["quân Tây Sơn", "tổ chức", "thủy quân", "chiến thuật"]
+    },
+    {
+      "id": 39,
+      "topic": "Quan hệ với Pháp",
+      "question": "Giám mục Pigneau de Behaine đã giúp đỡ Nguyễn Ánh như thế nào trong cuộc chiến chống Tây Sơn?",
+      "expected_keywords": ["Pigneau de Behaine", "Nguyễn Ánh", "viện trợ", "Pháp"]
+    },
+    {
+      "id": 40,
+      "topic": "Hội nhập văn hóa",
+      "question": "Sự giao lưu văn hóa giữa người Việt với người Chăm và người Khmer ở Nam Bộ tạo ra nét đặc sắc gì?",
+      "expected_keywords": ["giao lưu văn hóa", "Chăm", "Khmer", "Nam Bộ"]
+    }
+  ]
+}

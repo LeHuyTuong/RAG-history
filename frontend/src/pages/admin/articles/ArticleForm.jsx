@@ -1,7 +1,20 @@
-import {  useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { generateSlug } from '../../../utils/stringUtils';
-import { RichTextEditor, ImageUpload, TagInput, FormHeader } from '../../../components/admin';
+import { generateSlug, stripHtml } from '../../../utils/stringUtils';
+import { RichTextEditor, ImageUpload, TagInput, FormHeader, EntityRelationInput } from '../../../components/admin';
+import { mockClient, extractErrorMessage, postService, tagService, eventService, sourceService } from '../../../services';
+import { API_ENDPOINTS } from '../../../services/api';
+
+const formatDateForInput = (dateStr) => {
+  if (!dateStr) return '';
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
+    return date.toISOString().split('T')[0];
+  } catch (e) {
+    return '';
+  }
+};
 
 const ArticleForm = () => {
   const { id } = useParams();
@@ -9,37 +22,59 @@ const ArticleForm = () => {
   const isEdit = !!id;
 
   const [predefinedTags, setPredefinedTags] = useState([]);
+  const [availableSources, setAvailableSources] = useState([]);
+  const [availableEvents, setAvailableEvents] = useState([]);
 
   const [form, setForm] = useState({
     title: '',
     slug: '',
     content: '',
-    status: 'Bản thảo',
-    publishedAt: '',
+    status: 'draft',
+    publishedAt: new Date().toISOString().split('T')[0],
     tags: [],
+    author: 'Admin',
     thumbnailUrl: null,
-    thumbnailPreview: null
+    thumbnailPreview: null,
+    sources: [],
+    eventId: null
   });
+  const [originalData, setOriginalData] = useState({});
 
   useEffect(() => {
     if (isEdit) {
       const fetchData = async () => {
         try {
-          const response = await fetch('/api/user_article_detail.json');
-          if (response.ok) {
-            const data = await response.json();
-            const mockContent = data.content?.map(c => c.text).join('<br/><br/>') || '';
+          let foundArticle = null;
+
+          if (!isNaN(Number(id))) {
+            try {
+              const article = await postService.getById(id);
+              if (article) {
+                foundArticle = article;
+              }
+            } catch (err) {
+              console.error('Lỗi khi tải bài viết từ backend:', err);
+            }
+          }
+
+          if (foundArticle) {
+            setOriginalData(foundArticle);
             setForm(prev => ({
               ...prev,
-              title: data.title || '',
-              slug: generateSlug(data.title || ''),
-              content: mockContent,
-              status: 'Đã xuất bản',
-              publishedAt: data.publishedAt || '',
-              tags: data.tags || ['Bình Ngô Đại Cáo'],
+              title: foundArticle.title || '',
+              slug: foundArticle.slug || generateSlug(foundArticle.title || ''),
+              content: foundArticle.content || '',
+              status: (foundArticle.status === 'published' || !foundArticle.status || foundArticle.status === 'Công khai' || foundArticle.status === 'PUBLISHED') ? 'published' : 'draft',
+              publishedAt: formatDateForInput(foundArticle.publishedAt || foundArticle.published_at),
+              tags: foundArticle.tags ? (Array.isArray(foundArticle.tags) ? foundArticle.tags.map(t => typeof t === 'object' ? (t.name || t.label || '') : t) : [foundArticle.tags]) : (foundArticle.period ? [foundArticle.period] : []),
+              author: foundArticle.author || 'Admin',
               thumbnailUrl: null,
-              thumbnailPreview: data.heroImage || null
+              thumbnailPreview: foundArticle.image || foundArticle.thumbnailUrl || foundArticle.thumbnail_url || null,
+              sources: foundArticle.sources || [],
+              eventId: foundArticle.event?.id || foundArticle.eventId || null
             }));
+          } else {
+            console.error('Không tìm thấy bài viết với ID:', id);
           }
         } catch (error) {
           console.error('Lỗi tải dữ liệu bài viết:', error);
@@ -48,34 +83,65 @@ const ArticleForm = () => {
       fetchData();
     }
 
+    const fetchSources = async () => {
+      try {
+        const list = await sourceService.listAll();
+        setAvailableSources(list);
+      } catch (error) {
+        console.error('Lỗi tải danh sách nguồn tư liệu:', error);
+      }
+    };
+    fetchSources();
+
     const fetchTags = async () => {
       try {
-        const response = await fetch('/api/admin_metadata.json');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.tags) {
-            setPredefinedTags(data.tags.map(t => ({
+        const list = await tagService.listAll();
+        setPredefinedTags(list.map(t => ({
+          id: t.id,
+          label: t.name,
+          category: t.type || 'Triều đại'
+        })));
+      } catch (error) {
+        console.error('Lỗi tải danh sách thẻ từ backend, thử dùng mock:', error);
+        try {
+          const response = await mockClient.get('/api/admin_metadata.json');
+          if (response.data?.tags) {
+            setPredefinedTags(response.data.tags.map(t => ({
               id: t.id,
               label: t.name,
-              category: t.type || 'Phân loại'
+              category: t.type || 'Triều đại'
             })));
           }
+        } catch (e) {
+          console.error('Lỗi tải danh sách thẻ:', e);
         }
-      } catch (error) {
-        console.error('Lỗi tải danh sách thẻ:', error);
       }
     };
     fetchTags();
+
+    const fetchEvents = async () => {
+      try {
+        const list = await eventService.listAll();
+        setAvailableEvents(list.map(e => ({
+          id: e.id,
+          name: e.name || e.title,
+          status: 'PUBLISHED'
+        })));
+      } catch (error) {
+        console.error('Lỗi tải danh sách sự kiện:', error);
+      }
+    };
+    fetchEvents();
   }, [id, isEdit]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setForm({
-        ...form,
+      setForm(prev => ({
+        ...prev,
         thumbnailUrl: file,
         thumbnailPreview: URL.createObjectURL(file)
-      });
+      }));
     }
   };
 
@@ -87,15 +153,92 @@ const ArticleForm = () => {
     setForm(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tagToRemove) }));
   };
 
+  const validate = () => {
+    const errors = [];
+    const title = (form.title || '').trim();
+    if (!title) {
+      errors.push('Tiêu đề là bắt buộc');
+    } else if (title.length > 100) {
+      errors.push('Tiêu đề không được vượt quá 100 ký tự');
+    }
+
+    const slug = (form.slug || generateSlug(title)).trim();
+    if (!slug) {
+      errors.push('Slug là bắt buộc');
+    } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+      errors.push('Slug chỉ gồm chữ thường, số và dấu gạch ngang');
+    } else if (slug.length > 200) {
+      errors.push('Slug không được vượt quá 200 ký tự');
+    }
+
+    if (form.thumbnailPreview && typeof form.thumbnailPreview === 'string' && form.thumbnailPreview.length > 1000) {
+      errors.push('URL ảnh bìa không được vượt quá 1000 ký tự');
+    }
+
+    return { ok: errors.length === 0, errors, slug };
+  };
+
+  const handleSave = async () => {
+    const check = validate();
+    if (!check.ok) {
+      alert(check.errors.join('\n'));
+      return;
+    }
+
+    try {
+      // Prepare payload to match backend CreatePostRequest/UpdatePostRequest
+      const publishedInstant = form.publishedAt
+        ? new Date(form.publishedAt).toISOString()
+        : new Date().toISOString();
+
+      const tagIds = form.tags
+        .map(tagName => {
+          const match = predefinedTags.find(pt => pt.label === tagName);
+          if (match) return match.id;
+          const originalMatch = originalData.tags?.find(t => (t.name || t.label || t) === tagName);
+          if (originalMatch) return originalMatch.id;
+          return null;
+        })
+        .filter(id => id !== null)
+        .map(Number);
+
+      const payload = {
+        title: form.title.trim(),
+        slug: check.slug,
+        summary: form.content ? stripHtml(form.content).substring(0, 150) + '...' : '',
+        content: form.content,
+        status: form.status === 'published' || form.status === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT',
+        publishedAt: publishedInstant,
+        thumbnailUrl: typeof form.thumbnailPreview === 'string' && form.thumbnailPreview.startsWith('http') ? form.thumbnailPreview : null,
+        eventId: form.eventId,
+        tagIds: tagIds
+      };
+
+      // Go through postService so the service layer owns the HTTP call.
+      // Backend PostController.update reads `id` from the request body.
+      if (isEdit && !isNaN(Number(id))) {
+        await postService.update({ ...payload, id: Number(id) });
+      } else {
+        await postService.create(payload);
+      }
+
+      navigate('/admin/articles');
+    } catch (error) {
+      console.error('Lỗi khi lưu bài viết:', error);
+      const errMsg = extractErrorMessage(error, 'Có lỗi xảy ra khi lưu bài viết!');
+      alert(errMsg);
+    }
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 font-body">
-      <FormHeader 
+      <FormHeader
         title={isEdit ? 'Hiệu đính Sử liệu' : 'Soạn thảo Bài viết Mới'}
         subtitle='"Ghi chép ngàn năm, lưu truyền vạn thế"'
         icon="history_edu"
         isEdit={isEdit}
         onCancel={() => navigate('/admin/articles')}
-        onSave={() => {}}
+        onSave={handleSave}
         saveText="Xuất bản"
       />
 
@@ -117,7 +260,7 @@ const ArticleForm = () => {
                 type="text" value={form.title}
                 onChange={e => {
                   const newTitle = e.target.value;
-                  setForm({ ...form, title: newTitle, slug: generateSlug(newTitle) });
+                  setForm(prev => ({ ...prev, title: newTitle, slug: generateSlug(newTitle) }));
                 }}
                 className="w-full bg-transparent border-0 border-b border-outline-variant/60 focus:border-primary py-3 font-headline text-3xl text-on-surface font-bold outline-none transition-all placeholder:text-outline-variant/60 placeholder:font-light"
                 placeholder="Nhập tiêu đề trang trọng..."
@@ -141,7 +284,7 @@ const ArticleForm = () => {
             </div>
             <RichTextEditor
               value={form.content}
-              onChange={(content) => setForm({ ...form, content })}
+              onChange={(content) => setForm(prev => ({ ...prev, content }))}
               placeholder="Bắt đầu soạn thảo dòng lịch sử..."
               className="h-[600px] flex flex-col custom-quill"
             />
@@ -170,11 +313,11 @@ const ArticleForm = () => {
                     <div className="relative">
                       <select
                         value={form.status}
-                        onChange={e => setForm({ ...form, status: e.target.value })}
+                        onChange={e => setForm(prev => ({ ...prev, status: e.target.value }))}
                         className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-sm font-bold text-on-surface outline-none cursor-pointer hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
                       >
-                        <option>Bản thảo</option>
-                        <option>Đã xuất bản</option>
+                        <option value="draft">Bản nháp</option>
+                        <option value="published">Công khai</option>
                       </select>
                       <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
                     </div>
@@ -184,7 +327,7 @@ const ArticleForm = () => {
                     <input
                       type="date"
                       value={form.publishedAt}
-                      onChange={e => setForm({ ...form, publishedAt: e.target.value })}
+                      onChange={e => setForm(prev => ({ ...prev, publishedAt: e.target.value }))}
                       className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-sm font-bold text-on-surface outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                     />
                   </div>
@@ -196,13 +339,71 @@ const ArticleForm = () => {
                 availableTags={predefinedTags}
                 onAddTag={handleAddTag}
                 onRemoveTag={handleRemoveTag}
+                label="Triều đại"
               />
 
               <ImageUpload
                 previewUrl={form.thumbnailPreview}
                 onImageChange={handleImageChange}
-                onRemove={() => setForm({ ...form, thumbnailUrl: null, thumbnailPreview: null })}
+                onRemove={() => setForm(prev => ({ ...prev, thumbnailUrl: null, thumbnailPreview: null }))}
               />
+
+              <div className="pt-4 border-t border-outline-variant/60">
+                <EntityRelationInput
+                  entities={form.eventId ? [
+                    availableEvents.find(e => e.id === form.eventId)?.name ||
+                    (originalData.event?.id === form.eventId ? originalData.event?.name : null)
+                  ].filter(Boolean) : []}
+                  availableEntities={availableEvents}
+                  type="event"
+                  label="Sự kiện lịch sử"
+                  icon="event"
+                  itemIcon="event"
+                  placeholder="Gõ hoặc chọn sự kiện..."
+                  onAdd={(val) => {
+                    const match = availableEvents.find(e => (e.name || e.title) === val);
+                    if (match) {
+                      setForm(prev => ({
+                        ...prev,
+                        eventId: match.id
+                      }));
+                    }
+                  }}
+                  onRemove={() => {
+                    setForm(prev => ({
+                      ...prev,
+                      eventId: null
+                    }));
+                  }}
+                />
+              </div>
+
+              <div className="pt-4 border-t border-outline-variant/60">
+                <EntityRelationInput
+                  entities={form.sources.map(s => s.title || s.name || s)}
+                  availableEntities={availableSources}
+                  type="source"
+                  label="Nguồn tham khảo"
+                  icon="menu_book"
+                  itemIcon="menu_book"
+                  placeholder="Gõ hoặc chọn nguồn sử liệu..."
+                  onAdd={(val) => {
+                    const match = availableSources.find(s => (s.title || s.name) === val);
+                    if (match) {
+                      setForm(prev => ({
+                        ...prev,
+                        sources: [...(prev.sources || []), match]
+                      }));
+                    }
+                  }}
+                  onRemove={(entToRemove) => {
+                    setForm(prev => ({
+                      ...prev,
+                      sources: prev.sources.filter(s => (s.title || s.name || s) !== entToRemove)
+                    }));
+                  }}
+                />
+              </div>
 
             </div>
           </div>

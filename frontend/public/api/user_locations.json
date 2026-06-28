@@ -1,160 +1,1334 @@
-[
-  {
-    "id": 1,
-    "name": "Cố đô Huệ",
-    "province": "Thừa Thiên Huế",
-    "type": "Kinh đô cổ",
-    "period": "Nhà Nguyễn",
-    "x": 63,
-    "y": 50,
-    "desc": "Kinh đô của triều đại nhà Nguyễn, biểu tượng cho quyền lực và sự tinh xảo trong kiến trúc phong kiến.",
-    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuAy9HOsSy2w5f4u8FOROpkAqDh91oFc040gmrIqvtUnfdASl5Yv9fpuP_-v4xHO4hsVTXFgvPoQU1zC-N-xtLmqBi7yI1Z5ywQqyAB92yDXzJ00RHI38gz9tYVAVrPha-f4mvXsYjgaUHHeWvmRY0PhijQlbC0VRcBNS3-RfERtElu_eZ5o6c8rXInSXEzTRrYZaxDQ65FF6EICyYGBypPopErqsIRLrd_nuI4027TYKL4-azB9b0bnqQbJXIfHzi3tPXRGwi212ueN",
-    "famousCharacters": [
-      "Vua Gia Long",
-      "Vua Minh Mạng"
-    ],
-    "timeline": [
-      {
-        "year": "1802",
-        "event": "Định đô"
-      },
-      {
-        "year": "1945",
-        "event": "Thoái vị"
-      }
-    ],
-    "aiPrompt": "Tại sao Vua Gia Long lại quyết định dời đô vào Phú Xuân Huế?"
-  },
-  {
-    "id": 2,
-    "name": "Hoàng Thành Thăng Long",
-    "province": "Hà Nội",
-    "type": "Hoàng thành",
-    "period": "Nhà Lý",
-    "x": 48,
-    "y": 20,
-    "desc": "Trung tâm chính trị, văn hóa quan trọng nhất của Việt Nam trong suốt 13 thế kỷ liên tiếp từ thời Lý đến Nguyễn.",
-    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuCc93rr9Ln2v2v8oDXqcTThoFyvbU-lGRm-n2qyByLfGgx6QaY8sv2gDhR7DX3C83E0dbHwOLQSfFneh__EzEdMIz5U1dLpfRjorC21h4GwJ1bAJ3Vl2qOppE6m6VD4jtyZ2jO6RuPzfsRHwZdIp8QH-Bgt0FH1yyQKXZ-5zdQx0pJHYJ5aSKr4B2aRWDJMh4kFEjJT5T9SRT20VT6MDYN7vANjbJ2FcJ3nj4xLYwONlrcSAe0eCojuMEzE0EMelzyrqrXy6TDFvRWW",
-    "famousCharacters": [
-      "Lý Thái Tổ",
-      "Lê Thánh Tông"
-    ],
-    "timeline": [
-      {
-        "year": "1010",
-        "event": "Dời đô"
-      }
-    ],
-    "aiPrompt": "Hoàng thành Thăng Long có những hiện vật quý giá nào?"
-  },
-  {
-    "id": 3,
-    "name": "Cố đô Hoa Lư",
-    "province": "Ninh Bình",
-    "type": "Kinh đô cổ",
-    "period": "Nhà Đinh",
-    "x": 52,
-    "y": 25,
-    "desc": "Kinh đô đầu tiên của nước Việt độc lập sau 1000 năm Bắc thuộc, gắn liền với sự nghiệp thống nhất của Đinh Bộ Lĩnh.",
-    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuC4zEJVUzoNRwMJqYZdNwfr3q46wbgd1Hrw79_Mrt3_mSJVw9bDu4ty1xtGhd2WK13hV5LE4tvo-wI2GtqJv4U3w-soRt_ywdRAGCGL4bosK_ZmVvCPzizbLil7IDmYzsyz3QssJMF5u9zfxauzzPQ0z4yRTsF0VJyJyaFh3CSaceFdiTeEan44feuxMDSnkuNeXhg_b2CQezVPHci4oGO9PrrDXqsB_0wP3V4jwpH9Akka8QC3XacpsLnreP6LoTmLCn08_v3Yds6s",
-    "famousCharacters": [
-      "Đinh Tiên Hoàng",
-      "Lê Đại Hành"
-    ],
-    "timeline": [
-      {
-        "year": "968",
-        "event": "Lập quốc"
-      }
-    ],
-    "aiPrompt": "Địa thế Hoa Lư hiểm trở như thế nào?"
-  },
-  {
-    "id": 4,
-    "name": "Văn Miếu - Quốc Tử Giám",
-    "province": "Hà Nội",
-    "type": "Di tích văn hóa",
-    "period": "Nhà Lý",
-    "x": 48,
-    "y": 19,
-    "desc": "Trường đại học đầu tiên của Việt Nam, nơi lưu giữ tinh hoa khoa bảng ngàn năm và 82 tấm bia Tiến sĩ quý giá.",
-    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuAmNocjFRWbOeTTb4D0X6GrSEqRqAXqYKuZffaLLwlhDsSOh0IFLQkAgBfW2d1MdC4FTUsi96mBv2FryFIh-X2wAsezin7d4QckXyAroun0MplIEGEDNN6v6Y6vsl1otxU8kond2lnWMMIZdA1xNS5XKkNquZrLNF83nVGEYXFHFFKkc1gAgMDV_OLj-wHq6I7ziUbvMbrilELjQCgrDGH3ua9wBkEfakzf1loum-zGM5B7q7hkOf7FFNZJh7sLDFiihew0LiUD-bCo",
-    "famousCharacters": [
-      "Chu Văn An",
-      "Lý Nhân Tông"
-    ],
-    "timeline": [
-      {
-        "year": "1070",
-        "event": "Khởi dựng"
-      }
-    ],
-    "aiPrompt": "Ý nghĩa của 82 bia Tiến sĩ tại Văn Miếu."
-  },
-  {
-    "id": 5,
-    "name": "Di tích Lam Kinh",
-    "province": "Thanh Hóa",
-    "type": "Khu lăng tẩm",
-    "period": "Nhà Lê Sơ",
-    "x": 46,
-    "y": 30,
-    "desc": "Nơi phát tích của cuộc khởi nghĩa Lam Sơn và là khu lăng tẩm hoàng gia linh thiêng của vương triều Hậu Lê.",
-    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDh48rEx3whFt-uLgXeFfaouAxswoghSNKU3kZ0uZthttK9uZCGTtlrwat-dkOuIDQm8JgoQQgtoI5UE7kWk5locGj5ph9lA_kJAM1vAKKqJp6lTSacw_RMEvhyo3E4Crdwo-zQY3o80VtVsvTy8v-t1RELwDqRYwfd7MTtX9U1B9MtfFli_rLejuz-vyFk7E25UI5VQYur_BU3UwparR335gjSs06YNDEsCDfa1gea0wCV15Q-yk7VAsxz7yMHk6wx439Phkko_zFW",
-    "famousCharacters": [
-      "Lê Lợi",
-      "Nguyễn Trãi"
-    ],
-    "timeline": [
-      {
-        "year": "1433",
-        "event": "Xây dựng"
-      }
-    ],
-    "aiPrompt": "Kiến trúc phong thủy của khu lăng tẩm Lam Kinh."
-  },
-  {
-    "id": 6,
-    "name": "Sông Bạch Đằng",
-    "province": "Quảng Ninh - Hải Phòng",
-    "type": "Di tích lịch sử",
-    "period": "Nhà Ngô",
-    "x": 52,
-    "y": 15,
-    "desc": "Dòng sông lịch sử nơi Ngô Quyền đánh tan quân Nam Hán năm 938, mở đầu thời kỳ độc lập dân tộc.",
-    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBArlscw3wc_0llom4YXbNv7OUtmTW1u8adGJtB0r_R9ouLWRlOhBtwANhi8h-y-oKCXyjtcMAw-fv_DqJa8j9I0UYbf6VIaYfgHL50aCXOYoKCdQKYmjZdoMl1JYnzrRbkzkf79To66-2d-f1XfB1xrJTtxZoVqJiuNrqbgJSqttpHAF3wZGHnereJFQmlr7zvRv_OYZP3ifnXN8WYT8_1w8_n43OLOx1lJp01FpEjYuFGNSEqolT22CJMX1LelRwU2FVHe3Qq_fbP",
-    "famousCharacters": [
-      "Ngô Quyền",
-      "Trần Hưng Đạo"
-    ],
-    "timeline": [
-      {
-        "year": "938",
-        "event": "Đại thắng Nam Hán"
-      }
-    ],
-    "aiPrompt": "Trận cọc gỗ Bạch Đằng năm 938."
-  },
-  {
-    "id": 7,
-    "name": "Đường Lâm",
-    "province": "Hà Nội",
-    "type": "Làng cổ",
-    "period": "Nhà Ngô",
-    "x": 47,
-    "y": 19,
-    "desc": "Làng cổ nghìn năm tuổi, quê hương của Ngô Quyền vị vua mở đầu kỷ nguyên độc lập dân tộc.",
-    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDDTXt3tOmQLzCboBJbQ63U5COKxdxaq5GrOn1775TXtXg3zq28AuTTb3mfVjKs6uj5Nkhc7auEFnCrMuCs6G4YIcZmzBgEE4ZdY3awqlP12VklH3BWkRe6Q83fhxNWatx1MbYcLIq7RztTsqI3HQRxPVW7T-TPQdwD7HM2eOSpwVHwup9Hp3K7KuNRjtoiaNSNbwvYXV_yv4pvRx5WIpTl05zH0YYusegbAB7v9qKEqrHI9SzL2DI2Hb0snIW35b9H7yKKrRRXIf79",
-    "famousCharacters": [
-      "Ngô Quyền",
-      "Phùng Hưng"
-    ],
-    "timeline": [
-      {
-        "year": "898",
-        "event": "Ngô Quyền ra đời"
-      }
-    ],
-    "aiPrompt": "Đường Lâm ấp 2 vua."
-  }
-]
+{
+  "types": [
+    "REGION",
+    "CITADEL",
+    "MOUNTAIN",
+    "CITY",
+    "BATTLEFIELD",
+    "CAPITAL",
+    "PALACE",
+    "BASE"
+  ],
+  "locations": [
+    {
+      "location_id": 1,
+      "name": "Phú Thọ",
+      "slug": "phu-tho",
+      "location_type": "REGION",
+      "latitude": 21.268443,
+      "longitude": 105.204557,
+      "description": "Vùng đất gắn với truyền thuyết các vua Hùng.",
+      "type": "REGION",
+      "period": "Thời Văn Lang",
+      "coordinates": [
+        105.204557,
+        21.268443
+      ],
+      "x": 41.95347297297294,
+      "y": 14.305751677852333,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Phú Thọ."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/c/c9/C%E1%BB%95ng_%C4%91%E1%BB%81n_H%C3%B9ng_%28Ph%C3%BA_Th%E1%BB%8D%29.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/c/c9/C%E1%BB%95ng_%C4%91%E1%BB%81n_H%C3%B9ng_%28Ph%C3%BA_Th%E1%BB%8D%29.jpg"
+    },
+    {
+      "location_id": 2,
+      "name": "Cổ Loa",
+      "slug": "co-loa",
+      "location_type": "CITADEL",
+      "latitude": 21.1167,
+      "longitude": 105.8833,
+      "description": "Kinh đô Âu Lạc với hệ thống thành lũy cổ.",
+      "type": "CITADEL",
+      "period": "Thời Âu Lạc",
+      "coordinates": [
+        105.8833,
+        21.1167
+      ],
+      "x": 51.12567567567579,
+      "y": 15.324161073825485,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Cổ Loa."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Co_loa_Citadel.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Co_loa_Citadel.jpg"
+    },
+    {
+      "location_id": 3,
+      "name": "Mê Linh",
+      "slug": "me-linh",
+      "location_type": "REGION",
+      "latitude": 21.1833,
+      "longitude": 105.7167,
+      "description": "Căn cứ khởi nghĩa Hai Bà Trưng.",
+      "type": "REGION",
+      "period": "Bắc thuộc lần thứ nhất",
+      "coordinates": [
+        105.7167,
+        21.1833
+      ],
+      "x": 48.874324324324405,
+      "y": 14.877181208053688,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Mê Linh."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/5/52/%C4%90%E1%BB%81n_th%E1%BB%9D_Hai_B%C3%A0_Tr%C6%B0ng_%28M%C3%AA_Linh%29.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/5/52/%C4%90%E1%BB%81n_th%E1%BB%9D_Hai_B%C3%A0_Tr%C6%B0ng_%28M%C3%AA_Linh%29.jpg"
+    },
+    {
+      "location_id": 4,
+      "name": "Núi Nưa",
+      "slug": "nui-nua",
+      "location_type": "MOUNTAIN",
+      "latitude": 19.615,
+      "longitude": 105.645,
+      "description": "Địa danh gắn với truyền thuyết Bà Triệu.",
+      "type": "MOUNTAIN",
+      "period": "Khởi nghĩa Hai Bà Trưng",
+      "coordinates": [
+        105.645,
+        19.615
+      ],
+      "x": 47.905405405405396,
+      "y": 25.402684563758392,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Núi Nưa."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Khu_di_tich_Am_Tien.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Khu_di_tich_Am_Tien.jpg"
+    },
+    {
+      "location_id": 5,
+      "name": "Long Biên",
+      "slug": "long-bien",
+      "location_type": "CITY",
+      "latitude": 21.04,
+      "longitude": 105.88,
+      "description": "Trung tâm chính trị quan trọng thời Bắc thuộc.",
+      "type": "CITY",
+      "period": "Nhà Tiền Lý và Vạn Xuân",
+      "coordinates": [
+        105.88,
+        21.04
+      ],
+      "x": 51.08108108108106,
+      "y": 15.838926174496642,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Long Biên."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/3/33/Long_Bien_bridge_2013.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/3/33/Long_Bien_bridge_2013.jpg"
+    },
+    {
+      "location_id": 6,
+      "name": "Hoan Châu",
+      "slug": "hoan-chau",
+      "location_type": "REGION",
+      "latitude": 18.67,
+      "longitude": 105.68,
+      "description": "Vùng đất Nghệ An - Hà Tĩnh xưa.",
+      "type": "REGION",
+      "period": "Họ Khúc - họ Dương",
+      "coordinates": [
+        105.68,
+        18.67
+      ],
+      "x": 48.378378378378514,
+      "y": 31.744966442953004,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Hoan Châu."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Song_Lam_Ngh%E1%BB%87_An.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Song_Lam_Ngh%E1%BB%87_An.jpg"
+    },
+    {
+      "location_id": 7,
+      "name": "Sông Bạch Đằng",
+      "slug": "song-bach-dang",
+      "location_type": "BATTLEFIELD",
+      "latitude": 20.92,
+      "longitude": 106.8,
+      "description": "Chiến địa thủy chiến quan trọng trong lịch sử Việt Nam.",
+      "type": "BATTLEFIELD",
+      "period": "Nhà Ngô",
+      "coordinates": [
+        106.8,
+        20.92
+      ],
+      "x": 63.513513513513495,
+      "y": 16.644295302013404,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Sông Bạch Đằng."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/f/fe/B%C3%A3i_c%E1%BB%8D_B%E1%BA%A1ch_%C4%90%E1%BA%B1ng.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/f/fe/B%C3%A3i_c%E1%BB%8D_B%E1%BA%A1ch_%C4%90%E1%BA%B1ng.jpg"
+    },
+    {
+      "location_id": 8,
+      "name": "Hoa Lư",
+      "slug": "hoa-lu",
+      "location_type": "CAPITAL",
+      "latitude": 20.2539,
+      "longitude": 105.918,
+      "description": "Kinh đô Đại Cồ Việt thời Đinh và Tiền Lê.",
+      "type": "CAPITAL",
+      "period": "Nhà Đinh",
+      "coordinates": [
+        105.918,
+        20.2539
+      ],
+      "x": 51.594594594594724,
+      "y": 21.114765100671125,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Hoa Lư."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/a/af/Co_do_Hoa_Lu.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/a/af/Co_do_Hoa_Lu.jpg"
+    },
+    {
+      "location_id": 9,
+      "name": "Thăng Long",
+      "slug": "thang-long",
+      "location_type": "CAPITAL",
+      "latitude": 21.028511,
+      "longitude": 105.804817,
+      "description": "Kinh đô lâu dài của Đại Việt.",
+      "type": "CAPITAL",
+      "period": "Nhà Tiền Lê",
+      "coordinates": [
+        105.804817,
+        21.028511
+      ],
+      "x": 50.065094594594626,
+      "y": 15.91603355704696,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Thăng Long."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/2/22/Doan_Mon_Thang_Long.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/2/22/Doan_Mon_Thang_Long.jpg"
+    },
+    {
+      "location_id": 10,
+      "name": "Sông Như Nguyệt",
+      "slug": "song-nhu-nguyet",
+      "location_type": "BATTLEFIELD",
+      "latitude": 21.185,
+      "longitude": 106.08,
+      "description": "Phòng tuyến trong kháng chiến chống Tống thế kỷ XI.",
+      "type": "BATTLEFIELD",
+      "period": "Nhà Lý",
+      "coordinates": [
+        106.08,
+        21.185
+      ],
+      "x": 53.783783783783804,
+      "y": 14.865771812080537,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Sông Như Nguyệt."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/7/77/Song_Cau_Bac_Ninh.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/7/77/Song_Cau_Bac_Ninh.jpg"
+    },
+    {
+      "location_id": 11,
+      "name": "Đông Bộ Đầu",
+      "slug": "dong-bo-dau",
+      "location_type": "BATTLEFIELD",
+      "latitude": 21.04,
+      "longitude": 105.85,
+      "description": "Địa điểm gắn với kháng chiến chống Nguyên lần thứ nhất.",
+      "type": "BATTLEFIELD",
+      "period": "Nhà Trần",
+      "coordinates": [
+        105.85,
+        21.04
+      ],
+      "x": 50.675675675675635,
+      "y": 15.838926174496642,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Đông Bộ Đầu."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/2/22/Doan_Mon_Thang_Long.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/2/22/Doan_Mon_Thang_Long.jpg"
+    },
+    {
+      "location_id": 12,
+      "name": "Thiên Trường",
+      "slug": "thien-truong",
+      "location_type": "PALACE",
+      "latitude": 20.42,
+      "longitude": 106.17,
+      "description": "Căn cứ và hành cung quan trọng của nhà Trần.",
+      "type": "PALACE",
+      "period": "Nhà Hồ",
+      "coordinates": [
+        106.17,
+        20.42
+      ],
+      "x": 55.00000000000006,
+      "y": 19.999999999999982,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Thiên Trường."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/b/b5/Den_Tran_Nam_Dinh_gate.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/b/b5/Den_Tran_Nam_Dinh_gate.jpg"
+    },
+    {
+      "location_id": 13,
+      "name": "Tây Đô",
+      "slug": "tay-do",
+      "location_type": "CITADEL",
+      "latitude": 20.078,
+      "longitude": 105.604,
+      "description": "Kinh đô nhà Hồ tại Thanh Hóa.",
+      "type": "CITADEL",
+      "period": "Bắc thuộc lần thứ tư",
+      "coordinates": [
+        105.604,
+        20.078
+      ],
+      "x": 47.351351351351376,
+      "y": 22.295302013422816,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Tây Đô."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/f/fe/Tay_Giai_gate_Ho_citadel.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/f/fe/Tay_Giai_gate_Ho_citadel.jpg"
+    },
+    {
+      "location_id": 14,
+      "name": "Lam Sơn",
+      "slug": "lam-son",
+      "location_type": "BASE",
+      "latitude": 20.145,
+      "longitude": 105.318,
+      "description": "Căn cứ khởi nghĩa Lam Sơn.",
+      "type": "BASE",
+      "period": "Nhà Hậu Lê",
+      "coordinates": [
+        105.318,
+        20.145
+      ],
+      "x": 43.486486486486505,
+      "y": 21.845637583892614,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Lam Sơn."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/5/52/Chinh_dien_Lam_Kinh.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/5/52/Chinh_dien_Lam_Kinh.jpg"
+    },
+    {
+      "location_id": 15,
+      "name": "Đông Kinh",
+      "slug": "dong-kinh",
+      "location_type": "CAPITAL",
+      "latitude": 21.028511,
+      "longitude": 105.804817,
+      "description": "Tên gọi kinh thành Thăng Long thời Lê.",
+      "type": "CAPITAL",
+      "period": "Nhà Mạc",
+      "coordinates": [
+        105.804817,
+        21.028511
+      ],
+      "x": 50.065094594594626,
+      "y": 15.91603355704696,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Đông Kinh."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/7/79/Turtle_Tower_Hanoi.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/7/79/Turtle_Tower_Hanoi.jpg"
+    },
+    {
+      "location_id": 16,
+      "name": "Phú Xuân",
+      "slug": "phu-xuan",
+      "location_type": "CAPITAL",
+      "latitude": 16.463713,
+      "longitude": 107.590866,
+      "description": "Trung tâm chính trị quan trọng của chúa Nguyễn và triều Nguyễn.",
+      "type": "CAPITAL",
+      "period": "Trịnh - Nguyễn phân tranh",
+      "coordinates": [
+        107.590866,
+        16.463713
+      ],
+      "x": 74.20089189189198,
+      "y": 46.55226174496645,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Phú Xuân."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/5/52/Ngoc_Mon_Hue_2014.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/5/52/Ngoc_Mon_Hue_2014.jpg"
+    },
+    {
+      "location_id": 17,
+      "name": "Gò Đống Đa",
+      "slug": "go-dong-da",
+      "location_type": "BATTLEFIELD",
+      "latitude": 21.0142,
+      "longitude": 105.8248,
+      "description": "Địa điểm gắn với chiến thắng Ngọc Hồi - Đống Đa.",
+      "type": "BATTLEFIELD",
+      "period": "Phong trào Tây Sơn",
+      "coordinates": [
+        105.8248,
+        21.0142
+      ],
+      "x": 50.335135135135125,
+      "y": 16.01208053691275,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Gò Đống Đa."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Go_Dong_Da_01.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Go_Dong_Da_01.jpg"
+    },
+    {
+      "location_id": 18,
+      "name": "Kinh thành Huế",
+      "slug": "kinh-thanh-hue",
+      "location_type": "CITADEL",
+      "latitude": 16.4697,
+      "longitude": 107.5775,
+      "description": "Kinh đô triều Nguyễn.",
+      "type": "CITADEL",
+      "period": "Nhà Nguyễn",
+      "coordinates": [
+        107.5775,
+        16.4697
+      ],
+      "x": 74.02027027027029,
+      "y": 46.51208053691275,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Kinh thành Huế."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/7/7d/Hue_citadel_flag_tower_2014.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/7/7d/Hue_citadel_flag_tower_2014.jpg"
+    },
+    {
+      "location_id": 19,
+      "name": "Đà Nẵng",
+      "slug": "da-nang",
+      "location_type": "CITY",
+      "latitude": 16.054407,
+      "longitude": 108.202167,
+      "description": "Nơi liên quân Pháp - Tây Ban Nha nổ súng xâm lược năm 1858.",
+      "type": "CITY",
+      "period": "Thời Pháp thuộc",
+      "coordinates": [
+        108.202167,
+        16.054407
+      ],
+      "x": 82.46171621621626,
+      "y": 49.299281879194616,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Đà Nẵng."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Cau_Song_Han_Da_Nang.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Cau_Song_Han_Da_Nang.jpg"
+    },
+    {
+      "location_id": 20,
+      "name": "Điện Biên Phủ",
+      "slug": "dien-bien-phu",
+      "location_type": "BATTLEFIELD",
+      "latitude": 21.386,
+      "longitude": 103.016,
+      "description": "Chiến trường quyết định trong kháng chiến chống Pháp.",
+      "type": "BATTLEFIELD",
+      "period": "Việt Nam hiện đại",
+      "coordinates": [
+        103.016,
+        21.386
+      ],
+      "x": 12.378378378378518,
+      "y": 13.516778523489931,
+      "importance": [
+        "Địa danh đóng vai trò chiến lược trong các cuộc kháng chiến bảo vệ tổ quốc.",
+        "Là trung tâm văn hóa, chính trị của khu vực trong nhiều thế kỷ, lưu giữ những giá trị truyền thống cốt lõi."
+      ],
+      "stats": [
+        {
+          "label": "Năm thành lập",
+          "value": "Thế kỷ 1"
+        },
+        {
+          "label": "Quy mô",
+          "value": "Đặc biệt"
+        },
+        {
+          "label": "Bảo tồn",
+          "value": "Cấp Quốc gia"
+        }
+      ],
+      "timeline": [
+        {
+          "year": "Sơ kỳ",
+          "title": "Khởi dựng",
+          "desc": "Giai đoạn đầu hình thành và phát triển của Điện Biên Phủ."
+        },
+        {
+          "year": "Trung kỳ",
+          "title": "Phát triển",
+          "desc": "Trở thành một địa điểm quan trọng trong lịch sử."
+        },
+        {
+          "year": "Hiện đại",
+          "title": "Bảo tồn",
+          "desc": "Được công nhận là di tích lịch sử và văn hóa."
+        }
+      ],
+      "famousCharacters": [
+        {
+          "name": "Lê Lợi",
+          "role": "Anh hùng dân tộc",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/8/81/Le_Loi_statue.JPG"
+        },
+        {
+          "name": "Nguyễn Trãi",
+          "role": "Danh nhân văn hóa",
+          "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Portrait_of_Nguyen_Trai.jpg"
+        }
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Dien_Bien_Phu_victory_monument.jpg",
+      "heroImg": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Dien_Bien_Phu_victory_monument.jpg"
+    }
+  ]
+}

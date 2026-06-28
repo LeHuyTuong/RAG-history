@@ -143,6 +143,7 @@ erDiagram
         VARCHAR slug UK
         TEXT description
         DATETIME created_at
+        DATETIME updated_at
     }
 
     post_tag {
@@ -392,7 +393,9 @@ Indexes:
 - `KEY idx_post_event (event_id)`
 - `KEY idx_post_status (status)`
 - `KEY idx_post_published (published_at)`
-- `FULLTEXT KEY ftx_post (title, summary, content)`
+- `FULLTEXT KEY ftx_post_title (title)`
+- `FULLTEXT KEY ftx_post_summary (summary)`
+- `FULLTEXT KEY ftx_post_content (content)`
 
 ### tag
 
@@ -403,6 +406,7 @@ Indexes:
 | slug | VARCHAR(100) | NOT NULL, UNIQUE | URL-safe slug |
 | description | TEXT | NULLABLE | Tag description |
 | created_at | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP | Created timestamp |
+| updated_at | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Last updated timestamp |
 
 Indexes:
 - `UNIQUE KEY uq_tag_name (name)`
@@ -463,7 +467,7 @@ Indexes:
 | participation_id | BIGINT | PK, AUTO_INCREMENT | Participation identifier |
 | event_id | BIGINT | FK -> event(event_id), NOT NULL, ON DELETE CASCADE | Event |
 | person_id | BIGINT | FK -> person(person_id), NOT NULL, ON DELETE CASCADE | Person |
-| role | VARCHAR(100) | NULLABLE | Role in event, e.g. KING, GENERAL, WITNESS |
+| role | VARCHAR(100) | NULLABLE | Enum role in event, e.g. KING, GENERAL, WITNESS |
 | note | TEXT | NULLABLE | Additional note |
 | confidence | DECIMAL(3,2) | NULLABLE | Confidence score from 0.00 to 1.00 |
 | created_at | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP | Created timestamp |
@@ -653,6 +657,15 @@ private List<Location> locations;
 
 @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
 private List<Participation> participations;
+
+// Participation entity
+@ManyToOne(fetch = FetchType.LAZY, optional = false)
+@JoinColumn(name = "event_id", nullable = false)
+private Event event;
+
+@ManyToOne(fetch = FetchType.LAZY, optional = false)
+@JoinColumn(name = "person_id", nullable = false)
+private Person person;
 ```
 
 ### RagChunk
@@ -700,6 +713,7 @@ Notes:
 
 - Total tables: 17.
 - Main migration file: [`V1__init.sql`](../backend/src/main/resources/db/migration/V1__init.sql).
+- `V3__add_tag_updated_at.sql` adds `tag.updated_at` for shared JPA audit mapping.
 - The migration uses `SET NAMES utf8mb4` and creates every table with `ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`.
 - Flyway should become the schema source of truth once backend integration starts.
 - Recommended JPA setting when Flyway is enabled: `ddl-auto=validate` or `ddl-auto=none`.

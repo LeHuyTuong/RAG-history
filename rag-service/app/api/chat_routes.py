@@ -12,7 +12,7 @@ Flow trong /rag/chat:
   5. citation_service.to_citations()  — map ScoredPoint → Citation objects
 
 Fallback: nếu không có hits hoặc LLM lỗi → trả _NO_DATA_MSG thay vì crash.
-Graph (Neo4j) chưa implement — useGraph luôn False trong MVP.
+Graph (Neo4j): dùng khi useGraph=True hoặc câu hỏi match _GRAPH_HINT_RE.
 """
 import json
 
@@ -57,9 +57,18 @@ async def _chat(req: RagChatRequest) -> RagChatResponse:
     from app.config import settings
     from app.services.retrieval_service import retrieve
     from app.services.prompt_service import load_system_prompt, build_user_message
-    from app.services.llm_service import generate
+    from app.services.llm_service import generate, suggest_questions
     from app.services.citation_service import to_citations
-    from app.services.question_router_service import route
+    from app.services.question_router_service import route, validate_question
+
+    validation_error = validate_question(req.question)
+    if validation_error:
+        return RagChatResponse(
+            answer=validation_error,
+            citations=[],
+            usedVector=False,
+            usedGraph=False,
+        )
 
     top_k = req.topK or settings.default_top_k
     routing = route(req.question, req.useGraph)
@@ -73,31 +82,35 @@ async def _chat(req: RagChatRequest) -> RagChatResponse:
             tag_ids=req.tagIds or None,
         )
 
-    if not hits:
+    graph_facts = _graph_context(req.question) if routing["use_graph"] else []
+
+    if not hits and not graph_facts:
         return RagChatResponse(
             answer=_NO_DATA_MSG,
             citations=[],
             usedVector=routing["use_vector"],
-            usedGraph=False,
+            usedGraph=routing["use_graph"],
         )
 
     try:
         system_prompt = load_system_prompt()
-        user_message = build_user_message(req.question, hits)
+        user_message = build_user_message(req.question, hits, graph_facts)
         answer = generate(system_prompt, user_message, req.temperature)
     except Exception:
         return RagChatResponse(
             answer=_NO_DATA_MSG,
             citations=[],
             usedVector=True,
-            usedGraph=False,
+            usedGraph=bool(graph_facts),
         )
 
+    suggestions = suggest_questions(req.question, answer)
     return RagChatResponse(
         answer=answer,
         citations=to_citations(hits),
         usedVector=True,
-        usedGraph=False,
+        usedGraph=bool(graph_facts),
+        suggestions=suggestions,
     )
 
 
@@ -105,9 +118,15 @@ async def _stream_chat_events(req: RagChatRequest):
     from app.config import settings
     from app.services.retrieval_service import retrieve
     from app.services.prompt_service import load_system_prompt, build_user_message
-    from app.services.llm_service import generate_stream
+    from app.services.llm_service import generate_stream, suggest_questions
     from app.services.citation_service import to_citations
-    from app.services.question_router_service import route
+    from app.services.question_router_service import route, validate_question
+
+    validation_error = validate_question(req.question)
+    if validation_error:
+        for event in _answer_events(validation_error, [], False, False):
+            yield event
+        return
 
     top_k = req.topK or settings.default_top_k
     routing = route(req.question, req.useGraph)
@@ -121,19 +140,26 @@ async def _stream_chat_events(req: RagChatRequest):
             tag_ids=req.tagIds or None,
         )
 
-    if not hits:
-        for event in _answer_events(_NO_DATA_MSG, [], routing["use_vector"], False):
+    graph_facts = _graph_context(req.question) if routing["use_graph"] else []
+
+    if not hits and not graph_facts:
+        for event in _answer_events(_NO_DATA_MSG, [], routing["use_vector"], routing["use_graph"]):
             yield event
         return
 
     citations = to_citations(hits)
+    full_answer = ""
     try:
         system_prompt = load_system_prompt()
-        user_message = build_user_message(req.question, hits)
-        for chunk in generate_stream(system_prompt, user_message, req.temperature):
-            yield _sse("chat.delta", {"text": chunk})
+        user_message = build_user_message(req.question, hits, graph_facts)
+        for kind, chunk in generate_stream(system_prompt, user_message, req.temperature):
+            if kind == "thinking":
+                yield _sse("chat.thinking", {"text": chunk})
+            else:
+                full_answer += chunk
+                yield _sse("chat.delta", {"text": chunk})
     except Exception:
-        for event in _answer_events(_NO_DATA_MSG, [], True, False):
+        for event in _answer_events(_NO_DATA_MSG, [], True, bool(graph_facts)):
             yield event
         return
 
@@ -142,8 +168,11 @@ async def _stream_chat_events(req: RagChatRequest):
     })
     yield _sse("chat.completed", {
         "usedVector": True,
-        "usedGraph": False,
+        "usedGraph": bool(graph_facts),
     })
+    suggestions = suggest_questions(req.question, full_answer)
+    if suggestions:
+        yield _sse("chat.suggestions", {"suggestions": suggestions})
 
 
 def _answer_events(answer: str, citations: list, used_vector: bool, used_graph: bool):
@@ -156,6 +185,15 @@ def _answer_events(answer: str, citations: list, used_vector: bool, used_graph: 
         "usedVector": used_vector,
         "usedGraph": used_graph,
     })
+
+
+def _graph_context(question: str) -> list[str]:
+    """Lấy quan hệ từ Neo4j cho câu hỏi; nuốt lỗi để graph không làm sập chat."""
+    try:
+        from app.services.graph_service import retrieve_graph_context
+        return retrieve_graph_context(question)
+    except Exception:
+        return []
 
 
 def _sse(event: str, data: dict) -> str:

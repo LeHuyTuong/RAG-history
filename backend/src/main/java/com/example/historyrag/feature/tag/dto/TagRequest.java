@@ -1,9 +1,12 @@
 package com.example.historyrag.feature.tag.dto;
 
+
+import lombok.Builder;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+@Builder
 public record TagRequest(
         @NotBlank(message = "Name is required")
         @Size(max = 50, message = "Name must not exceed 50 characters")
