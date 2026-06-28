@@ -18,8 +18,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import socket
 import sys
 import time
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -34,10 +36,38 @@ NO_DATA_MSG = "Hiện tại dữ liệu trong hệ thống chưa đủ"
 
 TAP_FILES = sorted(DATA_DIR.glob("questions_tap*.json"))
 
+_HOST = BASE_URL.split("//")[-1].split(":")[0]
+_PORT = int(BASE_URL.rsplit(":", 1)[-1].split("/")[0])
+
+
+# ── service health check ──────────────────────────────────────────────────────
+
+def service_is_up() -> bool:
+    try:
+        s = socket.create_connection((_HOST, _PORT), timeout=3)
+        s.close()
+        return True
+    except OSError:
+        return False
+
+
+def wait_for_service(poll: int = 15, timeout: int = 600) -> bool:
+    """Đợi service trở lại. Trả True nếu up, False nếu hết timeout."""
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        if service_is_up():
+            print("  ✅ Service đã sẵn sàng.")
+            return True
+        remaining = int(deadline - time.time())
+        print(f"  ⏳ Service chưa lên, thử lại sau {poll}s (còn {remaining}s timeout)...")
+        time.sleep(poll)
+    return False
+
 
 # ── RAG call ──────────────────────────────────────────────────────────────────
 
-def ask_rag(question: str, topk: int, source_ids: list[int] | None = None) -> dict:
+def ask_rag(question: str, topk: int, source_ids: list[int] | None = None,
+            retries: int = 3) -> dict:
     body = json.dumps({
         "question": question,
         "topK": topk,
@@ -49,8 +79,22 @@ def ask_rag(question: str, topk: int, source_ids: list[int] | None = None) -> di
         headers={"Content-Type": "application/json; charset=utf-8"},
         method="POST",
     )
-    resp = urllib.request.urlopen(req, timeout=120)
-    return json.loads(resp.read().decode("utf-8"))
+    for attempt in range(1, retries + 1):
+        try:
+            resp = urllib.request.urlopen(req, timeout=240)
+            return json.loads(resp.read().decode("utf-8"))
+        except (ConnectionRefusedError, urllib.error.URLError) as exc:
+            is_conn_refused = isinstance(exc, ConnectionRefusedError) or (
+                isinstance(exc, urllib.error.URLError) and
+                isinstance(exc.reason, (ConnectionRefusedError, OSError)) and
+                "Connection refused" in str(exc)
+            )
+            if is_conn_refused and attempt < retries:
+                print(f"\n  ⚠️  Connection refused (lần {attempt}/{retries}). Đợi service...")
+                if not wait_for_service():
+                    raise RuntimeError("Service không khởi động lại được trong 10 phút.") from exc
+            else:
+                raise
 
 
 # ── AI scoring ────────────────────────────────────────────────────────────────
@@ -94,9 +138,13 @@ def ai_score(question: str, answer: str, keywords: list[str]) -> tuple[int, str]
         resp = client.models.generate_content(
             model=model,
             contents=prompt,
-            config=types.GenerateContentConfig(temperature=0.1, max_output_tokens=80),
+            config=types.GenerateContentConfig(temperature=0.1, max_output_tokens=2000),
         )
-        text = (resp.text or "").strip()
+        # Gemma 4 là thinking model: lọc thought=True parts, chỉ lấy answer thực
+        parts = resp.candidates[0].content.parts if resp.candidates else []
+        text = "".join(
+            p.text or "" for p in parts if not getattr(p, "thought", False)
+        ).strip() or (resp.text or "").strip()
         # Parse "ĐIỂM: 4 | LÝ DO: ..."
         score = 0
         reason = text
@@ -126,17 +174,29 @@ def keyword_score(answer: str, keywords: list[str]) -> tuple[int, int]:
 
 # ── per-tap run ───────────────────────────────────────────────────────────────
 
-def run_tap(tap_file: Path, topk: int, delay: float, use_ai_score: bool) -> list[dict]:
+def run_tap(
+    tap_file: Path,
+    topk: int,
+    delay: float,
+    use_ai_score: bool,
+    all_records: list[dict],
+    out_path: Path,
+    done_keys: set[tuple],
+) -> list[dict]:
     meta = json.loads(tap_file.read_text(encoding="utf-8"))
     questions = meta["questions"]
     source = meta.get("source", {})
     source_title = source.get("title", tap_file.stem)
-    source_id = source.get("id")
+    source_id = source.get("sourceId") or source.get("id")
     source_ids = [source_id] if source_id else None
+
+    tap_stem = tap_file.stem
+    skipped = sum(1 for q in questions if (tap_stem, q.get("id", 0)) in done_keys)
 
     print(f"\n{'='*65}")
     print(f"TẬP: {source_title}")
-    print(f"     {len(questions)} câu | topK={topk} | ai_score={use_ai_score}")
+    print(f"     {len(questions)} câu | topK={topk} | ai_score={use_ai_score}"
+          + (f" | resume: bỏ qua {skipped} câu đã làm" if skipped else ""))
     print(f"{'='*65}")
 
     records = []
@@ -145,6 +205,10 @@ def run_tap(tap_file: Path, topk: int, delay: float, use_ai_score: bool) -> list
         topic = item.get("topic", "")
         qid = item.get("id", i)
         keywords = item.get("expected_keywords", [])
+
+        if (tap_stem, qid) in done_keys:
+            print(f"\n[{i:02d}/{len(questions)}] ⏭  (đã có) {q[:60]}")
+            continue
 
         print(f"\n[{i:02d}/{len(questions)}] {q[:70]}")
 
@@ -174,7 +238,7 @@ def run_tap(tap_file: Path, topk: int, delay: float, use_ai_score: bool) -> list
                   + (f" | AI={ai_s}/5" if use_ai_score else ""))
             print(f"  A: {answer[:160]}")
 
-            records.append({
+            rec = {
                 "id": qid, "topic": topic, "question": q, "status": status,
                 "elapsed": elapsed,
                 "citations": len(scores),
@@ -186,12 +250,12 @@ def run_tap(tap_file: Path, topk: int, delay: float, use_ai_score: bool) -> list
                 "ai_score": ai_s, "ai_reason": ai_reason,
                 "answer_preview": answer[:300],
                 "source_title": source_title,
-                "tap_file": tap_file.stem,
-            })
+                "tap_file": tap_stem,
+            }
         except Exception as exc:
             elapsed = round(time.time() - t0, 1)
             print(f"  ❌ {exc}")
-            records.append({
+            rec = {
                 "id": qid, "topic": topic, "question": q, "status": "error",
                 "elapsed": elapsed, "citations": 0,
                 "score_min": 0, "score_max": 0, "score_avg": 0, "scores": [],
@@ -199,8 +263,21 @@ def run_tap(tap_file: Path, topk: int, delay: float, use_ai_score: bool) -> list
                 "ai_score": -1, "ai_reason": str(exc),
                 "answer_preview": "",
                 "source_title": source_title,
-                "tap_file": tap_file.stem,
-            })
+                "tap_file": tap_stem,
+            }
+
+        records.append(rec)
+        # Nếu là retry (câu đã có trong file do error trước đó) → cập nhật tại chỗ
+        existing_idx = next(
+            (i for i, r in enumerate(all_records)
+             if r["tap_file"] == tap_stem and r["id"] == qid),
+            None,
+        )
+        if existing_idx is not None:
+            all_records[existing_idx] = rec
+        else:
+            all_records.append(rec)
+        out_path.write_text(json.dumps(all_records, ensure_ascii=False, indent=2), encoding="utf-8")
 
         time.sleep(delay)
 
@@ -296,6 +373,8 @@ def main() -> None:
     parser.add_argument("--out", default=None, help="File JSON lưu kết quả tổng.")
     parser.add_argument("--report", default=None, metavar="RESULT_FILE",
                         help="Chỉ in báo cáo từ file kết quả đã có.")
+    parser.add_argument("--resume", default=None, metavar="RESULT_FILE",
+                        help="Tiếp tục từ file kết quả bị gián đoạn, bỏ qua câu đã làm.")
     args = parser.parse_args()
 
     if args.report:
@@ -344,7 +423,28 @@ def main() -> None:
                 break
         sys.path.insert(0, str(RAG_SERVICE_DIR))
 
+    print(f"\nKiểm tra service {BASE_URL}... ", end="", flush=True)
+    if not service_is_up():
+        print("KHÔNG KẾT NỐI ĐƯỢC.")
+        print("Hãy khởi động RAG service trước rồi chạy lại.", file=sys.stderr)
+        sys.exit(1)
+    print("OK")
+
+    # Resume: load file cũ nếu có
     all_records: list[dict] = []
+    done_keys: set[tuple] = set()
+    if args.resume:
+        resume_path = Path(args.resume)
+        if resume_path.is_file():
+            all_records = json.loads(resume_path.read_text(encoding="utf-8"))
+            done_keys = {(r["tap_file"], r["id"]) for r in all_records if r["status"] != "error"}
+            out_path = resume_path
+            print(f"Resume: đã có {len(all_records)} câu, bỏ qua {len(done_keys)} câu đã làm.")
+        else:
+            print(f"ERROR: --resume file không tồn tại: {resume_path}", file=sys.stderr)
+            print("Dùng --out để bắt đầu run mới, hoặc kiểm tra lại tên file.", file=sys.stderr)
+            sys.exit(1)
+
     t_start = time.time()
 
     for tap_file in tap_files:
@@ -352,14 +452,10 @@ def main() -> None:
         questions = meta["questions"]
         if args.limit:
             questions = questions[:args.limit]
-            meta["questions"] = questions
 
         tap_path = DATA_DIR / tap_file.name
-        records = run_tap(tap_path, args.topk, args.delay, args.ai_score)
-        all_records.extend(records)
-
-        # Lưu sau mỗi tập
-        out_path.write_text(json.dumps(all_records, ensure_ascii=False, indent=2), encoding="utf-8")
+        run_tap(tap_path, args.topk, args.delay, args.ai_score,
+                all_records, out_path, done_keys)
 
     elapsed_total = time.time() - t_start
     print(f"\n\nTổng thời gian: {elapsed_total/60:.1f} phút")

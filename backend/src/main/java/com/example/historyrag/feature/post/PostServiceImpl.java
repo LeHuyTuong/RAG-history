@@ -36,6 +36,9 @@ public class PostServiceImpl implements PostService {
 
     private static final Logger log = LoggerFactory.getLogger(PostServiceImpl.class);
 
+    // Offset để tách namespace sourceId article (1_000_001+) khỏi sách PDF (1–999)
+    private static final long RAG_ARTICLE_SOURCE_OFFSET = 1_000_000L;
+
     private final PostRepository postRepository;
     private final AdminService adminService;
     private final EventService eventService;
@@ -121,6 +124,25 @@ public class PostServiceImpl implements PostService {
         return postRepository.countByStatus(status);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public int syncAllPublishedToRag() {
+        List<Post> published = postRepository.findAll().stream()
+                .filter(p -> PostStatus.PUBLISHED.equals(p.getStatus()))
+                .toList();
+        int count = 0;
+        for (Post post : published) {
+            try {
+                tryIngest(post);
+                count++;
+            } catch (Exception ex) {
+                log.warn("Sync failed for post {}: {}", post.getId(), ex.getMessage());
+            }
+        }
+        log.info("RAG sync: {}/{} posts ingested", count, published.size());
+        return count;
+    }
+
     private void applyCreateRequest(Post post, CreatePostRequest request) {
         PostStatus status = request.status() == null ? PostStatus.DRAFT : request.status();
         post.setTitle(request.title());
@@ -172,7 +194,7 @@ public class PostServiceImpl implements PostService {
             RagIngestMetadata meta = new RagIngestMetadata(
                     null, null, post.getSlug(), tagIds, eventIds, List.of());
             RagIngestRequest req = new RagIngestRequest(
-                    post.getId(), "ARTICLE", post.getTitle(),
+                    post.getId() + RAG_ARTICLE_SOURCE_OFFSET, "ARTICLE", post.getTitle(),
                     post.getId(), null, null, null, rawContent,
                     meta, RagIngestSettings.empty());
             ragService.ingest(req, null);
@@ -184,7 +206,7 @@ public class PostServiceImpl implements PostService {
 
     private void tryDeleteFromRag(Long postId) {
         try {
-            ragService.deleteSource(postId, null);
+            ragService.deleteSource(postId + RAG_ARTICLE_SOURCE_OFFSET, null);
             log.debug("RAG delete OK: post {}", postId);
         } catch (Exception ex) {
             log.warn("RAG delete skipped for post {}: {}", postId, ex.getMessage());

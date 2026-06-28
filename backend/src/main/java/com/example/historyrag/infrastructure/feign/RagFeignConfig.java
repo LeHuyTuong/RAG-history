@@ -23,7 +23,8 @@ public class RagFeignConfig {
     @Bean
     public RagFeignClient ragFeignClient(
             @Value("${app.rag.base-url}") String baseUrl,
-            @Value("${app.rag.request-timeout:60s}") String requestTimeout) {
+            @Value("${app.rag.request-timeout:60s}") String requestTimeout,
+            @Value("${app.rag.api-key:}") String ragApiKey) {
 
         // Tự tạo ObjectMapper thay vì inject bean — Spring Boot 4 không luôn expose
         // ObjectMapper làm bean trong mọi context. findAndRegisterModules() để hỗ trợ
@@ -39,6 +40,7 @@ public class RagFeignConfig {
                 .encoder(new JacksonEncoder(objectMapper))
                 .decoder(new JacksonDecoder(objectMapper))
                 .requestInterceptor(new TraceparentInterceptor())
+                .requestInterceptor(new RagApiKeyInterceptor(ragApiKey))
                 .options(new Request.Options(
                         timeoutSeconds, TimeUnit.SECONDS,
                         timeoutSeconds, TimeUnit.SECONDS,
