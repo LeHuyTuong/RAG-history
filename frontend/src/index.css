@@ -53,7 +53,7 @@
   h5,
   h6,
   .font-headline {
-    font-style: normal !important;
+    font-style: normal;
     font-variant-numeric: lining-nums;
     font-feature-settings: "lnum" 1;
   }

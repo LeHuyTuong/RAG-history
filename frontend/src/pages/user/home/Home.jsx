@@ -202,7 +202,7 @@ const Home = () => {
                                 </div>
                             </div>
 
-                            <div className="hidden lg:flex flex-col items-center text-center gap-4 max-w-[240px] absolute right-12 md:right-20 lg:right-32 top-1/2 -translate-y-1/2 z-10">
+                            <div className="hidden lg:flex flex-col items-center text-center gap-4 max-w-[240px] absolute right-12 md:right-20 lg:right-48 xl:right-64 top-1/2 -translate-y-1/2 z-10">
                                 <div className="space-y-4">
                                     <p className="font-headline text-[18px] leading-relaxed italic text-[#f8ead0] drop-shadow-md">
                                         Dựng nước<br />và giữ nước<br />là mệnh trời,<br />phải nuôi dân,<br />thật tốt,<br />rồi mới đánh giặc.
