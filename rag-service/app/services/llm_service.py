@@ -127,6 +127,7 @@ def generate_stream(system_prompt: str, user_message: str, temperature: float = 
             return
 
         has_text = False
+        thought_buf = []
         try:
             for chunk in stream_fn(
                 model=settings.llm_model,
@@ -153,9 +154,13 @@ def generate_stream(system_prompt: str, user_message: str, temperature: float = 
                         text = getattr(part, "text", None) or ""
                         if not text:
                             continue
+                        # BỎ THINKING: phần reasoning (thought=True) KHÔNG stream ra FE,
+                        # chỉ gom lại để fallback nếu model lỡ không sinh câu trả lời nào.
+                        if getattr(part, "thought", False):
+                            thought_buf.append(text)
+                            continue
                         has_text = True
-                        kind = "thinking" if getattr(part, "thought", False) else "answer"
-                        yield (kind, text)
+                        yield ("answer", text)
                 else:
                     # Fallback: SDK cũ không có parts
                     text = getattr(chunk, "text", None) or ""
@@ -164,6 +169,12 @@ def generate_stream(system_prompt: str, user_message: str, temperature: float = 
                         yield ("answer", text)
 
             if not has_text:
+                # Model chỉ sinh reasoning, không có câu trả lời → tránh bong bóng trống:
+                # dùng tạm nội dung reasoning thay vì báo rỗng.
+                if thought_buf:
+                    for t in thought_buf:
+                        yield ("answer", t)
+                    return
                 raise ValueError("LLM returned empty stream")
             return
         except Exception as exc:  # noqa: BLE001
