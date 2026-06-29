@@ -36,12 +36,7 @@ def _retry_delay(exc: Exception) -> float:
 
 def _get_api_keys() -> list[str]:
     from app.config import settings
-    keys = [settings.google_api_key]
-    for attr in ("google_api_key_2", "google_api_key_3", "google_api_key_4", "google_api_key_5"):
-        k = getattr(settings, attr, None)
-        if k:
-            keys.append(k)
-    return keys
+    return settings.api_key_pool
 
 
 def build_graph_for_source(
