@@ -33,9 +33,9 @@ const UserCharacters = () => {
           const rawDesc = dbItem.biography || dbItem.description || '';
           let cleanDesc = '';
           if (rawDesc) {
-             const tmp = document.createElement('div');
-             tmp.innerHTML = rawDesc;
-             cleanDesc = tmp.textContent || tmp.innerText || '';
+            const tmp = document.createElement('div');
+            tmp.innerHTML = rawDesc;
+            cleanDesc = tmp.textContent || tmp.innerText || '';
           }
           return {
             ...dbItem,

@@ -73,9 +73,10 @@ const UserPosts = () => {
   // Lấy bài viết tiêu biểu (bài đầu tiên có featured: true)
   const featuredArt = articles.find(a => a.featured);
   // Lọc bài viết
+  const safeSearchTermPosts = String(searchTerm || "").toLowerCase();
   let filteredArticles = articles.filter(a => !a.featured && (
-    String(a.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    String(a.summary || "").toLowerCase().includes(searchTerm.toLowerCase())
+    String(a.title || "").toLowerCase().includes(safeSearchTermPosts) ||
+    String(a.summary || "").toLowerCase().includes(safeSearchTermPosts)
   ) && (
       filterPeriod ? (a.dynasties || [a.dynasty]).some(dyn => String(dyn || "").includes(filterPeriod.replace('Triều ', ''))) : true
     ));

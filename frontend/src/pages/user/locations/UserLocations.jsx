@@ -49,26 +49,46 @@ export default function UserLocations() {
         if (dbLocations.length > 0) {
           merged = dbLocations.map(dbItem => {
             const mockItem = mockLocations.find(m => m.slug === dbItem.slug) || {};
+            const lat = dbItem.latitude || mockItem.latitude;
+            const lon = dbItem.longitude || mockItem.longitude;
+            let finalX = mockItem.x !== undefined ? mockItem.x : 50;
+            let finalY = mockItem.y !== undefined ? mockItem.y : 50;
+            if (lat && lon) {
+              finalX = 45.45 + (lon - 105.3) * 6.14;
+              finalY = 0.27 + (23.39 - lat) * 6.394;
+            }
             return {
               ...mockItem,
               ...dbItem,
               location_id: dbItem.id,
               location_type: dbItem.locationType || mockItem.location_type || 'REGION',
               description: dbItem.description || mockItem.description || '',
-              x: mockItem.x !== undefined ? mockItem.x : 50,
-              y: mockItem.y !== undefined ? mockItem.y : 50,
+              x: finalX,
+              y: finalY,
               province: mockItem.province || 'Việt Nam',
               period: dbItem.period?.name || mockItem.period || '',
             };
           });
         } else {
-          merged = mockLocations.map(mockItem => ({
-            ...mockItem,
-            location_id: mockItem.id || mockItem.location_id,
-            location_type: mockItem.location_type || 'REGION',
-            province: mockItem.province || 'Việt Nam',
-            period: mockItem.period || '',
-          }));
+          merged = mockLocations.map(mockItem => {
+            const lat = mockItem.latitude;
+            const lon = mockItem.longitude;
+            let finalX = mockItem.x !== undefined ? mockItem.x : 50;
+            let finalY = mockItem.y !== undefined ? mockItem.y : 50;
+            if (lat && lon) {
+              finalX = 45.45 + (lon - 105.3) * 6.14;
+              finalY = 0.27 + (23.39 - lat) * 6.394;
+            }
+            return {
+              ...mockItem,
+              location_id: mockItem.id || mockItem.location_id,
+              location_type: mockItem.location_type || 'REGION',
+              x: finalX,
+              y: finalY,
+              province: mockItem.province || 'Việt Nam',
+              period: mockItem.period || '',
+            };
+          });
         }
 
         setLocations(merged);

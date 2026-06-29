@@ -35,9 +35,10 @@ const UserEvents = () => {
 
         let merged = dbEvents.map(dbItem => {
           const parseEventYear = (dateStr, fallbackYear) => {
-            if (!dateStr) return fallbackYear;
-            const isNegative = dateStr.startsWith('-');
-            const cleanStr = isNegative ? dateStr.substring(1) : dateStr;
+            if (dateStr === null || dateStr === undefined) return fallbackYear;
+            const str = String(dateStr);
+            const isNegative = str.startsWith('-');
+            const cleanStr = isNegative ? str.substring(1) : str;
             const match = cleanStr.match(/^(\d{4})/);
             if (match) {
               const y = parseInt(match[1], 10);
@@ -75,9 +76,11 @@ const UserEvents = () => {
 
   // Filter events
   const filteredEvents = events.filter(e => {
-    const matchSearch = (e.name || "").toLowerCase().includes(searchTerm.toLowerCase()) || (e.description || "").toLowerCase().includes(searchTerm.toLowerCase());
+    const safeSearchTerm = String(searchTerm || "").toLowerCase();
+    const matchSearch = String(e.name || "").toLowerCase().includes(safeSearchTerm) ||
+      String(e.description || "").toLowerCase().includes(safeSearchTerm);
     const matchYear = searchYear ? String(e.year || "").includes(searchYear) : true;
-    const matchPeriod = selectedPeriods.length > 0 ? selectedPeriods.some(p => (e.category || "").includes(p)) : true;
+    const matchPeriod = selectedPeriods.length > 0 ? selectedPeriods.some(p => String(e.category || "").includes(p)) : true;
     return matchSearch && matchYear && matchPeriod;
   });
 
