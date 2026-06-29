@@ -134,10 +134,10 @@ def generate_stream(system_prompt: str, user_message: str, temperature: float = 
                 config=types.GenerateContentConfig(
                     system_instruction=system_prompt,
                     temperature=temperature,
-                    thinking_config=types.ThinkingConfig(
-                        include_thoughts=True,
-                        thinking_budget=1024,  # ~8-15s thinking, đủ cho câu hỏi lịch sử phổ thông
-                    ),
+                    # LƯU Ý: model Gemma (gemma-*-it) KHÔNG hỗ trợ thinking_config →
+                    # nếu bật sẽ bị 400 "Thinking budget is not supported for this model"
+                    # khiến stream vỡ và trả "chưa đủ dữ liệu". Chỉ bật lại khi đổi sang
+                    # model thinking (vd gemini-2.5-*). Để gọn, hiện tắt hẳn.
                 ),
             ):
                 # Dùng parts API để tách thinking vs answer
