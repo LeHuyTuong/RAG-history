@@ -58,9 +58,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(
                 Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
-        configuration.setAllowedHeaders(
-                Arrays.asList("Authorization", "Content-Type", "Cache-Control", "traceparent", "tracestate"));
-        configuration.setExposedHeaders(Arrays.asList("traceparent", "tracestate"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
 
         configuration.setAllowCredentials(true);
 

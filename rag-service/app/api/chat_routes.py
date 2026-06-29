@@ -37,10 +37,10 @@ async def chat(req: RagChatRequest):
 
 
 @router.post("/chat/stream")
-async def chat_stream(req: RagChatRequest):
-    async def event_stream():
+def chat_stream(req: RagChatRequest):
+    def event_stream():
         yield _sse("chat.created", {"message": "stream started"})
-        async for event in _stream_chat_events(req):
+        for event in _stream_chat_events(req):
             yield event
 
     return StreamingResponse(
@@ -114,7 +114,7 @@ async def _chat(req: RagChatRequest) -> RagChatResponse:
     )
 
 
-async def _stream_chat_events(req: RagChatRequest):
+def _stream_chat_events(req: RagChatRequest):
     from app.config import settings
     from app.services.retrieval_service import retrieve
     from app.services.prompt_service import load_system_prompt, build_user_message
