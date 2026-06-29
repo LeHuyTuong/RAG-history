@@ -8,8 +8,8 @@ import {
   FilterInput,
   DataTable,
   ActionModal,
-  StatsGrid,
-  TableActions
+  TableActions,
+  Pagination
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { getDynastyLabel } from '../../../utils/dynastyUtils';
@@ -22,6 +22,8 @@ const EventManagement = () => {
   const [data, setData] = useState({ stats: { total: '0', published: '0' }, events: [] });
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ search: '', dynasty: '', year: '', status: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const { periodColors, getPeriodStyle: getDynastyStyle } = usePeriodColors();
 
   const handleDelete = async () => {
@@ -116,6 +118,7 @@ const EventManagement = () => {
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
   };
 
   const getNormalizedStatus = (status) => {
@@ -150,6 +153,8 @@ const EventManagement = () => {
     const matchStatus = filters.status ? getNormalizedStatus(event.status) === filters.status : true;
     return matchSearch && matchDynasty && matchYear && matchStatus;
   });
+
+  const paginatedEvents = filteredEvents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const columns = [
     {
@@ -217,16 +222,7 @@ const EventManagement = () => {
           actionIcon="add"
         />
 
-        {/* BENTO STATS */}
-        <div className="mb-6">
-          <StatsGrid
-            stats={[
-              { label: 'Tổng sự kiện', value: data.stats.total, icon: 'event_note' },
-              { label: 'Đã xuất bản', value: data.stats.published || '0', icon: 'check_circle' }
-            ]}
-            loading={loading}
-          />
-        </div>
+        
 
         {/* FILTER & TABLE SECTION */}
         <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">
@@ -276,14 +272,22 @@ const EventManagement = () => {
           <div className="p-0">
             <DataTable
               columns={columns}
-              data={filteredEvents}
+              data={paginatedEvents}
               loading={loading}
               emptyMessage="Không có sự kiện nào"
               onRowClick={(row) => navigate(`/admin/events/edit/${row.id}`)}
               rowKey="id"
               striped={false}
-              rowClassName={(row) => getNormalizedStatus(row.status) === 'published' ? 'bg-emerald-50/80 !font-semibold border-l-4 border-l-emerald-500 shadow-sm relative z-10' : ''}
+              rowClassName={(row) => getNormalizedStatus(row.status) === 'published' ? '!font-semibold border-l-4 border-l-emerald-500 relative z-10' : ''}
               className="border-0 shadow-none rounded-none"
+            />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(filteredEvents.length / itemsPerPage)}
+              totalItems={filteredEvents.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={setItemsPerPage}
             />
           </div>
         </div>

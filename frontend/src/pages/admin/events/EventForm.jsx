@@ -9,9 +9,11 @@ import {
   locationService,
   personService,
   periodService,
-  eventService
+  eventService,
+  postService,
+  sourceService,
+  API_ENDPOINTS
 } from '../../../services';
-import { API_ENDPOINTS } from '../../../services/api';
 
 const EventForm = () => {
   const { id } = useParams();
@@ -29,12 +31,16 @@ const EventForm = () => {
     dynasty: [],
     status: 'Bản nháp',
     relatedLocations: [],
-    relatedCharacters: []
+    relatedCharacters: [],
+    relatedArticles: [],
+    sources: []
   });
 
   const [availableLocations, setAvailableLocations] = useState([]);
   const [availableCharacters, setAvailableCharacters] = useState([]);
   const [availablePeriods, setAvailablePeriods] = useState([]);
+  const [availableArticles, setAvailableArticles] = useState([]);
+  const [availableSources, setAvailableSources] = useState([]);
   const [periods, setPeriods] = useState([]);
   const [originalData, setOriginalData] = useState({});
 
@@ -96,6 +102,15 @@ const EventForm = () => {
             const sYearObj = extractYearAndEra(foundEvent.startDate, foundEvent.startYear);
             const eYearObj = extractYearAndEra(foundEvent.endDate, foundEvent.endYear);
 
+            const cached = localStorage.getItem(`local_event_relations_${id}`);
+            let cachedArticles = [];
+            let cachedSources = [];
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              cachedArticles = parsed.relatedArticles || [];
+              cachedSources = parsed.sources || [];
+            }
+
             setFormData(prev => ({
               ...prev,
               name: foundEvent.name || foundEvent.title || '',
@@ -109,7 +124,9 @@ const EventForm = () => {
               status: (foundEvent.status === 'published' || !foundEvent.status || foundEvent.status === 'PUBLISHED') ? 'Công khai' : 'Bản nháp',
               content: foundEvent.description || foundEvent.content || '',
               relatedLocations: foundEvent.locationRelations ? foundEvent.locationRelations.map(l => l.name) : (foundEvent.relatedLocations || foundEvent.relatedLocation || []),
-              relatedCharacters: foundEvent.relatedCharacters || foundEvent.relatedCharacter || []
+              relatedCharacters: foundEvent.relatedCharacters || foundEvent.relatedCharacter || [],
+              relatedArticles: cachedArticles.length > 0 ? cachedArticles : (foundEvent.relatedArticles || []),
+              sources: cachedSources.length > 0 ? cachedSources : (foundEvent.sources || [])
             }));
           }
         } catch (error) {
@@ -121,10 +138,12 @@ const EventForm = () => {
 
     const fetchAvailableData = async () => {
       try {
-        const [locData, charData, periodsList] = await Promise.all([
+        const [locData, charData, periodsList, artData, srcData] = await Promise.all([
           locationService.listAll({ size: 500 }),
           personService.listAll({ size: 500 }),
-          periodService.listAll({ size: 500 })
+          periodService.listAll({ size: 500 }),
+          postService.listAll().catch(() => []),
+          sourceService.listAll().catch(() => [])
         ]);
 
         setAvailableLocations(locData.map(l => ({
@@ -142,6 +161,18 @@ const EventForm = () => {
           years: `${c.birthDate ? new Date(c.birthDate).getFullYear() : '?'} - ${c.deathDate ? new Date(c.deathDate).getFullYear() : '?'}`,
           dynasty: c.dynasty || 'Chưa rõ',
           status: c.status || 'published'
+        })));
+
+        setAvailableArticles(artData.map(a => ({
+          id: a.id,
+          name: a.title,
+          status: 'PUBLISHED'
+        })));
+
+        setAvailableSources(srcData.map(s => ({
+          id: s.id,
+          name: s.title || s.name,
+          status: 'PUBLISHED'
         })));
 
         setPeriods(periodsList);
@@ -229,7 +260,7 @@ const EventForm = () => {
     }
 
     if (formData.startYear !== '' && formData.startYear !== null && formData.startYear !== undefined &&
-        formData.endYear !== '' && formData.endYear !== null && formData.endYear !== undefined) {
+      formData.endYear !== '' && formData.endYear !== null && formData.endYear !== undefined) {
       const sYear = parseInt(formData.startYear, 10);
       const eYear = parseInt(formData.endYear, 10);
       const startVal = formData.startYearEra === 'TCN' ? -sYear : sYear;
@@ -336,6 +367,13 @@ const EventForm = () => {
         } catch (syncErr) {
           console.error('Lỗi khi đồng bộ danh sách tham gia:', syncErr);
         }
+
+        // Cache custom local relations
+        const localKey = `local_event_relations_${isEdit ? id : savedEventId}`;
+        localStorage.setItem(localKey, JSON.stringify({
+          relatedArticles: formData.relatedArticles,
+          sources: formData.sources
+        }));
       }
 
       navigate('/admin/events');
@@ -476,71 +514,109 @@ const EventForm = () => {
 
           {/* CỘT PHẢI: LIÊN KẾT */}
           <aside className="col-span-12 lg:col-span-4 space-y-6">
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-1 rounded-3xl shadow-xl sticky top-8 hover:shadow-2xl hover:scale-[1.02] transition-all duration-500">
-              <div className="bg-surface/95 backdrop-blur-xl p-6 rounded-[22px] h-full border border-white/10 flex flex-col space-y-6 relative">
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="bg-white p-6 border border-outline-variant shadow-sm rounded-3xl sticky top-8 flex flex-col space-y-6 relative overflow-hidden">
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#6b0f0d]/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10">
-                  <span className="material-symbols-outlined text-[16px]">tune</span>
-                  Cấu hình Sự kiện
-                </h4>
+              <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-[#6b0f0d] border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10">
+                <span className="material-symbols-outlined text-[16px]">tune</span>
+                CẤU HÌNH SỰ KIỆN
+              </h4>
 
-                {/* Publishing Info */}
-                <div className="space-y-4 relative z-10">
-                  <p className="font-body text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[14px]">publish</span> Xuất bản
-                  </p>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Trạng thái</label>
-                      <div className="relative">
-                        <select
-                          value={formData.status}
-                          onChange={e => setFormData(prev => ({ ...prev, status: e.target.value }))}
-                          className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-sm font-bold text-on-surface outline-none cursor-pointer hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
-                        >
-                          <option>Bản nháp</option>
-                          <option>Công khai</option>
-                        </select>
-                        <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
-                      </div>
+              {/* 1. XUẤT BẢN / TRẠNG THÁI */}
+              <div className="space-y-4 relative z-10">
+                <p className="font-body text-[10px] font-bold text-[#6b0f0d] uppercase tracking-widest flex items-center gap-2 border-b border-outline-variant/30 pb-1">
+                  <span className="material-symbols-outlined text-[14px]">publish</span> XUẤT BẢN / TRẠNG THÁI
+                </p>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Trạng thái</label>
+                    <div className="relative">
+                      <select
+                        value={formData.status}
+                        onChange={e => setFormData(prev => ({ ...prev, status: e.target.value }))}
+                        className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-sm font-bold text-on-surface outline-none cursor-pointer hover:border-[#6b0f0d] focus:border-[#6b0f0d] focus:ring-2 focus:ring-[#6b0f0d]/20 transition-all appearance-none"
+                      >
+                        <option>Bản nháp</option>
+                        <option>Công khai</option>
+                      </select>
+                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10 mt-6">
-                  <span className="material-symbols-outlined text-[16px]">hub</span>
-                  Liên kết Thông tin
+              {/* 2. ẢNH BÌA/ẢNH ĐẠI DIỆN / BẢN XEM TRƯỚC (Hidden for Events as there is no thumbnail support) */}
+
+              {/* 3. LIÊN KẾT THÔNG TIN */}
+              <div className="space-y-4 pt-2 border-t border-outline-variant/60">
+                <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-[#6b0f0d] border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10 w-full">
+                  <span className="material-symbols-outlined text-[16px]">link</span> LIÊN KẾT THÔNG TIN
                 </h4>
 
-                <EntityRelationInput
-                  type="location"
-                  label="Địa danh liên quan"
-                  icon="location_on"
-                  entities={formData.relatedLocations}
-                  availableEntities={availableLocations}
-                  onAdd={addLocation}
-                  onRemove={removeLocation}
-                />
+                {/* TRIỂU ĐẠI */}
+                <div className="pt-2">
+                  <TagInput
+                    tags={formData.dynasty}
+                    availableTags={availablePeriods.length > 0 ? availablePeriods : ['Nhà Lý', 'Nhà Trần', 'Nhà Lê', 'Nhà Nguyễn', 'Bắc Thuộc']}
+                    onAddTag={handleAddDynasty}
+                    onRemoveTag={handleRemoveDynasty}
+                  />
+                </div>
 
-                <EntityRelationInput
-                  type="character"
-                  label="Nhân vật then chốt"
-                  icon="groups"
-                  itemIcon="person"
-                  entities={formData.relatedCharacters}
-                  availableEntities={availableCharacters}
-                  onAdd={addCharacter}
-                  onRemove={removeCharacter}
-                />
+                {/* ĐỊA DANH LIÊN QUAN */}
+                <div className="pt-2">
+                  <EntityRelationInput
+                    type="location"
+                    label="Địa danh liên quan"
+                    icon="location_on"
+                    entities={formData.relatedLocations}
+                    availableEntities={availableLocations}
+                    onAdd={addLocation}
+                    onRemove={removeLocation}
+                  />
+                </div>
 
-                <TagInput
-                  tags={formData.dynasty}
-                  availableTags={availablePeriods.length > 0 ? availablePeriods : ['Nhà Lý', 'Nhà Trần', 'Nhà Lê', 'Nhà Nguyễn', 'Bắc Thuộc']}
-                  onAddTag={handleAddDynasty}
-                  onRemoveTag={handleRemoveDynasty}
-                  label="Triều đại"
-                />
+                {/* BÀI VIẾT LIÊN QUAN */}
+                <div className="pt-2">
+                  <EntityRelationInput
+                    type="article"
+                    label="Bài viết liên quan"
+                    icon="article"
+                    itemIcon="article"
+                    entities={formData.relatedArticles || []}
+                    availableEntities={availableArticles}
+                    onAdd={(val) => setFormData(prev => ({ ...prev, relatedArticles: [...new Set([...(prev.relatedArticles || []), val])] }))}
+                    onRemove={(val) => setFormData(prev => ({ ...prev, relatedArticles: (prev.relatedArticles || []).filter(a => a !== val) }))}
+                  />
+                </div>
+
+                {/* NHÂN VẬT THEN CHỐT / NHÂN VẬT KHÁC */}
+                <div className="pt-2">
+                  <EntityRelationInput
+                    type="character"
+                    label="Nhân vật then chốt"
+                    icon="groups"
+                    itemIcon="person"
+                    entities={formData.relatedCharacters}
+                    availableEntities={availableCharacters}
+                    onAdd={addCharacter}
+                    onRemove={removeCharacter}
+                  />
+                </div>
+
+                {/* NGUỒN THAM KHẢO */}
+                <div className="pt-2">
+                  <EntityRelationInput
+                    type="source"
+                    label="Nguồn tham khảo"
+                    icon="menu_book"
+                    itemIcon="menu_book"
+                    entities={formData.sources || []}
+                    availableEntities={availableSources}
+                    onAdd={(val) => setFormData(prev => ({ ...prev, sources: [...new Set([...(prev.sources || []), val])] }))}
+                    onRemove={(val) => setFormData(prev => ({ ...prev, sources: (prev.sources || []).filter(s => s !== val) }))}
+                  />
+                </div>
 
               </div>
             </div>

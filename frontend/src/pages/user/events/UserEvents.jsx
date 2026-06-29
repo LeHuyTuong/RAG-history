@@ -1,10 +1,9 @@
+import { API_ENDPOINTS, apiClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Pagination from '../../../components/common/Pagination';
 import { stripHtml } from '../../../utils/stringUtils';
 
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient from '../../../services/apiClient';
 const UserEvents = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriods, setSelectedPeriods] = useState([]);
@@ -47,7 +46,7 @@ const UserEvents = () => {
             return fallbackYear;
           };
           const resolvedStartYear = parseEventYear(dbItem.startDate, dbItem.startYear);
-          
+
           return {
             ...dbItem,
             event_id: dbItem.id,
@@ -55,7 +54,7 @@ const UserEvents = () => {
             title: dbItem.name,
             description: dbItem.description,
             year: resolvedStartYear !== undefined ? resolvedStartYear : '',
-            date: resolvedStartYear !== undefined 
+            date: resolvedStartYear !== undefined
               ? `${Math.abs(resolvedStartYear)} ${resolvedStartYear < 0 ? 'TCN' : ''}`
               : '',
             category: dbItem.period?.name || 'Sự kiện',
@@ -165,45 +164,45 @@ const UserEvents = () => {
             {loading ? (
               <div className="col-span-full text-center text-[#6b0f0d] py-10 font-body">Đang tải dữ liệu...</div>
             ) : paginatedEvents.map((event) => (
-                <article key={event.event_id} className="group bg-[#fffdf8] border border-[#d99b4a]/40 shadow-lg hover:shadow-[0_20px_50px_rgba(43,5,4,0.12)] transition-all duration-700 flex flex-col p-2">
+              <article key={event.event_id} className="group bg-[#fffdf8] border border-[#d99b4a]/40 shadow-lg hover:shadow-[0_20px_50px_rgba(43,5,4,0.12)] transition-all duration-700 flex flex-col p-2">
 
-                  {/* Lớp viền trong cùng */}
-                  <div className="border border-[#d99b4a]/30 relative flex flex-col h-full bg-[#fcf9ee] dong-son-pattern w-full">
-                    {/* Decorative corners */}
-                    <div className="absolute top-1 left-1 w-2 h-2 border-t border-l border-[#d99b4a] opacity-80 z-20"></div>
-                    <div className="absolute top-1 right-1 w-2 h-2 border-t border-r border-[#d99b4a] opacity-80 z-20"></div>
-                    <div className="absolute bottom-1 left-1 w-2 h-2 border-b border-l border-[#d99b4a] opacity-80 z-20"></div>
-                    <div className="absolute bottom-1 right-1 w-2 h-2 border-b border-r border-[#d99b4a] opacity-80 z-20"></div>
+                {/* Lớp viền trong cùng */}
+                <div className="border border-[#d99b4a]/30 relative flex flex-col h-full bg-[#fcf9ee] dong-son-pattern w-full">
+                  {/* Decorative corners */}
+                  <div className="absolute top-1 left-1 w-2 h-2 border-t border-l border-[#d99b4a] opacity-80 z-20"></div>
+                  <div className="absolute top-1 right-1 w-2 h-2 border-t border-r border-[#d99b4a] opacity-80 z-20"></div>
+                  <div className="absolute bottom-1 left-1 w-2 h-2 border-b border-l border-[#d99b4a] opacity-80 z-20"></div>
+                  <div className="absolute bottom-1 right-1 w-2 h-2 border-b border-r border-[#d99b4a] opacity-80 z-20"></div>
 
-                    {/* Image header */}
-                    <div className="h-56 overflow-hidden relative border-b border-[#d99b4a]/30 shrink-0">
-                      <img
-                        src={event.image}
-                        className="w-full h-full object-cover grayscale-[0.6] sepia-[0.3] group-hover:grayscale-[0.1] group-hover:sepia-[0.1] group-hover:scale-105 transition-all duration-1000"
-                        alt={event.name}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201]/60 to-transparent opacity-70"></div>
-                      <div className="absolute top-3 left-3 z-10">
-                        <span className="bg-[#6b0f0d] text-[#ffe7b0] font-body text-[11px] font-bold px-3 py-1.5 shadow-md border border-[#d99b4a]/40">{event.year}</span>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-6 space-y-4 flex-grow relative z-10 flex flex-col">
-                      <span className="font-body text-[9px] font-bold text-[#6b0f0d] uppercase tracking-widest block border-b border-[#d99b4a]/30 pb-2">{(event.category || "").includes('Nhà') ? (event.category || "").replace('Nhà', 'Triều') : (event.category || "Chưa rõ")}</span>
-                      <h3 className="font-headline text-2xl text-[#2b0504] font-semibold tracking-tight leading-tight group-hover:text-[#6b0f0d] transition-colors">{event.name}</h3>
-                      <p className="font-body text-[14px] text-[#2b1a16]/80 leading-relaxed line-clamp-3">
-                        {stripHtml(event.description)}
-                      </p>
-                      <div className="pt-4 mt-auto">
-                        <Link to={`/events/${event.event_id}`} className="text-[#6b0f0d] font-body text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 group/link border-t border-[#d99b4a]/20 pt-4 hover:bg-[#d99b4a]/10 transition-colors pb-2">
-                          XEM CHI TIẾT <span className="material-symbols-outlined text-[14px] group-hover/link:translate-x-2 transition-transform">east</span>
-                        </Link>
-                      </div>
+                  {/* Image header */}
+                  <div className="h-56 overflow-hidden relative border-b border-[#d99b4a]/30 shrink-0">
+                    <img
+                      src={event.image}
+                      className="w-full h-full object-cover grayscale-[0.6] sepia-[0.3] group-hover:grayscale-[0.1] group-hover:sepia-[0.1] group-hover:scale-105 transition-all duration-1000"
+                      alt={event.name}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201]/60 to-transparent opacity-70"></div>
+                    <div className="absolute top-3 left-3 z-10">
+                      <span className="bg-[#6b0f0d] text-[#ffe7b0] font-body text-[11px] font-bold px-3 py-1.5 shadow-md border border-[#d99b4a]/40">{event.year}</span>
                     </div>
                   </div>
-                </article>
-              ))}
+
+                  {/* Content */}
+                  <div className="p-6 space-y-4 flex-grow relative z-10 flex flex-col">
+                    <span className="font-body text-[9px] font-bold text-[#6b0f0d] uppercase tracking-widest block border-b border-[#d99b4a]/30 pb-2">{(event.category || "").includes('Nhà') ? (event.category || "").replace('Nhà', 'Triều') : (event.category || "Chưa rõ")}</span>
+                    <h3 className="font-headline text-2xl text-[#2b0504] font-semibold tracking-tight leading-tight group-hover:text-[#6b0f0d] transition-colors">{event.name}</h3>
+                    <p className="font-body text-[14px] text-[#2b1a16]/80 leading-relaxed line-clamp-3">
+                      {stripHtml(event.description)}
+                    </p>
+                    <div className="pt-4 mt-auto">
+                      <Link to={`/events/${event.event_id}`} className="text-[#6b0f0d] font-body text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 group/link border-t border-[#d99b4a]/20 pt-4 hover:bg-[#d99b4a]/10 transition-colors pb-2">
+                        XEM CHI TIẾT <span className="material-symbols-outlined text-[14px] group-hover/link:translate-x-2 transition-transform">east</span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
           </div>
 
           {/* 4. PAGINATION */}

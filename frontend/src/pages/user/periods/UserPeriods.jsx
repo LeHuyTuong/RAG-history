@@ -1,15 +1,16 @@
+import { API_ENDPOINTS, apiClient, eventService } from '../../../services';
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient from '../../../services/apiClient';
 const UserPeriods = () => {
 
   const [periodsData, setPeriodsData] = useState([]);
+  const [eventsData, setEventsData] = useState([]);
   const [activePeriod, setActivePeriod] = useState(null);
   const [loading, setLoading] = useState(true);
   const sectionRefs = useRef({});
   const sidebarListRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (activePeriod && sidebarListRef.current) {
@@ -24,12 +25,18 @@ const UserPeriods = () => {
     const fetchData = async () => {
       try {
         let dbPeriods = [];
+        let allEvents = [];
         try {
           const response = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
           dbPeriods = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
+
+          const evtRes = await eventService.filter({ size: 500 });
+          allEvents = evtRes.items || [];
         } catch (apiErr) {
-          console.error('Lỗi gọi API kỷ nguyên:', apiErr);
+          console.error('Lỗi gọi API:', apiErr);
         }
+
+        setEventsData(allEvents);
 
         let merged = dbPeriods.map(dbItem => ({
           ...dbItem,
@@ -155,8 +162,8 @@ const UserPeriods = () => {
                   <button
                     onClick={() => scrollToPeriod(p.period_id)}
                     className={`w-full text-left px-6 py-4 font-body text-[15px] transition-all border-l-4 group ${activePeriod === p.period_id
-                        ? 'bg-[#d99b4a]/10 border-[#6b0f0d] text-[#6b0f0d] font-bold shadow-inner'
-                        : 'border-transparent text-[#2b1a16] hover:bg-[#fcf9ee] hover:text-[#6b0f0d]'
+                      ? 'bg-[#d99b4a]/10 border-[#6b0f0d] text-[#6b0f0d] font-bold shadow-inner'
+                      : 'border-transparent text-[#2b1a16] hover:bg-[#fcf9ee] hover:text-[#6b0f0d]'
                       }`}
                   >
                     <div className="flex items-center justify-between">
@@ -185,14 +192,14 @@ const UserPeriods = () => {
               >
                 {/* Timeline Node */}
                 <div className={`absolute left-0 lg:left-[12px] top-6 w-6 h-6 rounded-full border-[4px] shadow-[0_0_15px_rgba(107,15,13,0.4)] z-10 transition-all duration-500 ${activePeriod === p.period_id
-                    ? 'bg-[#6b0f0d] border-[#d99b4a] scale-125'
-                    : 'bg-[#fbf6e8] border-[#6b0f0d] group-hover:bg-[#6b0f0d] group-hover:scale-125'
+                  ? 'bg-[#6b0f0d] border-[#d99b4a] scale-125'
+                  : 'bg-[#fbf6e8] border-[#6b0f0d] group-hover:bg-[#6b0f0d] group-hover:scale-125'
                   }`}></div>
 
                 {/* Card */}
                 <div className={`shadow-xl hover:shadow-[0_20px_50px_rgba(43,5,4,0.08)] transition-all duration-500 relative group/card border-2 p-8 lg:p-12 ${activePeriod === p.period_id
-                    ? 'bg-[#fffcf3] border-[#6b0f0d] shadow-2xl scale-[1.01]'
-                    : 'bg-[#fffdf8] border-[#d99b4a]/40'
+                  ? 'bg-[#fffcf3] border-[#6b0f0d] shadow-2xl scale-[1.01]'
+                  : 'bg-[#fffdf8] border-[#d99b4a]/40'
                   }`}>
                   {/* Decorative */}
                   <div className={`absolute top-1 left-1 w-2 h-2 border-t-2 border-l-2 opacity-50 transition-colors ${activePeriod === p.period_id ? 'border-[#6b0f0d]' : 'border-[#d99b4a]'}`}></div>
@@ -213,12 +220,40 @@ const UserPeriods = () => {
                       <p className="font-body text-[15px] text-[#2b1a16]/80 leading-relaxed pt-2">"{p.description}"</p>
 
                       <div className="space-y-3 py-4 border-t border-b border-[#d99b4a]/20">
-                        {(p.details || []).map(detail => (
-                          <div key={detail} className="flex items-center gap-3 text-[#2b1a16]">
-                            <div className="w-1 h-1 rotate-45 bg-[#6b0f0d]"></div>
-                            <span className="font-body text-[14px] text-[#4a2a22] font-semibold">{detail}</span>
-                          </div>
-                        ))}
+                        {(() => {
+                          // Tìm sự kiện thuộc triều đại này
+                          const periodEvents = eventsData.filter(evt => {
+                            const pName = p.name;
+                            const eDynasty = evt.dynasty || '';
+                            return pName.includes(eDynasty) || eDynasty.includes(pName.replace('Nhà ', '').replace('Triều ', ''));
+                          }).slice(0, 3); // Lấy tối đa 3 sự kiện tiêu biểu
+
+                          if (periodEvents.length > 0) {
+                            return (
+                              <div className="space-y-3">
+                                <span className="font-headline text-[13px] text-[#6b0f0d] font-bold uppercase tracking-widest flex items-center gap-1 mb-2">
+                                  <span className="material-symbols-outlined text-[16px]">local_fire_department</span>
+                                  Sự kiện tiêu biểu:
+                                </span>
+                                <div className="flex flex-col gap-2">
+                                  {periodEvents.map(evt => (
+                                    <Link key={evt.id} to={`/events/${evt.id}`} className="group/evt flex items-start gap-2">
+                                      <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#d99b4a] group-hover/evt:bg-[#ff4d4d] transition-colors shrink-0"></div>
+                                      <span className="font-body text-[14px] text-[#4a2a22] font-semibold group-hover/evt:text-[#ff4d4d] transition-colors">{evt.name}</span>
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          return (p.details || []).map(detail => (
+                            <div key={detail} className="flex items-center gap-3 text-[#2b1a16]">
+                              <div className="w-1 h-1 rotate-45 bg-[#6b0f0d]"></div>
+                              <span className="font-body text-[14px] text-[#4a2a22] font-semibold">{detail}</span>
+                            </div>
+                          ));
+                        })()}
                       </div>
 
                       <Link

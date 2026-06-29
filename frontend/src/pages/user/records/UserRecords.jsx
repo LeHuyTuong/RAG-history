@@ -1,8 +1,7 @@
+import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Pagination from '../../../components/common/Pagination';
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient, { mockClient } from '../../../services/apiClient';
 
 const UserRecords = () => {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' hoặc 'list'

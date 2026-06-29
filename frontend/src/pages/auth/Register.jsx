@@ -1,6 +1,6 @@
+import { apiClient } from '../../services';
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import apiClient from "../../services/apiClient";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -24,7 +24,7 @@ const Register = () => {
 
     try {
       await apiClient.post('/api/v1/auth/register', { name, email, password });
-      
+
       // Chuyển hướng sang trang đăng nhập sau khi đăng ký thành công
       navigate("/login", { state: { message: "Đăng ký thành công! Vui lòng đăng nhập để tiếp tục." } });
     } catch (err) {
@@ -43,8 +43,8 @@ const Register = () => {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#2b0504] px-4 py-10 flex items-center justify-center">
       {/* Nút Back to Home */}
-      <Link 
-        to="/" 
+      <Link
+        to="/"
         className="absolute top-6 left-6 md:top-10 md:left-10 z-50 flex items-center gap-2 text-[#fff7df]/80 hover:text-[#f7d78a] hover:-translate-x-1 transition-all group"
       >
         <span className="material-symbols-outlined text-[24px]">arrow_back</span>

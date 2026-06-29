@@ -28,7 +28,7 @@ const TagInput = ({ tags, availableTags, onAddTag, onRemoveTag, label = "Triều
   };
 
   return (
-    <div className="space-y-4 pt-4 border-t border-outline-variant/40 relative z-20">
+    <div className="space-y-4 relative z-20">
       <p className="font-body text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
         <span className="material-symbols-outlined text-[14px]">label</span> {label}
       </p>

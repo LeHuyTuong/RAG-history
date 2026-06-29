@@ -38,7 +38,7 @@ const PageHeader = ({
       {(actionLabel || actionHref) && (
         <button
           onClick={handleActionClick}
-          className="relative z-10 bg-primary text-white px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-primary-container hover:-translate-y-1 active:scale-95 shadow-md hover:shadow-lg font-body font-bold uppercase text-[11px] tracking-widest transition-all"
+          className="relative z-10 bg-[#6b0f0d] text-[#ffe7b0] hover:bg-[#520a08] border border-[#ffe7b0]/25 px-6 py-3 rounded-xl flex items-center gap-2 hover:-translate-y-1 active:scale-95 shadow-md hover:shadow-lg font-body font-bold uppercase text-[11px] tracking-widest transition-all cursor-pointer"
         >
           <span className="material-symbols-outlined text-[16px]">{actionIcon}</span>
           {actionLabel}

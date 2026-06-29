@@ -1,6 +1,6 @@
 import { useState, useEffect, Fragment } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation, Link } from 'react-router-dom';
-import apiClient, { mockClient } from '../services/apiClient';
+import { apiClient, mockClient } from '../services';
 import LogoutModal from './LogoutModal';
 
 const AdminLayout = () => {
@@ -110,13 +110,56 @@ const AdminLayout = () => {
             <span className="material-symbols-outlined text-xl">menu</span>
           </button>
           <nav className="flex items-center gap-2 font-body text-[10px] uppercase tracking-widest text-on-surface-variant border-l border-outline-variant pl-4">
-            <Link to="/admin" className="hover:text-primary flex items-center gap-1"><span className="material-symbols-outlined text-sm">home</span> HOME</Link>
-            {location.pathname.split('/').filter(x => x && x !== 'admin').map((path, index, array) => (
-              <Fragment key={path}>
-                <span className="material-symbols-outlined text-[12px] opacity-40">chevron_right</span>
-                {index === array.length - 1 ? <span className="text-primary font-bold">{path.toUpperCase()}</span> : <Link to={`/admin/${path}`} className="hover:text-primary">{path.toUpperCase()}</Link>}
-              </Fragment>
-            ))}
+            <Link to="/admin" className="hover:text-primary flex items-center gap-1"><span className="material-symbols-outlined text-sm">home</span> TRANG CHỦ</Link>
+            {(() => {
+              const segments = location.pathname.split('/').filter(x => x && x !== 'admin');
+              let accumulatedPath = '/admin';
+              return segments.map((segment, index) => {
+                accumulatedPath += `/${segment}`;
+                const isLast = index === segments.length - 1;
+
+                let label = segment.toUpperCase();
+                const isId = !isNaN(segment) || (segment.length > 10 && segment.includes('-'));
+
+                const BREADCRUMB_MAP = {
+                  'posts': 'BÀI VIẾT',
+                  'articles': 'BÀI VIẾT',
+                  'events': 'SỰ KIỆN',
+                  'characters': 'NHÂN VẬT',
+                  'locations': 'ĐỊA DANH',
+                  'records': 'SỬ LIỆU',
+                  'metadata': 'SIÊU DỮ LIỆU',
+                  'tags': 'THẺ LỊCH SỬ',
+                  'categories': 'DANH MỤC',
+                  'periods': 'THỜI KỲ',
+                  'hub': 'MỐI QUAN HỆ',
+                  'members': 'THÀNH VIÊN',
+                  'settings': 'CÀI ĐẶT',
+                  'new': 'TẠO MỚI',
+                  'edit': 'CHỈNH SỬA',
+                  'ai': 'TRỢ LÝ AI'
+                };
+
+                if (BREADCRUMB_MAP[segment.toLowerCase()]) {
+                  label = BREADCRUMB_MAP[segment.toLowerCase()];
+                } else if (isId) {
+                  label = `${segment}`;
+                }
+
+                const isClickable = !isLast && segment.toLowerCase() !== 'edit' && !isId;
+
+                return (
+                  <Fragment key={accumulatedPath}>
+                    <span className="material-symbols-outlined text-[12px] opacity-40">chevron_right</span>
+                    {isClickable ? (
+                      <Link to={accumulatedPath} className="hover:text-primary transition-colors">{label}</Link>
+                    ) : (
+                      <span className={isLast ? "text-primary font-bold" : "opacity-80"}>{label}</span>
+                    )}
+                  </Fragment>
+                );
+              });
+            })()}
           </nav>
         </header>
         <main className="flex-1 overflow-y-auto bg-[#FDFBF0] custom-scrollbar">

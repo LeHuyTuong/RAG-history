@@ -1,10 +1,8 @@
+import { apiClient, mockClient } from '../services';
 import React, { useState, useEffect } from "react";
-import { Link, Outlet, useNavigate, NavLink } from "react-router-dom";
+import { Link, Outlet, useNavigate, NavLink, useLocation } from "react-router-dom";
 import LogoutModal from "./LogoutModal";
 import ChatBox from "./ChatBox";
-import apiClient from "../services/apiClient";
-
-import { mockClient } from "../services/apiClient";
 
 const HEADER_HEIGHT = 80;
 
@@ -15,6 +13,14 @@ const UserLayout = () => {
   const [user, setUser] = useState(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Reset modal states when navigating or pressing back to prevent getting stuck
+  useEffect(() => {
+    setIsRulesOpen(false);
+    setIsLogoutOpen(false);
+    setIsChatOpen(false);
+  }, [location.pathname]);
 
   const [siteName, setSiteName] = useState('Sử Việt');
 
@@ -67,7 +73,8 @@ const UserLayout = () => {
     }`;
 
   return (
-    <div className="min-h-screen bg-[#fbf6e8] font-body selection:bg-[#d99b4a]/20 relative flex flex-col">
+    <div className="min-h-screen bg-[#fbf6e8] parchment-texture font-body selection:bg-[#d99b4a]/20 relative flex flex-col">
+      <div className="absolute inset-0 dong-son-pattern opacity-[0.03] pointer-events-none fixed z-0"></div>
       <div className="grain-overlay pointer-events-none fixed inset-0 z-0 opacity-5" />
 
       {/* HEADER */}
@@ -95,7 +102,7 @@ const UserLayout = () => {
                 Trang chủ
               </NavLink>
 
-              <NavLink to="/posts" end className={navLinkClass}>
+              <NavLink to="/posts" className={(navData) => navLinkClass({ isActive: navData.isActive || location.pathname.startsWith('/articles') })}>
                 Bài viết
               </NavLink>
 
@@ -122,19 +129,15 @@ const UserLayout = () => {
             <div className="shrink-0 flex items-center gap-4">
               {user ? (
                 <div className="flex items-center gap-4 border-l border-[#d99b4a]/30 pl-5">
-                  <div className="text-right hidden xl:block">
-                    <Link to="/profile" className="font-headline font-bold text-[#f7d78a] text-[15px] italic leading-none drop-shadow-sm hover:text-[#d9c7a7] transition-colors">
-                      {user.username}
+                  <div className="hidden xl:block">
+                    <Link to="/profile" className="w-10 h-10 rounded-full border-2 border-[#d99b4a]/50 flex items-center justify-center bg-[#2b0504] text-[#f7d78a] hover:bg-[#4a0a08] hover:scale-105 hover:border-[#d99b4a] transition-all overflow-hidden shadow-lg group">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt="avatar" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                      ) : (
+                        <span className="material-symbols-outlined text-[24px]">account_circle</span>
+                      )}
                     </Link>
-
                   </div>
-
-                  <Link
-                    to="/profile"
-                    className="h-10 px-5 rounded-sm border border-[#d99b4a]/30 bg-transparent text-[#f7d78a] font-body font-bold text-[10.5px] uppercase tracking-widest hover:bg-[#d99b4a]/20 hover:border-[#d99b4a]/60 transition-all active:scale-95 flex items-center"
-                  >
-                    Hồ sơ
-                  </Link>
                   <button
                     onClick={() => setIsLogoutOpen(true)}
                     className="h-10 px-5 rounded-sm bg-[#6b0f0d] text-[#ffe7b0] font-body font-bold text-[10.5px] uppercase tracking-widest shadow-lg hover:bg-[#8b1512] transition-all active:scale-95"
@@ -231,16 +234,16 @@ const UserLayout = () => {
       />
 
       {/* Nút Chat AI Floating */}
-      <button 
+      <button
         onClick={() => setIsChatOpen(!isChatOpen)}
         className="group fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#9e1b1b] rounded-full shadow-[0_8px_30px_rgba(158,27,27,0.4)] flex items-center justify-center hover:bg-[#b02a2a] hover:scale-110 active:scale-95 transition-all duration-300 overflow-hidden"
       >
         <div className="absolute inset-0 bg-white/20 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 origin-center"></div>
         <span className="material-symbols-outlined text-white text-[28px] relative z-10">smart_toy</span>
-        
+
         {/* Tooltip */}
         <div className="absolute right-[110%] top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gray-900 text-white text-[11px] font-bold tracking-widest uppercase rounded shadow-lg opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 pointer-events-none transition-all duration-300 whitespace-nowrap">
-           Hỏi Đáp AI
+          Hỏi Đáp AI
         </div>
       </button>
 

@@ -1,7 +1,7 @@
-import mockClient from './http/mockClient';
-import apiClient from './http/apiClient';
-import { unwrap } from './http/response';
-import { ENDPOINTS } from './endpoints';
+import mockClient from '../http/mockClient';
+import apiClient from '../http/apiClient';
+import { unwrap } from '../http/response';
+import { ENDPOINTS } from '../endpoints';
 
 const memberService = {
     async filter(params = {}) {

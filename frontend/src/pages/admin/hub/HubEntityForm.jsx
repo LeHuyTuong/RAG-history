@@ -1,7 +1,8 @@
+import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import apiClient, { mockClient } from '../../../services/apiClient';
-import { API_ENDPOINTS } from '../../../services/api';
+
+
 import { generateSlug } from '../../../utils/stringUtils';
 import { getRelationLabel } from '../../../utils/relationUtils';
 

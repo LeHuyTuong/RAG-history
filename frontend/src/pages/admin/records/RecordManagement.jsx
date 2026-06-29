@@ -9,18 +9,20 @@ import {
   FilterSelect,
   DataTable,
   ActionModal,
-  TableActions
+  TableActions,
+  Pagination
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient, { mockClient } from '../../../services/apiClient';
+import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
 const RecordManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, itemName: '', id: null });
   const [data, setData] = useState({ stats: { total: { value: '...', sub: '...' }, pending: { value: '...', sub: '...' } }, records: [] });
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ search: '', type: '', dynasty: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const { periodColors, getPeriodStyle: getDynastyStyle } = usePeriodColors();
 
   const handleDelete = async () => {
@@ -46,6 +48,7 @@ const RecordManagement = () => {
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
   };
 
   const filteredRecords = data.records.filter(record => {
@@ -55,6 +58,8 @@ const RecordManagement = () => {
     const matchDynasty = filters.dynasty ? record.dynasty === filters.dynasty : true;
     return matchSearch && matchType && matchDynasty;
   });
+
+  const paginatedRecords = filteredRecords.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -222,13 +227,21 @@ const RecordManagement = () => {
           <div className="p-0">
             <DataTable
               columns={columns}
-              data={filteredRecords}
+              data={paginatedRecords}
               loading={loading}
               emptyMessage="Không tìm thấy sử liệu nào phù hợp"
               onRowClick={(row) => navigate(`/admin/records/edit/${row.id}`)}
               rowKey="id"
               striped={false}
               className="border-0 shadow-none rounded-none"
+            />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(filteredRecords.length / itemsPerPage)}
+              totalItems={filteredRecords.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={setItemsPerPage}
             />
           </div>
         </div>

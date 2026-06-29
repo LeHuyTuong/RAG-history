@@ -1,6 +1,6 @@
-import apiClient from './http/apiClient';
-import { unwrap } from './http/response';
-import { ENDPOINTS } from './endpoints';
+import apiClient from '../http/apiClient';
+import { unwrap } from '../http/response';
+import { ENDPOINTS } from '../endpoints';
 
 const dashboardService = {
     async getDashboard() {

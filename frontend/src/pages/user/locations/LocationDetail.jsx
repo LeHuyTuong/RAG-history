@@ -1,9 +1,7 @@
+import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import VietnamMap from '../../../components/VietnamMap';
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient from '../../../services/apiClient';
-import { mockClient } from '../../../services/api';
 
 const LocationDetail = () => {
   const { id } = useParams();
@@ -188,7 +186,7 @@ const LocationDetail = () => {
                 />
               ))}
             </div>
-            <button 
+            <button
               onClick={() => navigate('/characters')}
               className="w-full mt-10 py-3 border border-[#d99b4a]/40 text-[#f7d78a] text-[10px] font-bold uppercase tracking-widest hover:bg-[#d99b4a]/10 hover:text-white transition-all relative z-10 bg-[#1a0201]/40"
             >
