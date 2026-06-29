@@ -23,6 +23,20 @@
     },
     {
       "id": "stat-4",
+      "icon": "explore",
+      "title": "Địa danh",
+      "value": "1.8K",
+      "iconBg": "bg-emerald-500/10"
+    },
+    {
+      "id": "stat-5",
+      "icon": "auto_stories",
+      "title": "Sử liệu / Nguồn",
+      "value": "850",
+      "iconBg": "bg-amber-500/10"
+    },
+    {
+      "id": "stat-6",
       "icon": "group",
       "title": "Thành viên",
       "value": "4.0K",

@@ -8,8 +8,8 @@ import {
   FilterSelect,
   DataTable,
   ActionModal,
-  StatsGrid,
-  TableActions
+  TableActions,
+  Pagination
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { postService } from '../../../services';
@@ -20,6 +20,8 @@ const ArticleManagement = () => {
   const [data, setData] = useState({ stats: [], articles: [] });
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ search: '', status: '', tag: '', author: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const { periodColors, getPeriodStyle } = usePeriodColors();
 
   const handleDelete = async () => {
@@ -74,6 +76,7 @@ const ArticleManagement = () => {
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
   };
 
   const getNormalizedStatus = (status) => {
@@ -109,6 +112,8 @@ const ArticleManagement = () => {
     return matchSearch && matchStatus && matchTag && matchAuthor;
   });
 
+  const paginatedArticles = filteredArticles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   const columns = [
     {
       key: 'title', header: 'Sử liệu / Mã số', render: (row) => (
@@ -127,7 +132,7 @@ const ArticleManagement = () => {
       )
     },
     {
-      key: 'tags', header: 'Chủ đề / Thẻ', render: (row) => (
+      key: 'tags', header: 'Thời kỳ / Triều đại', render: (row) => (
         <div className="flex flex-wrap gap-1 max-w-[200px]">
           {row.tags.map((t, idx) => (
             <span key={idx} className={`border px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${getPeriodStyle(t)}`}>
@@ -138,7 +143,7 @@ const ArticleManagement = () => {
       )
     },
     {
-      key: 'author', header: 'Tác giả', render: (row) => (
+      key: 'author', header: 'Người tạo', render: (row) => (
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-full bg-surface-variant flex items-center justify-center text-[10px] font-bold text-on-surface uppercase shrink-0">
             {row.author.charAt(0)}
@@ -175,10 +180,7 @@ const ArticleManagement = () => {
           actionIcon="add"
         />
 
-        {/* BENTO STATS */}
-        <div className="mb-6">
-          <StatsGrid stats={data.stats.map(({ sub, ...rest }) => rest)} loading={loading} />
-        </div>
+        
 
         {/* FILTER & TABLE SECTION */}
         <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">
@@ -201,7 +203,7 @@ const ArticleManagement = () => {
                     onChange={(e) => handleFilterChange('tag', e.target.value)}
                     className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[160px]"
                   >
-                    <option value="">Tất cả chủ đề / thẻ</option>
+                    <option value="">Tất cả thời kỳ / triều đại</option>
                     {Array.from(new Set(data.articles.flatMap(a => a.tags || []))).filter(t => t && t !== 'Chưa rõ').map(t => (
                       <option key={t} value={t}>{t}</option>
                     ))}
@@ -215,7 +217,7 @@ const ArticleManagement = () => {
                     onChange={(e) => handleFilterChange('author', e.target.value)}
                     className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[150px]"
                   >
-                    <option value="">Tất cả tác giả</option>
+                    <option value="">Tất cả người tạo</option>
                     {Array.from(new Set(data.articles.map(a => a.author))).filter(Boolean).map(a => (
                       <option key={a} value={a}>{a}</option>
                     ))}
@@ -242,14 +244,22 @@ const ArticleManagement = () => {
           <div className="p-0">
             <DataTable
               columns={columns}
-              data={filteredArticles}
+              data={paginatedArticles}
               loading={loading}
               emptyMessage="Không tìm thấy bài viết nào phù hợp"
               onRowClick={(row) => navigate(`/admin/articles/edit/${row.id}`)}
               rowKey="id"
               striped={false}
-              rowClassName={(row) => getNormalizedStatus(row.status) === 'published' ? 'bg-emerald-50/80 !font-semibold border-l-4 border-l-emerald-500 shadow-sm relative z-10' : ''}
+              rowClassName={(row) => getNormalizedStatus(row.status) === 'published' ? '!font-semibold border-l-4 border-l-emerald-500 relative z-10' : ''}
               className="border-0 shadow-none rounded-none"
+            />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(filteredArticles.length / itemsPerPage)}
+              totalItems={filteredArticles.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={setItemsPerPage}
             />
           </div>
         </div>

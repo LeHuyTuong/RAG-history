@@ -11,3 +11,4 @@ export { default as TagInput } from './TagInput';
 export { default as EntityRelationInput } from './EntityRelationInput';
 export { default as FormHeader } from './FormHeader';
 export { default as VietnamMap } from './VietnamMap';
+export { default as Pagination } from './Pagination';

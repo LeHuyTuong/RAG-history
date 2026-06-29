@@ -23,14 +23,36 @@
 
 @layer base {
   body {
-    @apply bg-surface font-body text-[#1f1b0e] min-h-screen;
+    @apply bg-surface font-body text-[#1f1b0e] min-h-screen relative;
     background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
     font-variant-numeric: lining-nums;
     font-feature-settings: "lnum" 1;
   }
 
-  /* Buộc các tiêu đề luôn đứng thẳng, không in nghiêng và các con số nằm cùng hàng cơ sở */
-  h1, h2, h3, h4, h5, h6, .font-headline {
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url("/images/dong_son_drum.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 10;
+    mix-blend-mode: multiply;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-headline {
     font-style: normal !important;
     font-variant-numeric: lining-nums;
     font-feature-settings: "lnum" 1;

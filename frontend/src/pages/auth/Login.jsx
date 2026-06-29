@@ -1,6 +1,6 @@
+import { apiClient } from '../../services';
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import apiClient from "../../services/apiClient";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +38,7 @@ const Login = () => {
     try {
       const loginRes = await apiClient.post('/api/v1/auth/login', { email, password });
       const { accessToken } = loginRes.data?.data || loginRes.data;
-      
+
       localStorage.setItem("accessToken", accessToken);
 
       const meRes = await apiClient.get('/api/v1/auth/me');
@@ -66,8 +66,8 @@ const Login = () => {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#2b0504] px-4 py-10 flex items-center justify-center">
       {/* Nút Back to Home */}
-      <Link 
-        to="/" 
+      <Link
+        to="/"
         className="absolute top-6 left-6 md:top-10 md:left-10 z-50 flex items-center gap-2 text-[#fff7df]/80 hover:text-[#f7d78a] hover:-translate-x-1 transition-all group"
       >
         <span className="material-symbols-outlined text-[24px]">arrow_back</span>

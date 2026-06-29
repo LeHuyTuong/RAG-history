@@ -1,8 +1,7 @@
+import { API_ENDPOINTS, apiClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { personService } from '../../../services';
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient from '../../../services/apiClient';
 
 const UserCharacters = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,7 +31,12 @@ const UserCharacters = () => {
 
         let merged = dbItems.map(dbItem => {
           const rawDesc = dbItem.biography || dbItem.description || '';
-          const cleanDesc = rawDesc ? rawDesc.replace(/<[^>]*>/g, '') : '';
+          let cleanDesc = '';
+          if (rawDesc) {
+             const tmp = document.createElement('div');
+             tmp.innerHTML = rawDesc;
+             cleanDesc = tmp.textContent || tmp.innerText || '';
+          }
           return {
             ...dbItem,
             person_id: dbItem.id,

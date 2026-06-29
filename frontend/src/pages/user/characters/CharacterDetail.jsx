@@ -1,8 +1,7 @@
+import { API_ENDPOINTS, apiClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient from '../../../services/apiClient';
+import CharacterFamilyTree, { HISTORICAL_MOCK_RELATIONS, normalizeKey } from '../../../components/character/CharacterFamilyTree';
 
 const CharacterDetail = () => {
   const { id } = useParams();
@@ -19,10 +18,15 @@ const CharacterDetail = () => {
     const fetchCharacter = async () => {
       try {
         let dbPerson = null;
+        let allChars = [];
         try {
           const url = typeof API_ENDPOINTS.USER_CHARACTER_DETAIL === 'function' ? API_ENDPOINTS.USER_CHARACTER_DETAIL(id) : `${API_ENDPOINTS.USER_CHARACTER_DETAIL}/${id}`;
-          const response = await apiClient.get(url);
-          dbPerson = response.data?.data || response.data;
+          const [charDetailRes, charsListRes] = await Promise.all([
+            apiClient.get(url),
+            apiClient.get(API_ENDPOINTS.USER_CHARACTERS, { params: { size: 500 } }).catch(() => ({ data: [] }))
+          ]);
+          dbPerson = charDetailRes.data?.data || charDetailRes.data;
+          allChars = charsListRes.data?.data?.result || charsListRes.data?.data?.content || charsListRes.data?.data || [];
         } catch (apiErr) {
           console.error('Failed to fetch character detail from API:', apiErr);
         }
@@ -33,14 +37,14 @@ const CharacterDetail = () => {
         try {
           const partsRes = await apiClient.get('/api/v1/admin/participations', { params: { personId: id } });
           dbParts = partsRes.data?.data?.result || partsRes.data?.data || [];
-          
+
           if (dbParts.length > 0) {
             const eventIds = dbParts.map(p => p.event?.id).filter(Boolean);
-            
+
             const eventsRes = await apiClient.get(API_ENDPOINTS.USER_EVENTS, { params: { size: 500 } });
             const allEvents = eventsRes.data?.data?.result || eventsRes.data?.data?.content || eventsRes.data?.data || [];
             const characterEvents = allEvents.filter(e => eventIds.includes(e.id));
-            
+
             const locsMap = new Map();
             characterEvents.forEach(ev => {
               if (ev.locationRelations) {
@@ -55,7 +59,7 @@ const CharacterDetail = () => {
               }
             });
             relatedLocations = Array.from(locsMap.values());
-            
+
             try {
               const postsRes = await apiClient.get(API_ENDPOINTS.USER_ARTICLES, { params: { size: 500 } });
               const allPosts = postsRes.data?.data?.result || postsRes.data?.data?.content || postsRes.data?.data || [];
@@ -69,6 +73,21 @@ const CharacterDetail = () => {
         }
 
         if (dbPerson) {
+          const mockKey = dbPerson.slug || normalizeKey(dbPerson.name);
+          const mockMatch = HISTORICAL_MOCK_RELATIONS[mockKey] || HISTORICAL_MOCK_RELATIONS[normalizeKey(dbPerson.name)] || {};
+
+          let localRelations = null;
+          try {
+            const localData = localStorage.getItem(`character_relations_${dbPerson.id}`);
+            if (localData) {
+              localRelations = JSON.parse(localData);
+            }
+          } catch (e) {
+            console.error('Error loading local character relations:', e);
+          }
+
+          const activeRelations = localRelations || mockMatch;
+
           setCharacter({
             ...dbPerson,
             person_id: dbPerson.id,
@@ -81,7 +100,9 @@ const CharacterDetail = () => {
             reign: dbPerson.reign || 'N/A',
             quote: dbPerson.quote || 'Tâm tồn thiên hạ, trí độ vạn dân.',
             milestones: [],
-            relatedFigures: [],
+            parents: activeRelations.parents || [],
+            siblings: activeRelations.siblings || [],
+            family: activeRelations.family || [],
             steleImg: "/images/home.png",
             relatedLocations,
             relatedArticles: relatedPosts
@@ -136,7 +157,7 @@ const CharacterDetail = () => {
                 {character.quote}
               </p>
             </div>
-            <div 
+            <div
               className="font-body text-lg text-[#2b1a16]/90 leading-loose border-l-4 border-[#d99b4a] pl-6 space-y-4 ql-editor"
               dangerouslySetInnerHTML={{ __html: character.description }}
             />
@@ -174,20 +195,13 @@ const CharacterDetail = () => {
           </div>
         </section>
 
-        {/* 3. RELATED FIGURES */}
+        {/* 3. RELATED FIGURES (FAMILY TREE) */}
         <section className="mb-32">
-          <h2 className="font-headline text-3xl text-[#6b0f0d] font-semibold mb-12 text-center tracking-tight">Nhân Vật Liên Quan</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {(character.relatedFigures || []).map((fig, i) => (
-              <Link to="/characters" key={i} className="group flex items-center gap-6 p-4 border border-[#d99b4a]/30 bg-[#fffdf8]/60 hover:bg-[#fffdf8] hover:border-[#d99b4a]/60 transition-all shadow-sm">
-                <img src={fig.img} className="w-20 h-20 rounded-full object-cover grayscale-[0.3] sepia-[0.2] group-hover:grayscale-0 group-hover:sepia-0 border-2 border-[#d99b4a]/40" alt={fig.name} />
-                <div>
-                  <h5 className="font-headline text-xl text-[#6b0f0d] font-semibold group-hover:text-[#2b0504] transition-colors">{fig.name}</h5>
-                  <p className="font-body text-[#6b0f0d]/70 text-sm uppercase tracking-widest">{fig.role}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <CharacterFamilyTree
+            character={character}
+            relations={{ parents: character.parents || [], siblings: character.siblings || [], family: character.family || [] }}
+            isAdminEditMode={false}
+          />
         </section>
 
         {/* 4. HISTORICAL ARTIFACT */}

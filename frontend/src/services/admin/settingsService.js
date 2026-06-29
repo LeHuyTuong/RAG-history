@@ -1,4 +1,4 @@
-import mockClient from './http/mockClient';
+import mockClient from '../http/mockClient';
 
 const settingsService = {
     async list() {

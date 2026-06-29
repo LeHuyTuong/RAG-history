@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { generateSlug } from '../../../utils/stringUtils';
 import { RichTextEditor, TagInput, EntityRelationInput, FormHeader } from '../../../components/admin';
-import apiClient, { mockClient, extractErrorMessage } from '../../../services/apiClient';
-import { API_ENDPOINTS } from '../../../services/api';
+import { mockClient, apiClient, extractErrorMessage, API_ENDPOINTS, postService, sourceService } from '../../../services';
+import CharacterFamilyTree, { HISTORICAL_MOCK_RELATIONS, normalizeKey } from '../../../components/character/CharacterFamilyTree';
 
 const CharacterForm = () => {
   const { id } = useParams();
@@ -12,27 +12,46 @@ const CharacterForm = () => {
   const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
+    id: null,
     name: '', title: '', slug: '', birthYear: '', birthYearEra: 'SCN', deathYear: '', deathYearEra: 'SCN', biography: '', tags: [],
     relatedLocations: [], relatedCharacters: [], avatar: '', status: 'draft',
     parents: [], siblings: [], family: [],
-    relatedEvents: []
+    relatedEvents: [], relatedArticles: [], sources: []
   });
 
   const [availableLocations, setAvailableLocations] = useState([]);
   const [availableCharacters, setAvailableCharacters] = useState([]);
   const [availableEvents, setAvailableEvents] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
+  const [availableArticles, setAvailableArticles] = useState([]);
+  const [availableSources, setAvailableSources] = useState([]);
   const [originalData, setOriginalData] = useState({});
 
   useEffect(() => {
     const loadAllData = async () => {
       try {
-        const [locRes, charRes, metaRes, eventRes] = await Promise.all([
+        const [locRes, charRes, metaRes, eventRes, artRes, srcRes] = await Promise.all([
           apiClient.get(API_ENDPOINTS.ADMIN_LOCATIONS, { params: { size: 500 } }).catch(() => null),
           apiClient.get(API_ENDPOINTS.ADMIN_CHARACTERS, { params: { size: 500 } }).catch(() => null),
           apiClient.get(API_ENDPOINTS.ADMIN_PERIODS, { params: { size: 500 } }).catch(() => null),
-          apiClient.get(API_ENDPOINTS.ADMIN_EVENTS, { params: { size: 500 } }).catch(() => null)
+          apiClient.get(API_ENDPOINTS.ADMIN_EVENTS, { params: { size: 500 } }).catch(() => null),
+          postService.listAll().catch(() => []),
+          sourceService.listAll().catch(() => [])
         ]);
+
+        const artList = artRes || [];
+        setAvailableArticles(artList.map(a => ({
+          id: a.id,
+          name: a.title,
+          status: 'PUBLISHED'
+        })));
+
+        const srcList = srcRes || [];
+        setAvailableSources(srcList.map(s => ({
+          id: s.id,
+          name: s.title || s.name,
+          status: 'PUBLISHED'
+        })));
 
         const locData = locRes?.data?.data?.result || locRes?.data?.data?.content || [];
         setAvailableLocations(locData.map(l => ({
@@ -142,8 +161,21 @@ const CharacterForm = () => {
             }
             const computedDynasties = Array.from(dyns);
 
+            const cached = localStorage.getItem(`local_char_relations_${id}`);
+            let cachedArticles = [];
+            let cachedSources = [];
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              cachedArticles = parsed.relatedArticles || [];
+              cachedSources = parsed.sources || [];
+            }
+
+            const mockKey = foundChar.slug || generateSlug(foundChar.name || '');
+            const mockMatch = HISTORICAL_MOCK_RELATIONS[mockKey] || HISTORICAL_MOCK_RELATIONS[normalizeKey(foundChar.name)] || {};
+
             setForm(prev => ({
               ...prev,
+              id: foundChar.id || null,
               name: foundChar.name || '',
               slug: foundChar.slug || generateSlug(foundChar.name || ''),
               realName: foundChar.realName || '',
@@ -159,10 +191,12 @@ const CharacterForm = () => {
               status: (foundChar.status === 'published' || !foundChar.status || foundChar.status === 'Công khai') ? 'published' : 'draft',
               relatedLocations: foundChar.relatedLocations || foundChar.relatedLocation || [],
               relatedCharacters: foundChar.relatedCharacters || foundChar.relatedCharacter || [],
-              parents: foundChar.parents || foundChar.parent || [],
-              siblings: foundChar.siblings || [],
-              family: foundChar.family || [],
-              relatedEvents: foundChar.relatedEvents || []
+              parents: (foundChar.parents && foundChar.parents.length > 0) ? foundChar.parents : (foundChar.parent && foundChar.parent.length > 0) ? foundChar.parent : mockMatch.parents || [],
+              siblings: (foundChar.siblings && foundChar.siblings.length > 0) ? foundChar.siblings : mockMatch.siblings || [],
+              family: (foundChar.family && foundChar.family.length > 0) ? foundChar.family : mockMatch.family || [],
+              relatedEvents: foundChar.relatedEvents || [],
+              relatedArticles: cachedArticles.length > 0 ? cachedArticles : (foundChar.relatedArticles || []),
+              sources: cachedSources.length > 0 ? cachedSources : (foundChar.sources || [])
             }));
           }
         }
@@ -235,7 +269,7 @@ const CharacterForm = () => {
     }
 
     if (form.birthYear !== '' && form.birthYear !== null && form.birthYear !== undefined &&
-        form.deathYear !== '' && form.deathYear !== null && form.deathYear !== undefined) {
+      form.deathYear !== '' && form.deathYear !== null && form.deathYear !== undefined) {
       const bYear = parseInt(form.birthYear, 10);
       const dYear = parseInt(form.deathYear, 10);
       const birthVal = form.birthYearEra === 'TCN' ? -bYear : bYear;
@@ -247,8 +281,6 @@ const CharacterForm = () => {
     }
 
     try {
-      const { default: apiClient } = await import('../../../services/apiClient');
-      const { API_ENDPOINTS } = await import('../../../services/api');
 
       let birthDate = null;
       let deathDate = null;
@@ -314,6 +346,12 @@ const CharacterForm = () => {
         } catch (syncErr) {
           console.error('Lỗi khi đồng bộ danh sách tham gia của nhân vật:', syncErr);
         }
+
+        const localKey = `local_char_relations_${isEdit ? id : savedPersonId}`;
+        localStorage.setItem(localKey, JSON.stringify({
+          relatedArticles: form.relatedArticles,
+          sources: form.sources
+        }));
       }
 
       navigate('/admin/characters');
@@ -471,110 +509,76 @@ const CharacterForm = () => {
               </div>
             </section>
 
-            {/* SECTION 3: FAMILY TREE */}
-            <section className="bg-white p-8 rounded-3xl border border-outline-variant/60 shadow-sm space-y-6 transition-all hover:shadow-md">
-              <h3 className="font-body text-xs font-bold text-on-surface uppercase tracking-widest border-b border-outline-variant/60 pb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-[18px]">family_history</span>
-                Gia phả & Thân tộc
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-surface-low/30 p-4 rounded-2xl border border-outline-variant/40">
-                  <EntityRelationInput
-                    type="character"
-                    label="Cha / Mẹ"
-                    icon="escalator_warning"
-                    itemIcon="person"
-                    entities={form.parents}
-                    availableEntities={availableCharacters}
-                    onAdd={(charOrObj, isUpdating) => setForm(prev => {
-                      if (isUpdating) {
-                        return { ...prev, parents: prev.parents.map(c => c.name === charOrObj.name ? charOrObj : c) };
-                      }
-                      return { ...prev, parents: [...prev.parents, { name: charOrObj, relation: '' }] };
-                    })}
-                    onRemove={(charObj) => setForm(prev => ({ ...prev, parents: prev.parents.filter(c => (typeof c === 'object' ? c.name : c) !== (typeof charObj === 'object' ? charObj.name : charObj)) }))}
-                  />
-                </div>
-                <div className="bg-surface-low/30 p-4 rounded-2xl border border-outline-variant/40">
-                  <EntityRelationInput
-                    type="character"
-                    label="Anh / Chị / Em"
-                    icon="group"
-                    itemIcon="person"
-                    entities={form.siblings}
-                    availableEntities={availableCharacters}
-                    onAdd={(charOrObj, isUpdating) => setForm(prev => {
-                      if (isUpdating) {
-                        return { ...prev, siblings: prev.siblings.map(c => c.name === charOrObj.name ? charOrObj : c) };
-                      }
-                      return { ...prev, siblings: [...prev.siblings, { name: charOrObj, relation: '' }] };
-                    })}
-                    onRemove={(charObj) => setForm(prev => ({ ...prev, siblings: prev.siblings.filter(c => (typeof c === 'object' ? c.name : c) !== (typeof charObj === 'object' ? charObj.name : charObj)) }))}
-                  />
-                </div>
-                <div className="bg-surface-low/30 p-4 rounded-2xl border border-outline-variant/40">
-                  <EntityRelationInput
-                    type="character"
-                    label="Phu nhân / Con cái"
-                    icon="family_restroom"
-                    itemIcon="person"
-                    entities={form.family}
-                    availableEntities={availableCharacters}
-                    onAdd={(charOrObj, isUpdating) => setForm(prev => {
-                      if (isUpdating) {
-                        return { ...prev, family: prev.family.map(c => c.name === charOrObj.name ? charOrObj : c) };
-                      }
-                      return { ...prev, family: [...prev.family, { name: charOrObj, relation: '' }] };
-                    })}
-                    onRemove={(charObj) => setForm(prev => ({ ...prev, family: prev.family.filter(c => (typeof c === 'object' ? c.name : c) !== (typeof charObj === 'object' ? charObj.name : charObj)) }))}
-                  />
-                </div>
-              </div>
+            {/* SECTION 3: INTERACTIVE FAMILY TREE EDITOR */}
+            <section className="bg-white p-8 rounded-3xl border border-[#d99b4a]/25 shadow-sm space-y-6 transition-all hover:shadow-md">
+              <CharacterFamilyTree
+                character={form}
+                relations={{ parents: form.parents || [], siblings: form.siblings || [], family: form.family || [] }}
+                isAdminEditMode={true}
+                onAddRelation={(category, name, relation) => setForm(prev => {
+                  let mappedCategory = category;
+                  if (category === 'spouse' || category === 'children') {
+                    mappedCategory = 'family';
+                  }
+                  return {
+                    ...prev,
+                    [mappedCategory]: [...(prev[mappedCategory] || []), { name, relation }]
+                  };
+                })}
+                onRemoveRelation={(category, name) => setForm(prev => {
+                  let mappedCategory = category;
+                  if (category === 'spouse' || category === 'children') {
+                    mappedCategory = 'family';
+                  }
+                  return {
+                    ...prev,
+                    [mappedCategory]: (prev[mappedCategory] || []).filter(item => item.name !== name)
+                  };
+                })}
+              />
             </section>
           </div>
 
           {/* CỘT PHẢI: LIÊN KẾT & TAGS */}
           <aside className="col-span-12 lg:col-span-4 space-y-6">
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-1 rounded-3xl shadow-xl sticky top-8 hover:shadow-2xl hover:scale-[1.02] transition-all duration-500">
-              <div className="bg-surface/95 backdrop-blur-xl p-6 rounded-[22px] h-full border border-white/10 flex flex-col space-y-6 relative">
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="bg-white p-6 border border-outline-variant shadow-sm rounded-3xl sticky top-8 flex flex-col space-y-6 relative overflow-hidden">
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#6b0f0d]/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10">
-                  <span className="material-symbols-outlined text-[16px]">tune</span>
-                  Cấu hình Nhân vật
-                </h4>
+              <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-[#6b0f0d] border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10">
+                <span className="material-symbols-outlined text-[16px]">tune</span>
+                CẤU HÌNH NHÂN VẬT
+              </h4>
 
-                {/* Publishing Info */}
-                <div className="space-y-4 relative z-10 text-left">
-                  <p className="font-body text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[14px]">publish</span> Xuất bản
-                  </p>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Trạng thái</label>
-                      <div className="relative">
-                        <select
-                          value={form.status}
-                          onChange={e => setForm(prev => ({ ...prev, status: e.target.value }))}
-                          className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-sm font-bold text-on-surface outline-none cursor-pointer hover:border-amber-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all appearance-none"
-                        >
-                          <option value="draft">Bản nháp</option>
-                          <option value="published">Công khai</option>
-                        </select>
-                        <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
-                      </div>
+              {/* 1. XUẤT BẢN / TRẠNG THÁI */}
+              <div className="space-y-4 relative z-10 text-left">
+                <p className="font-body text-[10px] font-bold text-[#6b0f0d] uppercase tracking-widest flex items-center gap-2 border-b border-outline-variant/30 pb-1">
+                  <span className="material-symbols-outlined text-[14px]">publish</span> XUẤT BẢN / TRẠNG THÁI
+                </p>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Trạng thái</label>
+                    <div className="relative">
+                      <select
+                        value={form.status}
+                        onChange={e => setForm(prev => ({ ...prev, status: e.target.value }))}
+                        className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-sm font-bold text-on-surface outline-none cursor-pointer hover:border-[#6b0f0d] focus:border-[#6b0f0d] focus:ring-2 focus:ring-[#6b0f0d]/20 transition-all appearance-none"
+                      >
+                        <option value="draft">Bản nháp</option>
+                        <option value="published">Công khai</option>
+                      </select>
+                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10 mt-6">
-                  <span className="material-symbols-outlined text-[16px]">account_circle</span>
-                  Ảnh Đại Diện
+              {/* 2. ẢNH ĐẠI DIỆN */}
+              <div className="space-y-3">
+                <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-[#6b0f0d] border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10 w-full">
+                  <span className="material-symbols-outlined text-[16px]">image</span> ẢNH ĐẠI DIỆN
                 </h4>
-
                 <div
-                  className="aspect-square w-48 mx-auto rounded-[2rem] bg-surface-low border-4 border-white shadow-lg flex flex-col items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary/50 transition-all group overflow-hidden relative cursor-pointer mb-2"
+                  className="aspect-square w-48 mx-auto rounded-[2rem] bg-surface-low border-4 border-white shadow-lg flex flex-col items-center justify-center text-on-surface-variant hover:text-[#6b0f0d] hover:border-[#6b0f0d]/50 transition-all group overflow-hidden relative cursor-pointer mb-2"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <img
@@ -583,11 +587,10 @@ const CharacterForm = () => {
                     alt="Character Avatar"
                   />
                   <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-surface/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="material-symbols-outlined text-2xl mb-1 text-primary">cloud_upload</span>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-primary">Đổi ảnh</p>
+                    <span className="material-symbols-outlined text-2xl mb-1 text-[#6b0f0d]">cloud_upload</span>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-[#6b0f0d]">Đổi ảnh</p>
                   </div>
                 </div>
-
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -595,66 +598,108 @@ const CharacterForm = () => {
                   accept="image/*"
                   className="hidden"
                 />
+              </div>
 
-                <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/60 pb-3 pt-4 flex items-center justify-center gap-2 text-center relative z-10">
-                  <span className="material-symbols-outlined text-[16px]">hub</span>
-                  Liên kết Thông tin
+              {/* 3. LIÊN KẾT THÔNG TIN */}
+              <div className="space-y-4 pt-2 border-t border-outline-variant/60">
+                <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-[#6b0f0d] border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10 w-full">
+                  <span className="material-symbols-outlined text-[16px]">link</span> LIÊN KẾT THÔNG TIN
                 </h4>
 
-                <EntityRelationInput
-                  type="location"
-                  label="Địa danh"
-                  icon="location_on"
-                  entities={form.relatedLocations}
-                  availableEntities={availableLocations}
-                  onAdd={addLocation}
-                  onRemove={removeLocation}
-                />
+                {/* TRIỂU ĐẠI */}
+                <div className="pt-2">
+                  <TagInput
+                    tags={form.tags}
+                    availableTags={availableTags}
+                    onAddTag={handleAddTag}
+                    onRemoveTag={removeTag}
+                  />
+                </div>
 
-                <EntityRelationInput
-                  type="character"
-                  label="Nhân vật khác"
-                  icon="groups"
-                  itemIcon="person"
-                  entities={form.relatedCharacters}
-                  availableEntities={availableCharacters}
-                  onAdd={addCharacter}
-                  onRemove={removeCharacter}
-                />
+                {/* ĐỊA DANH LIÊN QUAN */}
+                <div className="pt-2">
+                  <EntityRelationInput
+                    type="location"
+                    label="Địa danh"
+                    icon="location_on"
+                    entities={form.relatedLocations}
+                    availableEntities={availableLocations}
+                    onAdd={addLocation}
+                    onRemove={removeLocation}
+                  />
+                </div>
 
-                <EntityRelationInput
-                  type="event"
-                  label="Sự kiện tham gia"
-                  icon="event"
-                  itemIcon="event"
-                  entities={form.relatedEvents}
-                  availableEntities={availableEvents}
-                  onAdd={(eventVal) => {
-                    const eventMatch = availableEvents.find(e => e.name === eventVal);
-                    const periodName = eventMatch?.period?.name;
-                    setForm(prev => {
-                      const newTags = (periodName && !prev.tags.includes(periodName))
-                        ? [...prev.tags, periodName]
-                        : prev.tags;
-                      return {
-                        ...prev,
-                        relatedEvents: [...new Set([...(prev.relatedEvents || []), eventVal])],
-                        tags: newTags
-                      };
-                    });
-                  }}
-                  onRemove={(eventToRemove) => setForm(prev => ({
-                    ...prev,
-                    relatedEvents: prev.relatedEvents.filter(e => e !== eventToRemove)
-                  }))}
-                />
+                {/* BÀI VIẾT LIÊN QUAN */}
+                <div className="pt-2">
+                  <EntityRelationInput
+                    type="article"
+                    label="Bài viết liên quan"
+                    icon="article"
+                    itemIcon="article"
+                    entities={form.relatedArticles || []}
+                    availableEntities={availableArticles}
+                    onAdd={(artVal) => setForm(prev => ({ ...prev, relatedArticles: [...new Set([...(prev.relatedArticles || []), artVal])] }))}
+                    onRemove={(artToRemove) => setForm(prev => ({ ...prev, relatedArticles: (prev.relatedArticles || []).filter(a => a !== artToRemove) }))}
+                  />
+                </div>
 
-                <TagInput
-                  tags={form.tags}
-                  availableTags={availableTags}
-                  onAddTag={handleAddTag}
-                  onRemoveTag={removeTag}
-                />
+                {/* NHÂN VẬT KHÁC */}
+                <div className="pt-2">
+                  <EntityRelationInput
+                    type="character"
+                    label="Nhân vật khác"
+                    icon="groups"
+                    itemIcon="person"
+                    entities={form.relatedCharacters}
+                    availableEntities={availableCharacters}
+                    onAdd={addCharacter}
+                    onRemove={removeCharacter}
+                  />
+                </div>
+
+                {/* SỰ KIỆN LỊCH SỬ */}
+                <div className="pt-2">
+                  <EntityRelationInput
+                    type="event"
+                    label="Sự kiện tham gia"
+                    icon="event"
+                    itemIcon="event"
+                    entities={form.relatedEvents}
+                    availableEntities={availableEvents}
+                    onAdd={(eventVal) => {
+                      const eventMatch = availableEvents.find(e => e.name === eventVal);
+                      const periodName = eventMatch?.period?.name;
+                      setForm(prev => {
+                        const newTags = (periodName && !prev.tags.includes(periodName))
+                          ? [...prev.tags, periodName]
+                          : prev.tags;
+                        return {
+                          ...prev,
+                          relatedEvents: [...new Set([...(prev.relatedEvents || []), eventVal])],
+                          tags: newTags
+                        };
+                      });
+                    }}
+                    onRemove={(eventToRemove) => setForm(prev => ({
+                      ...prev,
+                      relatedEvents: prev.relatedEvents.filter(e => e !== eventToRemove)
+                    }))}
+                  />
+                </div>
+
+                {/* NGUỒN THAM KHẢO */}
+                <div className="pt-2">
+                  <EntityRelationInput
+                    type="source"
+                    label="Nguồn tham khảo"
+                    icon="menu_book"
+                    itemIcon="menu_book"
+                    entities={form.sources || []}
+                    availableEntities={availableSources}
+                    onAdd={(val) => setForm(prev => ({ ...prev, sources: [...new Set([...(prev.sources || []), val])] }))}
+                    onRemove={(val) => setForm(prev => ({ ...prev, sources: (prev.sources || []).filter(s => s !== val) }))}
+                  />
+                </div>
 
               </div>
             </div>

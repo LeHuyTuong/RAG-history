@@ -1,8 +1,7 @@
+import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient, { mockClient } from '../../../services/apiClient';
 const EventDetail = () => {
   const { id } = useParams();
 
@@ -48,7 +47,7 @@ const EventDetail = () => {
           } catch (err) {
             console.error('Error fetching participations:', err);
           }
-          
+
           const parseEventYear = (dateStr, fallbackYear) => {
             if (!dateStr) return fallbackYear;
             const isNegative = dateStr.startsWith('-');
@@ -128,7 +127,7 @@ const EventDetail = () => {
                 </span>
               ))}
             </div>
-            <div 
+            <div
               className="font-body text-[16px] text-[#2b1a16]/90 max-w-2xl border-l-4 border-[#d99b4a] pl-8 py-2 leading-relaxed space-y-4 ql-editor"
               dangerouslySetInnerHTML={{ __html: eventData.subtitle || eventData.description }}
             />

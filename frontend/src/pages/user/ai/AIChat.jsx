@@ -6,9 +6,20 @@ import { useAIChat } from '../../../hooks/useAIChat';
 
 const normalizeMarkdown = (text) => {
   if (!text) return '';
-  return text
-    .replace(/([^\n])\n(\s*[-*+]\s)/g, '$1\n\n$2')
-    .replace(/([^\n])\n(\s*\d+\.\s)/g, '$1\n\n$2');
+  // Standardize newlines
+  let normalized = text.replace(/\r\n/g, '\n');
+  
+  // Ensure that lists and headers have double newlines before them
+  normalized = normalized
+    .replace(/([^\n])\n(\s*[-*+•]\s)/g, '$1\n\n$2') // bullets
+    .replace(/([^\n])\n(\s*\d+\.\s)/g, '$1\n\n$2')  // numbered lists
+    .replace(/([^\n])\n(\s*#+\s)/g, '$1\n\n$2');    // headers
+
+  // Replace any remaining single newlines (that are not double newlines) with double newlines
+  // so they don't get collapsed into spaces by ReactMarkdown
+  normalized = normalized.replace(/(?<!\n)\n(?!\n)/g, '\n\n');
+  
+  return normalized;
 };
 
 const MD_COMPONENTS = {

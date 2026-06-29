@@ -72,6 +72,75 @@ const AdminDashboard = () => {
     fetchDashboardData();
   }, []);
 
+  const getNormalizedStats = () => {
+    if (dashboardData.stats && dashboardData.stats.length > 0) {
+      return dashboardData.stats;
+    }
+
+    if (dashboardData.totalPosts !== undefined || dashboardData.totalPersons !== undefined) {
+      return [
+        {
+          id: "stat-1",
+          icon: "menu_book",
+          title: "Tổng Bài viết",
+          value: dashboardData.totalPosts?.toLocaleString() || "0",
+          iconBg: "bg-primary/10"
+        },
+        {
+          id: "stat-2",
+          icon: "history_edu",
+          title: "Sự kiện Lịch sử",
+          value: dashboardData.totalEvents?.toLocaleString() || "0",
+          iconBg: "bg-accent/10"
+        },
+        {
+          id: "stat-3",
+          icon: "person_pin_circle",
+          title: "Nhân vật",
+          value: dashboardData.totalPersons?.toLocaleString() || "0",
+          iconBg: "bg-surface-variant"
+        },
+        {
+          id: "stat-4",
+          icon: "explore",
+          title: "Địa danh",
+          value: dashboardData.totalLocations?.toLocaleString() || "0",
+          iconBg: "bg-emerald-500/10"
+        },
+        {
+          id: "stat-5",
+          icon: "auto_stories",
+          title: "Sử liệu / Nguồn",
+          value: dashboardData.totalSources?.toLocaleString() || "0",
+          iconBg: "bg-amber-500/10"
+        },
+        {
+          id: "stat-6",
+          icon: "group",
+          title: "Thành viên",
+          value: dashboardData.totalMembers?.toLocaleString() || "0",
+          iconBg: "bg-primary/5"
+        }
+      ];
+    }
+    return [];
+  };
+
+  const getNormalizedMetadataStats = () => {
+    if (dashboardData.metadataStats && dashboardData.metadataStats.length > 0) {
+      return dashboardData.metadataStats;
+    }
+
+    if (dashboardData.totalTags !== undefined || dashboardData.totalPeriods !== undefined) {
+      return [
+        { label: "Danh mục chính", value: "18", icon: "category" },
+        { label: "Thẻ hệ thống", value: dashboardData.totalTags?.toLocaleString() || "0", icon: "sell" },
+        { label: "Thời kỳ lịch sử", value: dashboardData.totalPeriods?.toLocaleString() || "0", icon: "timeline" }
+      ];
+    }
+    return [];
+  };
+
   return (
     <main
       className="p-8 lg:p-12 transition-opacity duration-700 ease-out font-body animate-in fade-in min-h-screen bg-surface"
@@ -96,7 +165,10 @@ const AdminDashboard = () => {
               </p>
             </div>
             <div className="flex gap-4">
-              <button onClick={() => navigate('/admin/articles/new')} className="px-6 py-3 bg-primary hover:bg-primary-container text-white hover:-translate-y-1 active:scale-95 border border-primary/20 rounded-xl text-[11px] uppercase tracking-widest font-bold transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+              <button
+                onClick={() => navigate('/admin/articles/new')}
+                className="px-6 py-3 bg-[#6b0f0d] text-[#ffe7b0] hover:bg-[#520a08] border border-[#ffe7b0]/25 hover:-translate-y-1 active:scale-95 rounded-xl text-[11px] uppercase tracking-widest font-bold transition-all shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer"
+              >
                 <span className="material-symbols-outlined text-[16px]">edit_document</span>
                 Viết Bài
               </button>
@@ -109,7 +181,7 @@ const AdminDashboard = () => {
 
         {/* --- BENTO BLOCK 2: TỔNG QUAN --- */}
         <section>
-          <StatsGrid stats={dashboardData.stats} loading={loading} />
+          <StatsGrid stats={getNormalizedStats()} loading={loading} />
         </section>
 
         {/* --- MAIN BENTO GRID --- */}
@@ -152,7 +224,7 @@ const AdminDashboard = () => {
                 <span className="material-symbols-outlined text-primary/50 group-hover:text-primary group-hover:translate-x-1 transition-all">arrow_forward</span>
               </div>
               <div className="space-y-4 relative z-10">
-                {dashboardData.metadataStats?.map((meta, i) => (
+                {getNormalizedMetadataStats()?.map((meta, i) => (
                   <div key={i} className="flex justify-between items-center bg-white p-3 rounded-xl border border-outline-variant/30 hover:border-primary/20 hover:shadow-sm transition-all">
                     <div className="flex items-center gap-3">
                       <span className="material-symbols-outlined text-primary/60 text-[18px]">{meta.icon}</span>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PageHeader, AdminLayout, StatsGrid, ActionModal } from '../../../components/admin';
+import { PageHeader, AdminLayout, ActionModal } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { metadataService, mockClient, ENDPOINTS, tagService, periodService } from '../../../services';
 
@@ -84,6 +84,9 @@ const MetadataManagement = () => {
   const [tagColors, setTagColors] = useState({});
   const { periodColors } = usePeriodColors();
   const [loading, setLoading] = useState(true);
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
+  const [dropPosition, setDropPosition] = useState(null); // 'before' | 'after'
 
   useEffect(() => {
     const fetchData = async () => {
@@ -162,11 +165,31 @@ const MetadataManagement = () => {
   }, []);
 
   const handlePeriodDragStart = (e, index) => {
+    setDraggedIndex(index);
     e.dataTransfer.setData('text/plain', String(index));
+    e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handlePeriodDragOver = (e) => {
+  const handlePeriodDragOver = (e, index) => {
     e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) {
+      setDragOverIndex(null);
+      setDropPosition(null);
+      return;
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const isAfter = x > rect.width / 2;
+
+    setDragOverIndex(index);
+    setDropPosition(isAfter ? 'after' : 'before');
+  };
+
+  const handlePeriodDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+    setDropPosition(null);
   };
 
   const handlePeriodDrop = (e, dropIndex) => {
@@ -174,13 +197,23 @@ const MetadataManagement = () => {
     const dragIndexStr = e.dataTransfer.getData('text/plain');
     if (dragIndexStr === '') return;
     const dragIndex = parseInt(dragIndexStr, 10);
-    if (dragIndex === dropIndex) return;
+    
+    if (dragIndex !== dropIndex && draggedIndex !== null) {
+      const updatedPeriods = [...data.periods];
+      const [draggedItem] = updatedPeriods.splice(dragIndex, 1);
+      
+      let targetIndex = dropIndex;
+      if (dragIndex < dropIndex) {
+        targetIndex = dropPosition === 'after' ? dropIndex : dropIndex - 1;
+      } else {
+        targetIndex = dropPosition === 'after' ? dropIndex + 1 : dropIndex;
+      }
+      
+      updatedPeriods.splice(targetIndex, 0, draggedItem);
+      setData((prev) => ({ ...prev, periods: updatedPeriods }));
+    }
 
-    const updatedPeriods = [...data.periods];
-    const [draggedItem] = updatedPeriods.splice(dragIndex, 1);
-    updatedPeriods.splice(dropIndex, 0, draggedItem);
-
-    setData((prev) => ({ ...prev, periods: updatedPeriods }));
+    handlePeriodDragEnd();
   };
 
   const getTagStyle = (tagName) => {
@@ -262,7 +295,7 @@ const MetadataManagement = () => {
       />
 
       <div className="mb-8">
-        <StatsGrid stats={data.stats} loading={loading} />
+        
       </div>
 
       <div className="space-y-8">
@@ -286,10 +319,22 @@ const MetadataManagement = () => {
                     key={p.id}
                     draggable="true"
                     onDragStart={(e) => handlePeriodDragStart(e, index)}
-                    onDragOver={handlePeriodDragOver}
+                    onDragOver={(e) => handlePeriodDragOver(e, index)}
+                    onDragEnd={handlePeriodDragEnd}
                     onDrop={(e) => handlePeriodDrop(e, index)}
-                    className="shrink-0 w-48 cursor-move relative p-3.5 border rounded-xl transition-all hover:-translate-y-1 hover:shadow-xl group bg-white border-outline-variant snap-center flex flex-col justify-between"
+                    className={`shrink-0 w-48 cursor-move relative p-3.5 border rounded-xl transition-all group bg-white snap-center flex flex-col justify-between ${
+                      draggedIndex === index
+                        ? 'opacity-40 border-dashed border-amber-400 bg-amber-50/20 shadow-inner scale-95'
+                        : 'border-outline-variant hover:-translate-y-1 hover:shadow-xl'
+                    }`}
                   >
+                    {/* Drag insertion indicators */}
+                    {dragOverIndex === index && dropPosition === 'before' && (
+                      <div className="absolute left-[-10px] top-0 bottom-0 w-[4px] bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.6)] animate-pulse z-30"></div>
+                    )}
+                    {dragOverIndex === index && dropPosition === 'after' && (
+                      <div className="absolute right-[-10px] top-0 bottom-0 w-[4px] bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.6)] animate-pulse z-30"></div>
+                    )}
                     <div>
                       <div className="absolute top-1.5 right-1.5 text-on-surface-variant opacity-20 group-hover:opacity-60 transition-opacity">
                         <span className="material-symbols-outlined text-[15px]">drag_indicator</span>
