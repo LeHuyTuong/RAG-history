@@ -18,7 +18,7 @@ const ragService = {
     chatStream(payload, handlers = {}) {
         const url = `${apiClient.defaults.baseURL || ''}${ENDPOINTS.RAG.CHAT_STREAM}`;
         const controller = new AbortController();
-        const { onToken, onCitations, onDone, onError } = handlers;
+        const { onToken, onCitations, onDone, onError, onSuggestions, onThinking } = handlers;
 
         (async () => {
             try {
@@ -46,10 +46,11 @@ const ragService = {
                 const dispatchEvent = (eventName, dataText) => {
                     try {
                         const parsed = JSON.parse(dataText);
-                        if (eventName === 'token' && onToken) onToken(parsed.text ?? parsed.delta ?? '');
-                        else if (eventName === 'citations' && onCitations) onCitations(parsed);
-                        else if (eventName === 'done' && onDone) onDone(parsed);
-                        else if (eventName === 'error' && onError) onError(new Error(parsed.message || 'Stream error'));
+                        if (eventName === 'chat.delta' && onToken) onToken(parsed.text ?? '');
+                        else if (eventName === 'chat.thinking' && onThinking) onThinking(parsed.text ?? '');
+                        else if (eventName === 'chat.citations' && onCitations) onCitations(parsed.citations ?? []);
+                        else if (eventName === 'chat.completed' && onDone) onDone(parsed);
+                        else if (eventName === 'chat.suggestions' && onSuggestions) onSuggestions(parsed.suggestions ?? []);
                     } catch (e) {
                         if (onToken) onToken(dataText);
                     }

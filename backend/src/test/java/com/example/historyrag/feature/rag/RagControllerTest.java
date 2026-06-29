@@ -63,7 +63,7 @@ class RagControllerTest {
     void chatReturnsApiResponseWrapper() throws Exception {
         RagChatRequest request = new RagChatRequest("Question", 5, false, List.of(), List.of(), 0.2);
         when(ragService.chat(eq(request), eq(null)))
-                .thenReturn(new RagChatResponse("Answer", List.of(), true, false));
+                .thenReturn(new RagChatResponse("Answer", List.of(), true, false, List.of()));
 
         mockMvc.perform(post("/api/v1/rag/chat")
                         .contentType(MediaType.APPLICATION_JSON)

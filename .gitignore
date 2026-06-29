@@ -10,6 +10,7 @@ __pycache__/
 *.py[cod]
 *.pyo
 .venv/
+.venv_test/
 venv/
 env/
 *.egg-info/
@@ -47,3 +48,7 @@ Thumbs.db
 
 # ===== Uploads (runtime) =====
 backend/uploads/
+
+# ===== Test artifacts =====
+cookies.txt
+rag-service/tests/results/

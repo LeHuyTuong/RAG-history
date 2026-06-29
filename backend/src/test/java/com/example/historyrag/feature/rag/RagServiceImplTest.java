@@ -53,7 +53,7 @@ class RagServiceImplTest {
                 null
         );
         RagHealthResponse healthResponse = new RagHealthResponse("ok", "rag-history");
-        RagChatResponse chatResponse = new RagChatResponse("Answer", List.of(), true, false);
+        RagChatResponse chatResponse = new RagChatResponse("Answer", List.of(), true, false, List.of());
         RagRetrieveResponse retrieveResponse = new RagRetrieveResponse("Question", 5, List.of());
         RagIngestResponse ingestResponse = new RagIngestResponse(1L, "COMPLETED", "history", "embed", List.of());
         RagDeleteResponse deleteResponse = new RagDeleteResponse("deleted", 1L);

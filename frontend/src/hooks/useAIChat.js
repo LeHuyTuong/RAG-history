@@ -1,41 +1,6 @@
-import { useState, useCallback, useMemo } from 'react';
-import { callRagChatApi, extractSourcesFromCitations, transformCitationsToSources } from '../utils/aiSourceUtils';
-
-const MOCK_ANSWERS = [
-  {
-    answer: "Lý Thường Kiệt (1019–1105) là vị đại tướng quân tài ba, người đã chủ động thực hiện chiến lược 'Tiên phát chế nhân' chống quân Tống xâm lược. Đặc biệt, tại phòng tuyến sông Như Nguyệt, ông đã đọc bài thơ 'Nam quốc sơn hà' để khích lệ tinh thần quân sĩ.",
-    citations: [
-      { sourceType: "ARTICLE", sourceId: 1, title: "Đại Việt Sử Ký Toàn Thư", slug: "dai-viet-su-ky" },
-      { sourceType: "ARTICLE", sourceId: 2, title: "Lịch sử chống ngoại xâm", slug: "lich-su-chong-ngoai-xam" }
-    ]
-  },
-  {
-    answer: "Chiếu dời đô (Thiên đô chiếu) được vua Lý Thái Tổ ban hành vào năm Canh Tuất 1010 để chuyển kinh đô từ Hoa Lư (Ninh Bình) về Đại La (Hà Nội ngày nay), mở ra thời kỳ hưng thịnh mới cho đất nước.",
-    citations: [
-      { sourceType: "DOCUMENT", sourceId: 3, title: "Chiếu Dời Đô tuyển tập", pageNumber: 5 }
-    ]
-  },
-  {
-    answer: "Trận Bạch Đằng năm 938 là một trong những trận chiến oai hùng nhất lịch sử nước nhà, do Ngô Quyền lãnh đạo đánh tan quân Nam Hán bằng chiến thuật đóng cọc gỗ đầu bịt sắt dưới lòng sông.",
-    citations: [
-      { sourceType: "ARTICLE", sourceId: 4, title: "Bản kỷ Ngô Quyền", slug: "ngo-quyen-bach-dang" }
-    ]
-  }
-];
-
-const findMockAnswer = (question) => {
-  const q = question.toLowerCase();
-  if (q.includes("tống") || q.includes("lý thường kiệt") || q.includes("nam quốc")) {
-    return MOCK_ANSWERS[0];
-  }
-  if (q.includes("dời đô") || q.includes("lý thái tổ")) {
-    return MOCK_ANSWERS[1];
-  }
-  if (q.includes("bạch đằng") || q.includes("ngô quyền")) {
-    return MOCK_ANSWERS[2];
-  }
-  return MOCK_ANSWERS[Math.floor(Math.random() * MOCK_ANSWERS.length)];
-};
+import { useState, useCallback, useRef, useMemo } from 'react';
+import { extractSourcesFromCitations, transformCitationsToSources } from '../utils/aiSourceUtils';
+import { ragService } from '../services';
 
 export const useAIChat = (initialMessages = []) => {
   const [messages, setMessages] = useState(
@@ -45,103 +10,150 @@ export const useAIChat = (initialMessages = []) => {
       content: msg.content || msg.text || '',
       text: msg.content || msg.text || '',
       sources: msg.sources || [],
-      quote: msg.quote || null,
+      suggestions: msg.suggestions || [],
       createdAt: msg.createdAt || new Date(),
     }))
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [streamingMsgId, setStreamingMsgId] = useState(null);
+  const [tokensPerSecond, setTokensPerSecond] = useState(0);
 
-  const sendMessage = useCallback(async (question, options = {}) => {
-    if (!question.trim()) return;
+  const stopStreamRef = useRef(null);
+  const tokenCountRef = useRef(0);
+  const streamStartRef = useRef(null);
+  const tpsIntervalRef = useRef(null);
 
-    const userMsgId = `user-${Date.now()}`;
+  const sendMessage = useCallback((question, options = {}) => {
+    if (!question.trim() || loading) return;
+
+    if (stopStreamRef.current) {
+      stopStreamRef.current();
+      stopStreamRef.current = null;
+    }
+
     const userMessage = {
-      id: userMsgId,
+      id: `user-${Date.now()}`,
       role: 'user',
       content: question,
       text: question,
       sources: [],
-      quote: null,
+      suggestions: [],
       createdAt: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const aiMsgId = `ai-${Date.now()}`;
+    const aiPlaceholder = {
+      id: aiMsgId,
+      role: 'ai',
+      content: '',
+      text: '',
+      thinking: '',
+      sources: [],
+      suggestions: [],
+      createdAt: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage, aiPlaceholder]);
     setLoading(true);
     setError(null);
+    setStreamingMsgId(aiMsgId);
+    setTokensPerSecond(0);
+    tokenCountRef.current = 0;
+    streamStartRef.current = Date.now();
 
-    try {
-      const data = await callRagChatApi(question, options);
-      
-      const aiMsgId = `ai-${Date.now()}`;
-      const sources = transformCitationsToSources(data.citations || []);
-      const fullSources = extractSourcesFromCitations(data.citations || []);
+    // Cập nhật token/s mỗi 300ms
+    tpsIntervalRef.current = setInterval(() => {
+      const elapsed = (Date.now() - streamStartRef.current) / 1000;
+      if (elapsed > 0) {
+        setTokensPerSecond(Math.round(tokenCountRef.current / elapsed));
+      }
+    }, 300);
 
-      const aiMessage = {
-        id: aiMsgId,
-        role: 'ai',
-        content: data.answer,
-        text: data.answer,
-        sources,
-        fullSources,
-        quote: null,
-        createdAt: new Date(),
-      };
+    const updateAiMsg = (updater) =>
+      setMessages((prev) =>
+        prev.map((m) => (m.id === aiMsgId ? { ...m, ...updater(m) } : m))
+      );
 
-      setMessages((prev) => [...prev, aiMessage]);
-      return { answer: data.answer, sources: fullSources };
-    } catch (err) {
-      console.warn("Direct RAG chat failed. Falling back to mock responses...", err);
+    const stopStream = () => {
+      clearInterval(tpsIntervalRef.current);
+      setStreamingMsgId(null);
+    };
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    stopStreamRef.current = ragService.chatStream(
+      {
+        question,
+        topK: options.topK || 5,
+        useGraph: options.useGraph || false,
+        sourceIds: options.sourceIds || [],
+        tagIds: options.tagIds || [],
+        temperature: options.temperature || 0.2,
+      },
+      {
+        onThinking: (text) =>
+          updateAiMsg((m) => ({ thinking: (m.thinking || '') + text })),
 
-      const matchedMock = findMockAnswer(question);
+        onToken: (text) => {
+          tokenCountRef.current += text.length;
+          updateAiMsg((m) => ({ content: m.content + text, text: m.text + text }));
+        },
 
-      const aiMsgId = `ai-mock-${Date.now()}`;
-      const sources = transformCitationsToSources(matchedMock.citations);
-      const fullSources = extractSourcesFromCitations(matchedMock.citations);
+        onCitations: (citations) =>
+          updateAiMsg(() => ({
+            sources: transformCitationsToSources(citations),
+            fullSources: extractSourcesFromCitations(citations),
+          })),
 
-      const aiMessage = {
-        id: aiMsgId,
-        role: 'ai',
-        content: matchedMock.answer,
-        text: matchedMock.answer,
-        sources,
-        fullSources,
-        quote: question.toLowerCase().includes("lý thường kiệt") ? "Nam quốc sơn hà Nam đế cư / Tiệt nhiên định phận tại thiên thư..." : null,
-        createdAt: new Date(),
-      };
+        onSuggestions: (suggestions) =>
+          updateAiMsg(() => ({ suggestions })),
 
-      setMessages((prev) => [...prev, aiMessage]);
-      return { answer: matchedMock.answer, sources: fullSources };
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        onDone: () => {
+          stopStream();
+          setLoading(false);
+          stopStreamRef.current = null;
+        },
+
+        onError: (err) => {
+          stopStream();
+          setError(err.message || 'Lỗi kết nối. Vui lòng thử lại.');
+          setLoading(false);
+          stopStreamRef.current = null;
+          setMessages((prev) => {
+            const ai = prev.find((m) => m.id === aiMsgId);
+            return ai?.content ? prev : prev.filter((m) => m.id !== aiMsgId);
+          });
+        },
+      }
+    );
+  }, [loading]);
 
   const clearMessages = useCallback(() => {
+    if (stopStreamRef.current) {
+      stopStreamRef.current();
+      stopStreamRef.current = null;
+    }
+    clearInterval(tpsIntervalRef.current);
     setMessages([]);
+    setError(null);
+    setLoading(false);
+    setStreamingMsgId(null);
+    setTokensPerSecond(0);
   }, []);
 
-  const allSources = useMemo(() => 
-    messages.flatMap(m => m.fullSources || m.sources || []),
+  const allSources = useMemo(
+    () => messages.flatMap((m) => m.fullSources || m.sources || []),
     [messages]
-  );
-
-  const validatedLinks = useMemo(() => 
-    allSources.filter(s => s.url && extractSourcesFromCitations([{url: s.url}]).length > 0).slice(0, 20),
-    [allSources]
   );
 
   return {
     messages,
     loading,
     error,
+    streamingMsgId,
+    tokensPerSecond,
     sendMessage,
     clearMessages,
-    sources: validatedLinks,
     allSources,
-    sourcesCount: validatedLinks.length,
   };
 };
 

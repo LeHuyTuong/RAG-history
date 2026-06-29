@@ -12,9 +12,8 @@ Flow trong /rag/chat:
     → retrieval_service (nếu use_vector)
     → [graph_service — chưa implement]
 
-MVP: luôn dùng vector, không dùng graph — Neo4j chừa cho phase sau.
-Tham số requested_use_graph giữ nguyên để chat_routes không cần thay đổi
-khi Neo4j được thêm vào.
+Luôn dùng vector. Graph bật tự động khi câu hỏi match _GRAPH_HINT_RE,
+hoặc khi client gửi useGraph=True.
 """
 import re
 

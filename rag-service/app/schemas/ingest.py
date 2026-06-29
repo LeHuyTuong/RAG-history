@@ -46,6 +46,7 @@ class RagIngestRequest(BaseModel):
     rawContent: str | None = None
     metadata: IngestMetadata = IngestMetadata()
     settings: IngestSettings = IngestSettings()
+    buildGraph: bool = True  # False để skip graph build (VD: source ngắn, test)
 
 
 class IngestedChunk(BaseModel):

@@ -181,7 +181,7 @@ def main() -> int:
 
     def worker(worker_id: int):
         """1 worker = 1 API key cố định. Hết RPD thì worker này dừng, worker khác chạy tiếp."""
-        extract_fn = extract_fns[worker_id]
+        extract_fn = extract_fns[worker_id % len(extract_fns)]
         while True:
             try:
                 i, (pid, page, text) = work_q.get_nowait()

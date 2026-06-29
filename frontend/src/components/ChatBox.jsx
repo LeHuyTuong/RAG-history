@@ -1,6 +1,32 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useAIChat } from "../hooks/useAIChat";
+
+const normalizeMarkdown = (text) => {
+  if (!text) return '';
+  let normalized = text.replace(/\r\n/g, '\n');
+  normalized = normalized
+    .replace(/([^\n])\n(\s*[-*+•]\s)/g, '$1\n\n$2')
+    .replace(/([^\n])\n(\s*\d+\.\s)/g, '$1\n\n$2')
+    .replace(/([^\n])\n(\s*#+\s)/g, '$1\n\n$2');
+  normalized = normalized.replace(/(?<!\n)\n(?!\n)/g, '\n\n');
+  return normalized;
+};
+
+const MD_COMPONENTS = {
+  p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed text-[13px]">{children}</p>,
+  ul: ({ children }) => <ul className="mb-2 mt-1 space-y-1 pl-4">{children}</ul>,
+  ol: ({ children }) => <ol className="mb-2 mt-1 space-y-1 pl-4 list-decimal">{children}</ol>,
+  li: ({ children }) => <li className="text-[13px] leading-relaxed list-disc text-[#2b1a16]">{children}</li>,
+  strong: ({ children }) => <strong className="font-bold text-[#6b0f0d]">{children}</strong>,
+  em: ({ children }) => <em className="italic text-[#2b1a16]/80">{children}</em>,
+  h1: ({ children }) => <h1 className="text-sm font-bold text-[#6b0f0d] mt-3 mb-1">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-[13px] font-bold text-[#6b0f0d] mt-2 mb-1">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-[13px] font-bold text-[#2b1a16] mt-2 mb-1">{children}</h3>,
+  hr: () => <hr className="my-2 border-[#d9c7a7]/30" />,
+};
 
 const ChatBox = ({ isOpen, onClose }) => {
   const { messages, loading: isTyping, sendMessage } = useAIChat([
@@ -103,7 +129,13 @@ const ChatBox = ({ isOpen, onClose }) => {
                         : "border border-[#d9c7a7]/60 text-[#2b1a16] rounded-bl-sm"
                     }`}
                   >
-                    {msg.text}
+                    {msg.role === "ai" ? (
+                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>
+                        {normalizeMarkdown(msg.text)}
+                      </ReactMarkdown>
+                    ) : (
+                      msg.text
+                    )}
                   </div>
 
                   {msg.role === "ai" && msg.sources && msg.sources.length > 0 && (

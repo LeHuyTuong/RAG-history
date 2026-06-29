@@ -224,21 +224,23 @@ def make_embed_with_retry(embed_fn_list: list, retries: int = 10, backoff: float
                             file=sys.stderr,
                         )
                         continue
-                print(
-                    "\n  ✗ TẤT CẢ KEY HẾT QUOTA NGÀY (RPD).\n"
-                    "    Giải pháp:\n"
-                    "      1. Chờ đến 07:00 sáng VN (00:00 UTC) rồi chạy lại với --resume.\n"
-                    "      2. Bật billing tại aistudio.google.com → Settings → Billing.",
-                    file=sys.stderr,
-                )
-                raise
-            if attempt == retries:
-                print(f"\n  ✗ Đã thử {retries} lần vẫn lỗi — bỏ cuộc.", file=sys.stderr)
-                raise
-            wait = _parse_retry_delay(exc) or backoff
-            print(f"    ! embed 429 (lần {attempt}/{retries}): TPM/RPM limit -> chờ {wait:.0f}s",
-                  file=sys.stderr)
-            time.sleep(wait)
+                    # Hết tất cả key thật sự
+                    print(
+                        "\n  ✗ TẤT CẢ KEY HẾT QUOTA NGÀY (RPD).\n"
+                        "    Giải pháp:\n"
+                        "      1. Chờ đến 07:00 sáng VN (00:00 UTC) rồi chạy lại với --resume.\n"
+                        "      2. Bật billing tại aistudio.google.com → Settings → Billing.",
+                        file=sys.stderr,
+                    )
+                    raise
+                # RPM/TPM rate limit — chờ rồi retry, KHÔNG phải hết quota ngày
+                if attempt == retries:
+                    print(f"\n  ✗ Đã thử {retries} lần vẫn lỗi — bỏ cuộc.", file=sys.stderr)
+                    raise
+                wait = _parse_retry_delay(exc) or backoff
+                print(f"    ! embed 429 (lần {attempt}/{retries}): RPM limit → chờ {wait:.0f}s",
+                      file=sys.stderr)
+                time.sleep(wait)
 
     return embed_with_retry
 

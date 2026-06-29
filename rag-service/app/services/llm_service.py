@@ -5,71 +5,191 @@ Vai trò: nhận system_prompt + user_message đã được prompt_service build
 gọi Google GenAI SDK, trả về answer string. Không biết gì về Qdrant hay chunks —
 chỉ nhận text vào và trả text ra.
 
-Flow trong /rag/chat:
-  prompt_service  →  (system_prompt, user_message)
-    → generate(system_prompt, user_message, temperature)
-      1. _get_client()                        — singleton genai.Client
-      2. client.models.generate_content(...)  — gọi Gemma qua Google AI Studio
-      3. response.text.strip()               — trích text thuần
-  → answer  →  citation_service
+Key rotation: dùng pool key từ settings.api_key_pool (LLM_API_KEY + GOOGLE_API_KEY_2..5,
+mỗi biến có thể chứa nhiều key ngăn cách bằng dấu phẩy). Khi 1 key hết
+quota ngày (RPD 429) tự chuyển key tiếp; khi dính RPM/TPM thì chờ rồi thử lại cùng key.
+Điều này tránh chat bị 500 khi build graph / ingest đang chiếm quota của key chính.
 
-Dùng singleton client để tái sử dụng HTTP connection giữa các request.
-Raise ValueError nếu LLM trả rỗng — chat_routes bắt exception này
-và fallback về _NO_DATA_MSG thay vì crash 500.
+Raise ValueError nếu LLM trả rỗng — chat_routes bắt và fallback về _NO_DATA_MSG.
 """
+import logging
+import time
+
 from google import genai
 from google.genai import types
 
 from app.config import settings
 
-_client: genai.Client | None = None
+logger = logging.getLogger(__name__)
+
+# Pool clients dùng chung cho generate / stream / suggest — khởi tạo lazy
+_clients: list[genai.Client] | None = None
+_key_index = 0
 
 
-def _get_client() -> genai.Client:
-    global _client
-    if _client is None:
-        _client = genai.Client(api_key=settings.google_api_key)
-    return _client
+def _build_clients() -> list[genai.Client]:
+    return [genai.Client(api_key=k) for k in settings.api_key_pool]
+
+
+def _get_clients() -> list[genai.Client]:
+    global _clients
+    if _clients is None:
+        _clients = _build_clients()
+    return _clients
+
+
+def _is_daily_quota_error(exc: Exception) -> bool:
+    msg = str(exc)
+    return "RESOURCE_EXHAUSTED" in msg and (
+        "PerDay" in msg or "per-day" in msg or "free_tier_requests" in msg
+    )
+
+
+def _is_rate_limit(exc: Exception) -> bool:
+    msg = str(exc)
+    return "RESOURCE_EXHAUSTED" in msg or "429" in msg or "retry in" in msg
+
+
+def _parse_retry_delay(exc: Exception) -> float:
+    import re
+    m = re.search(r"retry in (\d+(?:\.\d+)?)s", str(exc))
+    return float(m.group(1)) + 2 if m else 20.0
+
+
+def _invoke(fn, max_attempts: int = 12):
+    """
+    Gọi fn(client) với key rotation: hết RPD ngày → chuyển key; dính RPM → chờ + thử lại.
+    fn nhận 1 genai.Client, trả về kết quả. Lỗi khác (không phải quota) → raise ngay.
+    """
+    global _key_index
+    clients = _get_clients()
+    last_exc: Exception | None = None
+    for _ in range(max_attempts):
+        if _key_index >= len(clients):
+            raise RuntimeError("Tất cả API key đã hết quota ngày (RPD). Chờ reset 00:00 UTC (07:00 VN).")
+        try:
+            return fn(clients[_key_index])
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            if _is_daily_quota_error(exc):
+                logger.warning("Key %d hết quota ngày, chuyển key tiếp.", _key_index)
+                _key_index += 1
+                continue
+            if _is_rate_limit(exc):
+                delay = _parse_retry_delay(exc)
+                logger.warning("Rate limit key %d, sleep %.1fs. Lỗi: %s", _key_index, delay, str(exc)[:120])
+                time.sleep(delay)
+                continue
+            raise
+    if last_exc:
+        raise last_exc
+    raise RuntimeError("LLM call thất bại sau nhiều lần thử.")
 
 
 def generate(system_prompt: str, user_message: str, temperature: float = 0.2) -> str:
-    response = _get_client().models.generate_content(
-        model=settings.llm_model,
-        contents=user_message,
-        config=types.GenerateContentConfig(
-            system_instruction=system_prompt,
-            temperature=temperature,
-        ),
-    )
-    text = (response.text or "").strip()
+    def call(client: genai.Client) -> str:
+        response = client.models.generate_content(
+            model=settings.llm_model,
+            contents=user_message,
+            config=types.GenerateContentConfig(
+                system_instruction=system_prompt,
+                temperature=temperature,
+            ),
+        )
+        return (response.text or "").strip()
+
+    text = _invoke(call)
     if not text:
         raise ValueError("LLM returned empty response")
     return text
 
 
 def generate_stream(system_prompt: str, user_message: str, temperature: float = 0.2):
-    models = _get_client().models
-    stream_fn = getattr(models, "generate_content_stream", None)
-    if stream_fn is None:
-        yield from _chunk_text(generate(system_prompt, user_message, temperature))
-        return
+    """
+    Yields (kind, text) tuples:
+      kind='thinking' — reasoning token từ ThinkingConfig (ẩn với người dùng cuối nếu muốn)
+      kind='answer'   — token câu trả lời thực sự
 
-    has_text = False
-    for chunk in stream_fn(
-        model=settings.llm_model,
-        contents=user_message,
-        config=types.GenerateContentConfig(
-            system_instruction=system_prompt,
-            temperature=temperature,
-        ),
-    ):
-        text = getattr(chunk, "text", None) or ""
-        if text:
-            has_text = True
-            yield text
+    Key rotation chỉ áp dụng TRƯỚC token đầu tiên (không retry giữa chừng → lặp nội dung).
+    SDK không hỗ trợ stream → fallback generate() với kind='answer'.
+    """
+    global _key_index
+    clients = _get_clients()
 
-    if not has_text:
-        raise ValueError("LLM returned empty stream")
+    for _ in range(len(clients) + 2):
+        if _key_index >= len(clients):
+            raise RuntimeError("Tất cả API key đã hết quota ngày (RPD).")
+        client = clients[_key_index]
+        stream_fn = getattr(client.models, "generate_content_stream", None)
+        if stream_fn is None:
+            for t in _chunk_text(generate(system_prompt, user_message, temperature)):
+                yield ("answer", t)
+            return
+
+        has_text = False
+        thought_buf = []
+        try:
+            for chunk in stream_fn(
+                model=settings.llm_model,
+                contents=user_message,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_prompt,
+                    temperature=temperature,
+                    # LƯU Ý: model Gemma (gemma-*-it) KHÔNG hỗ trợ thinking_config →
+                    # nếu bật sẽ bị 400 "Thinking budget is not supported for this model"
+                    # khiến stream vỡ và trả "chưa đủ dữ liệu". Chỉ bật lại khi đổi sang
+                    # model thinking (vd gemini-2.5-*). Để gọn, hiện tắt hẳn.
+                ),
+            ):
+                # Dùng parts API để tách thinking vs answer
+                parts = []
+                try:
+                    if chunk.candidates:
+                        parts = chunk.candidates[0].content.parts or []
+                except Exception:  # noqa: BLE001
+                    pass
+
+                if parts:
+                    for part in parts:
+                        text = getattr(part, "text", None) or ""
+                        if not text:
+                            continue
+                        # BỎ THINKING: phần reasoning (thought=True) KHÔNG stream ra FE,
+                        # chỉ gom lại để fallback nếu model lỡ không sinh câu trả lời nào.
+                        if getattr(part, "thought", False):
+                            thought_buf.append(text)
+                            continue
+                        has_text = True
+                        yield ("answer", text)
+                else:
+                    # Fallback: SDK cũ không có parts
+                    text = getattr(chunk, "text", None) or ""
+                    if text:
+                        has_text = True
+                        yield ("answer", text)
+
+            if not has_text:
+                # Model chỉ sinh reasoning, không có câu trả lời → tránh bong bóng trống:
+                # dùng tạm nội dung reasoning thay vì báo rỗng.
+                if thought_buf:
+                    for t in thought_buf:
+                        yield ("answer", t)
+                    return
+                raise ValueError("LLM returned empty stream")
+            return
+        except Exception as exc:  # noqa: BLE001
+            if has_text:
+                raise
+            if _is_daily_quota_error(exc):
+                logger.warning("Stream key %d hết quota ngày, chuyển key tiếp.", _key_index)
+                _key_index += 1
+                continue
+            if _is_rate_limit(exc):
+                delay = _parse_retry_delay(exc)
+                logger.warning("Stream rate limit key %d, sleep %.1fs. Lỗi: %s", _key_index, delay, str(exc)[:120])
+                time.sleep(delay)
+                continue
+            raise
 
 
 def suggest_questions(question: str, answer: str) -> list[str]:
@@ -81,13 +201,17 @@ def suggest_questions(question: str, answer: str) -> list[str]:
         "tiếp theo mà người dùng có thể muốn tìm hiểu thêm. "
         "Chỉ liệt kê 3 câu hỏi, mỗi câu một dòng, không đánh số, không giải thích."
     )
-    try:
-        response = _get_client().models.generate_content(
+
+    def call(client: genai.Client) -> str:
+        response = client.models.generate_content(
             model=settings.llm_model,
             contents=prompt,
             config=types.GenerateContentConfig(temperature=0.7),
         )
-        text = (response.text or "").strip()
+        return (response.text or "").strip()
+
+    try:
+        text = _invoke(call)
         lines = [ln.strip().lstrip("-•*").strip() for ln in text.splitlines() if ln.strip()]
         return [ln for ln in lines if len(ln) > 10][:3]
     except Exception:  # noqa: BLE001

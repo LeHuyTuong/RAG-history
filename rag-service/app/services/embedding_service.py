@@ -25,14 +25,7 @@ _key_index = 0
 
 
 def _build_clients() -> list[genai.Client]:
-    keys = [
-        settings.google_api_key,
-        settings.google_api_key_2,
-        settings.google_api_key_3,
-        settings.google_api_key_4,
-        settings.google_api_key_5,
-    ]
-    return [genai.Client(api_key=k) for k in keys if k]
+    return [genai.Client(api_key=k) for k in settings.api_key_pool]
 
 
 def _get_clients() -> list[genai.Client]:
