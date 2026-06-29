@@ -99,7 +99,9 @@ public class SecurityConfig {
                                 "/api/v1/admin/participations",
                                 "/api/v1/admin/participations/**",
                                 "/api/v1/admin/settings",
-                                "/api/v1/admin/settings/**",
+                                "/api/v1/admin/settings/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST,
                                 "/api/v1/rag/chat",
                                 "/api/v1/rag/chat/**"
                         ).permitAll()
