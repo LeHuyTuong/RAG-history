@@ -31,10 +31,32 @@ from app.vectorstore.qdrant_client import ensure_collection
 from app.vectorstore.vector_repository import delete_by_source_id, point_id, upsert
 
 
+def _validate_source_namespace(source_id: int, source_type: str) -> None:
+    """
+    Bảo vệ namespace sourceId:
+      DOCUMENT (sách PDF): 1 – doc_source_id_max (999)
+      ARTICLE  (bài viết): article_source_id_min (1_000_000) trở lên
+    Ngăn article ghi đè sách và ngược lại.
+    """
+    stype = (source_type or "").upper()
+    if stype == "DOCUMENT" and source_id > settings.doc_source_id_max:
+        raise ValueError(
+            f"DOCUMENT sourceId {source_id} vượt giới hạn tối đa {settings.doc_source_id_max}. "
+            "Sách PDF chỉ dùng sourceId 1–999."
+        )
+    if stype == "ARTICLE" and source_id < settings.article_source_id_min:
+        raise ValueError(
+            f"ARTICLE sourceId {source_id} nằm trong vùng reserved cho sách PDF (< {settings.article_source_id_min}). "
+            f"Bài viết phải dùng sourceId >= {settings.article_source_id_min}."
+        )
+
+
 def ingest(req: RagIngestRequest) -> RagIngestResponse:
     chunk_size = req.settings.chunkSize or settings.default_chunk_size
     chunk_overlap = req.settings.chunkOverlap or settings.default_chunk_overlap
     collection = settings.qdrant_collection
+
+    _validate_source_namespace(req.sourceId, req.sourceType)
 
     pages = extract(
         raw_content=req.rawContent,

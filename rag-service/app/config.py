@@ -33,11 +33,31 @@ class Settings(BaseSettings):
 
     # Google AI Studio — dùng chung key pool cho cả embedding (Gemini) và LLM (Gemma)
     # Key rotation: khi key 1 hết quota ngày thì tự động chuyển sang key 2, 3...
+    # Mỗi biến có thể chứa NHIỀU key ngăn cách bằng dấu phẩy, ví dụ "keyA,keyB".
+    # Nhờ vậy thêm key mới chỉ cần nối vào một dòng có sẵn, không phải thêm dòng/biến mới.
     google_api_key: str = Field(validation_alias=AliasChoices("GOOGLE_API_KEY", "LLM_API_KEY"))
     google_api_key_2: str | None = Field(default=None, validation_alias=AliasChoices("GOOGLE_API_KEY_2", "LLM_API_KEY_2"))
     google_api_key_3: str | None = Field(default=None, validation_alias=AliasChoices("GOOGLE_API_KEY_3", "LLM_API_KEY_3"))
     google_api_key_4: str | None = Field(default=None, validation_alias=AliasChoices("GOOGLE_API_KEY_4", "LLM_API_KEY_4"))
     google_api_key_5: str | None = Field(default=None, validation_alias=AliasChoices("GOOGLE_API_KEY_5", "LLM_API_KEY_5"))
+
+    @property
+    def api_key_pool(self) -> list[str]:
+        """Pool key đã làm phẳng: tách từng biến theo dấu phẩy, bỏ rỗng và trùng (giữ thứ tự)."""
+        seen: dict[str, None] = {}
+        for raw in (
+            self.google_api_key,
+            self.google_api_key_2,
+            self.google_api_key_3,
+            self.google_api_key_4,
+            self.google_api_key_5,
+        ):
+            for key in (raw or "").split(","):
+                key = key.strip()
+                if key:
+                    seen.setdefault(key, None)
+        return list(seen)
+
     llm_model: str = "gemma-4-31b-it"
     embedding_model: str = "gemini-embedding-001"
     # embedding_dim phải khớp với collection đã tạo trong Qdrant — đổi model thì phải tạo lại collection
@@ -54,6 +74,14 @@ class Settings(BaseSettings):
     default_chunk_overlap: int = 120
     default_top_k: int = 5
     score_threshold: float = Field(default=0.55, validation_alias=AliasChoices("MIN_SCORE", "SCORE_THRESHOLD"))
+
+    # API key bảo vệ các endpoint ghi (ingest, delete) — chỉ backend mới biết key này.
+    # Nếu không set thì các endpoint này mở (chỉ dùng trong môi trường dev nội bộ).
+    rag_api_key: str | None = Field(default=None, validation_alias=AliasChoices("RAG_API_KEY", "RAG_INTERNAL_API_KEY"))
+
+    # Namespace sourceId — bảo vệ data sách khỏi bị article ghi đè
+    doc_source_id_max: int = 999          # sách PDF dùng sourceId 1–999
+    article_source_id_min: int = 1_000_000  # bài viết dùng sourceId 1_000_000+
 
 
 settings = Settings()

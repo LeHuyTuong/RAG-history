@@ -5,12 +5,14 @@ Vai trò: nhận system_prompt + user_message đã được prompt_service build
 gọi Google GenAI SDK, trả về answer string. Không biết gì về Qdrant hay chunks —
 chỉ nhận text vào và trả text ra.
 
-Key rotation: dùng pool 5 key (LLM_API_KEY + GOOGLE_API_KEY_2..5). Khi 1 key hết
+Key rotation: dùng pool key từ settings.api_key_pool (LLM_API_KEY + GOOGLE_API_KEY_2..5,
+mỗi biến có thể chứa nhiều key ngăn cách bằng dấu phẩy). Khi 1 key hết
 quota ngày (RPD 429) tự chuyển key tiếp; khi dính RPM/TPM thì chờ rồi thử lại cùng key.
 Điều này tránh chat bị 500 khi build graph / ingest đang chiếm quota của key chính.
 
 Raise ValueError nếu LLM trả rỗng — chat_routes bắt và fallback về _NO_DATA_MSG.
 """
+import logging
 import time
 
 from google import genai
@@ -18,20 +20,15 @@ from google.genai import types
 
 from app.config import settings
 
+logger = logging.getLogger(__name__)
+
 # Pool clients dùng chung cho generate / stream / suggest — khởi tạo lazy
 _clients: list[genai.Client] | None = None
 _key_index = 0
 
 
 def _build_clients() -> list[genai.Client]:
-    keys = [
-        settings.google_api_key,
-        settings.google_api_key_2,
-        settings.google_api_key_3,
-        settings.google_api_key_4,
-        settings.google_api_key_5,
-    ]
-    return [genai.Client(api_key=k) for k in keys if k]
+    return [genai.Client(api_key=k) for k in settings.api_key_pool]
 
 
 def _get_clients() -> list[genai.Client]:
@@ -75,10 +72,13 @@ def _invoke(fn, max_attempts: int = 12):
         except Exception as exc:  # noqa: BLE001
             last_exc = exc
             if _is_daily_quota_error(exc):
+                logger.warning("Key %d hết quota ngày, chuyển key tiếp.", _key_index)
                 _key_index += 1
                 continue
             if _is_rate_limit(exc):
-                time.sleep(_parse_retry_delay(exc))
+                delay = _parse_retry_delay(exc)
+                logger.warning("Rate limit key %d, sleep %.1fs. Lỗi: %s", _key_index, delay, str(exc)[:120])
+                time.sleep(delay)
                 continue
             raise
     if last_exc:
@@ -127,6 +127,7 @@ def generate_stream(system_prompt: str, user_message: str, temperature: float = 
             return
 
         has_text = False
+        thought_buf = []
         try:
             for chunk in stream_fn(
                 model=settings.llm_model,
@@ -134,7 +135,10 @@ def generate_stream(system_prompt: str, user_message: str, temperature: float = 
                 config=types.GenerateContentConfig(
                     system_instruction=system_prompt,
                     temperature=temperature,
-                    thinking_config=types.ThinkingConfig(include_thoughts=True),
+                    # LƯU Ý: model Gemma (gemma-*-it) KHÔNG hỗ trợ thinking_config →
+                    # nếu bật sẽ bị 400 "Thinking budget is not supported for this model"
+                    # khiến stream vỡ và trả "chưa đủ dữ liệu". Chỉ bật lại khi đổi sang
+                    # model thinking (vd gemini-2.5-*). Để gọn, hiện tắt hẳn.
                 ),
             ):
                 # Dùng parts API để tách thinking vs answer
@@ -150,9 +154,13 @@ def generate_stream(system_prompt: str, user_message: str, temperature: float = 
                         text = getattr(part, "text", None) or ""
                         if not text:
                             continue
+                        # BỎ THINKING: phần reasoning (thought=True) KHÔNG stream ra FE,
+                        # chỉ gom lại để fallback nếu model lỡ không sinh câu trả lời nào.
+                        if getattr(part, "thought", False):
+                            thought_buf.append(text)
+                            continue
                         has_text = True
-                        kind = "thinking" if getattr(part, "thought", False) else "answer"
-                        yield (kind, text)
+                        yield ("answer", text)
                 else:
                     # Fallback: SDK cũ không có parts
                     text = getattr(chunk, "text", None) or ""
@@ -161,16 +169,25 @@ def generate_stream(system_prompt: str, user_message: str, temperature: float = 
                         yield ("answer", text)
 
             if not has_text:
+                # Model chỉ sinh reasoning, không có câu trả lời → tránh bong bóng trống:
+                # dùng tạm nội dung reasoning thay vì báo rỗng.
+                if thought_buf:
+                    for t in thought_buf:
+                        yield ("answer", t)
+                    return
                 raise ValueError("LLM returned empty stream")
             return
         except Exception as exc:  # noqa: BLE001
             if has_text:
                 raise
             if _is_daily_quota_error(exc):
+                logger.warning("Stream key %d hết quota ngày, chuyển key tiếp.", _key_index)
                 _key_index += 1
                 continue
             if _is_rate_limit(exc):
-                time.sleep(_parse_retry_delay(exc))
+                delay = _parse_retry_delay(exc)
+                logger.warning("Stream rate limit key %d, sleep %.1fs. Lỗi: %s", _key_index, delay, str(exc)[:120])
+                time.sleep(delay)
                 continue
             raise
 
