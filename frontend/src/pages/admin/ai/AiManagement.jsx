@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { StatsGrid } from '../../../components/admin';
+
 import { aiService, mockClient, ENDPOINTS } from '../../../services';
 
 const AiManagement = () => {
@@ -59,9 +59,7 @@ const AiManagement = () => {
       </div>
 
       {/* Stats Bento */}
-      <div className="mb-6">
-        <StatsGrid stats={data.stats} loading={loading} />
-      </div>
+      
 
       <div className="grid grid-cols-12 gap-8">
         {/* Cấu hình Model */}

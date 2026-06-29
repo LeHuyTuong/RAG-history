@@ -4,7 +4,6 @@ import ForceGraph2D from 'react-force-graph-2d';
 import {
   AdminLayout,
   PageHeader,
-  StatsGrid,
   DataTable,
   ActionModal,
   TableActions,
@@ -392,15 +391,7 @@ const KnowledgeGraph = () => {
           onActionClick={() => setIsModalOpen(true)}
         />
 
-        <StatsGrid
-          loading={loading}
-          stats={[
-            { label: 'Tổng quan hệ', value: stats.total, icon: 'hub' },
-            { label: 'Nhân vật – Sự kiện', value: stats.participation, icon: 'person' },
-            { label: 'Sự kiện – Địa danh', value: stats.eventLocation, icon: 'location_on' },
-            { label: 'Tùy chỉnh', value: stats.custom, icon: 'link' },
-          ]}
-        />
+        
 
         <div className="flex gap-2">
           <button

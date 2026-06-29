@@ -1,10 +1,10 @@
+import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, MessageSquare } from 'lucide-react';
 import Pagination from '../../../components/common/Pagination';
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient, { mockClient } from '../../../services/apiClient';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
+import { stripHtml } from '../../../utils/stringUtils';
 
 const UserPosts = () => {
   const { getPeriodStyle } = usePeriodColors();
@@ -226,13 +226,13 @@ const UserPosts = () => {
             </div>
             <div className="flex items-center gap-4 px-4 font-body border-l border-[#d99b4a]/20">
               <span className="text-[#2b1a16]/60 text-[10px] font-bold uppercase hidden md:inline">Sắp xếp:</span>
-              <button 
+              <button
                 onClick={() => { setSortBy('newest'); setCurrentPage(1); }}
                 className={`${sortBy === 'newest' ? 'text-[#6b0f0d] border-b-2 border-[#6b0f0d]' : 'text-[#2b1a16]/60 hover:text-[#6b0f0d]'} font-bold text-[11px] uppercase tracking-widest transition-all`}
               >
                 Mới nhất
               </button>
-              <button 
+              <button
                 onClick={() => { setSortBy('popular'); setCurrentPage(1); }}
                 className={`${sortBy === 'popular' ? 'text-[#6b0f0d] border-b-2 border-[#6b0f0d]' : 'text-[#2b1a16]/60 hover:text-[#6b0f0d]'} font-bold text-[11px] uppercase tracking-widest transition-all`}
               >
@@ -286,7 +286,7 @@ const UserPosts = () => {
                     </h4>
                   </Link>
                   <p className="font-body text-[14px] text-[#2b1a16]/80 line-clamp-3 mb-6 leading-relaxed">
-                    {art.summary}
+                    {stripHtml(art.summary)}
                   </p>
                   <div className="flex items-center justify-between pt-4 border-t border-[#d99b4a]/20 mt-auto font-body">
                     <div className="flex gap-4">

@@ -1,7 +1,8 @@
+import { API_ENDPOINTS, apiClient, extractErrorMessage, mockClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import apiClient, { mockClient, extractErrorMessage } from '../../../services/apiClient';
-import { API_ENDPOINTS } from '../../../services/api';
+
+
 
 const MetadataPeriodForm = () => {
   const navigate = useNavigate();
@@ -208,8 +209,7 @@ const MetadataPeriodForm = () => {
     }
 
     try {
-      const { default: apiClient } = await import('../../../services/apiClient');
-      const { API_ENDPOINTS } = await import('../../../services/api');
+      const { apiClient, API_ENDPOINTS } = await import('../../../services');
       const { generateSlug } = await import('../../../utils/stringUtils');
 
       const payload = {
@@ -244,24 +244,24 @@ const MetadataPeriodForm = () => {
         {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-end border-b border-outline-variant/40 pb-6 gap-4">
           <div>
-            <h2 className="font-headline text-4xl font-black tracking-tight bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
+            <h2 className="font-headline text-4xl font-black tracking-tight bg-gradient-to-r from-[#6b0f0d] to-amber-600 bg-clip-text text-transparent">
               {isEdit ? 'Hiệu đính Kỷ nguyên' : 'Ghi chép Kỷ nguyên mới'}
             </h2>
             <p className="font-body text-sm text-on-surface-variant mt-3 italic flex items-center gap-2">
-              <span className="material-symbols-outlined text-[16px] text-primary">history_edu</span>
+              <span className="material-symbols-outlined text-[16px] text-[#6b0f0d]">history_edu</span>
               Đảm bảo tính chính xác về thời gian và ngôn ngữ để lưu trữ vĩnh viễn.
             </p>
           </div>
           <div className="flex gap-3 font-body text-xs font-bold tracking-widest">
             <button
               onClick={() => navigate(-1)}
-              className="px-6 py-2.5 rounded-xl border-2 border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/40 transition-all uppercase"
+              className="px-6 py-2.5 rounded-xl border-2 border-[#6b0f0d]/20 text-[#6b0f0d] hover:bg-[#6b0f0d]/5 hover:border-[#6b0f0d]/40 transition-all uppercase cursor-pointer"
             >
               HỦY BỎ
             </button>
             <button
               onClick={handleSave}
-              className="px-8 py-2.5 rounded-xl bg-gradient-to-r from-primary to-indigo-600 text-white shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5 flex items-center gap-2 transition-all active:scale-95 uppercase"
+              className="px-8 py-2.5 rounded-xl bg-[#6b0f0d] text-[#ffe7b0] hover:bg-[#520a08] shadow-lg shadow-[#6b0f0d]/20 hover:-translate-y-0.5 flex items-center gap-2 transition-all active:scale-95 uppercase border border-[#ffe7b0]/25 cursor-pointer"
             >
               <span className="material-symbols-outlined text-sm">save</span>
               {isEdit ? 'LƯU THAY ĐỔI' : 'TẠO THỜI KỲ'}
@@ -447,7 +447,7 @@ const MetadataPeriodForm = () => {
                     </button>
                     <button
                       onClick={handleAddEmperor}
-                      className="px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-primary to-indigo-600 text-white hover:shadow-lg hover:-translate-y-0.5 transition-all shadow-md uppercase tracking-widest"
+                      className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#6b0f0d] text-[#ffe7b0] hover:bg-[#520a08] hover:shadow-lg hover:-translate-y-0.5 transition-all shadow-md uppercase tracking-widest border border-[#ffe7b0]/25 cursor-pointer"
                     >
                       {editingEmpId ? 'LƯU THAY ĐỔI' : 'LƯU NHÂN VẬT'}
                     </button>
@@ -522,15 +522,15 @@ const MetadataPeriodForm = () => {
 
                 {/* DYNAMIC CONTENT */}
                 <div className="flex flex-col items-center relative flex-1">
-                  <div className="absolute inset-0 bg-primary/5 rounded-full blur-3xl -z-10"></div>
+                  <div className="absolute inset-0 bg-[#6b0f0d]/5 rounded-full blur-3xl -z-10"></div>
 
-                  <div className="px-4 py-1.5 text-white text-[10px] font-bold rounded-full mb-3 uppercase tracking-widest shadow-sm ring-2 ring-white/50 bg-gradient-to-r from-primary to-indigo-600">
+                  <div className="px-4 py-1.5 text-[#ffe7b0] text-[10px] font-bold rounded-full mb-3 uppercase tracking-widest shadow-sm ring-2 ring-white/50 bg-gradient-to-r from-[#6b0f0d] to-amber-600">
                     {form.startYear && form.endYear
                       ? `${form.startYear}${form.eraTypeStart === 'TCN' ? ' TCN' : ''} - ${form.endYear}${form.eraTypeEnd === 'TCN' ? ' TCN' : ''}`
                       : 'Khoảng niên đại'}
                   </div>
 
-                  <h4 className="font-headline text-3xl font-bold bg-gradient-to-r from-gray-900 to-primary bg-clip-text text-transparent transition-all duration-300 mb-2">
+                  <h4 className="font-headline text-3xl font-bold bg-gradient-to-r from-gray-900 to-[#6b0f0d] bg-clip-text text-transparent transition-all duration-300 mb-2">
                     {form.name || 'Tên Kỷ nguyên'}
                   </h4>
 

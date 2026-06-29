@@ -79,12 +79,19 @@ const Home = () => {
                     }
                 }
 
+                const stripHtml = (html) => {
+                    if (!html) return '';
+                    const tmp = document.createElement('div');
+                    tmp.innerHTML = html;
+                    return tmp.textContent || tmp.innerText || '';
+                };
+
                 let mergedCharacters = dbPersons.slice(0, 3).map(c => ({
                     ...c,
                     years: c.birthDate || c.deathDate
                         ? `${c.birthDate ? c.birthDate : '?'} - ${c.deathDate ? c.deathDate : '?'}`
                         : '',
-                    desc: (c.biography || c.description || '').replace(/<[^>]*>/g, ''),
+                    desc: stripHtml(c.biography || c.description || ''),
                     image: c.avatar || DEFAULT_CHAR_IMAGE,
                 }));
 
@@ -93,7 +100,7 @@ const Home = () => {
                     date: e.startYear !== undefined
                         ? `${Math.abs(e.startYear)} ${e.startYear < 0 ? 'TCN' : ''}`
                         : '',
-                    desc: (e.description || '').replace(/<[^>]*>/g, ''),
+                    desc: stripHtml(e.description || ''),
                     title: e.name || '',
                 }));
 
@@ -102,7 +109,7 @@ const Home = () => {
                     date: p.publishedAt || p.createdAt
                         ? new Date(p.publishedAt || p.createdAt).toLocaleDateString('vi-VN')
                         : '',
-                    desc: (p.summary || p.description || '').replace(/<[^>]*>/g, ''),
+                    desc: stripHtml(p.summary || p.description || ''),
                     category: p.tags?.[0]?.name || 'Nghiên cứu',
                 }));
 

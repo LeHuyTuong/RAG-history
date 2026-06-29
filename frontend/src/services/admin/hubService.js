@@ -1,10 +1,10 @@
-import apiClient from './http/apiClient';
-import { unwrap, unwrapResult } from './http/response';
-import { ENDPOINTS } from './endpoints';
+import apiClient from '../http/apiClient';
+import { unwrap, unwrapResult } from '../http/response';
+import { ENDPOINTS } from '../endpoints';
 
-import personService from './personService';
-import eventService from './eventService';
-import locationService from './locationService';
+import personService from '../common/personService';
+import eventService from '../common/eventService';
+import locationService from '../common/locationService';
 import participationService from './participationService';
 
 const SIZE_LARGE = 500;

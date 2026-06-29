@@ -10,10 +10,7 @@ const ImageUpload = ({ previewUrl, onImageChange, onRemove, label = 'Ảnh bìa'
   };
 
   return (
-    <div className="space-y-4 pt-4 border-t border-outline-variant/40 relative z-10">
-      <p className="font-body text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
-        <span className="material-symbols-outlined text-[14px]">image</span> {label}
-      </p>
+    <div className="relative z-10">
       <input
         type="file"
         accept="image/*"

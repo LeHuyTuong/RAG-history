@@ -1,6 +1,6 @@
-import mockClient from './http/mockClient';
-import { unwrap, unwrapPage } from './http/response';
-import { ENDPOINTS } from './endpoints';
+import mockClient from '../http/mockClient';
+import { unwrap, unwrapPage } from '../http/response';
+import { ENDPOINTS } from '../endpoints';
 
 import tagService from './tagService';
 import periodService from './periodService';

@@ -1,8 +1,7 @@
+import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient, { mockClient } from '../../../services/apiClient';
 const PeriodDetail = () => {
   const { id } = useParams();
 
@@ -30,12 +29,12 @@ const PeriodDetail = () => {
       try {
         let dbPeriod = null;
         try {
-          const url = typeof API_ENDPOINTS.USER_PERIOD_DETAIL === 'function' 
-            ? API_ENDPOINTS.USER_PERIOD_DETAIL(id) 
+          const url = typeof API_ENDPOINTS.USER_PERIOD_DETAIL === 'function'
+            ? API_ENDPOINTS.USER_PERIOD_DETAIL(id)
             : `${API_ENDPOINTS.USER_PERIOD_DETAIL}/${id}`;
           const response = await apiClient.get(url);
           dbPeriod = response.data?.data || response.data;
-          
+
           if (dbPeriod) {
             setPeriod({
               ...dbPeriod,
@@ -68,7 +67,7 @@ const PeriodDetail = () => {
           })));
         } catch (apiErr) {
           console.error('Failed to fetch user events:', apiErr);
-        } 
+        }
       } catch (error) {
         console.error('Error fetching events:', error);
       }
@@ -104,7 +103,7 @@ const PeriodDetail = () => {
               {period.name && period.name.includes('Nhà') ? period.name.replace('Nhà', 'Triều') : period.name}
             </h1>
             <div className="h-1 w-24 bg-[#d99b4a]"></div>
-            
+
             <p className="font-body text-[16px] leading-loose text-[#2b1a16]/90 pt-4 drop-cap whitespace-pre-line border-l-4 border-[#d99b4a] pl-6">
               {period.description || "Nội dung tổng quan đang được cập nhật..."}
             </p>

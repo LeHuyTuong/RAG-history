@@ -1,7 +1,6 @@
+import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient, { mockClient } from '../../../services/apiClient';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 
 const ArticleDetail = () => {
@@ -95,7 +94,7 @@ const ArticleDetail = () => {
           };
 
           setArticle(merged);
-          
+
           // Nạp lại likes từ localStorage cho bài viết này
           const savedLikes = localStorage.getItem(`likesCount_${merged.slug || slug}`);
           if (savedLikes !== null) {
@@ -104,7 +103,7 @@ const ArticleDetail = () => {
             setLikes(merged.likes || 0);
           }
           setIsLiked(localStorage.getItem(`liked_${merged.slug || slug}`) === 'true');
-          
+
           // Gọi API thật lấy comment
           if (dbPost.id) {
             try {
@@ -203,10 +202,10 @@ const ArticleDetail = () => {
   const handleLike = () => {
     const newIsLiked = !isLiked;
     const newLikes = newIsLiked ? likes + 1 : likes - 1;
-    
+
     setLikes(newLikes);
     setIsLiked(newIsLiked);
-    
+
     localStorage.setItem(`liked_${slug}`, String(newIsLiked));
     localStorage.setItem(`likesCount_${slug}`, String(newLikes));
   };
@@ -459,8 +458,8 @@ const ArticleDetail = () => {
                           try {
                             const userStr = localStorage.getItem('user');
                             if (userStr) currentUser = JSON.parse(userStr);
-                          } catch (e) {}
-                          
+                          } catch (e) { }
+
                           const newCommentObj = {
                             id: Date.now(),
                             memberId: currentUser?.id || 999,
@@ -473,7 +472,7 @@ const ArticleDetail = () => {
                             createdAt: new Date().toISOString(),
                             memberName: currentUser?.fullName || currentUser?.name || 'Khách'
                           };
-                          
+
                           const updatedComments = [...comments, newCommentObj];
                           setComments(updatedComments);
                           localStorage.setItem(`comments_${slug}`, JSON.stringify(updatedComments));

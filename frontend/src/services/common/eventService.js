@@ -1,6 +1,6 @@
-import apiClient from './http/apiClient';
-import { unwrap, unwrapPage } from './http/response';
-import { ENDPOINTS } from './endpoints';
+import apiClient from '../http/apiClient';
+import { unwrap, unwrapPage } from '../http/response';
+import { ENDPOINTS } from '../endpoints';
 
 const eventService = {
     async filter(params = {}) {

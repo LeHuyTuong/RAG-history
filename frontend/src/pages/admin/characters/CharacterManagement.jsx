@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import {
   AdminLayout,
   PageHeader,
-  StatsGrid,
   FilterBar,
   FilterInput,
   FilterSelect,
   DataTable,
   ActionModal,
-  TableActions
+  TableActions,
+  Pagination
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { getDynastyLabel } from '../../../utils/dynastyUtils';
@@ -21,6 +21,8 @@ const CharacterManagement = () => {
   const [data, setData] = useState({ stats: [], characters: [] });
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ search: '', dynasty: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const { periodColors, getPeriodStyle: getDynastyStyle } = usePeriodColors();
 
   const handleDelete = async () => {
@@ -165,6 +167,7 @@ const CharacterManagement = () => {
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
   };
 
   const getNormalizedStatus = (status) => {
@@ -257,6 +260,8 @@ const CharacterManagement = () => {
     return matchSearch && matchDynasty && matchStatus;
   });
 
+  const paginatedCharacters = filteredCharacters.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   return (
     <AdminLayout>
       <PageHeader
@@ -267,12 +272,7 @@ const CharacterManagement = () => {
         actionIcon="person_add"
       />
 
-      <div className="mb-6">
-        <StatsGrid
-          stats={data.stats.filter(stat => !stat.label.toLowerCase().includes('chờ duyệt'))}
-          loading={loading}
-        />
-      </div>
+      
 
       <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col mt-6">
         <div className="p-4 border-b border-outline-variant bg-surface-low/50">
@@ -322,14 +322,22 @@ const CharacterManagement = () => {
 
         <DataTable
           columns={columns}
-          data={filteredCharacters}
+          data={paginatedCharacters}
           loading={loading}
           emptyMessage="Không tìm thấy nhân vật nào phù hợp"
           onRowClick={(row) => navigate(`/admin/characters/edit/${row.id}`)}
           rowKey="id"
           striped={false}
-          rowClassName={(row) => getNormalizedStatus(row.status) === 'published' ? 'bg-emerald-50/80 !font-semibold border-l-4 border-l-emerald-500 shadow-sm relative z-10' : ''}
+          rowClassName={(row) => getNormalizedStatus(row.status) === 'published' ? '!font-semibold border-l-4 border-l-emerald-500 relative z-10' : ''}
           className="border-0 shadow-none rounded-none"
+        />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(filteredCharacters.length / itemsPerPage)}
+          totalItems={filteredCharacters.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={setItemsPerPage}
         />
       </div>
 

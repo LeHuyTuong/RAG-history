@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { AdminLayout, PageHeader, DataTable, StatsGrid, FilterBar, FilterInput, FilterSelect, ActionModal } from '../../../components/admin';
+import { AdminLayout, PageHeader, DataTable, FilterBar, FilterInput, FilterSelect, ActionModal, Pagination } from '../../../components/admin';
 
 import { API_ENDPOINTS, mockClient } from '../../../services';
 const MemberManagement = () => {
@@ -11,9 +11,12 @@ const MemberManagement = () => {
   const [data, setData] = useState({ stats: [], members: [] });
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ search: '', status: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
   };
 
   const filteredMembers = data.members.filter(member => {
@@ -21,6 +24,8 @@ const MemberManagement = () => {
     const matchStatus = filters.status ? member.status === filters.status : true;
     return matchSearch && matchStatus;
   });
+
+  const paginatedMembers = filteredMembers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -184,9 +189,7 @@ const MemberManagement = () => {
         />
 
         {/* STATS GRID */}
-        <div className="mb-6">
-          <StatsGrid stats={data.stats.map(({ sub, ...rest }) => rest)} loading={loading} />
-        </div>
+        
 
         {/* FILTER & MEMBER TABLE */}
         <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">
@@ -222,9 +225,17 @@ const MemberManagement = () => {
           <div className="p-0">
             <DataTable
               columns={columns}
-              data={filteredMembers}
-              rowClassName={(row) => row.status === 'active' ? 'bg-emerald-50/80 !font-semibold border-l-4 border-l-emerald-500 shadow-sm relative z-10' : ''}
+              data={paginatedMembers}
+              rowClassName={(row) => row.status === 'active' ? '!font-semibold border-l-4 border-l-emerald-500 relative z-10' : ''}
               className="border-0 shadow-none rounded-none"
+            />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(filteredMembers.length / itemsPerPage)}
+              totalItems={filteredMembers.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={setItemsPerPage}
             />
           </div>
         </div>

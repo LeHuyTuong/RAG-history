@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { generateSlug, stripHtml } from '../../../utils/stringUtils';
 import { RichTextEditor, ImageUpload, TagInput, FormHeader, EntityRelationInput } from '../../../components/admin';
-import { mockClient, extractErrorMessage, postService, tagService, eventService, sourceService } from '../../../services';
-import { API_ENDPOINTS } from '../../../services/api';
+import { mockClient, extractErrorMessage, postService, tagService, eventService, sourceService, personService, locationService, API_ENDPOINTS } from '../../../services';
 
 const formatDateForInput = (dateStr) => {
   if (!dateStr) return '';
@@ -24,6 +23,8 @@ const ArticleForm = () => {
   const [predefinedTags, setPredefinedTags] = useState([]);
   const [availableSources, setAvailableSources] = useState([]);
   const [availableEvents, setAvailableEvents] = useState([]);
+  const [availableCharacters, setAvailableCharacters] = useState([]);
+  const [availableLocations, setAvailableLocations] = useState([]);
 
   const [form, setForm] = useState({
     title: '',
@@ -36,7 +37,9 @@ const ArticleForm = () => {
     thumbnailUrl: null,
     thumbnailPreview: null,
     sources: [],
-    eventId: null
+    eventId: null,
+    relatedLocations: [],
+    relatedCharacters: []
   });
   const [originalData, setOriginalData] = useState({});
 
@@ -59,6 +62,16 @@ const ArticleForm = () => {
 
           if (foundArticle) {
             setOriginalData(foundArticle);
+
+            const cached = localStorage.getItem(`local_post_relations_${id}`);
+            let cachedLocs = [];
+            let cachedChars = [];
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              cachedLocs = parsed.relatedLocations || [];
+              cachedChars = parsed.relatedCharacters || [];
+            }
+
             setForm(prev => ({
               ...prev,
               title: foundArticle.title || '',
@@ -71,7 +84,9 @@ const ArticleForm = () => {
               thumbnailUrl: null,
               thumbnailPreview: foundArticle.image || foundArticle.thumbnailUrl || foundArticle.thumbnail_url || null,
               sources: foundArticle.sources || [],
-              eventId: foundArticle.event?.id || foundArticle.eventId || null
+              eventId: foundArticle.event?.id || foundArticle.eventId || null,
+              relatedLocations: cachedLocs.length > 0 ? cachedLocs : (foundArticle.relatedLocations || []),
+              relatedCharacters: cachedChars.length > 0 ? cachedChars : (foundArticle.relatedCharacters || [])
             }));
           } else {
             console.error('Không tìm thấy bài viết với ID:', id);
@@ -132,6 +147,34 @@ const ArticleForm = () => {
       }
     };
     fetchEvents();
+
+    const fetchCharacters = async () => {
+      try {
+        const list = await personService.listAll();
+        setAvailableCharacters(list.map(p => ({
+          id: p.id,
+          name: p.name,
+          status: 'PUBLISHED'
+        })));
+      } catch (error) {
+        console.error('Lỗi tải danh sách nhân vật:', error);
+      }
+    };
+    fetchCharacters();
+
+    const fetchLocations = async () => {
+      try {
+        const list = await locationService.listAll();
+        setAvailableLocations(list.map(l => ({
+          id: l.id,
+          name: l.name,
+          status: 'PUBLISHED'
+        })));
+      } catch (error) {
+        console.error('Lỗi tải danh sách địa danh:', error);
+      }
+    };
+    fetchLocations();
   }, [id, isEdit]);
 
   const handleImageChange = (e) => {
@@ -211,8 +254,17 @@ const ArticleForm = () => {
         publishedAt: publishedInstant,
         thumbnailUrl: typeof form.thumbnailPreview === 'string' && form.thumbnailPreview.startsWith('http') ? form.thumbnailPreview : null,
         eventId: form.eventId,
-        tagIds: tagIds
+        tagIds: tagIds,
+        relatedLocations: form.relatedLocations,
+        relatedCharacters: form.relatedCharacters
       };
+
+      // Cache custom local relations
+      const localKey = `local_post_relations_${isEdit ? id : check.slug}`;
+      localStorage.setItem(localKey, JSON.stringify({
+        relatedLocations: form.relatedLocations,
+        relatedCharacters: form.relatedCharacters
+      }));
 
       // Go through postService so the service layer owns the HTTP call.
       // Backend PostController.update reads `id` from the request body.
@@ -293,62 +345,106 @@ const ArticleForm = () => {
 
         {/* Sidebar Section */}
         <aside className="col-span-12 lg:col-span-4 space-y-6">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-1 rounded-3xl shadow-xl sticky top-8 hover:shadow-2xl hover:scale-[1.02] transition-all duration-500">
-            <div className="bg-surface/95 backdrop-blur-xl p-6 rounded-[22px] h-full border border-white/10 flex flex-col space-y-6 relative">
-              <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="bg-white p-6 border border-outline-variant shadow-sm rounded-3xl sticky top-8 flex flex-col space-y-6 relative overflow-hidden">
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#6b0f0d]/10 rounded-full blur-3xl pointer-events-none"></div>
 
-              <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10">
-                <span className="material-symbols-outlined text-[16px]">tune</span>
-                Cấu hình Bài viết
-              </h4>
+            <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-[#6b0f0d] border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10">
+              <span className="material-symbols-outlined text-[16px]">tune</span>
+              CẤU HÌNH BÀI VIẾT
+            </h4>
 
-              {/* Publishing Info */}
-              <div className="space-y-4 relative z-10">
-                <p className="font-body text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[14px]">publish</span> Xuất bản
-                </p>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Trạng thái</label>
-                    <div className="relative">
-                      <select
-                        value={form.status}
-                        onChange={e => setForm(prev => ({ ...prev, status: e.target.value }))}
-                        className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-sm font-bold text-on-surface outline-none cursor-pointer hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
-                      >
-                        <option value="draft">Bản nháp</option>
-                        <option value="published">Công khai</option>
-                      </select>
-                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Ngày xuất bản</label>
-                    <input
-                      type="date"
-                      value={form.publishedAt}
-                      onChange={e => setForm(prev => ({ ...prev, publishedAt: e.target.value }))}
-                      className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-sm font-bold text-on-surface outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                    />
+            {/* 1. XUẤT BẢN / TRẠNG THÁI */}
+            <div className="space-y-4 relative z-10">
+              <p className="font-body text-[10px] font-bold text-[#6b0f0d] uppercase tracking-widest flex items-center gap-2 border-b border-outline-variant/30 pb-1">
+                <span className="material-symbols-outlined text-[14px]">publish</span> XUẤT BẢN / TRẠNG THÁI
+              </p>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Trạng thái</label>
+                  <div className="relative">
+                    <select
+                      value={form.status}
+                      onChange={e => setForm(prev => ({ ...prev, status: e.target.value }))}
+                      className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-sm font-bold text-on-surface outline-none cursor-pointer hover:border-[#6b0f0d] focus:border-[#6b0f0d] focus:ring-2 focus:ring-[#6b0f0d]/20 transition-all appearance-none"
+                    >
+                      <option value="draft">Bản nháp</option>
+                      <option value="published">Công khai</option>
+                    </select>
+                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
                   </div>
                 </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Ngày xuất bản</label>
+                  <input
+                    type="date"
+                    value={form.publishedAt}
+                    onChange={e => setForm(prev => ({ ...prev, publishedAt: e.target.value }))}
+                    className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-sm font-bold text-on-surface outline-none hover:border-[#6b0f0d] focus:border-[#6b0f0d] focus:ring-2 focus:ring-[#6b0f0d]/20 transition-all"
+                  />
+                </div>
               </div>
+            </div>
 
-              <TagInput
-                tags={form.tags}
-                availableTags={predefinedTags}
-                onAddTag={handleAddTag}
-                onRemoveTag={handleRemoveTag}
-                label="Triều đại"
-              />
-
+            {/* 2. ẢNH BÌA */}
+            <div className="space-y-3">
+              <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-[#6b0f0d] border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10 w-full">
+                <span className="material-symbols-outlined text-[16px]">image</span> ẢNH BÌA
+              </h4>
               <ImageUpload
                 previewUrl={form.thumbnailPreview}
                 onImageChange={handleImageChange}
                 onRemove={() => setForm(prev => ({ ...prev, thumbnailUrl: null, thumbnailPreview: null }))}
               />
+            </div>
 
-              <div className="pt-4 border-t border-outline-variant/60">
+            {/* 3. LIÊN KẾT THÔNG TIN */}
+            <div className="space-y-4 pt-2 border-t border-outline-variant/60">
+              <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-[#6b0f0d] border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10 w-full">
+                <span className="material-symbols-outlined text-[16px]">link</span> LIÊN KẾT THÔNG TIN
+              </h4>
+
+              {/* TRIỂU ĐẠI */}
+              <div className="pt-2">
+                <TagInput
+                  tags={form.tags}
+                  availableTags={predefinedTags}
+                  onAddTag={handleAddTag}
+                  onRemoveTag={handleRemoveTag}
+                />
+              </div>
+
+              {/* ĐỊA DANH LIÊN QUAN */}
+              <div className="pt-2">
+                <EntityRelationInput
+                  entities={form.relatedLocations || []}
+                  availableEntities={availableLocations}
+                  type="location"
+                  label="Địa danh liên quan"
+                  icon="explore"
+                  itemIcon="explore"
+                  placeholder="Gõ hoặc chọn địa danh..."
+                  onAdd={(val) => setForm(prev => ({ ...prev, relatedLocations: [...new Set([...(prev.relatedLocations || []), val])] }))}
+                  onRemove={(val) => setForm(prev => ({ ...prev, relatedLocations: (prev.relatedLocations || []).filter(l => l !== val) }))}
+                />
+              </div>
+
+              {/* NHÂN VẬT THEN CHỐT / NHÂN VẬT KHÁC */}
+              <div className="pt-2">
+                <EntityRelationInput
+                  entities={form.relatedCharacters || []}
+                  availableEntities={availableCharacters}
+                  type="character"
+                  label="Nhân vật then chốt"
+                  icon="person"
+                  itemIcon="person"
+                  placeholder="Gõ hoặc chọn nhân vật..."
+                  onAdd={(val) => setForm(prev => ({ ...prev, relatedCharacters: [...new Set([...(prev.relatedCharacters || []), val])] }))}
+                  onRemove={(val) => setForm(prev => ({ ...prev, relatedCharacters: (prev.relatedCharacters || []).filter(c => c !== val) }))}
+                />
+              </div>
+
+              {/* SỰ KIỆN LỊCH SỬ */}
+              <div className="pt-2">
                 <EntityRelationInput
                   entities={form.eventId ? [
                     availableEvents.find(e => e.id === form.eventId)?.name ||
@@ -378,7 +474,8 @@ const ArticleForm = () => {
                 />
               </div>
 
-              <div className="pt-4 border-t border-outline-variant/60">
+              {/* NGUỒN THAM KHẢO */}
+              <div className="pt-2">
                 <EntityRelationInput
                   entities={form.sources.map(s => s.title || s.name || s)}
                   availableEntities={availableSources}

@@ -68,13 +68,13 @@ const ParamModal = ({ onClose, onSave, editData = null }) => {
           <div className="flex gap-4 pt-6 mt-4 border-t border-outline-variant/40">
             <button
               onClick={onClose}
-              className="flex-1 py-3 border-2 border-primary/20 text-primary font-bold rounded-xl hover:bg-primary/5 hover:border-primary/40 uppercase tracking-widest transition-all text-xs"
+              className="flex-1 py-3 border-2 border-[#6b0f0d]/20 text-[#6b0f0d] hover:bg-[#6b0f0d]/5 hover:border-[#6b0f0d]/40 uppercase tracking-widest transition-all text-xs cursor-pointer rounded-xl font-bold"
             >
               Hủy bỏ
             </button>
             <button
               onClick={() => onSave(form)}
-              className="flex-1 py-3 bg-gradient-to-r from-primary to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 uppercase tracking-widest transition-all text-xs flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-[#6b0f0d] text-[#ffe7b0] hover:bg-[#520a08] font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 uppercase tracking-widest transition-all text-xs flex items-center justify-center gap-2 border border-[#ffe7b0]/25 cursor-pointer"
             >
               <span className="material-symbols-outlined text-[16px]">save</span>
               Lưu tham số
@@ -202,11 +202,11 @@ const SystemSettings = () => {
         {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-end border-b border-outline-variant/40 pb-6 gap-4">
           <div>
-            <h2 className="font-headline text-4xl font-black tracking-tight bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
+            <h2 className="font-headline text-4xl font-black tracking-tight bg-gradient-to-r from-[#6b0f0d] to-amber-600 bg-clip-text text-transparent">
               Cài đặt Hệ thống
             </h2>
             <p className="font-body text-sm text-on-surface-variant mt-3 italic flex items-center gap-2 max-w-2xl">
-              <span className="material-symbols-outlined text-[16px] text-primary">settings_applications</span>
+              <span className="material-symbols-outlined text-[16px] text-[#6b0f0d]">settings_applications</span>
               Quản lý tham số vận hành lõi. Đảm bảo tính nhất quán của cơ sở dữ liệu và hiệu năng tìm kiếm sử liệu.
             </p>
           </div>
@@ -215,13 +215,13 @@ const SystemSettings = () => {
         {/* PARAMETERS TABLE */}
         <section className="bg-white rounded-3xl border border-outline-variant/60 shadow-sm overflow-hidden transition-all hover:shadow-md">
           <div className="p-6 border-b border-outline-variant/60 flex justify-between items-center bg-surface-low/30">
-            <h3 className="font-headline text-xl text-primary font-bold italic flex items-center gap-2">
+            <h3 className="font-headline text-xl text-[#6b0f0d] font-bold italic flex items-center gap-2">
               <span className="material-symbols-outlined">tune</span>
               Bảng tham số cấu hình
             </h3>
             <button
               onClick={() => setModalState({ open: true, editData: null })}
-              className="px-5 py-2.5 rounded-xl bg-primary/10 text-primary font-bold text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-primary hover:text-white transition-all active:scale-95"
+              className="px-5 py-2.5 rounded-xl bg-[#6b0f0d]/10 text-[#6b0f0d] font-bold text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-[#6b0f0d] hover:text-[#ffe7b0] transition-all active:scale-95 cursor-pointer"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
               Thêm tham số
