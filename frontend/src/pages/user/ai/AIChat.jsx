@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAIChat } from '../../../hooks/useAIChat';
+import DongSonDrumIcon from '../../../components/DongSonDrumIcon';
 
 const normalizeMarkdown = (text) => {
   if (!text) return '';
@@ -145,8 +146,8 @@ const AIChat = () => {
           {/* Header */}
           <div className="p-4 bg-surface-low border-b border-outline-variant/20 flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-md">
-                <span className="material-symbols-outlined">auto_awesome</span>
+              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-md p-1.5">
+                <DongSonDrumIcon className="w-full h-full text-white" />
               </div>
               <div>
                 <p className="font-headline font-bold text-primary italic leading-none">Sử Quan AI</p>
@@ -185,8 +186,8 @@ const AIChat = () => {
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start items-start gap-4'}`}
               >
                 {msg.role === 'ai' && (
-                  <div className="w-8 h-8 rounded-full bg-secondary shrink-0 flex items-center justify-center text-white">
-                    <span className="material-symbols-outlined text-sm">menu_book</span>
+                  <div className="w-8 h-8 rounded-full bg-secondary shrink-0 flex items-center justify-center text-white p-1.5">
+                    <DongSonDrumIcon className="w-full h-full text-white" />
                   </div>
                 )}
 
@@ -256,8 +257,8 @@ const AIChat = () => {
             {/* Typing indicator — chỉ hiện khi chưa có token nào */}
             {loading && !streamingMsgId && (
               <div className="flex justify-start items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-secondary shrink-0 flex items-center justify-center text-white">
-                  <span className="material-symbols-outlined text-sm">menu_book</span>
+                <div className="w-8 h-8 rounded-full bg-secondary shrink-0 flex items-center justify-center text-white p-1.5">
+                  <DongSonDrumIcon className="w-full h-full text-white" />
                 </div>
                 <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-outline-variant/20 shadow-sm flex items-center gap-1.5 h-[42px] px-5">
                   <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />

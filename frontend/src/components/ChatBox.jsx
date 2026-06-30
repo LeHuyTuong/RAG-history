@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useAIChat } from "../hooks/useAIChat";
+import DongSonDrumIcon from "./DongSonDrumIcon";
 
 const normalizeMarkdown = (text) => {
   if (!text) return '';
@@ -78,8 +79,8 @@ const ChatBox = ({ isOpen, onClose }) => {
           >
             <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: "linear-gradient(to right, transparent, rgba(217,155,74,0.8), transparent)" }}></div>
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center border border-[#d99b4a]/40 shadow-inner" style={{ backgroundColor: "rgba(251,246,232,0.1)" }}>
-                <span className="material-symbols-outlined text-[22px] text-[#f7d78a]">smart_toy</span>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center border border-[#d99b4a]/40 shadow-inner p-1.5" style={{ backgroundColor: "rgba(251,246,232,0.1)" }}>
+                <DongSonDrumIcon className="w-full h-full text-[#f7d78a]" color="currentColor" />
               </div>
               <div>
                 <h3 className="font-headline font-bold uppercase tracking-[0.1em] text-[15px] text-[#f7d78a] leading-none drop-shadow-sm">Trợ lý Sử Việt</h3>
@@ -111,9 +112,9 @@ const ChatBox = ({ isOpen, onClose }) => {
                 {msg.role === "ai" && (
                   <div 
                     style={{ background: "linear-gradient(to bottom, #7a1210, #5a0c0a)" }}
-                    className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white shadow-md mb-1 border border-[#d99b4a]/30"
+                    className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white shadow-md mb-1 border border-[#d99b4a]/30 p-1.5"
                   >
-                    <span className="material-symbols-outlined text-[15px] text-[#f7d78a]">auto_awesome</span>
+                    <DongSonDrumIcon className="w-full h-full text-[#f7d78a]" color="currentColor" />
                   </div>
                 )}
                 <div className={`relative flex flex-col ${msg.role === "user" ? "items-end" : "items-start"} gap-2`} style={{ maxWidth: "80%" }}>
@@ -176,9 +177,9 @@ const ChatBox = ({ isOpen, onClose }) => {
               >
                 <div 
                   style={{ background: "linear-gradient(to bottom, #7a1210, #5a0c0a)" }}
-                  className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white shadow-md mb-1 border border-[#d99b4a]/30"
+                  className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white shadow-md mb-1 border border-[#d99b4a]/30 p-1.5"
                 >
-                  <span className="material-symbols-outlined text-[15px] text-[#f7d78a]">auto_awesome</span>
+                  <DongSonDrumIcon className="w-full h-full text-[#f7d78a]" color="currentColor" />
                 </div>
                 <div className="bg-white border border-[#d9c7a7]/60 p-3 rounded-[20px] rounded-bl-sm shadow-sm flex items-center gap-1.5 h-[42px] px-4">
                   <span className="w-1.5 h-1.5 bg-[#d99b4a] rounded-full animate-bounce"></span>

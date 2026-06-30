@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate, NavLink, useLocation } from "react-router-dom";
 import LogoutModal from "./LogoutModal";
 import ChatBox from "./ChatBox";
+import DongSonDrumIcon from "./DongSonDrumIcon";
 
 const HEADER_HEIGHT = 80;
 
@@ -236,10 +237,10 @@ const UserLayout = () => {
       {/* Nút Chat AI Floating */}
       <button
         onClick={() => setIsChatOpen(!isChatOpen)}
-        className="group fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#9e1b1b] rounded-full shadow-[0_8px_30px_rgba(158,27,27,0.4)] flex items-center justify-center hover:bg-[#b02a2a] hover:scale-110 active:scale-95 transition-all duration-300 overflow-hidden"
+        className="group fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#9e1b1b] rounded-full shadow-[0_8px_30px_rgba(158,27,27,0.4)] flex items-center justify-center hover:bg-[#b02a2a] hover:scale-110 active:scale-95 transition-all duration-300 overflow-hidden p-2.5"
       >
         <div className="absolute inset-0 bg-white/20 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 origin-center"></div>
-        <span className="material-symbols-outlined text-white text-[28px] relative z-10">smart_toy</span>
+        <DongSonDrumIcon className="w-full h-full text-white relative z-10 animate-[spin_10s_linear_infinite]" />
 
         {/* Tooltip */}
         <div className="absolute right-[110%] top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gray-900 text-white text-[11px] font-bold tracking-widest uppercase rounded shadow-lg opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 pointer-events-none transition-all duration-300 whitespace-nowrap">
