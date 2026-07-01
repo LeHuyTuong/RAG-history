@@ -117,11 +117,11 @@ const CharacterDetail = () => {
     fetchCharacter();
   }, [id]);
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải thông tin nhân vật...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải thông tin nhân vật...</div>;
   if (!character) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Không tìm thấy thông tin nhân vật.</div>;
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/30 pb-24 relative overflow-hidden">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/30 pb-24 relative overflow-hidden">
       {/* Background Texture for Cinematic feel */}
       <div className="absolute top-0 left-0 right-0 h-[600px] bg-gradient-to-b from-[#fcf9ee] to-transparent pointer-events-none"></div>
 

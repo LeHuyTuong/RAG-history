@@ -22,7 +22,7 @@ const UserCharacters = () => {
         }
 
         try {
-          const pRes = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
+          const pRes = await apiClient.get(API_ENDPOINTS.USER_PERIODS, { params: { size: 500 } });
           const rawPeriods = pRes.data?.data?.result || pRes.data?.data?.content || pRes.data?.data || [];
           setPeriods(rawPeriods.map(p => p.name).filter(Boolean));
         } catch (pErr) {
@@ -66,10 +66,10 @@ const UserCharacters = () => {
     return matchesSearch && matchesPeriod;
   });
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải nhân vật...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải nhân vật...</div>;
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20">
       {/* HERO SECTION */}
       <section className="relative h-[450px] flex items-center justify-center overflow-hidden border-b border-[#d99b4a]/30">
         <div className="absolute inset-0 z-0 bg-[#2b0504]">

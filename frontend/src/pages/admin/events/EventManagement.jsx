@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchEvents, deleteEvent } from '../../../store/redux/slices/eventSlice';
+import useModalStore from '../../../store/zustand/useModalStore';
 import {
   AdminLayout,
   PageHeader,
@@ -15,106 +18,30 @@ import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { getDynastyLabel } from '../../../utils/dynastyUtils';
 import { stripHtml } from '../../../utils/stringUtils';
 
-import { eventService } from '../../../services';
 const EventManagement = () => {
   const navigate = useNavigate();
-  const [deleteModal, setDeleteModal] = useState({ open: false, itemName: '', id: null });
-  const [data, setData] = useState({ stats: { total: '0', published: '0' }, events: [] });
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { data, loading } = useSelector((state) => state.events);
+  const { isOpen, modalType, modalData, openModal, closeModal } = useModalStore();
+
   const [filters, setFilters] = useState({ search: '', dynasty: '', year: '', status: '' });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const { periodColors, getPeriodStyle: getDynastyStyle } = usePeriodColors();
 
   const handleDelete = async () => {
-    if (deleteModal.id === null || deleteModal.id === undefined) return;
-    const deleteId = deleteModal.id;
-
+    if (!modalData || modalData.id === null || modalData.id === undefined) return;
     try {
-      await eventService.delete(deleteId);
+      await dispatch(deleteEvent(modalData.id)).unwrap();
     } catch (error) {
       console.error('Error deleting event:', error);
     }
-
-    setData(prev => {
-      const nextEvents = prev.events.filter(e => String(e.id) !== String(deleteId));
-      return {
-        ...prev,
-        stats: {
-          total: (nextEvents.length).toLocaleString(),
-          published: (nextEvents.filter(e => {
-            const s = e.status || '';
-            return s.toLowerCase() === 'published' || s.toLowerCase() === 'công khai';
-          }).length).toLocaleString()
-        },
-        events: nextEvents
-      };
-    });
-
-    setDeleteModal({ open: false, itemName: '', id: null });
+    closeModal();
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { items: content } = await eventService.filter({ page: 0, size: 500 });
-
-        const eventResult = { events: [], stats: { total: '0', published: '0' } };
-
-        const formatYear = (y) => {
-          if (y === undefined || y === null || y === '') return '';
-          const val = parseInt(y, 10);
-          if (isNaN(val)) return y;
-          return val < 0 ? `${Math.abs(val)} TCN` : `${val}`;
-        };
-
-        const formatRange = (start, end) => {
-          const s = formatYear(start);
-          const e = formatYear(end);
-          if (!s && !e) return 'Chưa rõ';
-          if (!s) return `? - ${e}`;
-          if (!e) return `${s} - ?`;
-          return `${s} - ${e}`;
-        };
-
-        const parseEventYear = (dateStr, fallbackYear) => {
-          if (!dateStr) return fallbackYear;
-          const isNegative = dateStr.startsWith('-');
-          const cleanStr = isNegative ? dateStr.substring(1) : dateStr;
-          const match = cleanStr.match(/^(\d{4})/);
-          if (match) {
-            const y = parseInt(match[1], 10);
-            return isNegative ? -y : y;
-          }
-          return fallbackYear;
-        };
-
-        eventResult.events = content.map(e => ({
-          ...e,
-          time: formatRange(parseEventYear(e.startDate, e.startYear), parseEventYear(e.endDate, e.endYear)),
-          dynasty: e.period?.name || 'Chưa rõ',
-          status: e.status || 'published',
-          sub: stripHtml(e.description)
-        }));
-
-        // Calculate stats dynamically based on actual data
-        eventResult.stats = {
-          total: eventResult.events.length.toLocaleString(),
-          published: eventResult.events.filter(e => {
-            const s = e.status || '';
-            return s.toLowerCase() === 'published' || s.toLowerCase() === 'công khai';
-          }).length.toLocaleString()
-        };
-
-        setData(eventResult);
-      } catch (error) {
-        console.error('Error fetching event data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+    dispatch(fetchEvents());
+  }, [dispatch]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -205,7 +132,7 @@ const EventManagement = () => {
       key: 'actions', header: 'Thao tác', align: 'right', render: (row) => (
         <TableActions
           onEdit={() => navigate(`/admin/events/edit/${row.id}`)}
-          onDelete={() => setDeleteModal({ open: true, itemName: row.name, id: row.id })}
+          onDelete={() => openModal('delete', { name: row.name, id: row.id })}
         />
       )
     }
@@ -294,10 +221,10 @@ const EventManagement = () => {
       </div>
 
       <ActionModal
-        isOpen={deleteModal.open}
-        onClose={() => setDeleteModal({ open: false })}
+        isOpen={isOpen && modalType === 'delete'}
+        onClose={closeModal}
         type="delete"
-        item={{ name: deleteModal.itemName }}
+        item={{ name: modalData?.name }}
         onConfirm={handleDelete}
       />
     </AdminLayout>

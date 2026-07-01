@@ -2,6 +2,7 @@ import { useState, useEffect, Fragment } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation, Link } from 'react-router-dom';
 import { apiClient, mockClient } from '../services';
 import LogoutModal from './LogoutModal';
+import DongSonDrumIcon from './DongSonDrumIcon';
 
 const AdminLayout = () => {
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
@@ -71,8 +72,13 @@ const AdminLayout = () => {
 
 
   return (
-    <div className="flex min-h-screen bg-surface">
+    <div className="flex min-h-screen bg-surface relative">
       <div className="grain-overlay pointer-events-none fixed inset-0 z-0 opacity-5"></div>
+      
+      {/* Spinning Dong Son Background */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none flex items-center justify-center opacity-[0.03]">
+        <DongSonDrumIcon className="w-[150vw] h-[150vw] text-[#6b0f0d] animate-[spin_120s_linear_infinite]" />
+      </div>
 
       <aside className={`${isSidebarOpen ? 'w-64' : 'w-[80px]'} h-screen sticky top-0 left-0 bg-[#6b0f0d] text-[#ffe7b0] flex flex-col py-6 shrink-0 z-50 border-r border-[#d99b4a]/30 transition-all duration-300 overflow-hidden`}>
         <div className={`mb-8 cursor-pointer flex items-center ${isSidebarOpen ? 'px-8 justify-start' : 'justify-center'} transition-all`} onClick={() => navigate('/admin')}>

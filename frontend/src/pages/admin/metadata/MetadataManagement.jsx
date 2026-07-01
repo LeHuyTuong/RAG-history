@@ -77,92 +77,29 @@ const CategoryTreeItem = ({ category, level = 0, onEdit, onDelete, onAddChild })
   );
 };
 
+import useModalStore from '../../../store/zustand/useModalStore';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchMetadataOverview, deleteTag, deletePeriod, deleteCategoryLocal, reorderPeriodsLocal } from '../../../store/redux/slices/metadataSlice';
+
 const MetadataManagement = () => {
   const navigate = useNavigate();
-  const [deleteModal, setDeleteModal] = useState({ open: false, type: '', name: '', id: null });
-  const [data, setData] = useState({ stats: [], categories: [], tags: [], periods: [] });
+  const dispatch = useDispatch();
+  const { data, loading } = useSelector((state) => state.metadata);
+  const { isOpen, modalType, modalData, openModal, closeModal } = useModalStore();
+  
   const [tagColors, setTagColors] = useState({});
   const { periodColors } = usePeriodColors();
-  const [loading, setLoading] = useState(true);
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
   const [dropPosition, setDropPosition] = useState(null); // 'before' | 'after'
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // 1. Static metadata (categories + stats) from the JSON fixture.
-        const staticRes = await mockClient.get(ENDPOINTS.MOCK.ADMIN_METADATA);
-        const colorsRes = await mockClient.get(ENDPOINTS.MOCK.TAG_COLORS);
-
-        const json = staticRes.data;
-        if (json.stats) {
-          json.stats = json.stats.filter((s) => s.label !== 'Danh mục chính');
-        }
-
-        // 2. Tags + periods from the backend (via metadataService).
-        const { tags: liveTags = [], periods: livePeriods = [] } =
-          await metadataService.fetchOverview().catch((err) => {
-            console.error('Lỗi khi fetch overview metadata:', err);
-            return { tags: [], periods: [] };
-          });
-
-        json.tags = liveTags.map((t) => ({
-          id: t.id,
-          name: t.name,
-          slug: t.slug,
-          count: 0,
-        }));
-
-        const formatYear = (y) => {
-          if (y === undefined || y === null || y === '') return '';
-          const val = parseInt(y, 10);
-          if (isNaN(val)) return y;
-          return val < 0 ? `${Math.abs(val)} TCN` : `${val}`;
-        };
-
-        const formatRange = (start, end) => {
-          const s = formatYear(start);
-          const e = formatYear(end);
-          if (!s && !e) return 'Chưa rõ';
-          if (!s) return `? - ${e}`;
-          if (!e) return `${s} - Nay`;
-          return `${s} - ${e}`;
-        };
-
-        json.periods = livePeriods.map((p) => ({
-          id: p.id,
-          name: p.name,
-          range: formatRange(p.startYear, p.endYear),
-          slug: p.slug,
-          description: p.description,
-        }));
-
-        // Sort periods chronologically
-        const parseStartYear = (rangeStr) => {
-          if (!rangeStr) return 999999;
-          const startPart = rangeStr.split('-')[0] || '';
-          const yearMatch = startPart.match(/\d+/);
-          if (!yearMatch) return 999999;
-          let year = parseInt(yearMatch[0], 10);
-          if (startPart.toUpperCase().includes('TCN')) year = -year;
-          return year;
-        };
-
-        if (json.periods) {
-          json.periods.sort((a, b) => parseStartYear(a.range) - parseStartYear(b.range));
-        }
-
-        setData(json);
-        setTagColors(colorsRes.data);
-      } catch (error) {
-        console.error('Error fetching metadata:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+    dispatch(fetchMetadataOverview());
+    
+    mockClient.get(ENDPOINTS.MOCK.TAG_COLORS).then(res => {
+      setTagColors(res.data);
+    });
+  }, [dispatch]);
 
   const handlePeriodDragStart = (e, index) => {
     setDraggedIndex(index);
@@ -210,7 +147,7 @@ const MetadataManagement = () => {
       }
       
       updatedPeriods.splice(targetIndex, 0, draggedItem);
-      setData((prev) => ({ ...prev, periods: updatedPeriods }));
+      dispatch(reorderPeriodsLocal(updatedPeriods));
     }
 
     handlePeriodDragEnd();
@@ -256,30 +193,22 @@ const MetadataManagement = () => {
   };
 
   const openDelete = (type, item) =>
-    setDeleteModal({ open: true, type, name: item.name, id: item.id });
+    openModal('delete_metadata', { type, name: item.name, id: item.id });
 
   const handleDeleteConfirm = async () => {
-    const { type, id } = deleteModal;
+    if (!modalData) return;
+    const { type, id } = modalData;
     if (id === null || id === undefined) return;
 
     try {
       if (type === 'danh mục') {
-        const deleteRecursive = (cats) =>
-          cats
-            .filter((c) => c.id !== id)
-            .map((c) => ({
-              ...c,
-              children: c.children ? deleteRecursive(c.children) : [],
-            }));
-        setData((prev) => ({ ...prev, categories: deleteRecursive(prev.categories) }));
+        dispatch(deleteCategoryLocal(id));
       } else if (type === 'thẻ') {
-        await tagService.delete(id);
-        setData((prev) => ({ ...prev, tags: prev.tags.filter((t) => t.id !== id) }));
+        await dispatch(deleteTag(id)).unwrap();
       } else if (type === 'thời kỳ') {
-        await periodService.delete(id);
-        setData((prev) => ({ ...prev, periods: prev.periods.filter((p) => p.id !== id) }));
+        await dispatch(deletePeriod(id)).unwrap();
       }
-      setDeleteModal({ open: false, type: '', name: '', id: null });
+      closeModal();
     } catch (e) {
       console.error('Lỗi khi xóa siêu dữ liệu:', e);
       alert('Có lỗi xảy ra khi xóa siêu dữ liệu!');
@@ -291,7 +220,6 @@ const MetadataManagement = () => {
       <PageHeader
         title="Quản lý Siêu dữ liệu"
         subtitle="Quản lý thẻ phân loại và dòng thời gian cho toàn bộ hệ thống lưu trữ."
-        icon="database"
       />
 
       <div className="mb-8">
@@ -302,7 +230,9 @@ const MetadataManagement = () => {
         {/* QUẢN LÝ THỜI KỲ (PERIODS) */}
         <section className="bg-surface-low border border-outline-variant p-8 rounded-xl shadow-sm">
           <div className="flex justify-between items-center mb-8">
-            <h3 className="font-headline text-2xl text-primary font-bold italic">Dòng chảy Thời kỳ (Timeline)</h3>
+            <h3 className="font-headline text-2xl text-primary font-bold flex items-center gap-2">
+              <span className="material-symbols-outlined text-2xl">timeline</span> Dòng chảy Thời kỳ (Timeline)
+            </h3>
             <button onClick={() => navigate('/admin/metadata/periods/new')} className="text-[10px] font-bold uppercase border border-primary text-primary px-3 py-1.5 rounded hover:bg-primary/5 transition-all flex items-center gap-1">
               <span className="material-symbols-outlined text-sm">add</span> Thời kỳ
             </button>
@@ -421,10 +351,10 @@ const MetadataManagement = () => {
 
       {/* MODAL XÓA CHUNG */}
       <ActionModal
-        isOpen={deleteModal.open}
-        onClose={() => setDeleteModal({ ...deleteModal, open: false })}
+        isOpen={isOpen && modalType === 'delete_metadata'}
+        onClose={closeModal}
         type="delete"
-        item={{ name: deleteModal.name }}
+        item={{ name: modalData?.name }}
         onConfirm={handleDeleteConfirm}
       />
     </AdminLayout>

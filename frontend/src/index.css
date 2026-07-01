@@ -6,6 +6,15 @@
   50% { opacity: 0; }
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @theme {
   /* Màu sắc Admin Sử Việt */
   --color-primary: #4b0004;
@@ -44,6 +53,7 @@
     pointer-events: none;
     z-index: 10;
     mix-blend-mode: multiply;
+    animation: spin 120s linear infinite;
   }
 
   h1,

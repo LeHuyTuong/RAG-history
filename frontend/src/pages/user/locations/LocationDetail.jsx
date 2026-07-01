@@ -58,11 +58,11 @@ const LocationDetail = () => {
     fetchLocation();
   }, [id]);
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải di tích...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải di tích...</div>;
   if (!location) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Không tìm thấy di tích.</div>;
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20 pb-20">
       {/* 1. HERO SECTION */}
       <section className="relative h-[70vh] w-full overflow-hidden border-b-[6px] border-[#d99b4a]/40">
         <img

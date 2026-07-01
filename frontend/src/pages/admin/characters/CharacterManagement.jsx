@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchCharacters, deleteCharacter } from '../../../store/redux/slices/characterSlice';
+import useModalStore from '../../../store/zustand/useModalStore';
 import {
   AdminLayout,
   PageHeader,
@@ -14,156 +17,30 @@ import {
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { getDynastyLabel } from '../../../utils/dynastyUtils';
 
-import { personService, apiClient, eventService, participationService } from '../../../services';
 const CharacterManagement = () => {
   const navigate = useNavigate();
-  const [deleteModal, setDeleteModal] = useState({ open: false, name: '', id: null });
-  const [data, setData] = useState({ stats: [], characters: [] });
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { data, loading } = useSelector((state) => state.characters);
+  const { isOpen, modalType, modalData, openModal, closeModal } = useModalStore();
+  
   const [filters, setFilters] = useState({ search: '', dynasty: '' });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const { periodColors, getPeriodStyle: getDynastyStyle } = usePeriodColors();
 
   const handleDelete = async () => {
-    if (deleteModal.id === null || deleteModal.id === undefined) return;
-    const deleteId = deleteModal.id;
-
+    if (!modalData || modalData.id === null || modalData.id === undefined) return;
     try {
-      await personService.delete(deleteId);
+      await dispatch(deleteCharacter(modalData.id)).unwrap();
     } catch (error) {
       console.error('Error deleting character:', error);
     }
-
-    setData(prev => ({
-      ...prev,
-      characters: prev.characters.filter(c => String(c.id) !== String(deleteId))
-    }));
-
-    setDeleteModal({ open: false, name: '', id: null });
+    closeModal();
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [personRes, partRes, eventRes] = await Promise.allSettled([
-          personService.filter({ page: 0, size: 500 }),
-          apiClient.get('/api/v1/admin/participations', { params: { size: 5000 } }),
-          apiClient.get('/api/v1/admin/events', { params: { size: 500 } })
-        ]);
-
-        const content = personRes.status === 'fulfilled' ? personRes.value.items : [];
-        const participationsList = partRes.status === 'fulfilled' ? (partRes.value.data?.data?.result || partRes.value.data?.data || []) : [];
-        const eventsList = eventRes.status === 'fulfilled' ? (eventRes.value.data?.data?.result || eventRes.value.data?.data?.content || eventRes.value.data || []) : [];
-
-        // Build event period mapping
-        const eventPeriodMap = {};
-        eventsList.forEach(e => {
-          if (e.id && e.period?.name) {
-            eventPeriodMap[e.id] = e.period.name;
-          }
-        });
-
-        // Build person periods mapping
-        const personPeriodsMap = {};
-        participationsList.forEach(p => {
-          const personId = p.person?.id;
-          const eventId = p.event?.id;
-          if (personId && eventId) {
-            const periodName = eventPeriodMap[eventId];
-            if (periodName) {
-              if (!personPeriodsMap[personId]) {
-                personPeriodsMap[personId] = new Set();
-              }
-              personPeriodsMap[personId].add(periodName);
-            }
-          }
-        });
-
-        let mockChars = [];
-        try {
-          const mockRes = await mockClient.get('/api/admin_characters.json');
-          mockChars = mockRes.data?.characters || [];
-        } catch (mockErr) {
-          console.error('Error fetching mock characters in management:', mockErr);
-        }
-
-        const parseCharacterYear = (dateStr) => {
-          if (!dateStr) return null;
-          const isNegative = dateStr.startsWith('-');
-          const cleanStr = isNegative ? dateStr.substring(1) : dateStr;
-          const match = cleanStr.match(/^(\d{4})/);
-          if (match) {
-            const y = parseInt(match[1], 10);
-            return isNegative ? -y : y;
-          }
-          return null;
-        };
-
-        const formatYear = (y) => {
-          if (y === undefined || y === null || y === '') return '';
-          const val = parseInt(y, 10);
-          if (isNaN(val)) return y;
-          return val < 0 ? `${Math.abs(val)} TCN` : `${val}`;
-        };
-
-        const formatRange = (start, end) => {
-          const s = formatYear(start);
-          const e = formatYear(end);
-          if (!s && !e) return 'Chưa rõ';
-          if (!s) return `? - ${e}`;
-          if (!e) return `${s} - ?`;
-          return `${s} - ${e}`;
-        };
-
-        const mappedContent = content.map(c => {
-          const mockChar = mockChars.find(m => m.slug === c.slug) || {};
-          const dyns = new Set();
-
-          // 1. Add dynasties from mock data
-          if (mockChar.dynasties) {
-            mockChar.dynasties.forEach(d => dyns.add(d));
-          } else if (mockChar.dynasty) {
-            dyns.add(mockChar.dynasty);
-          }
-
-          // 2. Add dynasties from live participations
-          const liveDyns = personPeriodsMap[c.id];
-          if (liveDyns) {
-            liveDyns.forEach(d => dyns.add(d));
-          }
-
-          const allDyns = Array.from(dyns);
-
-          return {
-            ...mockChar,
-            ...c,
-            title: c.alias || mockChar.alias || '',
-            years: formatRange(parseCharacterYear(c.birthDate), parseCharacterYear(c.deathDate)),
-            dynasty: allDyns.length > 0 ? allDyns[0] : 'Chưa rõ',
-            dynasties: allDyns,
-            status: c.status || 'published'
-          };
-        });
-
-        const charResult = {
-          characters: mappedContent,
-          stats: [
-            { label: "Tổng số", value: mappedContent.length, trend: "+0", isPositive: true },
-            { label: "Công khai", value: mappedContent.filter(c => c.status === 'published' || c.status === 'công khai').length, trend: "+0", isPositive: true },
-            { label: "Bản nháp", value: mappedContent.filter(c => c.status === 'draft' || c.status === 'bản nháp').length, trend: "-0", isPositive: false }
-          ]
-        };
-
-        setData(charResult);
-      } catch (error) {
-        console.error('Error fetching character data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+    dispatch(fetchCharacters());
+  }, [dispatch]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -244,7 +121,7 @@ const CharacterManagement = () => {
       key: 'actions', header: 'THAO TÁC', align: 'right', render: (row) => (
         <TableActions
           onEdit={() => navigate(`/admin/characters/edit/${row.id}`)}
-          onDelete={() => setDeleteModal({ open: true, name: row.name, id: row.id })}
+          onDelete={() => openModal('delete', { name: row.name, id: row.id })}
         />
       )
     }
@@ -342,10 +219,10 @@ const CharacterManagement = () => {
       </div>
 
       <ActionModal
-        isOpen={deleteModal.open}
-        onClose={() => setDeleteModal({ open: false, name: '', id: null })}
+        isOpen={isOpen && modalType === 'delete'}
+        onClose={closeModal}
         type="delete"
-        item={{ name: deleteModal.name }}
+        item={{ name: modalData?.name }}
         onConfirm={handleDelete}
       />
     </AdminLayout>

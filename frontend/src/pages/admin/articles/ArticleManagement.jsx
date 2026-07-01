@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchArticles, deleteArticle } from '../../../store/redux/slices/articleSlice';
+import useModalStore from '../../../store/zustand/useModalStore';
 import {
   AdminLayout,
   PageHeader,
@@ -12,67 +15,31 @@ import {
   Pagination
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
-import { postService } from '../../../services';
 
 const ArticleManagement = () => {
   const navigate = useNavigate();
-  const [modal, setModal] = useState({ open: false, type: '', item: null });
-  const [data, setData] = useState({ stats: [], articles: [] });
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { data, loading } = useSelector((state) => state.articles);
+  const { isOpen, modalType, modalData, openModal, closeModal } = useModalStore();
+
   const [filters, setFilters] = useState({ search: '', status: '', tag: '', author: '' });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const { periodColors, getPeriodStyle } = usePeriodColors();
 
   const handleDelete = async () => {
-    if (!modal.item || modal.item.id === null || modal.item.id === undefined) return;
-    const deleteId = modal.item.id;
-
+    if (!modalData || modalData.id === null || modalData.id === undefined) return;
     try {
-      await postService.delete(deleteId);
-      setData(prev => ({
-        ...prev,
-        articles: prev.articles.filter(a => String(a.id) !== String(deleteId))
-      }));
+      await dispatch(deleteArticle(modalData.id)).unwrap();
     } catch (error) {
       console.error('Error deleting article:', error);
     }
-
     closeModal();
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const { items: posts, totalElements } = await postService.filter({ page: 0, size: 500 });
-
-        setData({
-          stats: [
-            { id: 1, label: 'Tổng số bài viết', value: totalElements || posts.length, icon: 'article', color: 'text-primary' },
-            { id: 2, label: 'Đã xuất bản', value: posts.filter(p => p.status === 'PUBLISHED').length, icon: 'check_circle', color: 'text-emerald-600' }
-          ],
-          articles: posts.map(p => ({
-            id: p.id,
-            title: p.title,
-            slug: p.slug,
-            summary: p.summary,
-            tags: p.tags && p.tags.length > 0 ? p.tags.map(t => t.name) : ['Chưa rõ'],
-            author: p.author?.fullName || p.author?.username || 'Admin',
-            status: p.status
-          }))
-        });
-      } catch (error) {
-        console.error('Error fetching articles data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  const openModal = (type, item) => setModal({ open: true, type, item });
-  const closeModal = () => setModal({ open: false, type: '', item: null });
+    dispatch(fetchArticles({ page: 0, size: 500 }));
+  }, [dispatch]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -266,10 +233,10 @@ const ArticleManagement = () => {
       </div>
 
       <ActionModal
-        isOpen={modal.open}
+        isOpen={isOpen && modalType === 'delete'}
         onClose={closeModal}
-        type={modal.type}
-        item={modal.item}
+        type="delete"
+        item={modalData}
         onConfirm={handleDelete}
       />
     </AdminLayout>

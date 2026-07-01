@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ActionModal, TableActions } from '../../../components/admin';
+import { ActionModal, TableActions, PageHeader } from '../../../components/admin';
 import { settingsService } from '../../../services';
 
 // --- COMPONENT CON 2: MODAL THÊM / SỬA THAM SỐ ---
@@ -7,6 +7,14 @@ const ParamModal = ({ onClose, onSave, editData = null }) => {
   const [form, setForm] = useState(
     editData || { key: '', value: '', desc: '' }
   );
+
+  useEffect(() => {
+    if (editData) {
+      setForm(editData);
+    } else {
+      setForm({ key: '', value: '', desc: '' });
+    }
+  }, [editData]);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-all animate-in fade-in duration-300">
@@ -17,7 +25,7 @@ const ParamModal = ({ onClose, onSave, editData = null }) => {
           <div className="absolute top-1/2 -translate-y-1/2 right-0 p-4 opacity-10 pointer-events-none">
             <span className="material-symbols-outlined text-[120px] mix-blend-overlay">settings_applications</span>
           </div>
-          <h3 className="font-headline text-3xl font-bold italic relative z-10 tracking-tight">
+          <h3 className="font-headline text-3xl font-bold relative z-10 tracking-tight">
             {editData ? 'Cập nhật Tham số' : 'Khởi tạo Tham số Mới'}
           </h3>
           <p className="font-body text-xs mt-2 opacity-90 relative z-10 font-medium">
@@ -200,22 +208,16 @@ const SystemSettings = () => {
       <main className="p-8 max-w-6xl mx-auto w-full space-y-10">
 
         {/* HEADER */}
-        <div className="flex flex-col md:flex-row justify-between items-end border-b border-outline-variant/40 pb-6 gap-4">
-          <div>
-            <h2 className="font-headline text-4xl font-black tracking-tight bg-gradient-to-r from-[#6b0f0d] to-amber-600 bg-clip-text text-transparent">
-              Cài đặt Hệ thống
-            </h2>
-            <p className="font-body text-sm text-on-surface-variant mt-3 italic flex items-center gap-2 max-w-2xl">
-              <span className="material-symbols-outlined text-[16px] text-[#6b0f0d]">settings_applications</span>
-              Quản lý tham số vận hành lõi. Đảm bảo tính nhất quán của cơ sở dữ liệu và hiệu năng tìm kiếm sử liệu.
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          title="Cài đặt Hệ thống"
+          subtitle="Quản lý tham số vận hành lõi. Đảm bảo tính nhất quán của cơ sở dữ liệu và hiệu năng tìm kiếm sử liệu."
+          icon="settings"
+        />
 
         {/* PARAMETERS TABLE */}
         <section className="bg-white rounded-3xl border border-outline-variant/60 shadow-sm overflow-hidden transition-all hover:shadow-md">
           <div className="p-6 border-b border-outline-variant/60 flex justify-between items-center bg-surface-low/30">
-            <h3 className="font-headline text-xl text-[#6b0f0d] font-bold italic flex items-center gap-2">
+            <h3 className="font-headline text-xl text-[#6b0f0d] font-bold flex items-center gap-2">
               <span className="material-symbols-outlined">tune</span>
               Bảng tham số cấu hình
             </h3>

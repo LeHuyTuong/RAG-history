@@ -166,10 +166,10 @@ const Home = () => {
         localStorage.setItem('admin_period_order', JSON.stringify(newOrder));
     };
 
-    if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải trang chủ...</div>;
+    if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải trang chủ...</div>;
 
     return (
-        <div className="animate-in fade-in duration-1000 font-body bg-[#fbf6e8] parchment-texture">
+        <div className="animate-in fade-in duration-1000 font-body w-full">
             {/* 1. HERO SECTION */}
             <section className="relative h-[calc(100dvh-80px)] max-h-[750px] min-h-[640px] overflow-hidden bg-[#2b0504]">
                 <div className="absolute inset-0 z-0">

@@ -64,7 +64,7 @@ const UserProfile = () => {
   }, []);
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20 pb-20">
 
       {/* 1. COVER HEADER */}
       <section className="relative w-full h-[25vh] md:h-[30vh] border-b-[4px] border-[#d99b4a]/40 shadow-md">

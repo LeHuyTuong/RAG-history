@@ -196,7 +196,7 @@ const ArticleDetail = () => {
     fetchArticle();
   }, [slug]);
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải bài viết...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải bài viết...</div>;
   if (!article) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Không tìm thấy bài viết.</div>;
 
   const handleLike = () => {
@@ -211,7 +211,7 @@ const ArticleDetail = () => {
   };
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20">
       {/* Background Pattern Overlay */}
       <div className="dong-son-pattern pointer-events-none fixed inset-0 z-0 opacity-5 mix-blend-overlay"></div>
 

@@ -12,16 +12,12 @@ const LocationForm = () => {
 
   const getXPercent = (lngVal) => {
     if (!lngVal || isNaN(parseFloat(lngVal))) return 50;
-    const minLng = 102.14;
-    const maxLng = 109.46;
-    return Math.max(0, Math.min(100, ((parseFloat(lngVal) - minLng) / (maxLng - minLng)) * 100));
+    return Math.max(0, Math.min(100, 45.45 + (parseFloat(lngVal) - 105.3) * 6.14));
   };
   
   const getYPercent = (latVal) => {
     if (!latVal || isNaN(parseFloat(latVal))) return 50;
-    const minLat = 8.56;
-    const maxLat = 23.39;
-    return Math.max(0, Math.min(100, 100 - ((parseFloat(latVal) - minLat) / (maxLat - minLat)) * 100));
+    return Math.max(0, Math.min(100, 0.27 + (23.39 - parseFloat(latVal)) * 6.394));
   };
 
   const [form, setForm] = useState({

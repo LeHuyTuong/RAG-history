@@ -1,4 +1,4 @@
-import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
+import { API_ENDPOINTS, apiClient, mockClient, locationService, periodService } from '../../../services';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -23,8 +23,8 @@ export default function UserLocations() {
       try {
         let dbLocations = [];
         try {
-          const response = await apiClient.get(API_ENDPOINTS.USER_LOCATIONS);
-          dbLocations = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
+          const response = await locationService.filter({ size: 500 });
+          dbLocations = response.items || [];
         } catch (apiErr) {
           console.error('Lỗi gọi API địa danh, chuyển sang dùng mock:', apiErr);
         }
@@ -38,8 +38,8 @@ export default function UserLocations() {
         }
 
         try {
-          const pRes = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
-          const rawPeriods = pRes.data?.data?.result || pRes.data?.data?.content || pRes.data?.data || [];
+          const pRes = await periodService.filter({ size: 500 });
+          const rawPeriods = pRes.items || [];
           setDynasties(rawPeriods.map(p => p.name).filter(Boolean));
         } catch (pErr) {
           console.error('Lỗi gọi API thời kỳ:', pErr);
@@ -118,10 +118,10 @@ export default function UserLocations() {
     );
   }
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải địa danh...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải địa danh...</div>;
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20 relative">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20 pb-20 relative">
       {/* HERO SECTION */}
       <section className="relative h-[450px] flex items-center justify-center overflow-hidden border-b border-[#d99b4a]/30">
         <div className="absolute inset-0 z-0 bg-[#2b0504]">

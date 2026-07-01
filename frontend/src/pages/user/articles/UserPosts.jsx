@@ -1,4 +1,4 @@
-import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
+import { API_ENDPOINTS, apiClient, mockClient, postService, periodService } from '../../../services';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, MessageSquare } from 'lucide-react';
@@ -22,15 +22,15 @@ const UserPosts = () => {
       try {
         let dbPosts = [];
         try {
-          const response = await apiClient.get(API_ENDPOINTS.USER_ARTICLES);
-          dbPosts = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
+          const response = await postService.filter({ size: 500 });
+          dbPosts = response.items || [];
         } catch (apiErr) {
           console.error('Lỗi gọi API bài viết:', apiErr);
         }
 
         try {
-          const pRes = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
-          const rawPeriods = pRes.data?.data?.result || pRes.data?.data?.content || pRes.data?.data || [];
+          const pRes = await periodService.filter({ size: 500 });
+          const rawPeriods = pRes.items || [];
           setPeriods(rawPeriods.map(p => p.name).filter(Boolean));
         } catch (pErr) {
           console.error('Lỗi gọi API thời kỳ:', pErr);
@@ -99,10 +99,10 @@ const UserPosts = () => {
   // Reset pagination is now handled directly in input onChange handlers to satisfy eslint rules
 
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải bài viết...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải bài viết...</div>;
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20">
       {/* HERO SECTION */}
       <section className="relative h-[450px] flex items-center justify-center overflow-hidden border-b border-[#d99b4a]/30">
         <div className="absolute inset-0 z-0 bg-[#2b0504]">

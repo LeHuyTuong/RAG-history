@@ -1,4 +1,4 @@
-import { API_ENDPOINTS, apiClient, eventService } from '../../../services';
+import { API_ENDPOINTS, apiClient, eventService, periodService } from '../../../services';
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -27,8 +27,8 @@ const UserPeriods = () => {
         let dbPeriods = [];
         let allEvents = [];
         try {
-          const response = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
-          dbPeriods = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
+          const response = await periodService.filter({ size: 500 });
+          dbPeriods = response.items || [];
 
           const evtRes = await eventService.filter({ size: 500 });
           allEvents = evtRes.items || [];
@@ -113,10 +113,10 @@ const UserPeriods = () => {
 
   const displayedPeriods = periodsData;
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải triều đại...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải triều đại...</div>;
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20">
 
       {/* 1. HERO SECTION */}
       <section className="relative h-[450px] flex items-center justify-center overflow-hidden border-b border-[#d99b4a]/30">
