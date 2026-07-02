@@ -22,27 +22,31 @@ export default function UserLocations() {
     const fetchData = async () => {
       try {
         let dbLocations = [];
-        try {
-          const response = await locationService.filter({ size: 500 });
-          dbLocations = response.items || [];
-        } catch (apiErr) {
-          console.error('Lỗi gọi API địa danh, chuyển sang dùng mock:', apiErr);
-        }
-
         let mockLocations = [];
-        try {
-          const mockRes = await mockClient.get('/api/user_locations.json');
-          mockLocations = mockRes.data?.locations || mockRes.data || [];
-        } catch (err) {
-          console.error('Error fetching mock locations:', err);
-        }
+        let rawPeriods = [];
 
         try {
-          const pRes = await periodService.filter({ size: 500 });
-          const rawPeriods = pRes.items || [];
+          const [locationRes, mockResponse, periodRes] = await Promise.all([
+            locationService.filter({ size: 500 }).catch(err => {
+              console.error('Lỗi gọi API địa danh, chuyển sang dùng mock:', err);
+              return { items: [] };
+            }),
+            mockClient.get('/api/user_locations.json').catch(err => {
+              console.error('Error fetching mock locations:', err);
+              return { data: { locations: [] } };
+            }),
+            periodService.filter({ size: 500 }).catch(err => {
+              console.error('Lỗi gọi API thời kỳ:', err);
+              return { items: [] };
+            })
+          ]);
+
+          dbLocations = locationRes?.items || [];
+          mockLocations = mockResponse?.data?.locations || mockResponse?.data || [];
+          rawPeriods = periodRes?.items || [];
           setDynasties(rawPeriods.map(p => p.name).filter(Boolean));
-        } catch (pErr) {
-          console.error('Lỗi gọi API thời kỳ:', pErr);
+        } catch (apiErr) {
+          console.error('Lỗi Promise.all:', apiErr);
         }
 
         let merged = [];

@@ -9,6 +9,7 @@ import {
 } from '../../../services';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { stripHtml } from '../../../utils/stringUtils';
+import characterImages from '../../../data/characterImages.json';
 
 const DEFAULT_PERIOD_ICONS = ['hourglass_empty', 'history', 'person', 'account_balance', 'map', 'auto_stories'];
 const DEFAULT_CHAR_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg';
@@ -92,7 +93,7 @@ const Home = () => {
                         ? `${c.birthDate ? c.birthDate : '?'} - ${c.deathDate ? c.deathDate : '?'}`
                         : '',
                     desc: stripHtml(c.biography || c.description || ''),
-                    image: c.avatar || DEFAULT_CHAR_IMAGE,
+                    image: characterImages[c.slug] || c.avatar || DEFAULT_CHAR_IMAGE,
                 }));
 
                 let mergedEvents = dbEvents.slice(0, 4).map(e => ({

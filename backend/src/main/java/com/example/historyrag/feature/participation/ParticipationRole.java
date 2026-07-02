@@ -11,6 +11,7 @@ public enum ParticipationRole {
     OFFICIAL,
     DIPLOMAT,
     SOLDIER,
+    LEADER,
     REBEL_LEADER,
     ALLY,
     OPPONENT,

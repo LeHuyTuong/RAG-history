@@ -38,8 +38,9 @@ const LocationDetail = () => {
           const mockItem = mockLocations.find(m => m.slug === dbLocation.slug) || {};
 
           setLocation({
+            ...mockItem,
             ...dbLocation,
-            heroImg: dbLocation.image || 'https://via.placeholder.com/800x400',
+            heroImg: dbLocation.image || mockItem.heroImg || mockItem.image || 'https://via.placeholder.com/800x400',
             location_id: dbLocation.id,
             location_type: dbLocation.locationType || mockItem.location_type || 'REGION',
             description: dbLocation.description || mockItem.description || '',

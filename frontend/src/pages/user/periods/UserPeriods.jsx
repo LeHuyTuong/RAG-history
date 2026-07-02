@@ -27,11 +27,12 @@ const UserPeriods = () => {
         let dbPeriods = [];
         let allEvents = [];
         try {
-          const response = await periodService.filter({ size: 500 });
-          dbPeriods = response.items || [];
-
-          const evtRes = await eventService.filter({ size: 500 });
-          allEvents = evtRes.items || [];
+          const [response, evtRes] = await Promise.all([
+            periodService.filter({ size: 500 }),
+            eventService.filter({ size: 500 })
+          ]);
+          dbPeriods = response?.items || [];
+          allEvents = evtRes?.items || [];
         } catch (apiErr) {
           console.error('Lỗi gọi API:', apiErr);
         }

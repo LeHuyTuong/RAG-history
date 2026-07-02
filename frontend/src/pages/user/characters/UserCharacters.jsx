@@ -2,6 +2,7 @@ import { API_ENDPOINTS, apiClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { personService } from '../../../services';
+import characterImages from '../../../data/characterImages.json';
 
 const UserCharacters = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,7 +44,7 @@ const UserCharacters = () => {
             realName: dbItem.alias || '',
             desc: cleanDesc,
             dynasty: dbItem.dynasty || 'Chưa rõ',
-            image: dbItem.avatar || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+            image: characterImages[dbItem.slug] || dbItem.avatar || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
             achievements: [],
             years: dbItem.birthDate || dbItem.deathDate ? `${dbItem.birthDate ? dbItem.birthDate : '?'} - ${dbItem.deathDate ? dbItem.deathDate : '?'}` : ''
           };
@@ -138,6 +139,7 @@ const UserCharacters = () => {
                       src={char.image}
                       alt={char.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 sepia-[0.1]"
+                      referrerPolicy="no-referrer"
                     />
 
                     {/* Gradient overlay for bottom text */}

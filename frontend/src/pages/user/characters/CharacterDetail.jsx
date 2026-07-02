@@ -2,6 +2,7 @@ import { API_ENDPOINTS, apiClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import CharacterFamilyTree, { HISTORICAL_MOCK_RELATIONS, normalizeKey } from '../../../components/character/CharacterFamilyTree';
+import characterImages from '../../../data/characterImages.json';
 
 const CharacterDetail = () => {
   const { id } = useParams();
@@ -91,7 +92,7 @@ const CharacterDetail = () => {
           setCharacter({
             ...dbPerson,
             person_id: dbPerson.id,
-            portrait: dbPerson.image || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+            portrait: characterImages[dbPerson.slug] || dbPerson.image || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
             biography: dbPerson.biography || '',
             description: dbPerson.biography || '',
             dynastyTitle: dbPerson.dynasty?.name || 'Vương triều',
@@ -134,7 +135,7 @@ const CharacterDetail = () => {
             <div className="absolute -inset-4 border border-[#d99b4a]/40 pointer-events-none"></div>
             <div className="overflow-hidden bg-[#fffdf8] relative p-2 shadow-2xl transform-style-3d transition-transform duration-700 hover:scale-[1.02] border border-[#d99b4a]/30">
               <div className="relative border border-[#d99b4a]/30 h-full w-full bg-[#fcf9ee] dong-son-pattern">
-                <img src={character.portrait} className="w-full aspect-[3/4] object-cover transition-transform duration-1000 group-hover:scale-105 grayscale-[0.3] sepia-[0.2] contrast-100 group-hover:grayscale-0 group-hover:sepia-0 opacity-90 group-hover:opacity-100" alt="Portrait" />
+                <img src={character.portrait} className="w-full aspect-[3/4] object-cover transition-transform duration-1000 group-hover:scale-105 grayscale-[0.3] sepia-[0.2] contrast-100 group-hover:grayscale-0 group-hover:sepia-0 opacity-90 group-hover:opacity-100" alt="Portrait" referrerPolicy="no-referrer" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201] via-[#6b0f0d]/60 to-transparent opacity-80 pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-10 z-10">
                   <span className="inline-block px-4 py-1.5 bg-[#fcf9ee]/20 backdrop-blur-sm border border-[#d99b4a]/60 text-[#ffe7b0] font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-4 shadow-md">{character.dynastyTitle && character.dynastyTitle.includes('Nhà') ? character.dynastyTitle.replace('Nhà', 'Triều') : character.dynastyTitle}</span>

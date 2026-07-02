@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Pagination from '../../../components/common/Pagination';
 import { stripHtml } from '../../../utils/stringUtils';
+import eventImages from '../../../data/eventImages.json';
 
 const UserEvents = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,18 +20,21 @@ const UserEvents = () => {
       try {
         let dbEvents = [];
         try {
-          const response = await eventService.filter({ size: 500 });
-          dbEvents = response.items || [];
-        } catch (apiErr) {
-          console.error('Lỗi gọi API sự kiện:', apiErr);
-        }
-
-        try {
-          const pRes = await periodService.filter({ size: 500 });
-          const rawPeriods = pRes.items || [];
+          const [response, pRes] = await Promise.all([
+            eventService.filter({ size: 500 }).catch(apiErr => {
+              console.error('Lỗi gọi API sự kiện:', apiErr);
+              return { items: [] };
+            }),
+            periodService.filter({ size: 500 }).catch(pErr => {
+              console.error('Lỗi gọi API thời kỳ:', pErr);
+              return { items: [] };
+            })
+          ]);
+          dbEvents = response?.items || [];
+          const rawPeriods = pRes?.items || [];
           setPeriods(rawPeriods.map(p => p.name).filter(Boolean));
-        } catch (pErr) {
-          console.error('Lỗi gọi API thời kỳ:', pErr);
+        } catch (err) {
+          console.error('Lỗi Promise.all:', err);
         }
 
         let merged = dbEvents.map(dbItem => {
@@ -59,7 +63,7 @@ const UserEvents = () => {
               ? `${Math.abs(resolvedStartYear)} ${resolvedStartYear < 0 ? 'TCN' : ''}`
               : '',
             category: dbItem.period?.name || 'Sự kiện',
-            image: dbItem.image || 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg'
+            image: eventImages[dbItem.slug] || dbItem.image || 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg'
           };
         });
 
