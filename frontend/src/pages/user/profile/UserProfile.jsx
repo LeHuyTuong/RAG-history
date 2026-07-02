@@ -1,4 +1,4 @@
-import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
+import { API_ENDPOINTS, apiClient, mockClient, postService } from '../../../services';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -39,23 +39,58 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        let historyData = [];
+        let allArticles = [];
         try {
-          const response = await apiClient.get('/api/v1/members/me/history');
-          historyData = response.data?.data || response.data || [];
+          const response = await Promise.race([
+            postService.filter({ size: 500 }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+          ]);
+          allArticles = response.items || [];
         } catch (apiErr) {
-          console.error('Failed to fetch profile history from API, falling back to mock:', apiErr);
+          console.error('Failed to fetch articles from API:', apiErr);
         }
 
-        if (!Array.isArray(historyData) || historyData.length === 0) {
+        if (allArticles.length === 0) {
           try {
-            const mockRes = await mockClient.get('/api/user_profile_history.json');
-            historyData = mockRes.data || [];
+            const mockRes = await mockClient.get('/api/user_articles.json');
+            allArticles = mockRes.data || [];
           } catch (mockErr) {
-            console.error('Failed to fetch mock profile history:', mockErr);
+            console.error('Failed to fetch mock articles:', mockErr);
           }
         }
-        setMockHistory(Array.isArray(historyData) ? historyData : []);
+
+        const interactedHistory = [];
+        allArticles.forEach(art => {
+          const slug = art.slug || art.id;
+          const isLiked = localStorage.getItem(`liked_${slug}`) === 'true';
+          const commentsStr = localStorage.getItem(`comments_${slug}`);
+          let hasComments = false;
+          if (commentsStr) {
+            try {
+              const commentsArr = JSON.parse(commentsStr);
+              hasComments = commentsArr.length > 0;
+            } catch (e) {}
+          }
+          
+          if (isLiked || hasComments) {
+            let actionText = 'Đã tương tác';
+            if (isLiked && hasComments) actionText = 'Đã thích & bình luận';
+            else if (isLiked) actionText = 'Đã thích';
+            else if (hasComments) actionText = 'Đã bình luận';
+            
+            interactedHistory.push({
+              id: art.id,
+              title: art.title,
+              type: 'BÀI VIẾT',
+              interaction: actionText,
+              date: new Date().toISOString().split('T')[0],
+              img: art.thumbnailUrl || art.thumbnail_url || 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg',
+              link: `/articles/${slug}`
+            });
+          }
+        });
+        
+        setMockHistory(interactedHistory.reverse());
       } catch (error) {
         console.error('Error fetching history:', error);
       }

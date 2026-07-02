@@ -22,14 +22,31 @@ const UserPosts = () => {
       try {
         let dbPosts = [];
         try {
-          const response = await postService.filter({ size: 500 });
+          // Add timeout to prevent hanging
+          const response = await Promise.race([
+            postService.filter({ size: 500 }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+          ]);
           dbPosts = response.items || [];
         } catch (apiErr) {
           console.error('Lỗi gọi API bài viết:', apiErr);
         }
 
+        // FALLBACK TO MOCK
+        if (!dbPosts || dbPosts.length === 0) {
+          try {
+            const mockRes = await mockClient.get('/api/user_articles.json');
+            dbPosts = mockRes.data || [];
+          } catch (e) {
+            console.error('Lỗi lấy dữ liệu bài viết mẫu:', e);
+          }
+        }
+
         try {
-          const pRes = await periodService.filter({ size: 500 });
+          const pRes = await Promise.race([
+            periodService.filter({ size: 500 }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+          ]);
           const rawPeriods = pRes.items || [];
           setPeriods(rawPeriods.map(p => p.name).filter(Boolean));
         } catch (pErr) {
