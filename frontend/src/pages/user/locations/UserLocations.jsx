@@ -4,6 +4,42 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import VietnamMap from '../../../components/VietnamMap';
 
+const LOCATION_TYPE_MAP = {
+  'REGION': 'VÙNG ĐẤT',
+  'CITADEL': 'THÀNH LŨY',
+  'MOUNTAIN': 'NÚI',
+  'CITY': 'ĐÔ THỊ',
+  'BATTLEFIELD': 'CHIẾN TRƯỜNG',
+  'CAPITAL': 'KINH ĐÔ',
+  'PALACE': 'CUNG ĐIỆN',
+  'BASE': 'CĂN CỨ',
+  'relic': 'DI TÍCH',
+  'historical_site': 'DI TÍCH LỊCH SỬ'
+};
+
+const PROVINCE_MAP = {
+  'phu-tho': 'Phú Thọ',
+  'co-loa': 'Đông Anh, Hà Nội',
+  'me-linh': 'Mê Linh, Hà Nội',
+  'nui-nua': 'Triệu Sơn, Thanh Hóa',
+  'long-bien': 'Bắc Ninh',
+  'hoan-chau': 'Nghệ An',
+  'song-bach-dang': 'Quảng Ninh - Hải Phòng',
+  'hoa-lu': 'Ninh Bình',
+  'thang-long': 'Hà Nội',
+  'song-nhu-nguyet': 'Bắc Ninh',
+  'dong-bo-dau': 'Hà Nội',
+  'thien-truong': 'Nam Định',
+  'tay-do': 'Vĩnh Lộc, Thanh Hóa',
+  'lam-son': 'Thọ Xuân, Thanh Hóa',
+  'dong-kinh': 'Hà Nội',
+  'phu-xuan': 'Huế',
+  'go-dong-da': 'Đống Đa, Hà Nội',
+  'kinh-thanh-hue': 'Huế',
+  'da-nang': 'Đà Nẵng',
+  'dien-bien-phu': 'Điện Biên'
+};
+
 export default function UserLocations() {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'map'
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,11 +101,11 @@ export default function UserLocations() {
               ...mockItem,
               ...dbItem,
               location_id: dbItem.id,
-              location_type: dbItem.locationType || mockItem.location_type || 'REGION',
+              location_type: LOCATION_TYPE_MAP[dbItem.locationType] || LOCATION_TYPE_MAP[mockItem.location_type] || mockItem.location_type || 'VÙNG ĐẤT',
               description: dbItem.description || mockItem.description || '',
               x: finalX,
               y: finalY,
-              province: mockItem.province || 'Việt Nam',
+              province: PROVINCE_MAP[dbItem.slug] || PROVINCE_MAP[mockItem.slug] || mockItem.province || 'Việt Nam',
               period: dbItem.period?.name || mockItem.period || '',
             };
           });
@@ -86,10 +122,10 @@ export default function UserLocations() {
             return {
               ...mockItem,
               location_id: mockItem.id || mockItem.location_id,
-              location_type: mockItem.location_type || 'REGION',
+              location_type: LOCATION_TYPE_MAP[mockItem.location_type] || mockItem.location_type || 'VÙNG ĐẤT',
               x: finalX,
               y: finalY,
-              province: mockItem.province || 'Việt Nam',
+              province: PROVINCE_MAP[mockItem.slug] || mockItem.province || 'Việt Nam',
               period: mockItem.period || '',
             };
           });
@@ -265,7 +301,7 @@ export default function UserLocations() {
                           : 'bg-white border-[#9e1b1b]/30 text-[#9e1b1b] hover:border-[#9e1b1b] z-20'
                           }`}>
                           <span className="material-symbols-outlined text-[16px]">
-                            {site.location_type === 'Hoàng thành' ? 'castle' : (site.location_type === 'Di tích văn hóa' || site.location_type === 'Khu lăng tẩm') ? 'history_edu' : 'account_balance'}
+                            {site.location_type === 'KINH ĐÔ' || site.location_type === 'CUNG ĐIỆN' || site.location_type === 'THÀNH LŨY' ? 'castle' : (site.location_type === 'DI TÍCH' || site.location_type === 'DI TÍCH LỊCH SỬ') ? 'history_edu' : 'account_balance'}
                           </span>
                         </div>
 

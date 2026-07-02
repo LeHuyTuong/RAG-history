@@ -60,10 +60,10 @@ const UserPosts = () => {
             ...dbItem,
             id: dbItem.id,
             thumbnail_url: validThumbnail ? dbItem.thumbnailUrl : "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg",
-            dynasty: dbItem.tags?.[0]?.name || 'Lịch sử',
+            dynasty: dbItem.dynasty || (dbItem.tags && dbItem.tags[0] ? (typeof dbItem.tags[0] === 'object' ? dbItem.tags[0].name : dbItem.tags[0]) : ''),
             dynasties: dbItem.tags && dbItem.tags.length > 0
-              ? dbItem.tags.map(t => typeof t === 'object' ? t.name : t)
-              : [dbItem.tags?.[0]?.name || 'Lịch sử'],
+              ? dbItem.tags.map(t => typeof t === 'object' ? t.name : t).filter(t => t?.toLowerCase() !== 'lịch sử')
+              : (dbItem.dynasty ? [dbItem.dynasty] : []),
             readTime: '5 MIN',
             likes: parseInt(localStorage.getItem(`likesCount_${dbItem.slug || dbItem.id}`) || '0', 10),
             isLiked: localStorage.getItem(`liked_${dbItem.slug || dbItem.id}`) === 'true',
@@ -281,13 +281,6 @@ const UserPosts = () => {
                     />
                   </Link>
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201]/60 to-transparent opacity-70 pointer-events-none"></div>
-                  <div className="absolute bottom-4 left-4 z-10 flex flex-wrap gap-1.5">
-                    {(art.dynasties || []).map((dyn, idx) => (
-                      <span key={idx} className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border shadow-md ${getPeriodStyle(dyn)}`}>
-                        {dyn}
-                      </span>
-                    ))}
-                  </div>
                 </div>
 
                 <div className="p-6 flex flex-col flex-grow relative z-10">
