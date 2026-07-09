@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { extractSourcesFromCitations, transformCitationsToSources } from '../utils/aiSourceUtils';
-import { ragService } from '../services';
+import { ragService, settingsService } from '../services';
 
 export const useAIChat = (initialMessages = []) => {
   const [messages, setMessages] = useState(
@@ -18,11 +18,27 @@ export const useAIChat = (initialMessages = []) => {
   const [error, setError] = useState(null);
   const [streamingMsgId, setStreamingMsgId] = useState(null);
   const [tokensPerSecond, setTokensPerSecond] = useState(0);
+  const [aiModel, setAiModel] = useState(null);
 
   const stopStreamRef = useRef(null);
   const tokenCountRef = useRef(0);
   const streamStartRef = useRef(null);
   const tpsIntervalRef = useRef(null);
+
+  useEffect(() => {
+    const loadAiModel = () => {
+      settingsService.getByKey('rag.llm_model')
+        .then(setting => setAiModel(setting?.value || null))
+        .catch(() => setAiModel(null));
+    };
+
+    loadAiModel();
+    window.addEventListener('history-rag-settings-updated', loadAiModel);
+
+    return () => {
+      window.removeEventListener('history-rag-settings-updated', loadAiModel);
+    };
+  }, []);
 
   const sendMessage = useCallback((question, options = {}) => {
     if (!question.trim() || loading) return;
@@ -88,6 +104,7 @@ export const useAIChat = (initialMessages = []) => {
         sourceIds: options.sourceIds || [],
         tagIds: options.tagIds || [],
         temperature: options.temperature || 0.2,
+        model: options.model || aiModel || undefined,
       },
       {
         onThinking: (text) =>
@@ -125,7 +142,7 @@ export const useAIChat = (initialMessages = []) => {
         },
       }
     );
-  }, [loading]);
+  }, [aiModel, loading]);
 
   const clearMessages = useCallback(() => {
     if (stopStreamRef.current) {

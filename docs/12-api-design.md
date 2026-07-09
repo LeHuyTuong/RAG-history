@@ -115,6 +115,34 @@ Authorization: Bearer <accessToken>
 |---|---|---|---|---|---|---|
 | `GET` | `/api/v1/dashboard` | `ROLE_ADMIN` | Lấy số liệu dashboard admin. | None | `DashboardResponse` | `200`, `401`, `403`, `500` |
 
+## System setting APIs
+
+Các endpoint GET được frontend dùng để áp logo, ảnh nền và model AI hiển thị. Không lưu secret/API key trong `system_settings`.
+
+| Method | URL | Quyền | Purpose | Request body | Response body | Status codes |
+|---|---|---|---|---|---|---|
+| `GET` | `/api/v1/admin/settings` | Public GET | Lấy toàn bộ cấu hình runtime. | None | List `SystemSettingResponse` | `200`, `500` |
+| `GET` | `/api/v1/admin/settings/{key}` | Public GET | Lấy cấu hình theo key. | None | `SystemSettingResponse` | `200`, `404`, `500` |
+| `PUT` | `/api/v1/admin/settings/{key}` | `ROLE_ADMIN` | Tạo hoặc cập nhật cấu hình. | `SystemSettingRequest` | `SystemSettingResponse` | `200`, `400`, `401`, `403`, `500` |
+
+Request:
+
+```json
+{
+  "key": "ui.logo_url",
+  "value": "/images/logo.png",
+  "description": "URL logo hiển thị trên giao diện"
+}
+```
+
+Các key admin settings đang quản lý:
+
+| Key | Purpose |
+|---|---|
+| `rag.llm_model` | Model sinh câu trả lời AI |
+| `ui.logo_url` | URL logo dùng chung cho user/admin; để trống dùng icon mặc định |
+| `ui.background_url` | URL ảnh nền dùng chung cho user/admin; để trống dùng nền mặc định |
+
 ## Admin tag APIs
 
 | Method | URL | Quyền | Purpose | Request body | Response body | Status codes |
@@ -230,7 +258,8 @@ RAG chat request:
   "useGraph": false,
   "sourceIds": [],
   "tagIds": [],
-  "temperature": 0.2
+  "temperature": 0.2,
+  "model": "gpt-oss-120b"
 }
 ```
 
@@ -495,6 +524,7 @@ Spring Data `Page<T>` serialized by Jackson. Common fields:
 | `sourceIds` | array integer | No | Default `[]` |
 | `tagIds` | array integer | No | Default `[]` |
 | `temperature` | number | No | Default `0.2` |
+| `model` | string | No | Model AI override lấy từ admin settings `rag.llm_model` |
 
 ### Citation
 

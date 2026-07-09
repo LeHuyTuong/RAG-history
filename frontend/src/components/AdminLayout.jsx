@@ -1,13 +1,14 @@
 import { useState, useEffect, Fragment } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation, Link } from 'react-router-dom';
-import { apiClient, mockClient } from '../services';
+import { apiClient } from '../services';
 import LogoutModal from './LogoutModal';
-import DongSonDrumIcon from './DongSonDrumIcon';
+import useSystemAppearance from '../hooks/useSystemAppearance';
+import SystemBackground from './SystemBackground';
 
 const AdminLayout = () => {
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [siteName, setSiteName] = useState('Sử Việt');
+  const { siteName, logoUrl, backgroundUrl } = useSystemAppearance();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -22,23 +23,6 @@ const AdminLayout = () => {
       }
     }
   }, [navigate]);
-
-  useEffect(() => {
-    const customSettings = JSON.parse(localStorage.getItem('admin_new_settings') || '[]');
-    const siteNameParam = customSettings.find(p => p.key === 'site_name');
-    if (siteNameParam) {
-      setSiteName(siteNameParam.value);
-    } else {
-      mockClient.get('/api/admin_settings.json')
-        .then(res => {
-          const defaultSiteName = res.data.parameters?.find(p => p.key === 'site_name')?.value;
-          if (defaultSiteName) {
-            setSiteName(defaultSiteName);
-          }
-        })
-        .catch(err => console.error('Error loading settings:', err));
-    }
-  }, []);
 
   useEffect(() => {
     document.title = siteName + ' - Quản trị';
@@ -72,18 +56,19 @@ const AdminLayout = () => {
 
 
   return (
-    <div className="flex min-h-screen bg-surface relative">
+    <div className={`flex min-h-screen relative ${backgroundUrl ? 'bg-[#f7fbf6]' : 'bg-surface'}`}>
       <div className="grain-overlay pointer-events-none fixed inset-0 z-0 opacity-5"></div>
       
-      {/* Spinning Dong Son Background */}
-      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none flex items-center justify-center opacity-[0.03]">
-        <DongSonDrumIcon className="w-[150vw] h-[150vw] text-[#6b0f0d] animate-[spin_120s_linear_infinite]" />
-      </div>
+      <SystemBackground backgroundUrl={backgroundUrl} tintClassName="bg-[#f7fbf6]/85" />
 
       <aside className={`${isSidebarOpen ? 'w-64' : 'w-[80px]'} h-screen sticky top-0 left-0 bg-[#6b0f0d] text-[#ffe7b0] flex flex-col py-6 shrink-0 z-50 border-r border-[#d99b4a]/30 transition-all duration-300 overflow-hidden`}>
         <div className={`mb-8 cursor-pointer flex items-center ${isSidebarOpen ? 'px-8 justify-start' : 'justify-center'} transition-all`} onClick={() => navigate('/admin')}>
           <h1 className="font-headline text-3xl text-[#ffe7b0] font-bold tracking-wider hover:opacity-80 transition drop-shadow-md flex items-center gap-2">
-            <span className="material-symbols-outlined text-[28px] text-[#ffe7b0] shrink-0">account_balance</span>
+            {logoUrl ? (
+              <img src={logoUrl} alt={siteName} className="w-8 h-8 object-contain rounded-sm bg-[#ffe7b0]/10 p-0.5" />
+            ) : (
+              <span className="material-symbols-outlined text-[28px] text-[#ffe7b0] shrink-0">account_balance</span>
+            )}
             {isSidebarOpen && <span className="whitespace-nowrap transition-opacity duration-300">{siteName}</span>}
           </h1>
         </div>
@@ -110,7 +95,7 @@ const AdminLayout = () => {
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="relative z-10 flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="h-14 bg-[#FDFBF0] border-b border-[#d99b4a]/20 flex items-center px-6 z-40 gap-4">
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-1 text-on-surface hover:text-primary transition-colors flex items-center justify-center rounded hover:bg-surface-variant/30">
             <span className="material-symbols-outlined text-xl">menu</span>
@@ -168,7 +153,7 @@ const AdminLayout = () => {
             })()}
           </nav>
         </header>
-        <main className="flex-1 overflow-y-auto bg-[#FDFBF0] custom-scrollbar">
+        <main className={`flex-1 overflow-y-auto custom-scrollbar ${backgroundUrl ? 'bg-transparent' : 'bg-[#FDFBF0]'}`}>
           <Outlet />
         </main>
       </div>

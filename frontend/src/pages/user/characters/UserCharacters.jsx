@@ -1,10 +1,11 @@
 import { API_ENDPOINTS, apiClient } from '../../../services';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import { personService } from '../../../services';
 import characterImages from '../../../data/characterImages.json';
 
 const UserCharacters = () => {
+  const { backgroundUrl = '' } = useOutletContext() || {};
   const [searchTerm, setSearchTerm] = useState('');
   const [activePeriod, setActivePeriod] = useState('');
   const [characters, setCharacters] = useState([]);
@@ -76,7 +77,7 @@ const UserCharacters = () => {
         <div className="absolute inset-0 z-0 bg-[#2b0504]">
           <img
             className="w-full h-full object-cover grayscale-[30%] sepia-[40%] brightness-[0.4] animate-ken-burns origin-center"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9vO8Wl8R-Z9n81m-O0H1yK80Sj377X5qQoV10Q4gA-fN2mO_R9_mS9fM-M-0xP2yGg0_5N9j5sNlB2R1hK1J8f5mG9Q3r9g8_H4gM8rD6Y5qJ2Q5n8vR1v8h_2k2lJ5wW2gQ8xP4gJ7n_0"
+            src={backgroundUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuC9vO8Wl8R-Z9n81m-O0H1yK80Sj377X5qQoV10Q4gA-fN2mO_R9_mS9fM-M-0xP2yGg0_5N9j5sNlB2R1hK1J8f5mG9Q3r9g8_H4gM8rD6Y5qJ2Q5n8vR1v8h_2k2lJ5wW2gQ8xP4gJ7n_0"}
             alt="Characters Hero"
             onError={(e) => { e.target.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2" }}
           />

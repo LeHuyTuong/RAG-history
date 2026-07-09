@@ -34,6 +34,7 @@ class RagChatRequest(BaseModel):
     sourceIds: list[int] = []  # filter: chỉ search trong các source này
     tagIds: list[int] = []     # filter: chỉ search chunk có gắn tag này
     temperature: float = 0.2
+    model: str | None = None    # model override từ admin settings
 
 
 class RagChatResponse(BaseModel):

@@ -1,304 +1,366 @@
-import { useState, useEffect } from 'react';
-import { ActionModal, TableActions, PageHeader } from '../../../components/admin';
+import { useEffect, useMemo, useState } from 'react';
+import { PageHeader } from '../../../components/admin';
 import { settingsService } from '../../../services';
 
-// --- COMPONENT CON 2: MODAL THÊM / SỬA THAM SỐ ---
-const ParamModal = ({ onClose, onSave, editData = null }) => {
-  const [form, setForm] = useState(
-    editData || { key: '', value: '', desc: '' }
-  );
+const AI_MODEL_OPTIONS = [
+  {
+    value: 'gpt-oss-120b',
+    label: 'GPT-OSS 120B (OpenAI, Free - tốt nhất)',
+    provider: 'OpenAI',
+    note: 'Tốt nhất',
+  },
+  {
+    value: 'gemma-4-26b',
+    label: 'Gemma 4 26B (Google, Free)',
+    provider: 'Google',
+    note: 'Free',
+  },
+  {
+    value: 'gemma-4-31b',
+    label: 'Gemma 4 31B (Google, Free)',
+    provider: 'Google',
+    note: 'Free',
+  },
+  {
+    value: 'llama-3.3-70b',
+    label: 'Llama 3.3 70B (Meta, Free)',
+    provider: 'Meta',
+    note: 'Free',
+  },
+  {
+    value: 'qwen3-coder-480b',
+    label: 'Qwen3 Coder 480B (Free - code mạnh)',
+    provider: 'Qwen',
+    note: 'Code mạnh',
+  },
+  {
+    value: 'nemotron-3-super',
+    label: 'Nemotron 3 Super (NVIDIA, Free)',
+    provider: 'NVIDIA',
+    note: 'Free',
+  },
+  {
+    value: 'gpt-oss-20b',
+    label: 'GPT-OSS 20B (OpenAI, Free - nhanh)',
+    provider: 'OpenAI',
+    note: 'Nhanh',
+  },
+  {
+    value: 'gemini-2.0-flash',
+    label: 'Gemini 2.0 Flash (Google)',
+    provider: 'Google',
+    note: 'Mặc định',
+  },
+];
+
+const DEFAULT_SETTINGS = {
+  'rag.llm_model': 'gpt-oss-120b',
+  'ui.logo_url': '',
+  'ui.background_url': '',
+};
+
+const SETTING_DESCRIPTIONS = {
+  'rag.llm_model': 'Model AI dùng cho hỏi đáp RAG trên giao diện',
+  'ui.logo_url': 'Logo hiển thị trên website; có thể là URL hoặc ảnh upload',
+  'ui.background_url': 'Ảnh nền website; có thể là URL hoặc ảnh upload',
+};
+
+const findModelLabel = (modelValue) => {
+  return AI_MODEL_OPTIONS.find(option => option.value === modelValue)?.label || modelValue;
+};
+
+const ImageSettingCard = ({ title, subtitle, icon, value, onChange, onApply, previewMode = 'contain' }) => {
+  const [urlDraft, setUrlDraft] = useState(value || '');
 
   useEffect(() => {
-    if (editData) {
-      setForm(editData);
-    } else {
-      setForm({ key: '', value: '', desc: '' });
-    }
-  }, [editData]);
+    setUrlDraft(value || '');
+  }, [value]);
+
+  const handleFileChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const imageValue = reader.result || '';
+      setUrlDraft(imageValue);
+      onChange(imageValue);
+      onApply?.(imageValue);
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  };
+
+  const applyUrl = () => {
+    const nextValue = urlDraft.trim();
+    setUrlDraft(nextValue);
+    onChange(nextValue);
+    onApply?.(nextValue);
+  };
+
+  const clearImage = () => {
+    setUrlDraft('');
+    onChange('');
+    onApply?.('');
+  };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-all animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-
-        {/* Modal Header */}
-        <div className="bg-gradient-to-br from-primary to-indigo-600 p-8 text-white relative overflow-hidden">
-          <div className="absolute top-1/2 -translate-y-1/2 right-0 p-4 opacity-10 pointer-events-none">
-            <span className="material-symbols-outlined text-[120px] mix-blend-overlay">settings_applications</span>
-          </div>
-          <h3 className="font-headline text-3xl font-bold relative z-10 tracking-tight">
-            {editData ? 'Cập nhật Tham số' : 'Khởi tạo Tham số Mới'}
-          </h3>
-          <p className="font-body text-xs mt-2 opacity-90 relative z-10 font-medium">
-            Thiết lập cấu hình vận hành lõi cho hệ thống.
-          </p>
-        </div>
-
-        {/* Modal Body */}
-        <div className="p-8 space-y-6 font-body">
-          <div className="space-y-2">
-            <label className="font-body text-[11px] font-bold uppercase opacity-70 flex items-center gap-2 text-primary tracking-widest">
-              <span className="material-symbols-outlined text-[16px]">key</span> Khóa tham số (Key)
-            </label>
-            <input
-              type="text"
-              value={form.key}
-              onChange={e => setForm({ ...form, key: e.target.value })}
-              disabled={!!editData}
-              className={`w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 text-sm font-bold text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all ${editData ? 'opacity-60 cursor-not-allowed bg-surface-variant/20' : 'hover:border-primary'}`}
-              placeholder="Vd: rag_max_results"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="font-body text-[11px] font-bold uppercase opacity-70 flex items-center gap-2 text-primary tracking-widest">
-              <span className="material-symbols-outlined text-[16px]">edit_note</span> Giá trị (Value)
-            </label>
-            <input
-              type="text"
-              value={form.value}
-              onChange={e => setForm({ ...form, value: e.target.value })}
-              className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 text-sm font-bold text-on-surface outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-              placeholder="Nhập giá trị..."
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="font-body text-[11px] font-bold uppercase opacity-70 flex items-center gap-2 text-primary tracking-widest">
-              <span className="material-symbols-outlined text-[16px]">description</span> Mô tả ghi chú
-            </label>
-            <textarea
-              rows="3"
-              value={form.desc}
-              onChange={e => setForm({ ...form, desc: e.target.value })}
-              className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-4 text-sm italic leading-relaxed outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-              placeholder="Giải thích ý nghĩa tham số..."
-            />
-          </div>
-
-          <div className="flex gap-4 pt-6 mt-4 border-t border-outline-variant/40">
-            <button
-              onClick={onClose}
-              className="flex-1 py-3 border-2 border-[#6b0f0d]/20 text-[#6b0f0d] hover:bg-[#6b0f0d]/5 hover:border-[#6b0f0d]/40 uppercase tracking-widest transition-all text-xs cursor-pointer rounded-xl font-bold"
-            >
-              Hủy bỏ
-            </button>
-            <button
-              onClick={() => onSave(form)}
-              className="flex-1 py-3 bg-[#6b0f0d] text-[#ffe7b0] hover:bg-[#520a08] font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 uppercase tracking-widest transition-all text-xs flex items-center justify-center gap-2 border border-[#ffe7b0]/25 cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[16px]">save</span>
-              Lưu tham số
-            </button>
-          </div>
+    <section className="bg-white rounded-2xl border border-outline-variant/60 shadow-sm overflow-hidden">
+      <div className="p-6 border-b border-outline-variant/60 flex items-start gap-3">
+        <span className="material-symbols-outlined text-[#0f9f6e] text-[22px] mt-0.5">{icon}</span>
+        <div>
+          <h3 className="font-headline text-lg text-on-surface font-bold">{title}</h3>
+          <p className="font-body text-xs text-on-surface-variant mt-1">{subtitle}</p>
         </div>
       </div>
-    </div>
+
+      <div className="p-6 grid lg:grid-cols-[minmax(0,1fr)_280px] gap-6 items-start">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="font-body text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+              Đường dẫn ảnh
+            </label>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                value={urlDraft}
+                onChange={event => setUrlDraft(event.target.value)}
+                placeholder="https://... hoặc /images/logo.png"
+                className="min-w-0 flex-1 h-11 rounded-xl border border-outline-variant/70 bg-surface-low/30 px-4 font-body text-sm outline-none focus:border-[#0f9f6e] focus:ring-2 focus:ring-[#0f9f6e]/15"
+              />
+              <button
+                type="button"
+                onClick={applyUrl}
+                className="h-11 px-4 rounded-xl border border-outline-variant/70 text-on-surface text-xs font-bold uppercase tracking-widest hover:border-[#0f9f6e] hover:text-[#0f9f6e] transition-colors"
+              >
+                Áp dụng
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <label className="h-11 px-4 rounded-xl bg-[#0f9f6e] text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2 cursor-pointer hover:bg-[#0c8059] transition-colors">
+              <span className="material-symbols-outlined text-[17px]">upload</span>
+              Upload ảnh
+              <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+            </label>
+            {(value || urlDraft) && (
+              <button
+                type="button"
+                onClick={clearImage}
+                className="h-11 px-4 rounded-xl border border-red-200 text-red-700 text-xs font-bold uppercase tracking-widest hover:bg-red-50 transition-colors flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[17px]">delete</span>
+                Bỏ ảnh
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={clearImage}
+              className="h-11 px-4 rounded-xl border border-[#6b0f0d]/25 text-[#6b0f0d] text-xs font-bold uppercase tracking-widest hover:bg-[#6b0f0d]/5 transition-colors"
+            >
+              Dùng mặc định
+            </button>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-dashed border-outline-variant/70 bg-surface-low/30 min-h-40 overflow-hidden flex items-center justify-center">
+          {value ? (
+            <img
+              src={value}
+              alt={title}
+              className={`w-full h-full max-h-56 ${previewMode === 'cover' ? 'object-cover' : 'object-contain p-5'}`}
+            />
+          ) : (
+            <div className="text-center text-on-surface-variant p-8">
+              <span className="material-symbols-outlined text-4xl opacity-60">image</span>
+              <p className="mt-2 text-xs font-bold uppercase tracking-widest">Đang dùng mặc định</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
   );
 };
 
-const paramLabels = {
-  'site_name': 'Tên hệ thống',
-  'rag_threshold': 'Ngưỡng tương đồng RAG',
-  'max_upload_size': 'Kích thước tải lên tối đa',
-  'embedding_model': 'Mô hình Embedding AI',
-  'rag.chunk_size': 'Số ký tự mỗi chunk',
-  'rag.chunk_overlap': 'Overlap giữa các chunk',
-  'rag.top_k': 'Số chunk retrieve mỗi câu hỏi',
-  'rag.embedding_model': 'Model embedding Gemini (768 chiều)',
-  'rag.vector_size': 'Số chiều vector collection Qdrant',
-  'rag.llm_model': 'Model sinh câu trả lời (Gemini)',
-  'rag.temperature': 'Nhiệt độ LLM',
-  'rag.enable_graph': 'Bật Graph RAG (Neo4j)'
-};
-
-// --- COMPONENT CHÍNH ---
 const SystemSettings = () => {
-  const [modalState, setModalState] = useState({ open: false, editData: null });
-  const [deleteModal, setDeleteModal] = useState({ open: false, key: '' });
-  const [data, setData] = useState({ stats: [], parameters: [] });
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const settingsList = await settingsService.list();
-        const list = Array.isArray(settingsList) ? settingsList : [];
+  const selectedModel = useMemo(
+    () => AI_MODEL_OPTIONS.find(option => option.value === settings['rag.llm_model']),
+    [settings]
+  );
 
-        // Map backend properties to match frontend expectation (description -> desc)
-        const mappedParams = list.map(p => ({
-          key: p.key,
-          value: p.value,
-          desc: p.description || p.desc || ''
-        }));
-
-        const stats = [
-          { label: "Thẻ hệ thống", value: "1,482", icon: "sell" },
-          { label: "Thời kỳ lịch sử", value: "12", icon: "timeline" }
-        ];
-
-        setData({ stats, parameters: mappedParams });
-      } catch (error) {
-        console.error('Error fetching settings data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  const handleSave = async (form) => {
-    if (!form.key.trim() || !form.value.trim()) return;
-
-    const newParam = {
-      key: form.key.trim(),
-      value: form.value.trim(),
-      desc: form.desc.trim()
-    };
-
+  const loadSettings = async () => {
+    setLoading(true);
     try {
-      await settingsService.upsert({
-        key: newParam.key,
-        value: newParam.value,
-        description: newParam.desc,
+      const list = await settingsService.list();
+      const nextSettings = { ...DEFAULT_SETTINGS };
+
+      list.forEach(item => {
+        if (Object.prototype.hasOwnProperty.call(nextSettings, item.key)) {
+          nextSettings[item.key] = item.value || '';
+        }
       });
 
-      // Update state
-      let updatedParams = [...data.parameters];
-      const index = updatedParams.findIndex(p => p.key === newParam.key);
-      if (index >= 0) {
-        updatedParams[index] = newParam;
-      } else {
-        updatedParams.push(newParam);
-      }
-      setData({ ...data, parameters: updatedParams });
-
-      setModalState({ open: false, editData: null });
-
-      // Show success toast
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
-    } catch (e) {
-      console.error('Lỗi khi lưu tham số lên backend:', e);
-      alert('Có lỗi xảy ra khi lưu tham số hệ thống!');
+      setSettings(nextSettings);
+    } catch (error) {
+      console.error('Error loading settings:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = async () => {
-    const key = deleteModal.key;
-    if (!key) return;
+  useEffect(() => {
+    loadSettings();
+  }, []);
 
+  const updateSetting = (key, value) => {
+    setSettings(previous => ({ ...previous, [key]: value }));
+  };
+
+  const applyAppearancePreview = (appearance) => {
+    window.dispatchEvent(new CustomEvent('history-rag-settings-updated', {
+      detail: { appearance },
+    }));
+  };
+
+  const applyImageSetting = (key, value, appearance) => {
+    updateSetting(key, value);
+    applyAppearancePreview(appearance);
+
+    settingsService.upsert({
+      key,
+      value,
+      description: SETTING_DESCRIPTIONS[key],
+    }).catch(error => {
+      console.error(`Lỗi khi áp dụng ${key}:`, error);
+    });
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
     try {
-      await settingsService.delete(key);
+      await Promise.all(
+        Object.entries(settings).map(([key, value]) =>
+          settingsService.upsert({
+            key,
+            value,
+            description: SETTING_DESCRIPTIONS[key],
+          })
+        )
+      );
 
-      // Remove from state
-      const updatedParams = data.parameters.filter(p => p.key !== key);
-      setData({ ...data, parameters: updatedParams });
-
-      setDeleteModal({ open: false, key: '' });
-      // Show success toast
+      window.dispatchEvent(new Event('history-rag-settings-updated'));
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
-    } catch (e) {
-      console.error('Lỗi khi xóa tham số ở backend:', e);
-      alert('Có lỗi xảy ra khi xóa tham số hệ thống!');
+    } catch (error) {
+      console.error('Lỗi khi lưu cài đặt:', error);
+      alert('Có lỗi xảy ra khi lưu cài đặt hệ thống!');
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
-    <div className="flex-grow flex flex-col min-h-screen bg-surface pb-20 font-body animate-in fade-in duration-500">
-      <main className="p-8 max-w-6xl mx-auto w-full space-y-10">
-
-        {/* HEADER */}
+    <div className="flex-grow min-h-screen bg-surface pb-20 font-body animate-in fade-in duration-500">
+      <main className="p-8 max-w-7xl mx-auto w-full space-y-6">
         <PageHeader
-          title="Cài đặt Hệ thống"
-          subtitle="Quản lý tham số vận hành lõi. Đảm bảo tính nhất quán của cơ sở dữ liệu và hiệu năng tìm kiếm sử liệu."
+          title="Cài đặt hệ thống"
+          subtitle="Đổi model AI, logo và background hiển thị trên website."
           icon="settings"
+          actionLabel="Làm mới"
+          actionIcon="refresh"
+          onActionClick={loadSettings}
         />
 
-        {/* PARAMETERS TABLE */}
-        <section className="bg-white rounded-3xl border border-outline-variant/60 shadow-sm overflow-hidden transition-all hover:shadow-md">
-          <div className="p-6 border-b border-outline-variant/60 flex justify-between items-center bg-surface-low/30">
-            <h3 className="font-headline text-xl text-[#6b0f0d] font-bold flex items-center gap-2">
-              <span className="material-symbols-outlined">tune</span>
-              Bảng tham số cấu hình
-            </h3>
-            <button
-              onClick={() => setModalState({ open: true, editData: null })}
-              className="px-5 py-2.5 rounded-xl bg-[#6b0f0d]/10 text-[#6b0f0d] font-bold text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-[#6b0f0d] hover:text-[#ffe7b0] transition-all active:scale-95 cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[18px]">add</span>
-              Thêm tham số
-            </button>
+        <section className="bg-white rounded-2xl border border-outline-variant/60 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-outline-variant/60 flex items-start gap-3">
+            <span className="material-symbols-outlined text-[#0f9f6e] text-[22px] mt-0.5">smart_toy</span>
+            <div>
+              <h3 className="font-headline text-lg text-on-surface font-bold">AI Model</h3>
+              <p className="font-body text-xs text-on-surface-variant mt-1">
+                Model dùng cho hỏi đáp AI trên website.
+              </p>
+            </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left font-body">
-              <thead className="bg-surface-low/50 text-[10px] uppercase text-on-surface-variant border-b border-outline-variant/60 tracking-widest font-bold">
-                <tr>
-                  <th className="p-5 w-1/4">Tham số (Key)</th>
-                  <th className="p-5 w-1/4">Giá trị (Value)</th>
-                  <th className="p-5">Mô tả</th>
-                  <th className="p-5 text-right">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-outline-variant/30 text-sm">
-                {loading ? (
-                  <tr>
-                    <td colSpan="4" className="text-center py-12">
-                      <div className="flex flex-col items-center justify-center text-primary/50 space-y-2">
-                        <span className="material-symbols-outlined text-4xl animate-spin">refresh</span>
-                        <p className="font-bold text-xs uppercase tracking-widest">Đang tải tham số...</p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  data.parameters.map((p) => (
-                    <tr key={p.key} className="hover:bg-primary/5 transition-colors group">
-                      <td className="p-5">
-                        <p className="font-bold text-primary text-sm flex items-center gap-2">
-                          <span className="material-symbols-outlined text-[16px] opacity-70">label_important</span>
-                          {paramLabels[p.key] || p.key}
-                        </p>
-                        <p className="text-[10px] text-on-surface-variant font-mono mt-1 ml-6 bg-surface-variant/20 inline-block px-2 py-0.5 rounded-md">{p.key}</p>
-                      </td>
-                      <td className="p-5 font-medium text-on-surface">
-                        <span className="bg-surface-low border border-outline-variant/50 px-3 py-1.5 rounded-lg shadow-sm font-bold">
-                          {p.value}
-                        </span>
-                      </td>
-                      <td className="p-5 text-on-surface-variant italic text-[12px] leading-relaxed max-w-xs truncate">
-                        {p.desc}
-                      </td>
-                      <td className="p-5 text-right flex items-center justify-end gap-2">
-                        <TableActions
-                          onEdit={() => setModalState({ open: true, editData: p })}
-                          onDelete={() => setDeleteModal({ open: true, key: p.key })}
-                        />
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+          <div className="p-6 space-y-4">
+            <div className="max-w-xl space-y-2">
+              <label className="font-body text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+                Model đang dùng
+              </label>
+              <select
+                value={settings['rag.llm_model']}
+                onChange={event => updateSetting('rag.llm_model', event.target.value)}
+                disabled={loading}
+                className="w-full h-12 rounded-xl border border-outline-variant/70 bg-surface-low/30 px-4 font-body text-sm font-semibold text-on-surface outline-none focus:border-[#0f9f6e] focus:ring-2 focus:ring-[#0f9f6e]/15"
+              >
+                {AI_MODEL_OPTIONS.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-4 pt-2">
+              <div className="rounded-xl border border-outline-variant/50 bg-surface-low/30 p-4">
+                <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Provider</p>
+                <p className="mt-2 font-bold text-on-surface">{selectedModel?.provider || 'Custom'}</p>
+              </div>
+              <div className="rounded-xl border border-outline-variant/50 bg-surface-low/30 p-4">
+                <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Trạng thái</p>
+                <span className="mt-2 inline-flex px-3 py-1 rounded-full bg-[#0f9f6e]/10 text-[#0f9f6e] text-xs font-bold">
+                  Active
+                </span>
+              </div>
+              <div className="rounded-xl border border-outline-variant/50 bg-surface-low/30 p-4">
+                <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Tên model</p>
+                <p className="mt-2 font-bold text-on-surface truncate">{findModelLabel(settings['rag.llm_model'])}</p>
+              </div>
+            </div>
           </div>
         </section>
+
+        <ImageSettingCard
+          title="Logo website"
+          subtitle="Logo hiển thị ở header người dùng và sidebar admin."
+          icon="imagesmode"
+          value={settings['ui.logo_url']}
+          onChange={value => updateSetting('ui.logo_url', value)}
+          onApply={value => applyImageSetting('ui.logo_url', value, { logoUrl: value })}
+        />
+
+        <ImageSettingCard
+          title="Background website"
+          subtitle="Ảnh nền dùng chung cho giao diện website."
+          icon="wallpaper"
+          value={settings['ui.background_url']}
+          onChange={value => updateSetting('ui.background_url', value)}
+          onApply={value => applyImageSetting('ui.background_url', value, { backgroundUrl: value })}
+          previewMode="cover"
+        />
+
+        <div className="sticky bottom-6 z-30 flex justify-end">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving || loading}
+            className="h-12 px-6 rounded-xl bg-[#0f9f6e] text-white shadow-lg hover:bg-[#0c8059] disabled:opacity-60 disabled:cursor-not-allowed font-bold text-xs uppercase tracking-widest flex items-center gap-2 transition-colors"
+          >
+            <span className="material-symbols-outlined text-[18px]">{saving ? 'sync' : 'save'}</span>
+            {saving ? 'Đang lưu...' : 'Lưu cài đặt'}
+          </button>
+        </div>
       </main>
 
-      {/* --- MODAL SYSTEM --- */}
-      {modalState.open && <ParamModal editData={modalState.editData} onSave={handleSave} onClose={() => setModalState({ open: false, editData: null })} />}
-
-      <ActionModal
-        isOpen={deleteModal.open}
-        onClose={() => setDeleteModal({ open: false, key: '' })}
-        type="delete"
-        item={{ name: deleteModal.key }}
-        onConfirm={handleDelete}
-      />
-
-      {/* SUCCESS TOAST */}
       {showSuccess && (
         <div className="fixed bottom-8 right-8 bg-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-8 fade-in z-[200]">
           <span className="material-symbols-outlined">check_circle</span>
-          <span className="font-body font-bold text-sm tracking-wide">Đã lưu cấu hình thành công!</span>
+          <span className="font-body font-bold text-sm tracking-wide">Đã lưu cài đặt thành công!</span>
         </div>
       )}
     </div>

@@ -1,4 +1,4 @@
-import { apiClient, mockClient } from '../services';
+import { apiClient } from '../services';
 import React, { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate, NavLink, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
@@ -7,6 +7,8 @@ import useModalStore from '../store/zustand/useModalStore';
 import LogoutModal from "./LogoutModal";
 import ChatBox from "./ChatBox";
 import DongSonDrumIcon from "./DongSonDrumIcon";
+import useSystemAppearance from '../hooks/useSystemAppearance';
+import SystemBackground from './SystemBackground';
 
 const HEADER_HEIGHT = 80;
 
@@ -26,7 +28,7 @@ const UserLayout = () => {
     setIsChatOpen(false);
   }, [location.pathname]);
 
-  const [siteName, setSiteName] = useState('Sử Việt');
+  const { siteName, logoUrl, backgroundUrl } = useSystemAppearance();
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -35,23 +37,6 @@ const UserLayout = () => {
       dispatch(login({ user: JSON.parse(savedUser), token: savedToken }));
     }
   }, [dispatch]);
-
-  useEffect(() => {
-    const customSettings = JSON.parse(localStorage.getItem('admin_new_settings') || '[]');
-    const siteNameParam = customSettings.find(p => p.key === 'site_name');
-    if (siteNameParam) {
-      setSiteName(siteNameParam.value);
-    } else {
-      mockClient.get('/api/admin_settings.json')
-        .then(res => {
-          const defaultSiteName = res.data.parameters?.find(p => p.key === 'site_name')?.value;
-          if (defaultSiteName) {
-            setSiteName(defaultSiteName);
-          }
-        })
-        .catch(err => console.error('Error loading settings:', err));
-    }
-  }, []);
 
   useEffect(() => {
     document.title = siteName;
@@ -81,13 +66,10 @@ const UserLayout = () => {
     }`;
 
   return (
-    <div className="min-h-screen bg-[#fbf6e8] parchment-texture font-body selection:bg-[#d99b4a]/20 relative flex flex-col">
+    <div className={`min-h-screen font-body selection:bg-[#d99b4a]/20 relative flex flex-col ${backgroundUrl ? 'bg-[#fbf6e8]' : 'bg-[#fbf6e8] parchment-texture'}`}>
       <div className="grain-overlay pointer-events-none fixed inset-0 z-0 opacity-5" />
       
-      {/* Spinning Dong Son Background */}
-      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none flex items-center justify-center opacity-[0.03]">
-        <DongSonDrumIcon className="w-[150vw] h-[150vw] text-[#6b0f0d] animate-[spin_120s_linear_infinite]" />
-      </div>
+      <SystemBackground backgroundUrl={backgroundUrl} />
 
       {/* HEADER */}
       <header
@@ -104,7 +86,11 @@ const UserLayout = () => {
               to={user?.role === 'admin' ? '/admin' : '/'}
               className="shrink-0 font-headline text-[26px] lg:text-[30px] font-bold text-[#f7d78a] tracking-wider hover:opacity-80 transition drop-shadow-md flex items-center gap-3"
             >
-              <span className="material-symbols-outlined text-[28px] lg:text-[32px] text-[#f7d78a]">account_balance</span>
+              {logoUrl ? (
+                <img src={logoUrl} alt={siteName} className="w-9 h-9 lg:w-10 lg:h-10 object-contain rounded-sm bg-[#f7d78a]/10 p-0.5" />
+              ) : (
+                <span className="material-symbols-outlined text-[28px] lg:text-[32px] text-[#f7d78a]">account_balance</span>
+              )}
               {siteName}
             </Link>
 
@@ -184,7 +170,7 @@ const UserLayout = () => {
         className="relative z-10 flex-grow"
         style={{ paddingTop: `${HEADER_HEIGHT}px` }}
       >
-        <Outlet />
+        <Outlet context={{ backgroundUrl }} />
       </main>
 
       {/* FOOTER */}

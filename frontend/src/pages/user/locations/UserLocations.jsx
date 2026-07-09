@@ -1,7 +1,7 @@
 import { API_ENDPOINTS, apiClient, mockClient, locationService, periodService } from '../../../services';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import VietnamMap from '../../../components/VietnamMap';
 
 const LOCATION_TYPE_MAP = {
@@ -41,6 +41,7 @@ const PROVINCE_MAP = {
 };
 
 export default function UserLocations() {
+  const { backgroundUrl = '' } = useOutletContext() || {};
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'map'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDynasty, setSelectedDynasty] = useState('');
@@ -167,7 +168,7 @@ export default function UserLocations() {
         <div className="absolute inset-0 z-0 bg-[#2b0504]">
           <img
             className="w-full h-full object-cover grayscale-[30%] sepia-[40%] brightness-[0.4] animate-ken-burns origin-center"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2"
+            src={backgroundUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2"}
             alt="Locations Hero"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#2b0504]/90 via-[#2b0504]/40 to-[#fbf6e8] pointer-events-none"></div>

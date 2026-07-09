@@ -95,7 +95,7 @@ async def _chat(req: RagChatRequest) -> RagChatResponse:
     try:
         system_prompt = load_system_prompt()
         user_message = build_user_message(req.question, hits, graph_facts)
-        answer = generate(system_prompt, user_message, req.temperature)
+        answer = generate(system_prompt, user_message, req.temperature, req.model)
     except Exception:
         return RagChatResponse(
             answer=_NO_DATA_MSG,
@@ -104,7 +104,7 @@ async def _chat(req: RagChatRequest) -> RagChatResponse:
             usedGraph=bool(graph_facts),
         )
 
-    suggestions = suggest_questions(req.question, answer)
+    suggestions = suggest_questions(req.question, answer, req.model)
     return RagChatResponse(
         answer=answer,
         citations=to_citations(hits),
@@ -152,7 +152,7 @@ def _stream_chat_events(req: RagChatRequest):
     try:
         system_prompt = load_system_prompt()
         user_message = build_user_message(req.question, hits, graph_facts)
-        for kind, chunk in generate_stream(system_prompt, user_message, req.temperature):
+        for kind, chunk in generate_stream(system_prompt, user_message, req.temperature, req.model):
             if kind == "thinking":
                 yield _sse("chat.thinking", {"text": chunk})
             else:
@@ -170,7 +170,7 @@ def _stream_chat_events(req: RagChatRequest):
         "usedVector": True,
         "usedGraph": bool(graph_facts),
     })
-    suggestions = suggest_questions(req.question, full_answer)
+    suggestions = suggest_questions(req.question, full_answer, req.model)
     if suggestions:
         yield _sse("chat.suggestions", {"suggestions": suggestions})
 

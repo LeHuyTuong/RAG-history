@@ -1,11 +1,12 @@
 import { API_ENDPOINTS, apiClient, eventService, periodService } from '../../../services';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import Pagination from '../../../components/common/Pagination';
 import { stripHtml } from '../../../utils/stringUtils';
 import eventImages from '../../../data/eventImages.json';
 
 const UserEvents = () => {
+  const { backgroundUrl = '' } = useOutletContext() || {};
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriods, setSelectedPeriods] = useState([]);
   const [searchYear, setSearchYear] = useState('');
@@ -100,7 +101,7 @@ const UserEvents = () => {
         <div className="absolute inset-0 z-0 bg-[#2b0504]">
           <img
             className="w-full h-full object-cover grayscale-[30%] sepia-[40%] brightness-[0.4] animate-ken-burns origin-center"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2"
+            src={backgroundUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2"}
             alt="Events Hero"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#2b0504]/90 via-[#2b0504]/40 to-[#fbf6e8] pointer-events-none"></div>

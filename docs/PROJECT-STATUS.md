@@ -1,6 +1,6 @@
 # Project Status
 
-> Last updated: 2026-06-24 | By: Codex | Session: #17
+> Last updated: 2026-07-03 | By: Codex | Session: #18
 >
 > AI: update this file at the end of every session when asked.
 > Follow this exact format. Keep it concise — under 80 lines.
@@ -43,6 +43,9 @@
 - Added nginx SPA route fallback for the Dockerized frontend so direct routes like `/login` serve React's `index.html`.
 - Standardized feature services/controllers on Lombok `@RequiredArgsConstructor`, added builders to DTO records, and removed manual constructors from feature entities.
 - Refactored feature service dependencies so service implementations no longer inject repositories from other feature packages; cross-feature access now goes through service interfaces.
+- Added editable admin system settings API backed by `system_settings`, plus UI controls for exactly three settings: AI model, shared logo, and shared background image.
+- Connected the admin settings page and user/admin layouts to backend settings with mock fallback, so logo/background changes apply across both layouts without code changes.
+- Wired the selected AI model from admin settings into chat requests so the RAG service can use the chosen model at runtime.
 
 ## In Progress
 _Nothing._
