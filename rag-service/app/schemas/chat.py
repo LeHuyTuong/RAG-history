@@ -25,6 +25,7 @@ class Citation(BaseModel):
     pageNumber: int | None = None
     chunkIndex: int | None = None
     score: float | None = None  # cosine similarity score từ Qdrant
+    sourceUrl: str | None = None  # URL đầy đủ (vd link Wikipedia)
 
 
 class RagChatRequest(BaseModel):
@@ -41,4 +42,6 @@ class RagChatResponse(BaseModel):
     citations: list[Citation]
     usedVector: bool
     usedGraph: bool
+    usedWeb: bool = False
+    needsRephrase: bool = False
     suggestions: list[str] = []

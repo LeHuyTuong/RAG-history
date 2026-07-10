@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
@@ -82,8 +84,16 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public LoginResponse login(LoginRequest request, String deviceInfo, String ipAddress) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.email(), request.password())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            log.error("================> AUTHENTICATION SUCCESS FOR: {}", request.email());
+        } catch (Exception e) {
+            log.error("================> AUTHENTICATION FAILED FOR: {} - {}", request.email(), e.getMessage(), e);
+            throw e;
+        }
 
         AuthAccount account = findAccountByEmail(request.email());
         String accessToken = generateAccessToken(account);

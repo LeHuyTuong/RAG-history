@@ -1,6 +1,8 @@
 import { useState, useCallback, useRef, useMemo } from 'react';
 import { extractSourcesFromCitations, transformCitationsToSources } from '../utils/aiSourceUtils';
 import { ragService } from '../services';
+import apiClient from '../services/http/apiClient';
+import { unwrap } from '../services/http/response';
 
 export const useAIChat = (initialMessages = []) => {
   const [messages, setMessages] = useState(
@@ -11,6 +13,8 @@ export const useAIChat = (initialMessages = []) => {
       text: msg.content || msg.text || '',
       sources: msg.sources || [],
       suggestions: msg.suggestions || [],
+      usedWeb: msg.usedWeb || false,
+      needsRephrase: msg.needsRephrase || false,
       createdAt: msg.createdAt || new Date(),
     }))
   );
@@ -51,6 +55,8 @@ export const useAIChat = (initialMessages = []) => {
       thinking: '',
       sources: [],
       suggestions: [],
+      usedWeb: false,
+      needsRephrase: false,
       createdAt: new Date(),
     };
 
@@ -107,10 +113,16 @@ export const useAIChat = (initialMessages = []) => {
         onSuggestions: (suggestions) =>
           updateAiMsg(() => ({ suggestions })),
 
-        onDone: () => {
+        onDone: (data) => {
           stopStream();
           setLoading(false);
           stopStreamRef.current = null;
+          if (data) {
+            updateAiMsg((m) => ({
+              usedWeb: data.usedWeb || false,
+              needsRephrase: data.needsRephrase || false,
+            }));
+          }
         },
 
         onError: (err) => {
@@ -126,6 +138,16 @@ export const useAIChat = (initialMessages = []) => {
       }
     );
   }, [loading]);
+
+  const sendFeedback = useCallback(async (question, answer, usedWeb, sourceUrl, rating) => {
+    try {
+      await apiClient.post('/api/v1/chat/feedback', {
+        question, answer, usedWeb, sourceUrl, rating,
+      });
+    } catch {
+      // silently ignore feedback errors
+    }
+  }, []);
 
   const clearMessages = useCallback(() => {
     if (stopStreamRef.current) {
@@ -154,6 +176,7 @@ export const useAIChat = (initialMessages = []) => {
     sendMessage,
     clearMessages,
     allSources,
+    sendFeedback,
   };
 };
 

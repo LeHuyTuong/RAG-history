@@ -18,12 +18,14 @@ import json
 
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
+import anyio
 
-from app.schemas.chat import RagChatRequest, RagChatResponse
+from app.schemas.chat import Citation, RagChatRequest, RagChatResponse
 
 router = APIRouter()
 
 _NO_DATA_MSG = "Hiện tại dữ liệu trong hệ thống chưa đủ để kết luận chắc chắn về câu hỏi này."
+_REPHRASE_MSG = "Chưa tìm thấy dữ liệu phù hợp. Bạn thử diễn đạt lại câu hỏi rõ hơn hoặc theo cách khác nhé."
 
 
 @router.get("/health")
@@ -70,6 +72,19 @@ async def _chat(req: RagChatRequest) -> RagChatResponse:
             usedGraph=False,
         )
 
+    if settings.faq_cache_enabled:
+        from app.services import faq_cache_service
+        hit = faq_cache_service.lookup(req.question)
+        if hit:
+            faq_citation = Citation(
+                sourceType="FAQ", sourceId=2_000_000,
+                title="FAQ (AI-generated)", score=hit.score / 100.0,
+            )
+            return RagChatResponse(
+                answer=hit.answer, citations=[faq_citation],
+                usedVector=False, usedGraph=False,
+            )
+
     top_k = req.topK or settings.default_top_k
     routing = route(req.question, req.useGraph)
 
@@ -85,11 +100,35 @@ async def _chat(req: RagChatRequest) -> RagChatResponse:
     graph_facts = _graph_context(req.question) if routing["use_graph"] else []
 
     if not hits and not graph_facts:
+        if settings.web_fallback_enabled:
+            from app.services.web_fallback_service import search_wikipedia_vi
+            web = await anyio.to_thread.run_sync(
+                search_wikipedia_vi, req.question, settings.web_fallback_max_chars
+            )
+            if web:
+                try:
+                    from app.services.prompt_service import load_system_prompt, build_web_user_message
+                    answer = generate(
+                        load_system_prompt(),
+                        build_web_user_message(req.question, web.title, web.extract),
+                        req.temperature,
+                    )
+                except Exception:
+                    answer = web.extract
+                citation = Citation(
+                    sourceType="URL", title=web.title,
+                    sourceUrl=web.url, score=None,
+                )
+                return RagChatResponse(
+                    answer=answer, citations=[citation],
+                    usedVector=False, usedGraph=False, usedWeb=True,
+                )
         return RagChatResponse(
-            answer=_NO_DATA_MSG,
+            answer=_REPHRASE_MSG,
             citations=[],
             usedVector=routing["use_vector"],
             usedGraph=routing["use_graph"],
+            needsRephrase=True,
         )
 
     try:
@@ -128,6 +167,18 @@ def _stream_chat_events(req: RagChatRequest):
             yield event
         return
 
+    if settings.faq_cache_enabled:
+        from app.services import faq_cache_service
+        hit = faq_cache_service.lookup(req.question)
+        if hit:
+            faq_citation = Citation(
+                sourceType="FAQ", sourceId=2_000_000,
+                title="FAQ (AI-generated)", score=hit.score / 100.0,
+            )
+            for event in _answer_events(hit.answer, [faq_citation], False, False):
+                yield event
+            return
+
     top_k = req.topK or settings.default_top_k
     routing = route(req.question, req.useGraph)
 
@@ -143,7 +194,47 @@ def _stream_chat_events(req: RagChatRequest):
     graph_facts = _graph_context(req.question) if routing["use_graph"] else []
 
     if not hits and not graph_facts:
-        for event in _answer_events(_NO_DATA_MSG, [], routing["use_vector"], routing["use_graph"]):
+        if settings.web_fallback_enabled:
+            from app.services.web_fallback_service import search_wikipedia_vi
+            web = search_wikipedia_vi(req.question, settings.web_fallback_max_chars)
+            if web:
+                citation = Citation(
+                    sourceType="URL", title=web.title,
+                    sourceUrl=web.url, score=None,
+                )
+                try:
+                    from app.services.prompt_service import load_system_prompt, build_web_user_message
+                    system_prompt = load_system_prompt()
+                    user_message = build_web_user_message(req.question, web.title, web.extract)
+                    full_answer = ""
+                    for kind, chunk in generate_stream(system_prompt, user_message, req.temperature):
+                        if kind == "thinking":
+                            yield _sse("chat.thinking", {"text": chunk})
+                        else:
+                            full_answer += chunk
+                            yield _sse("chat.delta", {"text": chunk})
+                    yield _sse("chat.citations", {
+                        "citations": [citation.model_dump()],
+                    })
+                    yield _sse("chat.completed", {
+                        "usedVector": False,
+                        "usedGraph": False,
+                        "usedWeb": True,
+                        "needsRephrase": False,
+                    })
+                    return
+                except Exception:
+                    if full_answer:
+                        yield _sse("chat.citations", {"citations": [citation.model_dump()]})
+                        yield _sse("chat.completed", {
+                            "usedVector": False, "usedGraph": False,
+                            "usedWeb": True, "needsRephrase": False,
+                        })
+                    else:
+                        for event in _answer_events(web.extract, [citation], False, False, True):
+                            yield event
+                    return
+        for event in _answer_events(_REPHRASE_MSG, [], routing["use_vector"], routing["use_graph"], needs_rephrase=True):
             yield event
         return
 
@@ -169,13 +260,15 @@ def _stream_chat_events(req: RagChatRequest):
     yield _sse("chat.completed", {
         "usedVector": True,
         "usedGraph": bool(graph_facts),
+        "usedWeb": False,
+        "needsRephrase": False,
     })
     suggestions = suggest_questions(req.question, full_answer)
     if suggestions:
         yield _sse("chat.suggestions", {"suggestions": suggestions})
 
 
-def _answer_events(answer: str, citations: list, used_vector: bool, used_graph: bool):
+def _answer_events(answer: str, citations: list, used_vector: bool, used_graph: bool, used_web: bool = False, needs_rephrase: bool = False):
     for chunk in _chunk_text(answer):
         yield _sse("chat.delta", {"text": chunk})
     yield _sse("chat.citations", {
@@ -184,6 +277,8 @@ def _answer_events(answer: str, citations: list, used_vector: bool, used_graph: 
     yield _sse("chat.completed", {
         "usedVector": used_vector,
         "usedGraph": used_graph,
+        "usedWeb": used_web,
+        "needsRephrase": needs_rephrase,
     })
 
 

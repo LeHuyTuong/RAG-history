@@ -87,7 +87,7 @@ const AIChat = () => {
   const {
     messages, loading, error,
     streamingMsgId, tokensPerSecond,
-    sendMessage, clearMessages,
+    sendMessage, clearMessages, sendFeedback,
   } = useAIChat([{
     role: 'ai',
     content: 'Kính chào quý học giả. Tôi là Trợ lý AI được huấn luyện từ kho tàng Đại Việt Sử Ký. Bạn muốn tìm hiểu sâu hơn về triều đại hay sự kiện nào?',
@@ -96,6 +96,7 @@ const AIChat = () => {
 
   const [input, setFormInput] = useState('');
   const chatEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   const handleSend = () => {
     if (!input.trim() || loading) return;
@@ -211,6 +212,58 @@ const AIChat = () => {
                     )}
                   </div>
 
+                  {/* Web badge + rating */}
+                  {msg.usedWeb && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+                        <span className="material-symbols-outlined text-amber-600 text-sm">public</span>
+                        <span className="text-[10px] text-amber-800 font-body">
+                          Nguồn: Wikipedia tiếng Việt (chưa kiểm chứng nội bộ)
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[9px] text-on-surface-variant font-body">
+                          Đánh giá:
+                        </span>
+                        {['GOOD', 'BAD', 'INSUFFICIENT'].map((r) => {
+                          const labels = { GOOD: '👍 Đúng', BAD: '👎 Sai', INSUFFICIENT: '⚠️ Chưa đủ' };
+                          const colors = {
+                            GOOD: 'border-green-300 text-green-700 hover:bg-green-50',
+                            BAD: 'border-red-300 text-red-700 hover:bg-red-50',
+                            INSUFFICIENT: 'border-gray-300 text-gray-600 hover:bg-gray-50',
+                          };
+                          const prev = idx > 0 ? messages[idx - 1] : null;
+                          const question = prev?.role === 'user' ? prev.content : '';
+                          const srcUrl = msg.sources?.[0]?.url || '';
+                          return (
+                            <button
+                              key={r}
+                              onClick={() => sendFeedback(question, msg.content, true, srcUrl, r)}
+                              className={`text-[10px] font-body px-2 py-1 rounded border ${colors[r]} transition-all`}
+                            >
+                              {labels[r]}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Rephrase */}
+                  {msg.needsRephrase && (
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-[10px] text-blue-800 font-body">
+                        Chưa tìm thấy kết quả phù hợp. Bạn có muốn diễn đạt lại câu hỏi?
+                      </p>
+                      <button
+                        onClick={() => inputRef.current?.focus()}
+                        className="mt-2 text-[10px] font-body px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition-all"
+                      >
+                        Gửi lại / Diễn đạt khác
+                      </button>
+                    </div>
+                  )}
+
                   {/* Gợi ý câu hỏi */}
                   {msg.role === 'ai' && msg.suggestions?.length > 0 && (
                     <div className="flex flex-wrap gap-2">
@@ -280,6 +333,7 @@ const AIChat = () => {
           <div className="p-6 bg-white border-t border-outline-variant/30">
             <div className="relative bg-surface-low rounded-full flex items-center px-6 py-1 shadow-inner border border-outline-variant/30">
               <input
+                ref={inputRef}
                 type="text"
                 value={input}
                 onChange={(e) => setFormInput(e.target.value)}

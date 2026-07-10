@@ -49,6 +49,18 @@ def build_user_message(question: str, hits: list[ScoredPoint],
     )
 
 
+def build_web_user_message(question: str, title: str, extract: str) -> str:
+    return (
+        "CONTEXT (nguồn: Wikipedia tiếng Việt — có thể chưa được kiểm chứng nội bộ):\n"
+        f"[W1] {title}\n{extract}\n\n"
+        "QUESTION:\n"
+        f"{question}\n\n"
+        "Yêu cầu: Trả lời NGẮN GỌN dựa CHỈ trên CONTEXT trên. "
+        "Nếu context không chứa câu trả lời, nói rõ là chưa tìm thấy. "
+        "KHÔNG bịa thông tin ngoài context."
+    )
+
+
 def _format_hit(index: int, hit: ScoredPoint) -> str:
     """Format 1 Qdrant hit thành block [C{index}] để LLM nhận dạng và trích dẫn."""
     payload = hit.payload or {}

@@ -21,14 +21,14 @@
 \title{Protocol-Aware Observability for AI Chat Streaming:\\
 A Systematic Review of Tracing and Metrics for\\
 Server-Sent Events and WebSocket}
-\author{Undergraduate Research Draft}
+\author{Le Huy Tuong \and Pham Thi Dieu Linh \and Phan Bao Tin \and Vo Duc Huy \and Vu Duc Hung}
 \date{June 2026}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-AI chatbot and retrieval-augmented generation (RAG) systems stream responses token-by-token so users see partial output early. Developers often default to WebSocket, yet for server-to-client text generation, Server-Sent Events (SSE) is frequently sufficient and simpler. Observability, however, is harder for both: REST tracing relies on per-request HTTP headers, but once an SSE or WebSocket connection is established, individual events or messages no longer carry HTTP headers, so request-level instrumentation cannot see token-level behaviour. This paper reports a systematic, PRISMA-guided review of how SSE and WebSocket are compared and observed, focusing on the metrics used for streaming AI workloads. We find that (i) token-level metrics --- time to first token (TTFT), inter-token latency (ITL), and output throughput --- are well defined in the LLM-serving literature; (ii) transport-level differences between SSE and WebSocket are minor for one-way token streaming; and (iii) no existing work provides a unified, backend-independent, agent-free instrumentation model that captures token-level observability across both protocols. We synthesise these gaps into a five-layer protocol-aware observability framework and a prototype scope for a Java/Spring~Boot library. This is a preliminary review: experimental measurement is reported as a planned prototype rather than completed results.
+AI chatbot and retrieval-augmented generation (RAG) systems stream responses token-by-token so users see partial output early. Developers often default to WebSocket, yet for server-to-client text generation, Server-Sent Events (SSE) is frequently sufficient and simpler. Observability, however, is harder for both: REST tracing relies on per-request HTTP headers, but once an SSE or WebSocket connection is established, individual events or messages no longer carry HTTP headers, so request-level instrumentation cannot see token-level behaviour. This paper is organised around a single, central research question: what gaps exist in message/token-level tracing for long-lived SSE/WebSocket AI streaming connections, and can a protocol-independent instrumentation model close them without incurring prohibitive tracing overhead relative to an uninstrumented baseline? We answer it via a systematic, PRISMA-guided literature review, which also establishes, as supporting context feeding into that gap, that token-level metrics --- time to first token (TTFT), inter-token latency (ITL), and output throughput --- are well defined in the LLM-serving literature, and that transport-level differences between SSE and WebSocket are minor for one-way token streaming under realistic conditions, a claim we reconcile against literature that appears to contradict it; no existing work, however, closes the tracing gap itself with a unified, backend-independent, agent-free instrumentation model spanning both protocols. We derive a five-layer protocol-aware observability framework directly from that gap and validate it empirically on a Spring Boot prototype driven by both a deterministic mock token generator and a real, locally hosted LLM (Llama\,3.2, 3B parameters, served by Ollama), across 80 (mock) and 40 (LLM) repeated runs per configuration: tracing overhead is small and near-symmetric between SSE and WebSocket at realistic LLM decode rates ($\le$7\% on time-to-first-token, supporting H1 and H3), but grows asymmetrically under transport-bound stress (+21\% SSE vs.\ +47\% WebSocket on inter-token latency, supporting H2), revealing a genuine cost difference between per-message and per-stream-with-events span design. Extending the review's own methodology, we further measure on-wire bandwidth directly rather than assuming it, finding tracing adds negligible bytes to SSE but more than doubles WebSocket's per-token bytes (+136\%) because trace context travels inside every message envelope; and we test both protocols under an application-layer weak-network condition (added delay, jitter, and 1\% packet loss), finding no distinguishable difference in AI output content loss between SSE and WebSocket --- both track the configured loss rate within measurement noise, a genuine no-difference finding rather than an assumed one. A fourth, separate experiment validates the framework's active-connections gauge under 50-way concurrent load for both protocols. We close by discussing where the unified model is the wrong choice --- per-message spans, not span events, are required when an individual message must anchor a distributed trace of its own --- and by noting that neither protocol currently gives a client any way to detect a silently dropped token, an observability gap this work surfaces rather than resolves.
 \end{abstract}
 
 \textit{Keywords:} Server-Sent Events, WebSocket, observability, distributed tracing, OpenTelemetry, LLM streaming, time to first token, PRISMA.
@@ -41,18 +41,26 @@ Modern chatbot and RAG applications stream responses progressively so that users
 
 From an observability perspective, REST APIs are straightforward to trace because every request carries headers such as \texttt{traceparent}. SSE and WebSocket, by contrast, are long-lived connections: headers are present only at connection setup, and subsequent events or messages do not automatically carry HTTP headers \cite{w3ctrace,oneuptimews2026}. Tracing streaming systems therefore requires additional connection- and message-level context propagation. This is a practical gap: existing tools trace REST and database calls well, but tracing the lifecycle of SSE and WebSocket streams --- connection open, per-token delivery, disconnects, cross-service propagation --- is less direct.
 
-\subsection{Objectives and Research Questions}
-This review studies how SSE and WebSocket are compared and observed for AI streaming, and what gaps remain. It addresses:
-\begin{enumerate}
-\item \textbf{RQ1}: What metrics are commonly used to compare SSE and WebSocket?
-\item \textbf{RQ2}: In AI token streaming, when is SSE sufficient and when is WebSocket more appropriate?
-\item \textbf{RQ3}: How well do current observability tools support REST tracing compared to SSE and WebSocket tracing?
-\item \textbf{RQ4}: What gaps exist in message/token-level tracing for long-lived streaming connections?
-\item \textbf{RQ5}: Can token-level metrics (TTFT, ITL, tokens/s) be captured for both SSE and WebSocket through a single, unified instrumentation model?
-\end{enumerate}
+\subsection{Objective and the Central Research Question}
+\label{sec:objectives}
+This work is organised around a single, empirically testable research question, informed by a systematic literature review.
+
+\paragraph{Central Research Question.} \textbf{RQ}: \emph{What gaps exist in message/token-level tracing for long-lived SSE and WebSocket AI streaming connections, and can a single, protocol-independent instrumentation model close them without incurring prohibitive tracing overhead relative to an uninstrumented baseline?} This question is answerable, not merely descriptive: it has a measurable outcome (overhead, symmetry across protocols) and a condition under which it could fail (overhead that is large, or asymmetric between protocols in a way that defeats the ``unified'' claim).
+
+\paragraph{Supporting literature context.} Answering the RQ first requires establishing three things the review surveys as background, not as separate research questions in their own right: what metrics are commonly used to compare SSE and WebSocket; in AI token streaming, when SSE is sufficient and when WebSocket is more appropriate; and how well current observability tools already support REST tracing compared to SSE/WebSocket tracing. This context does not itself require new measurement; it is synthesised from existing sources (\S\ref{sec:results-synthesis}) and feeds directly into the gap analysis that motivates the design of the proposed framework (\S\ref{sec:rationale}) and the hypotheses tested experimentally below, all of which target the RQ's tracing gap.
+
+\subsection{Hypotheses}
+\label{sec:hypotheses}
+The central RQ is decomposed into three falsifiable hypotheses, tested experimentally in \S~\ref{sec:experiment}:
+\begin{itemize}
+\item \textbf{H1} (overhead is acceptable): Unified instrumentation introduces negligible tracing overhead, relative to an uninstrumented baseline, at LLM-realistic token generation rates.
+\item \textbf{H2} (design choice matters): A per-stream span with lightweight span events incurs lower tracing overhead than a per-message span design as token/message frequency increases.
+\item \textbf{H3} (the model is protocol-independent): SSE and WebSocket exhibit statistically indistinguishable baseline tracing cost under the same instrumentation model when neither protocol's transport mechanics is itself the bottleneck.
+\end{itemize}
+H1 and H3 would be falsified by overhead that is large or systematically asymmetric between protocols at realistic rates; H2 would be falsified if per-message and per-event designs showed no cost difference under stress, which would undercut the motivation for choosing span events over per-message spans in \S~\ref{sec:rationale}.
 
 \subsection{Contributions}
-(i) A systematic, tiered review of metrics and tracing practice for SSE and WebSocket in AI streaming; (ii) a five-layer protocol-aware observability framework; and (iii) a prototype scope for a backend-independent, agent-free Java/Spring~Boot library that instantiates the framework.
+(i) A systematic, tiered review of metrics and tracing practice for SSE and WebSocket in AI streaming, establishing the central research question's tracing gap and the supporting literature context around it; (ii) a five-layer protocol-aware observability framework, derived from the review's findings rather than asserted (\S~\ref{sec:rationale}); (iii) a prototype scope for a backend-independent, agent-free Java/Spring~Boot library that instantiates the framework; and (iv) an experimental test of H1--H3 on that prototype (\S~\ref{sec:experiment}).
 
 %==============================================================
 \section{Background}
@@ -67,17 +75,17 @@ SSE pushes events from server to client over a single long-lived HTTP connection
 WebSocket provides a persistent, bidirectional channel established via an HTTP upgrade handshake, after which communication uses WebSocket frames \cite{rfc6455}. Because post-handshake frames do not behave like REST requests, tracing WebSocket requires two levels of instrumentation: connection-level and message-level, the latter relying on application metadata such as a trace id embedded in the message envelope \cite{alibabaws2026,splunkws2023}.
 
 \subsection{Distributed Tracing and Trace Context}
-Distributed tracing tracks how an operation moves across services as a tree of spans \cite{dapper2010}. The W3C Trace Context specification standardises \texttt{traceparent}/\texttt{tracestate} headers \cite{w3ctrace}, and OpenTelemetry provides a vendor-neutral ecosystem \cite{oteldocs}. The standard model works most naturally for HTTP request--response; streaming requires additional design because post-handshake messages may not carry headers.
+Distributed tracing tracks how an operation moves across services as a tree of spans \cite{dapper2010}. The W3C Trace Context specification standardises \texttt{traceparent}\slash\texttt{tracestate} headers \cite{w3ctrace}, and OpenTelemetry provides a vendor-neutral ecosystem \cite{oteldocs}. The standard model works most naturally for HTTP request--response; streaming requires additional design because post-handshake messages may not carry headers.
 
 \subsection{AI/LLM Token Streaming}
-LLM serving is characterised by token-level latency metrics: \emph{time to first token} (TTFT), the time until the first token appears; \emph{inter-token latency} (ITL, also TPOT), the average gap between consecutive tokens; and output \emph{throughput} in tokens per second \cite{nvidiabench2025,anyscale2026,arxivserving2025}. Interactive applications benefit most from low TTFT and ITL. In RAG, TTFT additionally includes retrieval time before generation begins.
+LLM serving is characterised by token-level latency metrics: \emph{time to first token} (TTFT), the time until the first token appears; \emph{inter-token latency} (ITL, also TPOT), the average gap between consecutive tokens; and output \emph{throughput} in tokens per second \cite{arxivserving2025,chiron2025}. Interactive applications benefit most from low TTFT and ITL. In RAG, TTFT additionally includes retrieval time before generation begins.
 
 %==============================================================
 \section{Methods}
 This review follows the PRISMA~2020 reporting guideline \cite{prisma2020} as a lightweight protocol. As an early-stage review, final inclusion counts are provisional pending full-text assessment.
 
 \subsection{Eligibility Criteria}
-\emph{Inclusion}: sources discussing SSE, WebSocket, HTTP streaming, or long-lived connections; providing latency, throughput, bandwidth, resource, or connection metrics; discussing tracing/telemetry/monitoring; in a streaming, chatbot, AI, or real-time context; or providing implementation detail relevant to Java/Spring~Boot/OpenTelemetry. \emph{Exclusion}: frontend-only, no metric/observability content, purely promotional, off-topic, or outdated (unless foundational).
+\emph{Inclusion}: sources discussing SSE, WebSocket, HTTP streaming, or long-lived connections; providing latency, throughput, bandwidth, resource, or connection metrics; discussing tracing/telemetry/monitoring; in a streaming, chatbot, AI, or real-time context; or providing implementation detail relevant to Java\slash Spring~Boot\slash OpenTelemetry. \emph{Exclusion}: frontend-only, no metric/observability content, purely promotional, off-topic, or outdated (unless foundational).
 
 \subsection{Information Sources}
 Academic databases (IEEE Xplore, ACM Digital Library, SpringerLink, arXiv, Google Scholar) and authoritative technical sources (OpenTelemetry, Spring, MDN, W3C, IETF, and vendor engineering blogs). All sources were last searched on 23 June 2026.
@@ -130,36 +138,52 @@ WS full-duplex eval \cite{ws2014} & 2014 & T1 & WS vs TCP & latency, network tra
 WS data transmission \cite{ws2019} & 2019 & T1 & WS RTC & throughput, latency \\
 WS benchmark infra \cite{ws2016bench} & 2016 & T1 & server-side benchmark & black-box throughput \\
 LLM serving eval \cite{arxivserving2025} & 2025 & T1 & LLM serving & TTFT, ITL, TPS, pitfalls \\
-NVIDIA benchmarking \cite{nvidiabench2025} & 2025 & T2 & LLM serving & TTFT, ITL, TPS defs \\
-Anyscale metrics \cite{anyscale2026} & 2026 & T2 & LLM serving & ITL formula \\
+Chiron autoscaling \cite{chiron2025} & 2025 & T1 & LLM serving & TTFT, TBT/ITL defs \\
 OTel GenAI semconv \cite{otelgenai2026} & 2026 & T2 & LLM observability & token-usage attributes \\
-OneUptime SSE \cite{oneuptimesse2026} & 2026 & T3 & SSE tracing & connection+event span \\
-OneUptime WS \cite{oneuptimews2026} & 2026 & T3 & WS tracing & cardinality problem \\
-Alibaba LoongSuite \cite{alibabaws2026} & 2026 & T3 & WS observability & chunk metrics, agent \\
-SSE vs WS for LLM \cite{buildmvpfast2026} & 2026 & T3 & transport choice & latency negligible \\
+OneUptime SSE \cite{oneuptimesse2026} & 2026 & T3 & SSE tracing (industry, not peer-reviewed) & connection+event span \\
+OneUptime WS \cite{oneuptimews2026} & 2026 & T3 & WS tracing (industry, not peer-reviewed) & cardinality problem (unverified in T1 literature) \\
+Alibaba LoongSuite \cite{alibabaws2026} & 2026 & T3 & WS observability (industry, not peer-reviewed) & chunk metrics, agent \\
+SSE vs WS for LLM \cite{buildmvpfast2026} & 2026 & T3 & transport choice (industry claim, not peer-reviewed) & latency negligible \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection{Synthesis by Research Question}
+\subsection{Literature Synthesis}
+\label{sec:results-synthesis}
+The synthesis below covers the three pieces of supporting context introduced in \S~\ref{sec:objectives} (metrics, transport choice, tool support), then arrives at the tracing gap that is this paper's actual research question.
 
-\paragraph{RQ1 --- Metrics.} Two distinct layers emerge. \emph{Transport-level} (T1 academic): latency, throughput, bandwidth, CPU/memory, TCP connection count, and message frequency \cite{ws2014,ws2019,murley2021}. \emph{Token-level} (LLM serving): TTFT, ITL/TPOT, tokens/s, and end-to-end latency \cite{arxivserving2025,nvidiabench2025,anyscale2026}. The token-level set, not the REST set, is the relevant comparison basis for AI streaming.
+\paragraph{Metrics.} Two distinct layers emerge. \emph{Transport-level} (T1 academic): latency, throughput, bandwidth, CPU/memory, TCP connection count, and message frequency \cite{ws2014,ws2019,murley2021}. \emph{Token-level} (LLM serving): TTFT, ITL/TPOT, tokens/s, and end-to-end latency \cite{arxivserving2025,chiron2025}. The token-level set, not the REST set, is the relevant comparison basis for AI streaming.
 
-\paragraph{RQ2 --- SSE vs WebSocket.} Evidence converges: for one-way server-to-client AI text streaming, SSE is sufficient and simpler (automatic reconnection, CDN compatibility, no sticky sessions), and is the choice of major LLM providers. The transport-level latency difference ($\approx$5--7\,ms) is negligible relative to per-token generation time ($\approx$10--12\,ms), so the model, not the transport, is the bottleneck \cite{buildmvpfast2026,procedure2026}. WebSocket is preferable when mid-stream bidirectional input is required (interruption, voice, collaboration) \cite{oneuptimews2026,getstream2026}.
+\paragraph{SSE vs.\ WebSocket in practice.} For one-way server-to-client AI text streaming, SSE is sufficient and simpler (automatic reconnection, CDN compatibility, no sticky sessions), and is the industry convention: OpenAI, Anthropic, and other major LLM providers stream over SSE \cite{buildmvpfast2026,procedure2026}. This is a fact of current practice, not a peer-reviewed measurement --- no T1 source was found benchmarking SSE against WebSocket specifically for LLM token streaming. The claim that the transport-level difference is negligible relative to per-token generation time is therefore not taken on faith from these industry sources; \S~\ref{sec:experiment} tests it directly (H3) on our own prototype, finding baseline inter-token latency statistically indistinguishable between SSE and WebSocket at realistic decode rates (20--50\,ms/token). WebSocket is preferable when mid-stream bidirectional input is required (interruption, voice, collaboration), again per industry sources rather than an academic benchmark \cite{oneuptimews2026,getstream2026}. As detailed in \S~\ref{sec:litdialogue}, the industry claim of a negligible difference sits in tension with general-purpose \emph{academic} transport literature that reports larger SSE/WS differences under other conditions; we resolve that tension there using our own experimental evidence rather than by adjudicating between the two T3 claims.
 
-\paragraph{RQ3 --- Tool support.} REST tracing is mature. LLM calls now have an emerging standard via the OpenTelemetry GenAI semantic conventions \cite{otelgenai2026}, but most attributes are experimental and do not yet cover the streaming lifecycle. SSE and WebSocket tracing still require deliberate, manual instrumentation \cite{oneuptimesse2026,oneuptimews2026,alibabaws2026}.
+\paragraph{Tool support.} REST tracing is mature. LLM calls now have an emerging standard via the OpenTelemetry GenAI semantic conventions \cite{otelgenai2026}, but most attributes are experimental and do not yet cover the streaming lifecycle. SSE and WebSocket tracing still require deliberate, manual instrumentation \cite{oneuptimesse2026,oneuptimews2026,alibabaws2026}.
 
-\paragraph{RQ4 --- Gaps.} Two recurring gaps: (i) after the handshake, frames/events carry no HTTP headers, breaking REST-style propagation; (ii) emitting one span per message or per token explodes span cardinality and overwhelms the collector \cite{oneuptimews2026}. Both motivate a \emph{two-tier} model: a connection-lifetime span plus a lightweight per-event/token record.
-
-\paragraph{RQ5 --- Unified model.} The SSE pattern \cite{oneuptimesse2026} and the WebSocket pattern \cite{oneuptimews2026,alibabaws2026} independently converge on the same two-tier shape, yet no source offers a single, backend-independent, agent-free model that captures token-level metrics across both protocols. This is the gap this work targets.
+\paragraph{The tracing gap: this paper's research question.} Against that background, two recurring gaps define the RQ this paper actually answers: (i) after the handshake, frames/events carry no HTTP headers, breaking REST-style propagation; (ii) emitting one span per message or per token is reported to explode span cardinality and overwhelm the collector, a claim we found only in vendor engineering practice \cite{oneuptimews2026}, not in any peer-reviewed source --- no T1 work was located addressing span-cardinality management for message/token-level streaming traces, which is itself a gap this review surfaces. The SSE pattern \cite{oneuptimesse2026} and the WebSocket pattern \cite{oneuptimews2026,alibabaws2026} independently converge on the same two-tier shape to work around these gaps, yet no source offers a single, backend-independent, agent-free model that captures token-level metrics across both protocols while doing so --- the gap this work targets. Both recurring gaps motivate the \emph{two-tier} model: a connection-lifetime span plus a lightweight per-event/token record (design rationale in \S~\ref{sec:rationale}), rather than an unmotivated proposal. Rather than resting gap (ii) on vendor claims alone, our prototype gives direct empirical support for it, tested as H2: under transport-bound stress (\S~\ref{sec:experiment}), a WebSocket adapter that emits one child span per message costs measurably more (+47\% inter-token latency) than an SSE adapter recording tokens as span events on a single stream span (+21\%), showing empirically that per-message span emission does not scale as well as event-level recording as message frequency grows. \S~\ref{sec:experiment} tests H1--H3 on the resulting model overall: the same instrumentation applied to both protocols yields near-identical relative tracing overhead at realistic token rates (H1, H3 supported), though the underlying per-message vs.\ per-event span mechanics diverge under stress (H2 supported, gap (ii) above).
 
 %==============================================================
 \section{Gap Analysis}
 REST observability is mature because each request carries headers. SSE and WebSocket lack header-based per-message propagation and risk cardinality blow-up under naive per-message spans. The synthesis indicates a unified two-tier model --- one stream span anchoring per-event/token records --- applied identically to SSE and WebSocket, and exportable without a mandatory backend, would close the gap left by both agent-based tooling and protocol-specific tutorials.
 
+\subsection{A Contradiction in the Literature, and Its Resolution}
+\label{sec:litdialogue}
+The industry-practice sources on SSE vs.\ WebSocket in AI streaming (\S~\ref{sec:results-synthesis}) do not agree with the general transport-performance \emph{academic} literature, and the disagreement is instructive rather than incidental --- it is a disagreement between evidence tiers (T1 academic vs.\ T3 industry practice), not between two peer-reviewed claims. General-purpose measurement studies of SSE and WebSocket --- WWW'21's large-scale in-the-wild WebSocket study \cite{murley2021}, IEEE full-duplex evaluations \cite{ws2014,ws2019}, and mobile-network SSE/WS comparisons under 3G/4G --- report transport differences that are not negligible under constrained bandwidth, high message frequency, or adverse network conditions. Practitioner sources specific to LLM streaming \cite{buildmvpfast2026,procedure2026}, by contrast, report the difference as negligible ($\approx$5--7\,ms) for AI token generation, without peer-reviewed measurement behind that number. Taken at face value these two claims conflict: is the transport difference material or not?
+
+The conflict dissolves once the \emph{workload regime} is made explicit, which none of the LLM-streaming sources state precisely. The general transport literature measures difference under high-frequency or network-constrained transmission, i.e.\ conditions where the transport itself is the bottleneck. LLM token generation, at $\approx$10--50\,ms per token, is far slower than either protocol's per-frame overhead on a healthy connection, so the transport is usually not the bottleneck --- which is exactly the boundary condition the practitioner sources implicitly assume but do not test. Our own experiment (\S~\ref{sec:experiment}) reproduces this resolution directly rather than merely asserting it: the SSE/WS difference is statistically negligible at 20--50\,ms/token (matching the LLM-streaming claim) but reappears under 0\,ms/token transport-bound stress (matching the general transport literature), on the same prototype, with the same instrumentation. The apparent contradiction in the literature is therefore not a disagreement about SSE or WebSocket as such, but a difference in which regime each body of work operates in --- a distinction the practitioner sources do not draw explicitly, and one this paper makes precise and testable.
+
 %==============================================================
 \section{Proposed Protocol-Aware Observability Framework}
-We propose a five-layer framework (Table~\ref{tab:layers}) and a unified two-tier instrumentation model: each stream (SSE or WebSocket) is one connection-lifetime span, and each token/event is a lightweight \emph{span event} on that span, keeping span cardinality proportional to \emph{streams} rather than \emph{tokens}. Figure~\ref{fig:arch} shows the end-to-end architecture.
+
+\subsection{Design Rationale}
+\label{sec:rationale}
+The five layers in Table~\ref{tab:layers} are not an assumed starting point; each is a direct consequence of a specific finding from the literature synthesis (\S~\ref{sec:results-synthesis}), and the count of five is the number of qualitatively distinct concerns those findings identify, not a stylistic choice.
+\begin{itemize}
+\item \textbf{L1 (REST/API)} is inherited, not novel: the synthesis found REST tracing already mature via header-based context propagation. The framework reuses this maturity as its foundation rather than re-deriving it.
+\item \textbf{L2 (DB/downstream)} extends the same header-propagation model one hop further, to the database and outbound calls a request makes before or after a stream begins (e.g.\ retrieval in a RAG pipeline). It is required for end-to-end traces but, like L1, is not where the review identified a gap.
+\item \textbf{L3 (Streaming connection)} exists because of the tracing gap's first component: once a connection is established, frames and events carry no HTTP headers, so REST-style per-request propagation cannot describe a stream's lifecycle. L3 is the minimal layer needed to restore lifecycle visibility (open, duration, disconnect, active count) without assuming headers survive the handshake.
+\item \textbf{L4 (Message/event)} exists because of the tracing gap's second component: naively creating one span per message or token, symmetric with L1's per-request span, explodes cardinality and overwhelms the collector. L4 is deliberately \emph{not} a per-message span layer; it is the lightweight span-event record that the two-tier model anchors under the L3 connection span, resolving that gap directly.
+\item \textbf{L5 (AI streaming)} exists because the metrics synthesis identified token-level metrics (TTFT, ITL, throughput) as a metric family distinct from both generic transport metrics (L1--L3) and generic message metrics (L4): they characterise generation quality, not connection health, and a RAG system's TTFT further decomposes into retrieval and generation time in a way no lower layer captures.
+\end{itemize}
+A framework with fewer layers would have to conflate concerns that the review found empirically distinct: collapsing L3 into L4 would re-introduce the per-message cardinality problem the tracing gap identifies as unresolved elsewhere; collapsing L5 into L4 would lose the token/generation semantics the metrics synthesis shows are not interchangeable with generic message counts. We adopt a unified two-tier instrumentation model built on this layering: each stream (SSE or WebSocket) is one connection-lifetime span (L3), and each token/event is a lightweight \emph{span event} on that span (L4), keeping span cardinality proportional to \emph{streams} rather than \emph{tokens}. Figure~\ref{fig:arch} shows the end-to-end architecture.
 
 \begin{figure}[H]
 \centering
@@ -233,13 +257,171 @@ Tokens per stream & $N$ & count & OTel GenAI semconv (T2) \\
 where $\overline{\Delta t}$ is the mean inter-arrival gap. Equation~\eqref{eq:jitter} quantifies streaming smoothness: a high jitter at low ITL indicates stuttering output even when average speed is acceptable \cite{arxivserving2025}. Tail latency is reported as percentiles $\mathrm{p50/p95/p99}$ over $\{d_r\}$, computed with an HDR histogram rather than sort-on-query to bound memory and avoid $O(n\log n)$ per query \cite{micrometer2026,prometheushist2026}.
 
 \paragraph{Measurement notes.} Four points must be fixed before any measurement is comparable.
-\textbf{(1) Vantage point.} TTFT and ITL are measured \emph{client-side}, matching LLM-serving benchmark practice \cite{nvidiabench2025,anyscale2026}, because they reflect user-perceived responsiveness.
+\textbf{(1) Vantage point.} TTFT and ITL are measured \emph{client-side}, matching LLM-serving benchmark practice \cite{arxivserving2025,chiron2025}, because they reflect user-perceived responsiveness.
 \textbf{(2) Controlled mock.} A deterministic generator emits a fixed $N$ with a fixed inter-token delay, so any measured difference between SSE and WebSocket is transport overhead rather than model variance.
-\textbf{(3) ITL definition.} Tools differ on whether the first token is included; we exclude it (Eq.~\eqref{eq:itl} divides by $N-1$), since TTFT already captures the first-token cost \cite{arxivserving2025,anyscale2026}.
+\textbf{(3) ITL definition.} Tools differ on whether the first token is included; we exclude it (Eq.~\eqref{eq:itl} divides by $N-1$), since TTFT already captures the first-token cost \cite{arxivserving2025,chiron2025}.
 \textbf{(4) SSE latency skew.} An SSE stream is one long-lived HTTP response, so measuring it as a REST ``request latency'' yields a duration equal to the stream lifetime, distorting p95/p99; latency must therefore be measured per token/event, not per request --- a protocol-aware requirement rather than an implementation detail.
 
 \subsection{Prototype Scope}
-A minimal Java/Spring~Boot prototype instruments REST (Filter/Interceptor), JDBC (DataSource proxy), SSE (an \texttt{SseEmitter} wrapper), and WebSocket (\texttt{HandshakeInterceptor} + \texttt{WebSocketHandlerDecorator}), recording each token as a span event under a single stream span. A deterministic mock token generator (fixed token count and inter-token delay) isolates transport overhead from model latency, enabling a fair SSE-vs-WebSocket comparison on identical input. Metrics are exposed as JSON; no external collector or real LLM provider is required. SSE notably lacks a global instrumentation hook (unlike the Servlet filter or WebSocket decorator), so it must wrap the emitter --- itself a finding for RQ3/RQ4.
+A minimal Java/Spring~Boot prototype instruments REST (Filter/Interceptor), JDBC (DataSource proxy), SSE (an \texttt{SseEmitter} wrapper), and WebSocket (\texttt{HandshakeInterceptor} + \texttt{WebSocketHandlerDecorator}), recording each token as a span event under a single stream span. A deterministic mock token generator (fixed token count and inter-token delay) isolates transport overhead from model latency, enabling a fair SSE-vs-WebSocket comparison on identical input. Metrics are exposed as JSON; no external collector is required. SSE notably lacks a global instrumentation hook (unlike the Servlet filter or WebSocket decorator), so it must wrap the emitter --- itself a finding for the literature synthesis's tool-support and tracing-gap discussion. The token source sits behind a single interface with two implementations: the deterministic mock generator above, and a second source that streams tokens from a real, locally hosted LLM (Llama\,3.2, 3B parameters, served by Ollama) over its NDJSON streaming API, added specifically to cross-check the mock-driven findings in \S~\ref{sec:experiment} against genuine model-decode timing and output-length variability. A network-condition decorator wraps the outbound token sink identically for both transports, optionally injecting delay, jitter, and packet loss immediately before each send, to emulate a degraded client network at the application layer without OS-level tooling (a deliberate simplification discussed in \S~\ref{sec:limitations}).
+
+\subsection{Experimental Validation}
+\label{sec:experiment}
+This section tests H1--H3 (\S~\ref{sec:hypotheses}) on the prototype whose design was derived in \S~\ref{sec:rationale}. We instantiate the prototype as a small, standalone Spring~Boot service exposing an SSE endpoint (\texttt{/ai/sse}) and a WebSocket endpoint (\texttt{/ws/ai}). A pure-JDK client (\texttt{java.net.http.HttpClient} for SSE, \texttt{java.net.http.WebSocket} for WS) measures TTFT and ITL at the client (measurement note 1), single machine, localhost, comparing the library disabled (\emph{baseline}) against enabled (\emph{lib}). This service is a synthetic prototype built to isolate protocol and instrumentation overhead, not a production RAG deployment.
+
+Beyond the three original token-rate scenarios, the experiment is extended along three axes motivated directly by external review of an earlier version of this work: \textbf{(a) bandwidth}, recording both the raw token payload and the actual on-wire bytes transmitted per token for each transport, so that WebSocket's JSON envelope overhead is measured rather than assumed; \textbf{(b) network condition}, wrapping the outbound token sink at the send point with a decorator that injects delay, jitter, and packet loss identically for both transports, comparing a \emph{healthy} condition (no impairment) against a \emph{weak} condition (30\,ms added delay, $\pm$20\,ms jitter, 1\% per-token loss); and \textbf{(c) token source}, cross-checking the deterministic-mock results against a real, locally hosted LLM (Llama\,3.2, 3B parameters, served by Ollama). Four token-rate/source scenarios result: $\Delta=0$\,ms (transport-bound stress, $N=1000$, healthy network only --- adding 30\,ms of delay to 1000 back-to-back sends would turn a 5\,ms stress micro-benchmark into a 30-second run and defeat its purpose of isolating raw per-message overhead); $\Delta=20$\,ms and $\Delta=50$\,ms ($N=50$, approximating realistic LLM decode rates, each run under both healthy and weak network); and the Ollama cross-check ($N$ determined by the model's own stopping behaviour, under both network conditions). Each mock configuration runs 80 times after 8 discarded warm-up runs; each Ollama configuration runs 40 times after 5 warm-up runs --- fewer, because sustained real-model inference on a single laptop risks thermal-throttling noise that a purely synchronous mock workload does not, so the mock scenarios are run more times for tighter percentile estimates while the Ollama scenarios are treated as a confirmatory cross-check rather than the primary evidence. A fourth, separate experiment tests the L3 (streaming-connection) layer itself, rather than H1--H3, by validating the active-connections gauge under concurrent load (reported at the end of this section, unaffected by the extensions above).
+
+\paragraph{Bandwidth measurement.} For every token sent we record the \emph{payload} byte length (the token content itself, a fair basis for comparison) and the \emph{wire} byte length actually transmitted: for SSE, payload plus the fixed 7-byte \texttt{data:}\,/\,\texttt{\textbackslash n\textbackslash n} framing; for WebSocket, the full serialized JSON envelope, which in \emph{lib} mode additionally carries a \texttt{traceparent} string for context propagation. This is recorded independently at the server (span attributes \texttt{stream.bytes}\slash\texttt{stream.wire\_bytes} for SSE, \texttt{messaging.payload\_bytes}\slash\texttt{messaging.wire\_bytes} for WebSocket) and at the client harness; the two agree.
+
+\begin{table}[H]
+\centering\small
+\caption{Core metrics under transport-bound stress ($\Delta=0$\,ms, $N=1000$, healthy network, 80 runs, p50).}
+\label{tab:stream-stress}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Metric & SSE & WebSocket \\
+\midrule
+Connection setup (ms), baseline & 4.45 & 5.19 \\
+TTFT (ms), baseline & 4.51 & 5.23 \\
+ITL (ms/token), baseline & 0.03 & 0.01 \\
+Throughput (tokens/s), baseline & 29{,}540 & 51{,}693 \\
+Bytes/token, on-wire (baseline) & 11.89 & 53.89 \\
+\midrule
+TTFT overhead (lib vs.\ baseline) & +10.7\% & +2.7\% \\
+ITL overhead & +21.4\% & +47.3\% \\
+Throughput overhead & $-16.5\%$ & $-25.6\%$ \\
+Bytes/token overhead & $+0.0\%$ & $+133.6\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Core metrics at realistic decode rates, healthy vs.\ weak network ($N=50$, 80 runs, p50).}
+\label{tab:stream-net20}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+ & \multicolumn{2}{c}{$\Delta=20$\,ms, healthy} & \multicolumn{2}{c}{$\Delta=20$\,ms, weak} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+Metric & SSE & WebSocket & SSE & WebSocket \\
+\midrule
+Connection setup (ms), baseline & 3.88 & 4.70 & 41.13 & 4.55 \\
+TTFT (ms), baseline & 3.96 & 4.77 & 41.22 & 40.27 \\
+ITL (ms/token), baseline & 24.20 & 24.16 & 61.90 & 64.75 \\
+Throughput (tokens/s), baseline & 42.02 & 42.08 & 16.24 & 15.52 \\
+Bytes/token, on-wire (baseline) & 10.80 & 52.80 & 10.80 & 52.80 \\
+\midrule
+TTFT overhead (lib vs.\ baseline) & $-0.7\%$ & +2.9\% & $-1.9\%$ & $-8.3\%$ \\
+ITL overhead & $-0.1\%$ & +0.3\% & $-6.2\%$ & $-8.6\%$ \\
+Throughput overhead & +0.1\% & $-0.3\%$ & +6.7\% & +9.9\% \\
+Bytes/token overhead & +0.0\% & +136.4\% & +0.0\% & +136.4\% \\
+\bottomrule
+\end{tabular}
+
+\vspace{2mm}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+ & \multicolumn{2}{c}{$\Delta=50$\,ms, healthy} & \multicolumn{2}{c}{$\Delta=50$\,ms, weak} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+Metric & SSE & WebSocket & SSE & WebSocket \\
+\midrule
+Connection setup (ms), baseline & 3.31 & 4.39 & 42.62 & 4.29 \\
+TTFT (ms), baseline & 3.39 & 4.45 & 42.73 & 37.96 \\
+ITL (ms/token), baseline & 57.65 & 57.72 & 94.61 & 89.99 \\
+Throughput (tokens/s), baseline & 17.68 & 17.65 & 10.71 & 11.23 \\
+Bytes/token, on-wire (baseline) & 10.80 & 52.80 & 10.80 & 52.80 \\
+\midrule
+TTFT overhead (lib vs.\ baseline) & +6.8\% & $-2.3\%$ & $-12.4\%$ & +4.6\% \\
+ITL overhead & +0.1\% & $-6.2\%$ & $-7.0\%$ & $-1.5\%$ \\
+Throughput overhead & $-0.1\%$ & +6.6\% & +7.4\% & +1.6\% \\
+Bytes/token overhead & +0.0\% & +136.4\% & +0.0\% & +136.4\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Figure~\ref{fig:overhead} visualises the ITL overhead from Table~\ref{tab:stream-stress} and the healthy-network columns of Table~\ref{tab:stream-net20}; Figure~\ref{fig:overhead-net} isolates the healthy-vs-weak comparison at realistic decode rates.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.72\textwidth]{stream-overhead.png}
+\caption{Tracing overhead on inter-token latency by transport, across three token-rate scenarios (healthy network). SSE and WebSocket are distinguished by fill pattern and grayscale value rather than hue, so identity is preserved in black-and-white print.}
+\label{fig:overhead}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.72\textwidth]{stream-overhead-network.png}
+\caption{Tracing overhead on inter-token latency by transport, healthy vs.\ weak network, at $\Delta=20$ and $\Delta=50$\,ms.}
+\label{fig:overhead-net}
+\end{figure}
+
+\paragraph{H1 and H3 supported, and hold under weak network too.} At $\Delta=20$ and $\Delta=50$\,ms under a \emph{healthy} network (Table~\ref{tab:stream-net20}), baseline ITL remains statistically indistinguishable between SSE and WebSocket (H3), and tracing overhead is small and mixed-sign ($\le$7\% in magnitude on TTFT/ITL/throughput, i.e.\ within run-to-run noise) and not systematically larger for either transport (H1). Repeating both scenarios under the \emph{weak} network condition (added delay, jitter, 1\% loss) does not change this picture: overhead stays within a similar $\pm$9\% band for both transports, and the added network delay dominates ITL for both protocols essentially identically (e.g.\ $\Delta=20$\,ms weak: SSE ITL 61.90\,ms, WebSocket 64.75\,ms baseline --- the gap is smaller than the run-to-run variation seen elsewhere in the same table). This corroborates the finding from \S~\ref{sec:results-synthesis} that the token generator, not the transport, dominates latency at realistic decode rates (\S~\ref{sec:litdialogue}), and extends it: a moderately degraded network does not reintroduce a transport-dependent asymmetry either, at least at the loss/jitter magnitudes tested here.
+
+\paragraph{Bandwidth: a genuine, protocol-asymmetric tracing cost.} Table~\ref{tab:stream-stress} and Table~\ref{tab:stream-net20} show a consistent pattern across every scenario tested: tracing adds essentially nothing to SSE's on-wire bytes per token ($+0.0\%$ throughout, since \texttt{traceparent} is not embedded in the SSE payload), but adds $+133$--$137\%$ to WebSocket's, because the library's request/reply envelope carries the \texttt{traceparent} string inside every message's JSON body. This is the one overhead dimension where WebSocket's tracing cost is unambiguously and substantially larger than SSE's regardless of token rate or network condition --- unlike ITL/TTFT overhead, which is noise-dominated at realistic rates and only diverges under stress (H2 below). It is a direct, measured consequence of the two protocols' framing: SSE's framing is call-site text, uninvolved in this library's tracing metadata, while WebSocket's envelope, by construction, carries context propagation data on every message.
+
+\paragraph{H2 supported, H1/H3 boundary exposed: transport-bound stress.} At $\Delta=0$\,ms (Table~\ref{tab:stream-stress}, Figure~\ref{fig:overhead}), where inter-token latency approaches the measurement floor, WebSocket's baseline ITL and throughput are better than SSE's, consistent with SSE running over one long-lived HTTP response versus WebSocket's lighter per-frame path. More notably, tracing overhead is markedly \emph{larger} on WebSocket (+47.3\% ITL) than on SSE (+21.4\% ITL) at this token rate --- H1 (negligible overhead) and H3 (protocol-equivalent cost) both hold only within the realistic-rate regime demonstrated above, not unconditionally, and this stress scenario is precisely where they break down. This is architectural, not noise: the WebSocket adapter emits one child span per token (mirroring the request/reply \texttt{traceSend} pattern used elsewhere in the library), whereas the SSE adapter emits one span per stream with tokens recorded as lightweight span events. At very high token rates the per-span construction cost on WebSocket becomes visible, giving direct empirical evidence for H2 and for the cardinality concern raised by the tracing gap (\S~\ref{sec:results-synthesis}): a per-message span design is measurably more expensive than a per-stream-span-with-events design as message frequency grows, confirming the two-tier model's choice of span events over per-message spans (\S~\ref{sec:rationale}).
+
+\paragraph{Content loss under weak network: no protocol advantage detected.} A weak-network condition raises a question neither protocol currently answers for its own client: does packet loss silently truncate AI output, and if so, does either transport degrade less than the other? We answer this using data already collected above, by comparing the mean number of tokens the client actually receives under \emph{healthy} vs.\ \emph{weak} network, per transport (Table~\ref{tab:content-loss}). At the configured 1\% per-token loss rate, both transports lose close to 1\% of tokens on average, and neither is consistently better: at $\Delta=20$\,ms, baseline SSE loses 1.03\% vs.\ WebSocket 0.65\%; at $\Delta=50$\,ms the two are statistically tied (1.15\% vs.\ 1.15\%). This is a genuine no-difference finding rather than an untested assumption: this measurement was designed specifically to test whether either transport might tolerate a weak network better than the other, rather than to confirm that one does, and the data show neither does, at least at this loss magnitude and this application-layer simulation. The finding is nonetheless observability-relevant: because neither SSE nor WebSocket carries a client-visible per-token sequence number in this prototype (or, to our knowledge, in common practice), a client cannot itself detect that a token was dropped rather than simply not-yet-generated --- it can only infer loss indirectly, as we do here, by comparing against a known-good baseline. This gap and a possible remedy (a monotonically increasing token index in the L4 message/event layer) are discussed further in \S~\ref{sec:content-loss-gap}.
+
+\begin{table}[H]
+\centering\small
+\caption{Content loss under weak network: mean tokens received (healthy vs.\ weak) per transport, $N=50$ configured, 80 runs.}
+\label{tab:content-loss}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Scenario & Mode & SSE lost & WebSocket lost \\
+\midrule
+$\Delta=20$\,ms & baseline & 1.03\% & 0.65\% \\
+$\Delta=20$\,ms & lib & 0.78\% & 1.05\% \\
+$\Delta=50$\,ms & baseline & 1.15\% & 1.15\% \\
+$\Delta=50$\,ms & lib & 0.97\% & 1.17\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Ollama cross-check: mock findings hold against a real LLM.} Table~\ref{tab:ollama} repeats the healthy/weak comparison with Llama\,3.2\,3B generating tokens instead of the mock, at its own natural decode rate ($\approx$23\,ms/token healthy, $\approx$34--37\,ms/token weak) and natural, variable output length (53--83 tokens per run, versus the mock's fixed 50). Tracing overhead is again small ($\le$2\% on TTFT/throughput) and not systematically larger for either transport, and the bytes/token bandwidth finding reproduces almost exactly ($+136.6\%$ on WebSocket, $+0.5\%$ on SSE) --- both results corroborate the mock-driven conclusions above with a genuine model in the loop, addressing the most significant limitation of the mock-only design used in an earlier version of this work. The content-loss comparison, however, does \emph{not} reproduce as cleanly: baseline shows $\approx$1.9--1.95\% loss for both transports (consistent with the mock finding), but \emph{lib} shows $+0.70\%$ for SSE against $-1.25\%$ (i.e.\ apparently \emph{more} tokens under weak network) for WebSocket. We do not read this as a real protocol effect; at only 40 runs, a real LLM's natural output-length variance (the model decides when to stop, independent of network conditions) is large enough to swamp a 1\%-magnitude network-loss signal, a confound the deterministic mock does not have. We report this honestly as a limitation of the Ollama cross-check specifically (\S~\ref{sec:limitations}), rather than silently preferring the cleaner mock result.
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Ollama (Llama\,3.2\,3B) cross-check, healthy vs.\ weak network, 40 runs, p50.}
+\label{tab:ollama}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+ & \multicolumn{2}{c}{Healthy} & \multicolumn{2}{c}{Weak} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+Metric & SSE & WebSocket & SSE & WebSocket \\
+\midrule
+TTFT (ms), baseline & 189.15 & 190.77 & 224.24 & 223.12 \\
+ITL (ms/token), baseline & 23.22 & 23.23 & 37.32 & 36.88 \\
+Throughput (tokens/s), baseline & 38.99 & 38.90 & 25.06 & 25.19 \\
+Bytes/token, on-wire (baseline) & 10.60 & 52.68 & 10.65 & 52.70 \\
+\midrule
+TTFT overhead (lib vs.\ baseline) & $-1.3\%$ & $-1.8\%$ & +0.6\% & $-2.2\%$ \\
+ITL overhead & +1.2\% & +1.3\% & $-8.8\%$ & $-8.7\%$ \\
+Throughput overhead & $-1.0\%$ & $-1.0\%$ & +7.5\% & +9.0\% \\
+Bytes/token overhead & +0.5\% & +136.6\% & +0.5\% & +136.6\% \\
+Content lost (healthy vs.\ weak, mean) & \multicolumn{2}{c}{baseline: 1.95\% / 1.94\%} & \multicolumn{2}{c}{lib: +0.70\% / $-1.25\%$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{L3 validation: the active-connections gauge under concurrent load.} H1--H3 test the L4/L5 layers (message/event and AI-streaming metrics); they say nothing about L3, the streaming-connection layer, which is a separate concern (\S~\ref{sec:rationale}) and is validated separately here. We open 50 concurrent streams of each protocol ($N=200$, $\Delta=50$\,ms, so each stream is live for $\approx$10\,s) and sample the gauge every 500\,ms: for SSE via a dedicated debug endpoint reading the library's new \texttt{SseStreamTracker} (added to the starter to make the L3 gauge symmetric with the pre-existing WebSocket session tracker); for WebSocket via the existing \texttt{/observability/prometheus} export. Table~\ref{tab:l3-gauge} summarises the trace: both gauges rise from 0 to 50 as connections open concurrently, hold at 50 for the streams' lifetime, and return to 0 as they complete, confirming the gauge tracks concurrent stream count correctly for both protocols. WebSocket's descent is one sample less sharp (a transient value of 14 at $t=11$\,s) than SSE's, because \texttt{WebSocketTracingHandler} closes sessions via explicit, sequential \texttt{session.close()} calls, whereas \texttt{TracingSseEmitter} instances all reach \texttt{onCompletion} within the same servlet-container tick; this is a minor implementation-level asymmetry, not a correctness issue.
+
+\begin{table}[H]
+\centering\small
+\caption{L3 active-connections gauge, 50 concurrent streams opened together ($N=200$, $\Delta=50$\,ms; sampled every 0.5\,s).}
+\label{tab:l3-gauge}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Time (s) & 0 & 5 & 10 & 11 & 12 \\
+\midrule
+SSE active streams & 0$\to$50 & 50 & 50 & 0 & 0 \\
+WebSocket active sessions & 0$\to$50 & 50 & 50 & 14 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Absolute numbers should not be over-generalised beyond this prototype: they reflect a single machine, a synthetic mock workload, and a thread-per-stream server implementation (\S~\ref{sec:limitations}); the qualitative findings --- transport parity at realistic rates (H1, H3), a per-message/per-event cost asymmetry under stress (H2), and a correctly-tracking L3 gauge for both protocols --- are the contribution of this experiment, not the specific millisecond values.
 
 %==============================================================
 \section{Discussion}
@@ -250,12 +432,13 @@ Table~\ref{tab:compare} contrasts this work with the nearest existing approaches
 
 \begin{table}[H]
 \centering\footnotesize
-\caption{Comparison with the closest existing approaches.}
+\caption{Comparison with the closest existing approaches, on protocol/feature coverage and on qualitative evaluation criteria (instrumentation effort, scalability design, maintainability) rather than coverage alone. LoongSuite and OneUptime are industry tools documented in engineering blogs (T3), not peer-reviewed research; the comparison is offered as a practitioner reference point, not an academic benchmark.}
 \label{tab:compare}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Dimension & OTel + GenAI \cite{oteldocs,otelgenai2026} & LoongSuite \cite{alibabaws2026} & OneUptime \cite{oneuptimesse2026,oneuptimews2026} & This work \\
 \midrule
+\multicolumn{5}{@{}l}{\textit{Coverage}}\\
 Agent-free            & No      & No      & Yes (manual SDK) & Yes \\
 Backend-independent   & No      & No      & No               & Yes \\
 SSE support           & Partial & No      & Yes              & Yes \\
@@ -263,32 +446,53 @@ WebSocket support     & Partial & Yes     & Yes              & Yes \\
 Token-level metrics   & Partial & Partial & Partial          & Yes \\
 Unified SSE+WS model  & No      & No      & No               & Yes \\
 LLM-readable export   & No      & No      & No               & Yes \\
+\midrule
+\multicolumn{5}{@{}l}{\textit{Evaluation criteria}}\\
+Instrumentation effort & Bytecode agent (auto) & Bytecode agent (auto) & Manual SDK, per-call & Manual wrapper, per-transport \\
+Scalability design     & Per-span (agent-managed) & Per-chunk metrics & Per-message span (cardinality risk) & Two-tier: per-stream span + per-token event \\
+Extensibility (new transport) & Requires new agent instrumentation & Requires new agent instrumentation & Requires new manual adapter & Requires new manual adapter (same cost as OneUptime) \\
+Protocol independence  & Partial (HTTP-centric) & WS-centric & Adapter per protocol & Single model, two adapters \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+\subsection{Critical Discussion: When the Unified Model Is Not the Right Choice}
+\label{sec:tradeoffs}
+The preceding sections argue for the two-tier model; intellectual honesty requires stating where it is the wrong choice, not only where it wins.
+
+\paragraph{Span events are not independently linkable spans.} The library's existing WebSocket adapter already contains a case the unified model deliberately does not generalise: \texttt{WsEnvelopeSupport}'s request/reply pattern creates a full child \texttt{Span} per outbound message (mirroring the per-message design H2 shows is more costly), specifically because a real span --- unlike a span event --- can anchor further child spans if that particular message triggers a downstream call to another service. A span event is an annotation on the stream span; it cannot itself be a parent in a distributed trace. So whenever an individual message within a stream needs to fan out to another traced service (not merely be recorded for observability), a per-message span is structurally necessary regardless of its overhead cost, and the unified model's H2 advantage does not apply. The two-tier model is the right choice when the goal is observability of the stream itself; it is the wrong choice when a specific message is itself a distributed operation.
+
+\paragraph{Long-lived or never-completing streams risk losing the whole span.} Because a stream's span is only recorded in \texttt{onCompletion} (\S~\ref{sec:rationale}'s L3/L4 design), a stream that never reaches completion --- an abrupt client disconnect the container fails to surface as an error or timeout, or a stream intentionally left open far longer than the token-generation window this paper measures --- means the span, and every token event accumulated on it, is never flushed to metrics or storage. A per-message span design has no equivalent failure mode: each message is recorded independently and immediately, so a connection that dies mid-stream still leaves a partial trace. This is a genuine trade-off of anchoring cardinality to streams rather than tokens (\S~\ref{sec:rationale}), not an implementation bug, and it is untested by the bounded-duration experiment in \S~\ref{sec:experiment}.
+
+\paragraph{The exporter can still bottleneck, just at a different point.} Bounding span cardinality by stream count (rather than token count) does not eliminate the collector-bottleneck risk the tracing gap identifies (\S~\ref{sec:results-synthesis}); it relocates it. The library's Zipkin exporter batches and flushes on a fixed interval regardless of how many streams completed inside that window; a burst of many streams completing near-simultaneously (e.g.\ a coordinated client disconnect, or many RAG chats finishing together) still produces a batched export spike, echoing the serialization-dominated overhead reported for agent-based tracing under load \cite{oneuptimews2026}. The two-tier model reduces \emph{creation}-time cost, which H1--H2 test directly; it does not by itself guarantee export-time cost stays low, which this experiment does not test.
+
+\subsection{Content Loss Under Network Degradation: An Unaddressed Observability Gap}
+\label{sec:content-loss-gap}
+The weak-network experiment in \S~\ref{sec:experiment} (Table~\ref{tab:content-loss}) was designed to answer a specific, open-ended question --- does either transport degrade AI output less than the other under packet loss --- rather than to confirm an assumption, and the answer is no: both SSE and WebSocket lose tokens at close to the configured network loss rate, with no consistent advantage to either. That symmetric result is itself informative for a protocol-choice decision (neither protocol is a mitigation for content loss), but it exposes a gap the two-tier model in \S~\ref{sec:rationale} does not close. The only reason this paper can measure content loss at all is that the harness independently knows the true token count and can diff it against what the client received; a real client, in production, has no such oracle. Neither protocol, and neither the SSE nor WebSocket adapter in this library, currently attaches a monotonically increasing sequence number to each token event, so a production client cannot itself tell the difference between ``the model has not generated token 47 yet'' and ``token 47 was generated and silently dropped in transit.'' This is a genuine limitation of the L4 (message/event) layer as currently specified (Table~\ref{tab:layers}): completeness is observable to an experimenter with a known-good baseline, but not to the system being observed. A natural, low-cost extension --- adding a per-token sequence number to the L4 event and exposing a gap-detection signal (expected index vs.\ highest contiguous index received) at the client --- would let a production system detect this failure mode directly rather than inferring it statistically as this paper does; we leave its implementation and validation to future work (\S~\ref{sec:limitations}).
+
 \subsection{Scalability Considerations}
+\label{sec:scalability}
 The two-tier model bounds span cardinality by the number of \emph{concurrent streams}, not by message or token volume: per-stream memory is one span plus lightweight span events, and per-endpoint metrics use fixed-size HDR histograms, so metric memory is independent of request count. Trace storage is a fixed-capacity ring buffer that evicts the oldest entries. The library is therefore expected to scale comfortably to moderate concurrency; at very high concurrency (e.g.\ $10^4$--$10^5$ simultaneous streams), the per-session context map and active-connection bookkeeping dominate memory and trace sampling becomes necessary, while cross-process aggregation would rely on the optional Prometheus export rather than the in-memory store. These are analytical expectations; quantitative load testing is left to future work.
 
 %==============================================================
 \section{Limitations (Threats to Validity)}
-The review is preliminary: PRISMA counts are provisional and no benchmark has yet been run. Much of the SSE-vs-WebSocket-for-LLM evidence is T3 (engineering blogs) rather than peer-reviewed --- a finding in itself about the immaturity of academic coverage --- and is treated as current practice, not proof. TTFT/ITL definitions vary across tools, so any future measurement must state the exact formula used. The proposed framework still requires validation through implementation.
+\label{sec:limitations}
+The review is preliminary: PRISMA counts are provisional. Much of the SSE-vs-WebSocket-for-LLM evidence and the span-cardinality concern that anchors the central research question (\S~\ref{sec:results-synthesis}) is T3 (engineering blogs) rather than peer-reviewed --- a finding in itself about the immaturity of academic coverage --- and is treated as current industry practice, not as an already-verified scientific claim. The nearest T1 academic literature (\cite{ws2014,ws2019,ws2016bench,murley2021}) measures WebSocket/SSE transport performance in general, not specifically for LLM token streaming or for span-cardinality management in distributed tracing; no peer-reviewed source addressing either question directly was located, and this review treats that absence as a genuine open gap rather than assuming the industry claims are correct. This paper's own experiments (H2, H3, \S~\ref{sec:experiment}) close part of that gap with primary evidence rather than resolving it by citation alone. TTFT/ITL definitions vary across tools, so we state the exact formula used (Eq.~\eqref{eq:ttft}--\eqref{eq:itl}). The experimental validation (\S~\ref{sec:experiment}) has its own, separate limitations, several narrowed but not eliminated by the extensions in this revision. It still runs on a single machine and a single Spring~Boot server implementation; the server uses a thread-per-stream model, so the observed asymmetry under stress may partly reflect that implementation choice rather than the transport protocols themselves; and H1--H3 were tested at only one concurrency level (single connection at a time) for the main token-rate/network matrix. The mock-only design flagged as this paper's most significant limitation in an earlier version is now cross-checked against a real LLM (Llama\,3.2\,3B via Ollama, \S~\ref{sec:experiment}), but that cross-check is confirmatory, not equally rigorous: it uses fewer runs (40 vs.\ 80) to bound thermal-throttling risk on a single laptop, tests only one model and one model size, and its content-loss measurement is confounded by the model's own natural output-length variance in a way the deterministic mock is not (\S~\ref{sec:experiment}) --- a real production LLM, a different model family, or a different hardware/quantisation setup could behave differently. The weak-network condition is an application-layer decorator (delay, jitter, and probability-based drop applied immediately before each send), not an OS- or link-layer impairment tool (e.g.\ \texttt{tc netem}); it cannot reproduce TCP-level retransmission, congestion-control, or connection-migration behaviour that might differentiate a persistent WebSocket connection from chunked-HTTP SSE under real packet loss, so the finding of ``no protocol advantage'' in \S~\ref{sec:experiment} should be read as evidence at the network-model granularity tested, not as a claim about arbitrary real-world network conditions. We also do not run a human-subjects perceptibility study: whether the measured differences (single-digit-to-low-tens-of-millisecond ITL gaps, single-digit-percent TTFT overhead at realistic decode rates) are perceptible to an end user is not tested directly here. The measured magnitudes are well below the $\approx$100\,ms response-time threshold classically associated with a system feeling instantaneous \cite{miller1968}, which suggests, but does not prove, that they would not be perceptible; a controlled two-alternative-forced-choice (2AFC) study with human participants would be needed to confirm this and is left to future work rather than attempted here, since it requires human-subjects recruitment and ethical review outside this paper's scope. The L3 gauge validation (\S~\ref{sec:experiment}) is similarly narrow: 50 concurrent streams on one host is far below the $10^4$--$10^5$ regime discussed in \S~\ref{sec:scalability}, and covers only the clean-shutdown case, not the network-partition or abrupt-disconnect failure modes flagged in \S~\ref{sec:tradeoffs}. The content-loss detection gap identified in \S~\ref{sec:content-loss-gap} is diagnosed but not remedied in this paper: no sequence-numbering mechanism was implemented or evaluated. The framework's remaining scalability claims (\S~\ref{sec:scalability}), and the exporter-bottleneck and lost-span risks identified in \S~\ref{sec:tradeoffs}, remain analytical and are not covered by any experiment in this paper.
 
 %==============================================================
 \section{Conclusion and Future Work}
-This preliminary, PRISMA-guided review finds that token-level streaming metrics are well defined, that SSE and WebSocket differ little for one-way token streaming, and that no unified, backend-independent, agent-free model captures token-level observability across both protocols. We propose a five-layer framework and a two-tier instrumentation model, with a Java/Spring~Boot prototype scope.
+This work asked one central research question --- what gaps exist in message/token-level tracing for long-lived SSE and WebSocket AI streaming connections, and can a single, protocol-independent instrumentation model close them without prohibitive overhead --- via a PRISMA-guided literature review and an experimental test of three hypotheses derived from it. The review establishes, as supporting context, that token-level metrics are well defined in the LLM-serving literature and that SSE and WebSocket differ little for one-way token streaming under realistic conditions (a claim we also reconcile against literature that appears to contradict it, \S~\ref{sec:litdialogue}); its central finding is that no prior work offers a unified, backend-independent, agent-free model that closes the tracing gap across both protocols. We derive a five-layer framework directly from that gap, not assert it (\S~\ref{sec:rationale}), and instantiate its two-tier instrumentation model on a Java/Spring~Boot prototype. H1 and H3 are supported at realistic decode rates (overhead $\le$7\%, near-symmetric across protocols, and robust to an added weak-network condition); H2 is supported under transport-bound stress, where the per-message-span design costs measurably more than the per-stream-span-with-events design it motivates; and the L3 active-connections gauge is validated directly under 50-way concurrent load for both protocols. Extending the review's own methodology, we additionally measure on-wire bandwidth directly, finding a substantial, protocol-asymmetric tracing cost invisible to the latency metrics alone (WebSocket's per-token bytes rise 136\% under tracing, SSE's essentially do not); we test a weak-network condition and find no detectable content-loss advantage for either transport, a genuine no-difference result rather than an untested assumption; and we cross-check the mock-driven findings against a real, locally hosted LLM, which reproduces the overhead and bandwidth conclusions while also surfacing a confound (natural output-length variance) that the deterministic mock cannot exhibit. \S~\ref{sec:tradeoffs} and \S~\ref{sec:content-loss-gap} set these results against the model's own limits: span events cannot anchor cross-service child spans, long-lived or abnormally-terminated streams risk losing their span entirely, bounding cardinality by stream count relocates rather than removes the exporter-bottleneck risk, and neither protocol nor this library currently gives a client a way to detect a silently dropped token.
 
-Near-term future work completes the search and screening (finalising the PRISMA counts), implements the SSE adapter and the deterministic mock workload, and reports measured TTFT, ITL, throughput, jitter, and connection metrics comparing SSE and WebSocket under controlled conditions, including a load/scalability test at increasing concurrency. Longer-term extensions include: additional streaming transports (gRPC streaming, HTTP/3 over QUIC, Kafka-based event streaming); tracing for emerging AI-agent protocols such as the Model Context Protocol (MCP) and multi-agent pipelines; an OTLP bridge for interoperability with existing backends; adaptive sampling; and a production deployment study.
+Near-term future work completes the search and screening (finalising the PRISMA counts) and extends the experiment along the axes \S~\ref{sec:limitations} identifies as untested: inter-token jitter, concurrency beyond 50 simultaneous streams (approaching the $10^4$--$10^5$ regime of \S~\ref{sec:scalability}), the abrupt-disconnect and exporter-burst failure modes of \S~\ref{sec:tradeoffs}, OS-/link-layer network emulation (e.g.\ \texttt{tc netem}) in place of the application-layer decorator used here, a per-token sequence-numbering mechanism to close the content-loss detection gap of \S~\ref{sec:content-loss-gap}, and a repeat of the Ollama cross-check against additional models and model sizes to separate genuine decode-rate effects from single-model idiosyncrasy. A controlled human-subjects 2AFC perceptibility study, to directly confirm whether the measured overhead is imperceptible to end users rather than merely below a literature-derived threshold (\S~\ref{sec:limitations}), is also left to future work, since it requires human-subjects recruitment and ethical review outside this paper's scope. Longer-term extensions include: additional streaming transports (gRPC streaming, HTTP/3 over QUIC, Kafka-based event streaming); tracing for emerging AI-agent protocols such as the Model Context Protocol (MCP) and multi-agent pipelines; an OTLP bridge for interoperability with existing backends; adaptive sampling; and a production deployment study.
 
 \begin{thebibliography}{99}
 \bibitem{prisma2020} M.~J. Page et al., ``The PRISMA 2020 statement,'' \emph{BMJ}, 2021. \url{https://www.prisma-statement.org/}
 \bibitem{murley2021} P.~Murley et al., ``WebSocket Adoption and the Landscape of the Real-Time Web,'' \emph{Proc. Web Conf. (WWW)}, 2021. \url{https://faculty.cc.gatech.edu/~mbailey/publications/www21_websocket.pdf}
-\bibitem{ws2014} ``Performance evaluation of WebSocket protocol for full-duplex web streams,'' \emph{IEEE MIPRO}, 2014. \url{https://ieeexplore.ieee.org/document/6859715}
-\bibitem{ws2019} ``Performance Analysis of Data Transmission on WebSocket for Real-time Communication,'' \emph{IEEE}, 2019. \url{https://ieeexplore.ieee.org/document/8898135/}
-\bibitem{ws2016bench} ``Introduction to a WebSocket benchmarking infrastructure,'' \emph{IEEE}, 2016. \url{https://ieeexplore.ieee.org/document/7513661/}
+\bibitem{ws2014} D.~\v{S}kvorc, M.~Horvat, and S.~Srblji\'{c}, ``Performance evaluation of Websocket protocol for implementation of full-duplex web streams,'' \emph{37th Int.\ Conv.\ ICT, Electronics and Microelectronics (MIPRO)}, pp.~1003--1008, 2014. \url{https://ieeexplore.ieee.org/document/6859715}
+\bibitem{ws2019} A.~Rahmatulloh, I.~Darmawan, and R.~Gunawan, ``Performance Analysis of Data Transmission on WebSocket for Real-time Communication,'' \emph{IEEE}, 2019. \url{https://ieeexplore.ieee.org/document/8898135/}
+\bibitem{ws2016bench} G.~Imre, G.~Mezei, and R.~S\'{a}rosi, ``Introduction to a WebSocket benchmarking infrastructure,'' \emph{Zooming Innovation in Consumer Electronics Int.\ Conf.\ (ZINC)}, pp.~84--87, 2016. \url{https://ieeexplore.ieee.org/document/7513661/}
 \bibitem{arxivserving2025} ``On Evaluating Performance of LLM Inference Serving Systems,'' arXiv:2507.09019, 2025. \url{https://arxiv.org/pdf/2507.09019}
-\bibitem{nvidiabench2025} NVIDIA, ``LLM Inference Benchmarking: Fundamental Concepts,'' 2025. \url{https://developer.nvidia.com/blog/llm-benchmarking-fundamental-concepts/}
-\bibitem{anyscale2026} Anyscale, ``Understand LLM latency and throughput metrics,'' 2026. \url{https://docs.anyscale.com/llm/serving/benchmarking/metrics}
+\bibitem{chiron2025} ``Hierarchical Autoscaling for Large Language Model Serving with Chiron,'' arXiv:2501.08090, 2025. \url{https://arxiv.org/pdf/2501.08090}
 \bibitem{otelgenai2026} OpenTelemetry, ``Semantic conventions for generative AI spans,'' 2026. \url{https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-spans/}
 \bibitem{oneuptimesse2026} OneUptime, ``Monitor SSE Stream Lifecycle and Delivery Latency with OpenTelemetry,'' 2026. \url{https://oneuptime.com/blog/post/2026-02-06-sse-stream-lifecycle-opentelemetry/view}
 \bibitem{oneuptimews2026} OneUptime, ``Trace WebSocket Connections and Real-Time Events with OpenTelemetry,'' 2026. \url{https://oneuptime.com/blog/post/2026-02-06-trace-websocket-connections-realtime-events-opentelemetry/view}
@@ -304,6 +508,7 @@ Near-term future work completes the search and screening (finalising the PRISMA 
 \bibitem{dapper2010} B.~H. Sigelman et al., ``Dapper, a Large-Scale Distributed Systems Tracing Infrastructure,'' Google, 2010. \url{https://research.google.com/archive/papers/dapper-2010-1.pdf}
 \bibitem{micrometer2026} Micrometer, ``Histograms and percentiles.'' \url{https://docs.micrometer.io/micrometer/reference/concepts/histogram-quantiles.html}
 \bibitem{prometheushist2026} Prometheus, ``Histograms and summaries.'' \url{https://prometheus.io/docs/practices/histograms/}
+\bibitem{miller1968} R.~B. Miller, ``Response time in man-computer conversational transactions,'' \emph{Proc.\ AFIPS Fall Joint Computer Conference}, vol.~33, pp.~267--277, 1968.
 \end{thebibliography}
 
 \end{document}

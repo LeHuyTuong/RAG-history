@@ -65,6 +65,10 @@ services:
       - DEFAULT_CHUNK_OVERLAP=${DEFAULT_CHUNK_OVERLAP:-120}
       - DEFAULT_TOP_K=${DEFAULT_TOP_K:-5}
       - SCORE_THRESHOLD=${SCORE_THRESHOLD:-0.5}
+      - WEB_FALLBACK_ENABLED=${WEB_FALLBACK_ENABLED:-true}
+      - WEB_FALLBACK_MAX_CHARS=${WEB_FALLBACK_MAX_CHARS:-2000}
+    volumes:
+      - /Volumes/SSD/RAG-history-pdfs:/data/pdfs:ro
     depends_on:
       - qdrant
       - neo4j

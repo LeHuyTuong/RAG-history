@@ -51,7 +51,7 @@ class FakeModelsWithoutStream:
 
 def test_generate_calls_google_model_and_strips_text(monkeypatch):
     models = FakeModels()
-    monkeypatch.setattr(llm_service, "_get_client", lambda: SimpleNamespace(models=models))
+    monkeypatch.setattr(llm_service, "_get_clients", lambda: [SimpleNamespace(models=models)])
     monkeypatch.setattr(llm_service.settings, "llm_model", "gemma-test")
 
     answer = llm_service.generate("system", "user", temperature=0.3)
@@ -68,7 +68,7 @@ def test_generate_calls_google_model_and_strips_text(monkeypatch):
 
 def test_generate_raises_when_model_returns_empty_text(monkeypatch):
     models = FakeModels(text="   ")
-    monkeypatch.setattr(llm_service, "_get_client", lambda: SimpleNamespace(models=models))
+    monkeypatch.setattr(llm_service, "_get_clients", lambda: [SimpleNamespace(models=models)])
 
     with pytest.raises(ValueError, match="LLM returned empty response"):
         llm_service.generate("system", "user")
@@ -76,29 +76,29 @@ def test_generate_raises_when_model_returns_empty_text(monkeypatch):
 
 def test_generate_stream_uses_native_streaming_when_available(monkeypatch):
     models = FakeModels(stream_chunks=["Xin ", "", "chao"])
-    monkeypatch.setattr(llm_service, "_get_client", lambda: SimpleNamespace(models=models))
+    monkeypatch.setattr(llm_service, "_get_clients", lambda: [SimpleNamespace(models=models)])
     monkeypatch.setattr(llm_service.settings, "llm_model", "gemma-stream")
 
     chunks = list(llm_service.generate_stream("system", "user", temperature=0.1))
 
-    assert chunks == ["Xin ", "chao"]
+    assert chunks == [("answer", "Xin "), ("answer", "chao")]
     assert models.calls[0]["kind"] == "stream"
     assert models.calls[0]["model"] == "gemma-stream"
 
 
 def test_generate_stream_falls_back_to_non_streaming_generation(monkeypatch):
     models = FakeModelsWithoutStream(text="abcdef")
-    monkeypatch.setattr(llm_service, "_get_client", lambda: SimpleNamespace(models=models))
+    monkeypatch.setattr(llm_service, "_get_clients", lambda: [SimpleNamespace(models=models)])
 
     chunks = list(llm_service.generate_stream("system", "user"))
 
-    assert chunks == ["abcdef"]
+    assert chunks == [("answer", "abcdef")]
     assert models.calls[0]["kind"] == "generate"
 
 
 def test_generate_stream_raises_when_stream_has_no_text(monkeypatch):
     models = FakeModels(stream_chunks=["", None])
-    monkeypatch.setattr(llm_service, "_get_client", lambda: SimpleNamespace(models=models))
+    monkeypatch.setattr(llm_service, "_get_clients", lambda: [SimpleNamespace(models=models)])
 
     with pytest.raises(ValueError, match="LLM returned empty stream"):
         list(llm_service.generate_stream("system", "user"))

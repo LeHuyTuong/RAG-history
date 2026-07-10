@@ -83,5 +83,14 @@ class Settings(BaseSettings):
     doc_source_id_max: int = 999          # sách PDF dùng sourceId 1–999
     article_source_id_min: int = 1_000_000  # bài viết dùng sourceId 1_000_000+
 
+    # FAQ answer cache — short‑circuit trước pipeline nếu câu hỏi khớp dataset FAQ
+    faq_cache_enabled: bool = True
+    faq_cache_threshold: float = 90.0         # rapidfuzz WRatio score (0–100)
+    faq_cache_path: str = "data/faq_cache.json"
+
+    # Web fallback — tra Wikipedia tiếng Việt khi RAG không đủ dữ liệu
+    web_fallback_enabled: bool = True          # env WEB_FALLBACK_ENABLED
+    web_fallback_max_chars: int = 2000         # env WEB_FALLBACK_MAX_CHARS
+
 
 settings = Settings()
