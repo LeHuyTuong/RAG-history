@@ -86,10 +86,10 @@ def _invoke(fn, max_attempts: int = 12):
     raise RuntimeError("LLM call thất bại sau nhiều lần thử.")
 
 
-def generate(system_prompt: str, user_message: str, temperature: float = 0.2) -> str:
+def generate(system_prompt: str, user_message: str, temperature: float = 0.2, model: str | None = None) -> str:
     def call(client: genai.Client) -> str:
         response = client.models.generate_content(
-            model=settings.llm_model,
+            model=model or settings.llm_model,
             contents=user_message,
             config=types.GenerateContentConfig(
                 system_instruction=system_prompt,
@@ -104,7 +104,7 @@ def generate(system_prompt: str, user_message: str, temperature: float = 0.2) ->
     return text
 
 
-def generate_stream(system_prompt: str, user_message: str, temperature: float = 0.2):
+def generate_stream(system_prompt: str, user_message: str, temperature: float = 0.2, model: str | None = None):
     """
     Yields (kind, text) tuples:
       kind='thinking' — reasoning token từ ThinkingConfig (ẩn với người dùng cuối nếu muốn)
@@ -122,7 +122,7 @@ def generate_stream(system_prompt: str, user_message: str, temperature: float = 
         client = clients[_key_index]
         stream_fn = getattr(client.models, "generate_content_stream", None)
         if stream_fn is None:
-            for t in _chunk_text(generate(system_prompt, user_message, temperature)):
+            for t in _chunk_text(generate(system_prompt, user_message, temperature, model)):
                 yield ("answer", t)
             return
 
@@ -130,7 +130,7 @@ def generate_stream(system_prompt: str, user_message: str, temperature: float = 
         thought_buf = []
         try:
             for chunk in stream_fn(
-                model=settings.llm_model,
+                model=model or settings.llm_model,
                 contents=user_message,
                 config=types.GenerateContentConfig(
                     system_instruction=system_prompt,
@@ -192,7 +192,7 @@ def generate_stream(system_prompt: str, user_message: str, temperature: float = 
             raise
 
 
-def suggest_questions(question: str, answer: str) -> list[str]:
+def suggest_questions(question: str, answer: str, model: str | None = None) -> list[str]:
     """Sinh 3 câu hỏi gợi ý liên quan dựa trên cặp question-answer vừa trả lời."""
     prompt = (
         f"Câu hỏi: {question}\n"
@@ -204,7 +204,7 @@ def suggest_questions(question: str, answer: str) -> list[str]:
 
     def call(client: genai.Client) -> str:
         response = client.models.generate_content(
-            model=settings.llm_model,
+            model=model or settings.llm_model,
             contents=prompt,
             config=types.GenerateContentConfig(temperature=0.7),
         )

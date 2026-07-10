@@ -1,6 +1,7 @@
 import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import eventImages from '../../../data/eventImages.json';
 
 const EventDetail = () => {
   const { id } = useParams();
@@ -73,8 +74,8 @@ const EventDetail = () => {
               ? dbEvent.locationRelations.map(l => l.name).join(', ')
               : 'Chưa rõ',
             locationRelations: dbEvent.locationRelations || [],
-            heroImg: dbEvent.image || "/images/home.png",
-            mapImg: dbEvent.image || "/images/home.png",
+            heroImg: eventImages[dbEvent.slug] || dbEvent.image || "/images/home.png",
+            mapImg: eventImages[dbEvent.slug] || dbEvent.image || "/images/home.png",
             participations: dbParts,
             relatedArticles: dbArticles
           });
@@ -88,11 +89,11 @@ const EventDetail = () => {
     fetchEventData();
   }, [id]);
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải sự kiện...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải sự kiện...</div>;
   if (!eventData) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Không tìm thấy sự kiện.</div>;
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20 pb-20">
       <main className="max-w-[1440px] mx-auto px-6 md:px-12 py-12">
 
         {/* Breadcrumb */}
@@ -145,12 +146,18 @@ const EventDetail = () => {
           </div>
         </section>
 
-        {/* --- 2. BASIC INFO BENTO GRID --- */}
         <section className="mb-20 grid grid-cols-1 md:grid-cols-4 gap-6">
           <InfoCard icon="calendar_today" label="Niên đại" value={eventData.time} />
           <InfoCard icon="location_on" label="Địa điểm" value={eventData.location} />
-          <InfoCard icon="groups" label="Lực lượng" value={eventData.forces || 'Chưa rõ'} />
-          <InfoCard icon="military_tech" label="Kết quả" value={eventData.result || 'Chưa rõ'} isHighlight />
+          <InfoCard icon="groups" label="Tham chiến" value={eventData.participations?.length > 0 ? `${eventData.participations.length} nhân vật` : 'Chưa rõ'} />
+          <InfoCard 
+            icon="verified" 
+            label="Độ xác thực" 
+            value={
+              { 'HIGH': 'Cao', 'MEDIUM': 'Trung bình', 'LOW': 'Thấp', 'UNCERTAIN': 'Chưa xác thực' }[eventData.certaintyLevel] || 'Chưa rõ'
+            } 
+            isHighlight 
+          />
         </section>
 
         {/* --- 3. TACTICAL MAP & GALLERY --- */}

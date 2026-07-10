@@ -46,7 +46,7 @@ def test_chat_success_returns_answer_citations_and_filters(monkeypatch):
         return [_hit()]
 
     monkeypatch.setattr(retrieval_service, "retrieve", fake_retrieve)
-    monkeypatch.setattr(llm_service, "generate", lambda system, user, temperature: "Nha Tran thanh lap nam 1225 [C1].")
+    monkeypatch.setattr(llm_service, "generate", lambda system, user, temperature, model=None: "Nha Tran thanh lap nam 1225 [C1].")
 
     response = client.post(
         "/rag/chat",
@@ -94,7 +94,7 @@ def test_chat_returns_no_data_when_llm_fails(monkeypatch):
     monkeypatch.setattr(question_router_service, "route", lambda question, use_graph: {"use_vector": True, "use_graph": False})
     monkeypatch.setattr(retrieval_service, "retrieve", lambda **kwargs: [_hit()])
 
-    def fail_generate(system, user, temperature):
+    def fail_generate(system, user, temperature, model=None):
         raise RuntimeError("provider down")
 
     monkeypatch.setattr(llm_service, "generate", fail_generate)
@@ -116,7 +116,7 @@ def test_chat_stream_success_emits_delta_citations_and_completed(monkeypatch):
     monkeypatch.setattr("app.services.faq_cache_service.lookup", lambda q: None)
     monkeypatch.setattr(question_router_service, "route", lambda question, use_graph: {"use_vector": True, "use_graph": False})
     monkeypatch.setattr(retrieval_service, "retrieve", lambda **kwargs: [_hit()])
-    monkeypatch.setattr(llm_service, "generate_stream", lambda system, user, temperature: iter([("answer", "Nha Tran "), ("answer", "1225 [C1].")]))
+    monkeypatch.setattr(llm_service, "generate_stream", lambda system, user, temperature, model=None: iter([("answer", "Nha Tran "), ("answer", "1225 [C1].")]))
 
     with client.stream("POST", "/rag/chat/stream", json={"question": "Nha Tran thanh lap nam nao?"}) as response:
         body = "".join(response.iter_text())

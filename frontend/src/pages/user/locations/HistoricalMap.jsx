@@ -20,7 +20,7 @@ export default function HistoricalMap() {
   );
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20 relative overflow-hidden">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20 pb-20 relative overflow-hidden">
       {/* Họa tiết Trống Đồng chìm toàn trang */}
       <div className="grain-overlay pointer-events-none fixed inset-0 z-0 opacity-5"></div>
       

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import {
     periodService,
     personService,
@@ -9,11 +9,13 @@ import {
 } from '../../../services';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { stripHtml } from '../../../utils/stringUtils';
+import characterImages from '../../../data/characterImages.json';
 
 const DEFAULT_PERIOD_ICONS = ['hourglass_empty', 'history', 'person', 'account_balance', 'map', 'auto_stories'];
 const DEFAULT_CHAR_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg';
 
 const Home = () => {
+    const { backgroundUrl = '' } = useOutletContext() || {};
     const { getPeriodStyle } = usePeriodColors();
     const navigate = useNavigate();
     const [data, setData] = useState({ featuredCharacters: [], recentPosts: [], periods: [], events: [] });
@@ -92,7 +94,7 @@ const Home = () => {
                         ? `${c.birthDate ? c.birthDate : '?'} - ${c.deathDate ? c.deathDate : '?'}`
                         : '',
                     desc: stripHtml(c.biography || c.description || ''),
-                    image: c.avatar || DEFAULT_CHAR_IMAGE,
+                    image: characterImages[c.slug] || c.avatar || DEFAULT_CHAR_IMAGE,
                 }));
 
                 let mergedEvents = dbEvents.slice(0, 4).map(e => ({
@@ -166,15 +168,15 @@ const Home = () => {
         localStorage.setItem('admin_period_order', JSON.stringify(newOrder));
     };
 
-    if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải trang chủ...</div>;
+    if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải trang chủ...</div>;
 
     return (
-        <div className="animate-in fade-in duration-1000 font-body bg-[#fbf6e8] parchment-texture">
+        <div className="animate-in fade-in duration-1000 font-body w-full">
             {/* 1. HERO SECTION */}
             <section className="relative h-[calc(100dvh-80px)] max-h-[750px] min-h-[640px] overflow-hidden bg-[#2b0504]">
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="/images/home.png"
+                        src={backgroundUrl || "/images/home.png"}
                         alt="Nền lịch sử"
                         className="h-full w-full object-cover object-center"
                     />
@@ -488,7 +490,7 @@ const Home = () => {
                 <div className="bg-[#2b0504] border border-[#d99b4a]/40 rounded-xl p-10 md:p-20 flex flex-col items-center relative overflow-hidden group shadow-2xl">
                     <img
                         className="absolute inset-0 w-full h-full object-cover opacity-[0.2] mix-blend-luminosity grayscale-[30%] sepia-[50%] group-hover:scale-105 transition-transform duration-[20s]"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFP8chLPXP9CFXQ9SWX7y1oh1bbGSfFCnXG0FkWzHIhsKyn_elKHpxt_a66FO7iKc5Ixrf0cZwLguOY5sIYf920OubLX3TpHpuIXc3EOOwjToUQkjHqMjFysh3Gv_inAM7hwmG55ONut6T3mWBwvOXAek4fqGnOGoYFlhB6JMN-CoxjCW2CZDy-rNIkjpReJG3oKbFknSZaa8NObGutb82o07nPH-RQLWi9N76OL-rE9tUnnn37hswsSZvNmXzVXJ2fGdMvBzVcjnI"
+                        src={backgroundUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuAFP8chLPXP9CFXQ9SWX7y1oh1bbGSfFCnXG0FkWzHIhsKyn_elKHpxt_a66FO7iKc5Ixrf0cZwLguOY5sIYf920OubLX3TpHpuIXc3EOOwjToUQkjHqMjFysh3Gv_inAM7hwmG55ONut6T3mWBwvOXAek4fqGnOGoYFlhB6JMN-CoxjCW2CZDy-rNIkjpReJG3oKbFknSZaa8NObGutb82o07nPH-RQLWi9N76OL-rE9tUnnn37hswsSZvNmXzVXJ2fGdMvBzVcjnI"}
                         alt="Bản đồ Di tích"
                     />
 

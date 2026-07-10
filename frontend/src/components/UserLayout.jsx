@@ -1,51 +1,42 @@
-import { apiClient, mockClient } from '../services';
+import { apiClient } from '../services';
 import React, { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate, NavLink, useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux';
+import { login, logout } from '../store/redux/slices/authSlice';
+import useModalStore from '../store/zustand/useModalStore';
 import LogoutModal from "./LogoutModal";
 import ChatBox from "./ChatBox";
 import DongSonDrumIcon from "./DongSonDrumIcon";
+import useSystemAppearance from '../hooks/useSystemAppearance';
+import SystemBackground from './SystemBackground';
 
 const HEADER_HEIGHT = 80;
 
 const UserLayout = () => {
-  const [isRulesOpen, setIsRulesOpen] = useState(false);
-  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  
+  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
+  const { isOpen, modalType, openModal, closeModal } = useModalStore();
 
   const navigate = useNavigate();
   const location = useLocation();
 
   // Reset modal states when navigating or pressing back to prevent getting stuck
   useEffect(() => {
-    setIsRulesOpen(false);
-    setIsLogoutOpen(false);
+    closeModal();
     setIsChatOpen(false);
   }, [location.pathname]);
 
-  const [siteName, setSiteName] = useState('Sử Việt');
+  const { siteName, logoUrl, backgroundUrl } = useSystemAppearance();
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
-    if (savedUser) setUser(JSON.parse(savedUser));
-  }, []);
-
-  useEffect(() => {
-    const customSettings = JSON.parse(localStorage.getItem('admin_new_settings') || '[]');
-    const siteNameParam = customSettings.find(p => p.key === 'site_name');
-    if (siteNameParam) {
-      setSiteName(siteNameParam.value);
-    } else {
-      mockClient.get('/api/admin_settings.json')
-        .then(res => {
-          const defaultSiteName = res.data.parameters?.find(p => p.key === 'site_name')?.value;
-          if (defaultSiteName) {
-            setSiteName(defaultSiteName);
-          }
-        })
-        .catch(err => console.error('Error loading settings:', err));
+    const savedToken = localStorage.getItem("accessToken");
+    if (savedUser && savedToken) {
+      dispatch(login({ user: JSON.parse(savedUser), token: savedToken }));
     }
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     document.title = siteName;
@@ -59,12 +50,13 @@ const UserLayout = () => {
     } finally {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
-      setIsLogoutOpen(false);
-      setUser(null);
+      dispatch(logout());
+      closeModal();
       navigate("/login");
       window.location.reload();
     }
   };
+
 
 
 
@@ -74,9 +66,10 @@ const UserLayout = () => {
     }`;
 
   return (
-    <div className="min-h-screen bg-[#fbf6e8] parchment-texture font-body selection:bg-[#d99b4a]/20 relative flex flex-col">
-      <div className="absolute inset-0 dong-son-pattern opacity-[0.03] pointer-events-none fixed z-0"></div>
+    <div className={`min-h-screen font-body selection:bg-[#d99b4a]/20 relative flex flex-col ${backgroundUrl ? 'bg-[#fbf6e8]' : 'bg-[#fbf6e8] parchment-texture'}`}>
       <div className="grain-overlay pointer-events-none fixed inset-0 z-0 opacity-5" />
+      
+      <SystemBackground backgroundUrl={backgroundUrl} />
 
       {/* HEADER */}
       <header
@@ -93,7 +86,11 @@ const UserLayout = () => {
               to={user?.role === 'admin' ? '/admin' : '/'}
               className="shrink-0 font-headline text-[26px] lg:text-[30px] font-bold text-[#f7d78a] tracking-wider hover:opacity-80 transition drop-shadow-md flex items-center gap-3"
             >
-              <span className="material-symbols-outlined text-[28px] lg:text-[32px] text-[#f7d78a]">account_balance</span>
+              {logoUrl ? (
+                <img src={logoUrl} alt={siteName} className="w-9 h-9 lg:w-10 lg:h-10 object-contain rounded-sm bg-[#f7d78a]/10 p-0.5" />
+              ) : (
+                <span className="material-symbols-outlined text-[28px] lg:text-[32px] text-[#f7d78a]">account_balance</span>
+              )}
               {siteName}
             </Link>
 
@@ -140,7 +137,7 @@ const UserLayout = () => {
                     </Link>
                   </div>
                   <button
-                    onClick={() => setIsLogoutOpen(true)}
+                    onClick={() => openModal('logout')}
                     className="h-10 px-5 rounded-sm bg-[#6b0f0d] text-[#ffe7b0] font-body font-bold text-[10.5px] uppercase tracking-widest shadow-lg hover:bg-[#8b1512] transition-all active:scale-95"
                   >
                     Đăng xuất
@@ -173,7 +170,7 @@ const UserLayout = () => {
         className="relative z-10 flex-grow"
         style={{ paddingTop: `${HEADER_HEIGHT}px` }}
       >
-        <Outlet />
+        <Outlet context={{ backgroundUrl }} />
       </main>
 
       {/* FOOTER */}
@@ -191,7 +188,7 @@ const UserLayout = () => {
           </div>
 
           <div className="flex justify-center md:justify-end gap-12 font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant self-end">
-            <button onClick={() => setIsRulesOpen(true)} className="hover:text-primary uppercase cursor-pointer">
+            <button onClick={() => openModal('rules')} className="hover:text-primary uppercase cursor-pointer">
               Quy định
             </button>
           </div>
@@ -199,12 +196,12 @@ const UserLayout = () => {
       </footer>
 
       {/* QUY DINH MODAL */}
-      {isRulesOpen && (
+      {isOpen && modalType === 'rules' && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
           <div className="bg-[#fbf6e8] w-full max-w-2xl rounded-sm shadow-2xl overflow-hidden border border-[#d99b4a]/50">
             <div className="bg-[#6b0f0d] p-5 flex justify-between items-center text-[#ffe7b0]">
               <h3 className="font-headline text-xl font-bold uppercase tracking-widest">Quy Định Sử Dụng</h3>
-              <button onClick={() => setIsRulesOpen(false)} className="hover:rotate-90 transition-transform"><span className="material-symbols-outlined">close</span></button>
+              <button onClick={closeModal} className="hover:rotate-90 transition-transform"><span className="material-symbols-outlined">close</span></button>
             </div>
             <div className="p-8 font-body text-[#2b1a16] space-y-6 max-h-[70vh] overflow-y-auto">
               <div className="space-y-2">
@@ -221,7 +218,7 @@ const UserLayout = () => {
               </div>
             </div>
             <div className="p-4 border-t border-[#d99b4a]/30 bg-[#fcf9ee] text-right">
-              <button onClick={() => setIsRulesOpen(false)} className="px-8 py-2.5 bg-[#6b0f0d] text-[#ffe7b0] hover:bg-[#8b1512] font-bold uppercase tracking-widest text-[11px] rounded-sm shadow-md transition-colors">Đồng ý & Đóng</button>
+              <button onClick={closeModal} className="px-8 py-2.5 bg-[#6b0f0d] text-[#ffe7b0] hover:bg-[#8b1512] font-bold uppercase tracking-widest text-[11px] rounded-sm shadow-md transition-colors">Đồng ý & Đóng</button>
             </div>
           </div>
         </div>
@@ -229,8 +226,8 @@ const UserLayout = () => {
 
       {/* LOGOUT MODAL */}
       <LogoutModal
-        isOpen={isLogoutOpen}
-        onClose={() => setIsLogoutOpen(false)}
+        isOpen={isOpen && modalType === 'logout'}
+        onClose={closeModal}
         onConfirm={handleConfirmLogout}
       />
 

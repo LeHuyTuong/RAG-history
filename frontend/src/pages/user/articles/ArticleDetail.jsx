@@ -104,39 +104,32 @@ const ArticleDetail = () => {
           }
           setIsLiked(localStorage.getItem(`liked_${merged.slug || slug}`) === 'true');
 
-          // Gọi API thật lấy comment
+          // Gọi API thật lấy comment (và merge với localStorage)
+          let allComments = [];
           if (dbPost.id) {
             try {
               const commRes = await apiClient.get(`${API_ENDPOINTS.PUBLIC_ENGAGEMENTS}?postId=${dbPost.id}`);
-              const fetchedComments = commRes.data?.data || [];
-              setComments(fetchedComments);
+              allComments = commRes.data?.data || [];
             } catch (err) {
               console.error('Failed to fetch comments', err);
-              // Fallback to local storage if API fails
-              const savedComments = localStorage.getItem(`comments_${merged.slug || slug}`);
-              if (savedComments) {
-                try {
-                  setComments(JSON.parse(savedComments));
-                } catch (e) {
-                  setComments([]);
-                }
-              } else {
-                setComments([]);
-              }
-            }
-          } else {
-            // Nạp lại comments từ localStorage cho bài viết này nếu ko có id
-            const savedComments = localStorage.getItem(`comments_${merged.slug || slug}`);
-            if (savedComments) {
-              try {
-                setComments(JSON.parse(savedComments));
-              } catch (e) {
-                setComments([]);
-              }
-            } else {
-              setComments([]);
             }
           }
+
+          const savedKey = `comments_${merged.slug || slug}`;
+          const savedCommentsStr = localStorage.getItem(savedKey);
+          if (savedCommentsStr) {
+            try {
+              const localComments = JSON.parse(savedCommentsStr);
+              localComments.forEach(lc => {
+                if (!allComments.find(c => c.id === lc.id)) {
+                  allComments.push(lc);
+                }
+              });
+            } catch (e) {}
+          }
+          
+          setComments(allComments);
+          localStorage.setItem(savedKey, JSON.stringify(allComments));
 
           // Fetch event details to get locations and characters
           const eventId = dbPost?.event?.id || mockItem?.event?.id || mockItem?.eventId;
@@ -196,7 +189,7 @@ const ArticleDetail = () => {
     fetchArticle();
   }, [slug]);
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải bài viết...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải bài viết...</div>;
   if (!article) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Không tìm thấy bài viết.</div>;
 
   const handleLike = () => {
@@ -206,12 +199,13 @@ const ArticleDetail = () => {
     setLikes(newLikes);
     setIsLiked(newIsLiked);
 
-    localStorage.setItem(`liked_${slug}`, String(newIsLiked));
-    localStorage.setItem(`likesCount_${slug}`, String(newLikes));
+    const savedKey = article?.slug || slug;
+    localStorage.setItem(`liked_${savedKey}`, String(newIsLiked));
+    localStorage.setItem(`likesCount_${savedKey}`, String(newLikes));
   };
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20">
       {/* Background Pattern Overlay */}
       <div className="dong-son-pattern pointer-events-none fixed inset-0 z-0 opacity-5 mix-blend-overlay"></div>
 
@@ -475,7 +469,7 @@ const ArticleDetail = () => {
 
                           const updatedComments = [...comments, newCommentObj];
                           setComments(updatedComments);
-                          localStorage.setItem(`comments_${slug}`, JSON.stringify(updatedComments));
+                          localStorage.setItem(`comments_${article?.slug || slug}`, JSON.stringify(updatedComments));
                           setNewComment('');
                         }
                       }}

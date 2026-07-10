@@ -3,6 +3,42 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import VietnamMap from '../../../components/VietnamMap';
 
+const LOCATION_TYPE_MAP = {
+  'REGION': 'VÙNG ĐẤT',
+  'CITADEL': 'THÀNH LŨY',
+  'MOUNTAIN': 'NÚI',
+  'CITY': 'ĐÔ THỊ',
+  'BATTLEFIELD': 'CHIẾN TRƯỜNG',
+  'CAPITAL': 'KINH ĐÔ',
+  'PALACE': 'CUNG ĐIỆN',
+  'BASE': 'CĂN CỨ',
+  'relic': 'DI TÍCH',
+  'historical_site': 'DI TÍCH LỊCH SỬ'
+};
+
+const PROVINCE_MAP = {
+  'phu-tho': 'Phú Thọ',
+  'co-loa': 'Đông Anh, Hà Nội',
+  'me-linh': 'Mê Linh, Hà Nội',
+  'nui-nua': 'Triệu Sơn, Thanh Hóa',
+  'long-bien': 'Bắc Ninh',
+  'hoan-chau': 'Nghệ An',
+  'song-bach-dang': 'Quảng Ninh - Hải Phòng',
+  'hoa-lu': 'Ninh Bình',
+  'thang-long': 'Hà Nội',
+  'song-nhu-nguyet': 'Bắc Ninh',
+  'dong-bo-dau': 'Hà Nội',
+  'thien-truong': 'Nam Định',
+  'tay-do': 'Vĩnh Lộc, Thanh Hóa',
+  'lam-son': 'Thọ Xuân, Thanh Hóa',
+  'dong-kinh': 'Hà Nội',
+  'phu-xuan': 'Huế',
+  'go-dong-da': 'Đống Đa, Hà Nội',
+  'kinh-thanh-hue': 'Huế',
+  'da-nang': 'Đà Nẵng',
+  'dien-bien-phu': 'Điện Biên'
+};
+
 const LocationDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -38,14 +74,15 @@ const LocationDetail = () => {
           const mockItem = mockLocations.find(m => m.slug === dbLocation.slug) || {};
 
           setLocation({
+            ...mockItem,
             ...dbLocation,
-            heroImg: dbLocation.image || 'https://via.placeholder.com/800x400',
+            heroImg: dbLocation.image || mockItem.heroImg || mockItem.image || 'https://via.placeholder.com/800x400',
             location_id: dbLocation.id,
-            location_type: dbLocation.locationType || mockItem.location_type || 'REGION',
+            location_type: LOCATION_TYPE_MAP[dbLocation.locationType] || LOCATION_TYPE_MAP[mockItem.location_type] || mockItem.location_type || 'VÙNG ĐẤT',
             description: dbLocation.description || mockItem.description || '',
             x: mockItem.x !== undefined ? mockItem.x : 50,
             y: mockItem.y !== undefined ? mockItem.y : 50,
-            province: mockItem.province || 'Việt Nam',
+            province: PROVINCE_MAP[dbLocation.slug] || PROVINCE_MAP[mockItem.slug] || mockItem.province || 'Việt Nam',
             period: dbLocation.period?.name || mockItem.period || '',
           });
         }
@@ -58,11 +95,11 @@ const LocationDetail = () => {
     fetchLocation();
   }, [id]);
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải di tích...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải di tích...</div>;
   if (!location) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Không tìm thấy di tích.</div>;
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20 pb-20">
       {/* 1. HERO SECTION */}
       <section className="relative h-[70vh] w-full overflow-hidden border-b-[6px] border-[#d99b4a]/40">
         <img

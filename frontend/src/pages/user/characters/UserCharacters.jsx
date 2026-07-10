@@ -1,9 +1,11 @@
 import { API_ENDPOINTS, apiClient } from '../../../services';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import { personService } from '../../../services';
+import characterImages from '../../../data/characterImages.json';
 
 const UserCharacters = () => {
+  const { backgroundUrl = '' } = useOutletContext() || {};
   const [searchTerm, setSearchTerm] = useState('');
   const [activePeriod, setActivePeriod] = useState('');
   const [characters, setCharacters] = useState([]);
@@ -22,7 +24,7 @@ const UserCharacters = () => {
         }
 
         try {
-          const pRes = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
+          const pRes = await apiClient.get(API_ENDPOINTS.USER_PERIODS, { params: { size: 500 } });
           const rawPeriods = pRes.data?.data?.result || pRes.data?.data?.content || pRes.data?.data || [];
           setPeriods(rawPeriods.map(p => p.name).filter(Boolean));
         } catch (pErr) {
@@ -43,7 +45,7 @@ const UserCharacters = () => {
             realName: dbItem.alias || '',
             desc: cleanDesc,
             dynasty: dbItem.dynasty || 'Chưa rõ',
-            image: dbItem.avatar || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+            image: characterImages[dbItem.slug] || dbItem.avatar || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
             achievements: [],
             years: dbItem.birthDate || dbItem.deathDate ? `${dbItem.birthDate ? dbItem.birthDate : '?'} - ${dbItem.deathDate ? dbItem.deathDate : '?'}` : ''
           };
@@ -66,16 +68,16 @@ const UserCharacters = () => {
     return matchesSearch && matchesPeriod;
   });
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải nhân vật...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải nhân vật...</div>;
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20">
       {/* HERO SECTION */}
       <section className="relative h-[450px] flex items-center justify-center overflow-hidden border-b border-[#d99b4a]/30">
         <div className="absolute inset-0 z-0 bg-[#2b0504]">
           <img
             className="w-full h-full object-cover grayscale-[30%] sepia-[40%] brightness-[0.4] animate-ken-burns origin-center"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9vO8Wl8R-Z9n81m-O0H1yK80Sj377X5qQoV10Q4gA-fN2mO_R9_mS9fM-M-0xP2yGg0_5N9j5sNlB2R1hK1J8f5mG9Q3r9g8_H4gM8rD6Y5qJ2Q5n8vR1v8h_2k2lJ5wW2gQ8xP4gJ7n_0"
+            src={backgroundUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuC9vO8Wl8R-Z9n81m-O0H1yK80Sj377X5qQoV10Q4gA-fN2mO_R9_mS9fM-M-0xP2yGg0_5N9j5sNlB2R1hK1J8f5mG9Q3r9g8_H4gM8rD6Y5qJ2Q5n8vR1v8h_2k2lJ5wW2gQ8xP4gJ7n_0"}
             alt="Characters Hero"
             onError={(e) => { e.target.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2" }}
           />
@@ -138,6 +140,7 @@ const UserCharacters = () => {
                       src={char.image}
                       alt={char.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 sepia-[0.1]"
+                      referrerPolicy="no-referrer"
                     />
 
                     {/* Gradient overlay for bottom text */}

@@ -157,8 +157,8 @@ const AdminDashboard = () => {
           </div>
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-              <h2 className="font-headline text-4xl lg:text-5xl text-primary font-bold italic tracking-tight mb-4">
-                Bảng điều khiển Quản trị
+              <h2 className="font-headline text-4xl lg:text-5xl text-primary font-bold flex items-center gap-3 mb-4">
+                <span className="material-symbols-outlined text-4xl lg:text-5xl">dashboard</span> Bảng điều khiển Quản trị
               </h2>
               <p className="font-body text-sm text-on-surface-variant max-w-xl leading-relaxed">
                 Giám sát tổng quan hệ thống dữ liệu lịch sử Đại Việt. Theo dõi lưu lượng truy cập, quản lý nội dung và cập nhật các hoạt động mới nhất từ AI và thành viên.
@@ -192,7 +192,7 @@ const AdminDashboard = () => {
             {/* Thao tác nhanh */}
             <div className="bg-white/80 backdrop-blur-xl border border-outline-variant/50 rounded-[2rem] shadow-sm p-6 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 blur-3xl rounded-full -z-10 group-hover:bg-amber-500/20 transition-colors pointer-events-none"></div>
-              <h3 className="font-headline text-xl text-primary font-bold italic mb-5 flex items-center gap-2">
+              <h3 className="font-headline text-xl text-primary font-bold mb-5 flex items-center gap-2">
                 <span className="material-symbols-outlined text-amber-500">bolt</span>
                 Thao tác nhanh
               </h3>
@@ -217,7 +217,7 @@ const AdminDashboard = () => {
             >
               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
               <div className="flex justify-between items-center mb-6 relative z-10">
-                <h3 className="font-headline text-lg text-primary font-bold italic flex items-center gap-2">
+                <h3 className="font-headline text-lg text-primary font-bold flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary/70 text-[20px]">database</span>
                   Hệ thống Dữ liệu
                 </h3>
@@ -237,13 +237,15 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* BENTO BLOCK 4: BIỂU ĐỒ (Col Span 6) */}
-          <div className="lg:col-span-6 bg-white/80 backdrop-blur-xl border border-outline-variant/50 rounded-[2rem] shadow-sm p-8 flex flex-col relative overflow-hidden group">
+          {/* BENTO BLOCK 4: BIỂU ĐỒ (Col Span 9) */}
+          <div className="lg:col-span-9 bg-white/80 backdrop-blur-xl border border-outline-variant/50 rounded-[2rem] shadow-sm p-8 flex flex-col relative overflow-hidden group">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-32 bg-primary/5 blur-[80px] rounded-full pointer-events-none group-hover:bg-primary/10 transition-colors duration-700"></div>
 
             <div className="flex justify-between items-end mb-10 relative z-10">
               <div>
-                <h3 className="font-headline text-2xl text-primary font-bold italic">Lưu lượng truy cập</h3>
+                <h3 className="font-headline text-2xl text-primary font-bold flex items-center gap-2">
+                  <span className="material-symbols-outlined text-2xl">monitoring</span> Lưu lượng truy cập
+                </h3>
                 <p className="text-[11px] text-on-surface-variant font-bold uppercase tracking-widest mt-1">30 Ngày gần nhất</p>
               </div>
               <div className="flex gap-3 bg-surface-low p-1.5 rounded-full border border-outline-variant/50 shadow-inner">
@@ -287,48 +289,7 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* BENTO BLOCK 5: HOẠT ĐỘNG MỚI (Col Span 3) */}
-          <div className="lg:col-span-3 bg-white/80 backdrop-blur-xl border border-outline-variant/50 rounded-[2rem] shadow-sm p-6 flex flex-col relative">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-headline text-xl text-primary font-bold italic">Hoạt động mới</h3>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-low transition-colors group">
-                <span className="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-primary transition-colors">more_horiz</span>
-              </button>
-            </div>
 
-            <div className="flex-1 space-y-5 overflow-y-auto pr-2 custom-scrollbar relative">
-              {loading ? (
-                <div className="text-center text-[11px] text-on-surface-variant py-4 font-body animate-pulse">Đang tải hoạt động...</div>
-              ) : (
-                <>
-                  <div className="absolute top-2 bottom-2 left-[15px] w-0.5 bg-gradient-to-b from-primary/30 via-outline-variant/30 to-transparent"></div>
-                  {dashboardData.activities?.map((act, index) => {
-                    const actColor = act.color || 'text-primary';
-                    return (
-                      <div key={act.id || index} className="relative pl-10 group/act cursor-pointer">
-                        <div className={`absolute top-1 left-[7px] w-4 h-4 rounded-full flex items-center justify-center bg-white border-2 border-white shadow-sm z-10 transition-transform group-hover/act:scale-125 ${actColor.replace('text', 'bg').replace('bg-on-surface', 'bg-slate-400')}`}>
-                          <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-                        </div>
-
-                        <div className="bg-surface-low/50 group-hover/act:bg-surface p-3.5 rounded-2xl border border-outline-variant/30 group-hover/act:border-primary/20 group-hover/act:shadow-md transition-all duration-300">
-                          <div className="flex items-center gap-1.5 mb-2">
-                            <span className={`material-symbols-outlined text-[14px] ${actColor}`}>{act.icon}</span>
-                            <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest">{act.time}</p>
-                          </div>
-                          <p className="text-[12px] text-on-surface leading-relaxed" dangerouslySetInnerHTML={{ __html: act.textHtml || '' }}></p>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </>
-              )}
-            </div>
-
-            <button className="w-full mt-4 py-3 text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/5 hover:bg-primary/10 rounded-xl transition-colors flex items-center justify-center gap-2">
-              Xem toàn bộ lịch sử
-              <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-            </button>
-          </div>
 
         </section>
 

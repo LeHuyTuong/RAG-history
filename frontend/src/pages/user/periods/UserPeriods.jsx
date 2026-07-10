@@ -1,8 +1,9 @@
-import { API_ENDPOINTS, apiClient, eventService } from '../../../services';
+import { API_ENDPOINTS, apiClient, eventService, periodService } from '../../../services';
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 
 const UserPeriods = () => {
+  const { backgroundUrl = '' } = useOutletContext() || {};
 
   const [periodsData, setPeriodsData] = useState([]);
   const [eventsData, setEventsData] = useState([]);
@@ -27,11 +28,12 @@ const UserPeriods = () => {
         let dbPeriods = [];
         let allEvents = [];
         try {
-          const response = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
-          dbPeriods = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
-
-          const evtRes = await eventService.filter({ size: 500 });
-          allEvents = evtRes.items || [];
+          const [response, evtRes] = await Promise.all([
+            periodService.filter({ size: 500 }),
+            eventService.filter({ size: 500 })
+          ]);
+          dbPeriods = response?.items || [];
+          allEvents = evtRes?.items || [];
         } catch (apiErr) {
           console.error('Lỗi gọi API:', apiErr);
         }
@@ -113,17 +115,17 @@ const UserPeriods = () => {
 
   const displayedPeriods = periodsData;
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải triều đại...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải triều đại...</div>;
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20">
 
       {/* 1. HERO SECTION */}
       <section className="relative h-[450px] flex items-center justify-center overflow-hidden border-b border-[#d99b4a]/30">
         <div className="absolute inset-0 z-0 bg-[#2b0504]">
           <img
             className="w-full h-full object-cover grayscale-[30%] sepia-[40%] brightness-[0.4] animate-ken-burns origin-center"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAVKTpmIOsVPz71VTF7L-eaHzXN4Oh6ub8EnTMlfUxrO0hDH1qbwKqQtEnBGtuK1LPKBy5AJGrq5evViTFpOavYjCKc58Nv9n6_KOuHFJmbJp9zdQyAwqo25I9dqHTc82z_zNxCvJEdmuN7_Gfjkz4j9mxGG-E-Ip-ns87D3W7Hvs0eWMOiKI9S5Ng0eSOpToLtO9W5MjbkR0iTXZZR8SBLrVLBIAitzFajiYDuc-aFI2C0FXPJgzc0QWAMp4Dl6sTZfmH2AhB54N6"
+            src={backgroundUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuBAVKTpmIOsVPz71VTF7L-eaHzXN4Oh6ub8EnTMlfUxrO0hDH1qbwKqQtEnBGtuK1LPKBy5AJGrq5evViTFpOavYjCKc58Nv9n6_KOuHFJmbJp9zdQyAwqo25I9dqHTc82z_zNxCvJEdmuN7_Gfjkz4j9mxGG-E-Ip-ns87D3W7Hvs0eWMOiKI9S5Ng0eSOpToLtO9W5MjbkR0iTXZZR8SBLrVLBIAitzFajiYDuc-aFI2C0FXPJgzc0QWAMp4Dl6sTZfmH2AhB54N6"}
             alt="Hero"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#2b0504]/90 via-[#2b0504]/40 to-[#fbf6e8] pointer-events-none"></div>

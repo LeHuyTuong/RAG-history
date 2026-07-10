@@ -22,7 +22,6 @@ const MetadataPeriodForm = () => {
   const [originalData, setOriginalData] = useState({});
 
   const [availableCharacters, setAvailableCharacters] = useState([]);
-  const [showSuccess, setShowSuccess] = useState(false);
 
   // States cho tính năng thêm/sửa nhân vật mới
   const [isAddingEmperor, setIsAddingEmperor] = useState(false);
@@ -226,10 +225,7 @@ const MetadataPeriodForm = () => {
         await apiClient.post(API_ENDPOINTS.ADMIN_PERIODS, payload);
       }
 
-      setShowSuccess(true);
-      setTimeout(() => {
-        navigate('/admin/metadata');
-      }, 1500);
+      navigate('/admin/metadata');
     } catch (error) {
       console.error('Lỗi lưu kỷ nguyên:', error);
       const errMsg = extractErrorMessage(error, 'Có lỗi xảy ra khi lưu Kỷ nguyên!');
@@ -549,20 +545,6 @@ const MetadataPeriodForm = () => {
           </aside>
         </div>
       </main>
-
-      {showSuccess && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center gap-4 animate-in zoom-in-95 duration-300">
-            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
-              <span className="material-symbols-outlined text-4xl">check_circle</span>
-            </div>
-            <h3 className="font-headline text-2xl font-bold text-on-surface">
-              {isEdit ? 'Cập nhật thành công!' : 'Tạo thời kỳ thành công!'}
-            </h3>
-            <p className="text-on-surface-variant text-sm">Đang chuyển hướng về trang quản lý...</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

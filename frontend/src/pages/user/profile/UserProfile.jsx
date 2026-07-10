@@ -1,5 +1,5 @@
-import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
-import { useState, useEffect } from 'react';
+import { API_ENDPOINTS, apiClient, mockClient, postService } from '../../../services';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const UserProfile = () => {
@@ -10,7 +10,9 @@ const UserProfile = () => {
   });
   const [nameInput, setNameInput] = useState(user.username);
   const [avatarInput, setAvatarInput] = useState(user.avatar || '');
+  const [toastMsg, setToastMsg] = useState('');
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
@@ -25,8 +27,21 @@ const UserProfile = () => {
     const updatedUser = { ...user, username: nameInput, avatar: avatarInput };
     localStorage.setItem('user', JSON.stringify(updatedUser));
     setUser(updatedUser);
-    alert('Cập nhật thông tin thành công!');
-    window.location.reload();
+    setToastMsg('Cập nhật thông tin thành công!');
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+  };
+
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarInput(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleChangePassword = (e) => {
@@ -39,23 +54,58 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        let historyData = [];
+        let allArticles = [];
         try {
-          const response = await apiClient.get('/api/v1/members/me/history');
-          historyData = response.data?.data || response.data || [];
+          const response = await Promise.race([
+            postService.filter({ size: 500 }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+          ]);
+          allArticles = response.items || [];
         } catch (apiErr) {
-          console.error('Failed to fetch profile history from API, falling back to mock:', apiErr);
+          console.error('Failed to fetch articles from API:', apiErr);
         }
 
-        if (!Array.isArray(historyData) || historyData.length === 0) {
+        if (allArticles.length === 0) {
           try {
-            const mockRes = await mockClient.get('/api/user_profile_history.json');
-            historyData = mockRes.data || [];
+            const mockRes = await mockClient.get('/api/user_articles.json');
+            allArticles = mockRes.data || [];
           } catch (mockErr) {
-            console.error('Failed to fetch mock profile history:', mockErr);
+            console.error('Failed to fetch mock articles:', mockErr);
           }
         }
-        setMockHistory(Array.isArray(historyData) ? historyData : []);
+
+        const interactedHistory = [];
+        allArticles.forEach(art => {
+          const slug = art.slug || art.id;
+          const isLiked = localStorage.getItem(`liked_${slug}`) === 'true';
+          const commentsStr = localStorage.getItem(`comments_${slug}`);
+          let hasComments = false;
+          if (commentsStr) {
+            try {
+              const commentsArr = JSON.parse(commentsStr);
+              hasComments = commentsArr.length > 0;
+            } catch (e) {}
+          }
+          
+          if (isLiked || hasComments) {
+            let actionText = 'Đã tương tác';
+            if (isLiked && hasComments) actionText = 'Đã thích & bình luận';
+            else if (isLiked) actionText = 'Đã thích';
+            else if (hasComments) actionText = 'Đã bình luận';
+            
+            interactedHistory.push({
+              id: art.id,
+              title: art.title,
+              type: 'BÀI VIẾT',
+              interaction: actionText,
+              date: new Date().toISOString().split('T')[0],
+              img: art.thumbnailUrl || art.thumbnail_url || 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg',
+              link: `/articles/${slug}`
+            });
+          }
+        });
+        
+        setMockHistory(interactedHistory.reverse());
       } catch (error) {
         console.error('Error fetching history:', error);
       }
@@ -64,7 +114,17 @@ const UserProfile = () => {
   }, []);
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20 pb-20">
+      
+      {/* TOAST NOTIFICATION */}
+      {toastMsg && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top-4 fade-in duration-300">
+          <div className="bg-[#1a0201]/90 backdrop-blur-md text-[#ffe7b0] px-6 py-3 rounded-full shadow-2xl border border-[#d99b4a]/50 font-body font-bold text-[13px] tracking-wide flex items-center gap-2">
+            <span className="material-symbols-outlined text-[#4caf50]">check_circle</span>
+            {toastMsg}
+          </div>
+        </div>
+      )}
 
       {/* 1. COVER HEADER */}
       <section className="relative w-full h-[25vh] md:h-[30vh] border-b-[4px] border-[#d99b4a]/40 shadow-md">
@@ -79,7 +139,12 @@ const UserProfile = () => {
         <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 mb-8">
           {/* Avatar (Overlapping) */}
           <div 
-            onClick={() => setActiveTab('profile')}
+            onClick={() => {
+              setActiveTab('profile');
+              if (fileInputRef.current) {
+                fileInputRef.current.click();
+              }
+            }}
             className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-[#fbf6e8] bg-[#2b0504] shadow-2xl flex items-center justify-center overflow-hidden relative shrink-0 group cursor-pointer"
             title="Đổi ảnh đại diện"
           >
@@ -178,15 +243,20 @@ const UserProfile = () => {
                 <form onSubmit={handleUpdateName} className="space-y-6 relative z-10">
                   <div className="space-y-2">
                     <label className="font-body text-[11px] text-[#2b1a16] uppercase tracking-widest font-bold block text-center">
-                      Ảnh đại diện (Link URL)
+                      Ảnh đại diện
                     </label>
-                    <input
-                      type="text"
-                      value={avatarInput}
-                      onChange={(e) => setAvatarInput(e.target.value)}
-                      placeholder="Nhập đường dẫn ảnh..."
-                      className="w-full bg-[#fcf9ee] border border-[#d9c7a7] focus:border-[#6b0f0d] focus:ring-1 focus:ring-[#6b0f0d]/30 p-4 text-sm outline-none font-body transition-colors text-[#2b1a16] shadow-inner text-center rounded-sm placeholder:text-[#2b1a16]/30"
-                    />
+                    <div className="flex flex-col items-center gap-4">
+                      {avatarInput && (
+                        <img src={avatarInput} alt="Preview" className="w-16 h-16 rounded-full object-cover border-2 border-[#d99b4a] shadow-sm" />
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        onChange={handleAvatarUpload}
+                        className="w-full max-w-[280px] bg-[#fcf9ee] border border-[#d9c7a7] focus:border-[#6b0f0d] focus:ring-1 focus:ring-[#6b0f0d]/30 p-2 text-sm outline-none font-body transition-colors text-[#2b1a16] rounded-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:font-bold file:bg-[#6b0f0d] file:text-[#ffe7b0] hover:file:bg-[#8b1512] cursor-pointer text-center"
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <label className="font-body text-[11px] text-[#2b1a16] uppercase tracking-widest font-bold block text-center">

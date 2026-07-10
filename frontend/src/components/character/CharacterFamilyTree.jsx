@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_ENDPOINTS, apiClient } from '../../services';
+import characterImages from '../../data/characterImages.json';
 
 export const normalizeKey = (str) => {
   if (!str) return '';
@@ -356,7 +357,7 @@ const CharacterFamilyTree = ({
       return {
         id: match.id,
         slug: match.slug,
-        portrait: match.image || match.portrait || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+        portrait: characterImages[match.slug] || match.image || match.portrait || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
         years: match.years || (match.birthDate ? `${new Date(match.birthDate).getFullYear()} - ${match.deathDate ? new Date(match.deathDate).getFullYear() : '?'}` : ''),
         clickable: true
       };

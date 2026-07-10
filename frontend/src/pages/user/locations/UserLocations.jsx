@@ -1,10 +1,47 @@
-import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
+import { API_ENDPOINTS, apiClient, mockClient, locationService, periodService } from '../../../services';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import VietnamMap from '../../../components/VietnamMap';
 
+const LOCATION_TYPE_MAP = {
+  'REGION': 'VÙNG ĐẤT',
+  'CITADEL': 'THÀNH LŨY',
+  'MOUNTAIN': 'NÚI',
+  'CITY': 'ĐÔ THỊ',
+  'BATTLEFIELD': 'CHIẾN TRƯỜNG',
+  'CAPITAL': 'KINH ĐÔ',
+  'PALACE': 'CUNG ĐIỆN',
+  'BASE': 'CĂN CỨ',
+  'relic': 'DI TÍCH',
+  'historical_site': 'DI TÍCH LỊCH SỬ'
+};
+
+const PROVINCE_MAP = {
+  'phu-tho': 'Phú Thọ',
+  'co-loa': 'Đông Anh, Hà Nội',
+  'me-linh': 'Mê Linh, Hà Nội',
+  'nui-nua': 'Triệu Sơn, Thanh Hóa',
+  'long-bien': 'Bắc Ninh',
+  'hoan-chau': 'Nghệ An',
+  'song-bach-dang': 'Quảng Ninh - Hải Phòng',
+  'hoa-lu': 'Ninh Bình',
+  'thang-long': 'Hà Nội',
+  'song-nhu-nguyet': 'Bắc Ninh',
+  'dong-bo-dau': 'Hà Nội',
+  'thien-truong': 'Nam Định',
+  'tay-do': 'Vĩnh Lộc, Thanh Hóa',
+  'lam-son': 'Thọ Xuân, Thanh Hóa',
+  'dong-kinh': 'Hà Nội',
+  'phu-xuan': 'Huế',
+  'go-dong-da': 'Đống Đa, Hà Nội',
+  'kinh-thanh-hue': 'Huế',
+  'da-nang': 'Đà Nẵng',
+  'dien-bien-phu': 'Điện Biên'
+};
+
 export default function UserLocations() {
+  const { backgroundUrl = '' } = useOutletContext() || {};
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'map'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDynasty, setSelectedDynasty] = useState('');
@@ -22,27 +59,31 @@ export default function UserLocations() {
     const fetchData = async () => {
       try {
         let dbLocations = [];
-        try {
-          const response = await apiClient.get(API_ENDPOINTS.USER_LOCATIONS);
-          dbLocations = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
-        } catch (apiErr) {
-          console.error('Lỗi gọi API địa danh, chuyển sang dùng mock:', apiErr);
-        }
-
         let mockLocations = [];
-        try {
-          const mockRes = await mockClient.get('/api/user_locations.json');
-          mockLocations = mockRes.data?.locations || mockRes.data || [];
-        } catch (err) {
-          console.error('Error fetching mock locations:', err);
-        }
+        let rawPeriods = [];
 
         try {
-          const pRes = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
-          const rawPeriods = pRes.data?.data?.result || pRes.data?.data?.content || pRes.data?.data || [];
+          const [locationRes, mockResponse, periodRes] = await Promise.all([
+            locationService.filter({ size: 500 }).catch(err => {
+              console.error('Lỗi gọi API địa danh, chuyển sang dùng mock:', err);
+              return { items: [] };
+            }),
+            mockClient.get('/api/user_locations.json').catch(err => {
+              console.error('Error fetching mock locations:', err);
+              return { data: { locations: [] } };
+            }),
+            periodService.filter({ size: 500 }).catch(err => {
+              console.error('Lỗi gọi API thời kỳ:', err);
+              return { items: [] };
+            })
+          ]);
+
+          dbLocations = locationRes?.items || [];
+          mockLocations = mockResponse?.data?.locations || mockResponse?.data || [];
+          rawPeriods = periodRes?.items || [];
           setDynasties(rawPeriods.map(p => p.name).filter(Boolean));
-        } catch (pErr) {
-          console.error('Lỗi gọi API thời kỳ:', pErr);
+        } catch (apiErr) {
+          console.error('Lỗi Promise.all:', apiErr);
         }
 
         let merged = [];
@@ -61,11 +102,11 @@ export default function UserLocations() {
               ...mockItem,
               ...dbItem,
               location_id: dbItem.id,
-              location_type: dbItem.locationType || mockItem.location_type || 'REGION',
+              location_type: LOCATION_TYPE_MAP[dbItem.locationType] || LOCATION_TYPE_MAP[mockItem.location_type] || mockItem.location_type || 'VÙNG ĐẤT',
               description: dbItem.description || mockItem.description || '',
               x: finalX,
               y: finalY,
-              province: mockItem.province || 'Việt Nam',
+              province: PROVINCE_MAP[dbItem.slug] || PROVINCE_MAP[mockItem.slug] || mockItem.province || 'Việt Nam',
               period: dbItem.period?.name || mockItem.period || '',
             };
           });
@@ -82,10 +123,10 @@ export default function UserLocations() {
             return {
               ...mockItem,
               location_id: mockItem.id || mockItem.location_id,
-              location_type: mockItem.location_type || 'REGION',
+              location_type: LOCATION_TYPE_MAP[mockItem.location_type] || mockItem.location_type || 'VÙNG ĐẤT',
               x: finalX,
               y: finalY,
-              province: mockItem.province || 'Việt Nam',
+              province: PROVINCE_MAP[mockItem.slug] || mockItem.province || 'Việt Nam',
               period: mockItem.period || '',
             };
           });
@@ -118,16 +159,16 @@ export default function UserLocations() {
     );
   }
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải địa danh...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải địa danh...</div>;
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20 relative">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20 pb-20 relative">
       {/* HERO SECTION */}
       <section className="relative h-[450px] flex items-center justify-center overflow-hidden border-b border-[#d99b4a]/30">
         <div className="absolute inset-0 z-0 bg-[#2b0504]">
           <img
             className="w-full h-full object-cover grayscale-[30%] sepia-[40%] brightness-[0.4] animate-ken-burns origin-center"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2"
+            src={backgroundUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2"}
             alt="Locations Hero"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#2b0504]/90 via-[#2b0504]/40 to-[#fbf6e8] pointer-events-none"></div>
@@ -261,7 +302,7 @@ export default function UserLocations() {
                           : 'bg-white border-[#9e1b1b]/30 text-[#9e1b1b] hover:border-[#9e1b1b] z-20'
                           }`}>
                           <span className="material-symbols-outlined text-[16px]">
-                            {site.location_type === 'Hoàng thành' ? 'castle' : (site.location_type === 'Di tích văn hóa' || site.location_type === 'Khu lăng tẩm') ? 'history_edu' : 'account_balance'}
+                            {site.location_type === 'KINH ĐÔ' || site.location_type === 'CUNG ĐIỆN' || site.location_type === 'THÀNH LŨY' ? 'castle' : (site.location_type === 'DI TÍCH' || site.location_type === 'DI TÍCH LỊCH SỬ') ? 'history_edu' : 'account_balance'}
                           </span>
                         </div>
 

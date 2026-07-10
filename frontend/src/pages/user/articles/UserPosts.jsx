@@ -1,12 +1,13 @@
-import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
+import { API_ENDPOINTS, apiClient, mockClient, postService, periodService } from '../../../services';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import { Heart, MessageSquare } from 'lucide-react';
 import Pagination from '../../../components/common/Pagination';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { stripHtml } from '../../../utils/stringUtils';
 
 const UserPosts = () => {
+  const { backgroundUrl = '' } = useOutletContext() || {};
   const { getPeriodStyle } = usePeriodColors();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPeriod, setFilterPeriod] = useState('');
@@ -22,15 +23,32 @@ const UserPosts = () => {
       try {
         let dbPosts = [];
         try {
-          const response = await apiClient.get(API_ENDPOINTS.USER_ARTICLES);
-          dbPosts = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
+          // Add timeout to prevent hanging
+          const response = await Promise.race([
+            postService.filter({ size: 500 }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+          ]);
+          dbPosts = response.items || [];
         } catch (apiErr) {
           console.error('Lỗi gọi API bài viết:', apiErr);
         }
 
+        // FALLBACK TO MOCK
+        if (!dbPosts || dbPosts.length === 0) {
+          try {
+            const mockRes = await mockClient.get('/api/user_articles.json');
+            dbPosts = mockRes.data || [];
+          } catch (e) {
+            console.error('Lỗi lấy dữ liệu bài viết mẫu:', e);
+          }
+        }
+
         try {
-          const pRes = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
-          const rawPeriods = pRes.data?.data?.result || pRes.data?.data?.content || pRes.data?.data || [];
+          const pRes = await Promise.race([
+            periodService.filter({ size: 500 }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+          ]);
+          const rawPeriods = pRes.items || [];
           setPeriods(rawPeriods.map(p => p.name).filter(Boolean));
         } catch (pErr) {
           console.error('Lỗi gọi API thời kỳ:', pErr);
@@ -43,10 +61,10 @@ const UserPosts = () => {
             ...dbItem,
             id: dbItem.id,
             thumbnail_url: validThumbnail ? dbItem.thumbnailUrl : "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg",
-            dynasty: dbItem.tags?.[0]?.name || 'Lịch sử',
+            dynasty: dbItem.dynasty || (dbItem.tags && dbItem.tags[0] ? (typeof dbItem.tags[0] === 'object' ? dbItem.tags[0].name : dbItem.tags[0]) : ''),
             dynasties: dbItem.tags && dbItem.tags.length > 0
-              ? dbItem.tags.map(t => typeof t === 'object' ? t.name : t)
-              : [dbItem.tags?.[0]?.name || 'Lịch sử'],
+              ? dbItem.tags.map(t => typeof t === 'object' ? t.name : t).filter(t => t?.toLowerCase() !== 'lịch sử')
+              : (dbItem.dynasty ? [dbItem.dynasty] : []),
             readTime: '5 MIN',
             likes: parseInt(localStorage.getItem(`likesCount_${dbItem.slug || dbItem.id}`) || '0', 10),
             isLiked: localStorage.getItem(`liked_${dbItem.slug || dbItem.id}`) === 'true',
@@ -99,16 +117,16 @@ const UserPosts = () => {
   // Reset pagination is now handled directly in input onChange handlers to satisfy eslint rules
 
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải bài viết...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải bài viết...</div>;
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20">
       {/* HERO SECTION */}
       <section className="relative h-[450px] flex items-center justify-center overflow-hidden border-b border-[#d99b4a]/30">
         <div className="absolute inset-0 z-0 bg-[#2b0504]">
           <img
             className="w-full h-full object-cover grayscale-[30%] sepia-[40%] brightness-[0.4] animate-ken-burns origin-center"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2"
+            src={backgroundUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2"}
             alt="Articles Hero"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#2b0504]/90 via-[#2b0504]/40 to-[#fbf6e8] pointer-events-none"></div>
@@ -264,13 +282,6 @@ const UserPosts = () => {
                     />
                   </Link>
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201]/60 to-transparent opacity-70 pointer-events-none"></div>
-                  <div className="absolute bottom-4 left-4 z-10 flex flex-wrap gap-1.5">
-                    {(art.dynasties || []).map((dyn, idx) => (
-                      <span key={idx} className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border shadow-md ${getPeriodStyle(dyn)}`}>
-                        {dyn}
-                      </span>
-                    ))}
-                  </div>
                 </div>
 
                 <div className="p-6 flex flex-col flex-grow relative z-10">

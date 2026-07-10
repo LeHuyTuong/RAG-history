@@ -77,11 +77,11 @@ const PeriodDetail = () => {
     fetchEvents();
   }, [id]);
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải thời kỳ...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải thời kỳ...</div>;
   if (!period) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Không tìm thấy thời kỳ.</div>;
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20 pb-20">
       <main className="max-w-[1440px] mx-auto px-6 md:px-12 py-16">
 
         {/* Breadcrumb */}
