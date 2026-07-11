@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.api import chat_routes
-from app.services import llm_service, question_router_service, retrieval_service
+from app.services import llm_service, question_router_service, query_log_service, retrieval_service
 
 
 client = TestClient(app)
@@ -133,6 +133,31 @@ def test_chat_stream_success_emits_delta_citations_and_completed(monkeypatch):
     assert '"needsRephrase": false' in body
 
 
+def test_chat_stream_logs_graph_facts_without_leaking_internal_event(monkeypatch):
+    """graph_facts phải vào doc log (_stream_with_log) nhưng KHÔNG được xuất
+    hiện trên wire SSE — event `_internal.graph_facts` chỉ là kênh nội bộ."""
+    monkeypatch.setattr("app.services.faq_cache_service.lookup", lambda q: None)
+    monkeypatch.setattr(question_router_service, "route", lambda question, use_graph: {"use_vector": True, "use_graph": True})
+    monkeypatch.setattr(retrieval_service, "retrieve", lambda **kwargs: [_hit()])
+    monkeypatch.setattr(
+        "app.services.graph_service.retrieve_graph_context",
+        lambda question: ["Đinh Bộ Lĩnh là con của Đinh Công Trứ"],
+    )
+    monkeypatch.setattr(llm_service, "generate_stream", lambda system, user, temperature, model=None: iter([("answer", "Nha Tran 1225 [C1].")]))
+
+    logged = {}
+    monkeypatch.setattr(query_log_service, "log_query", lambda doc: logged.update(doc))
+
+    with client.stream("POST", "/rag/chat/stream", json={"question": "Con cua Dinh Bo Linh la ai?", "useGraph": True}) as response:
+        body = "".join(response.iter_text())
+
+    assert response.status_code == 200
+    assert "_internal.graph_facts" not in body  # không leak ra transport
+    assert '"usedGraph": true' in body
+    assert logged["graphFacts"] == ["Đinh Bộ Lĩnh là con của Đinh Công Trứ"]
+    assert logged["usedGraph"] is True
+
+
 def test_chat_stream_no_hits_emits_rephrase_answer(monkeypatch):
     monkeypatch.setattr(question_router_service, "route", lambda question, use_graph: {"use_vector": True, "use_graph": False})
     monkeypatch.setattr(retrieval_service, "retrieve", lambda **kwargs: [])
@@ -222,3 +247,141 @@ def test_sse_preserves_vietnamese_text():
     event = chat_routes._sse("chat.delta", {"text": "Nhà Trần"})
 
     assert event == 'event: chat.delta\ndata: {"text": "Nhà Trần"}\n\n'
+
+
+def test_chat_ws_success_emits_same_events_as_sse(monkeypatch):
+    monkeypatch.setattr("app.services.faq_cache_service.lookup", lambda q: None)
+    monkeypatch.setattr(question_router_service, "route", lambda question, use_graph: {"use_vector": True, "use_graph": False})
+    monkeypatch.setattr(retrieval_service, "retrieve", lambda **kwargs: [_hit()])
+    monkeypatch.setattr(llm_service, "generate_stream", lambda system, user, temperature, model=None: iter([("answer", "Nha Tran "), ("answer", "1225 [C1].")]))
+
+    events = []
+    with client.websocket_connect("/rag/chat/ws") as ws:
+        ws.send_json({"question": "Nha Tran thanh lap nam nao?"})
+        while True:
+            msg = ws.receive_json()
+            events.append(msg)
+            if msg["event"] in ("chat.completed", "chat.error"):
+                break
+
+    names = [e["event"] for e in events]
+    assert names[0] == "chat.created"
+    deltas = [e["data"]["text"] for e in events if e["event"] == "chat.delta"]
+    assert deltas == ["Nha Tran ", "1225 [C1]."]
+    assert "chat.citations" in names
+    completed = next(e for e in events if e["event"] == "chat.completed")
+    assert completed["data"]["usedVector"] is True
+    assert completed["data"]["usedGraph"] is False
+    assert completed["data"]["usedWeb"] is False
+
+
+def test_chat_ws_invalid_request_closes_gracefully():
+    with client.websocket_connect("/rag/chat/ws") as ws:
+        ws.send_json({"not_a_question": 123})
+        msg = ws.receive_json()
+        assert msg["event"] == "chat.error"
+
+
+def test_mock_stream_source_bypasses_llm_for_both_transports(monkeypatch):
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "stream_source", "mock")
+    monkeypatch.setattr(settings, "stream_mock_tokens", 5)
+    monkeypatch.setattr(settings, "stream_mock_delay_ms", 0)
+
+    # Nếu mock hoạt động đúng, retrieval/LLM KHÔNG được gọi → gán để nổ nếu bị gọi.
+    def _boom(*a, **k):
+        raise AssertionError("mock source không được gọi retrieval/LLM")
+
+    monkeypatch.setattr(retrieval_service, "retrieve", _boom)
+    monkeypatch.setattr(llm_service, "generate_stream", _boom)
+
+    # SSE
+    with client.stream("POST", "/rag/chat/stream", json={"question": "bất kỳ"}) as response:
+        sse_body = "".join(response.iter_text())
+    assert response.status_code == 200
+    assert sse_body.count("event: chat.delta") == 5
+    assert "event: chat.completed" in sse_body
+
+    # WS
+    events = []
+    with client.websocket_connect("/rag/chat/ws") as ws:
+        ws.send_json({"question": "bất kỳ"})
+        while True:
+            msg = ws.receive_json()
+            events.append(msg)
+            if msg["event"] in ("chat.completed", "chat.error"):
+                break
+    deltas = [e for e in events if e["event"] == "chat.delta"]
+    assert len(deltas) == 5
+
+
+def test_ollama_stream_source_bypasses_retrieval_and_gemma(monkeypatch):
+    from app.config import settings
+    from app.api import chat_routes as cr
+
+    monkeypatch.setattr(settings, "stream_source", "ollama")
+
+    # Không gọi Ollama thật: giả nguồn token local. Đồng thời chặn retrieval/LLM.
+    def fake_ollama(question):
+        yield ("chat.delta", {"text": "Nha Tran "})
+        yield ("chat.delta", {"text": "1225."})
+        yield ("chat.citations", {"citations": []})
+        yield ("chat.completed", {"usedVector": False, "usedGraph": False, "usedWeb": False, "needsRephrase": False})
+
+    monkeypatch.setattr(cr, "_ollama_stream_event_tuples", fake_ollama)
+
+    def _boom(*a, **k):
+        raise AssertionError("ollama source không được gọi retrieval/Gemma")
+
+    monkeypatch.setattr(retrieval_service, "retrieve", _boom)
+    monkeypatch.setattr(llm_service, "generate_stream", _boom)
+
+    with client.stream("POST", "/rag/chat/stream", json={"question": "bất kỳ"}) as response:
+        sse_body = "".join(response.iter_text())
+    assert response.status_code == 200
+    assert sse_body.count("event: chat.delta") == 2
+    assert "event: chat.completed" in sse_body
+
+
+def test_groq_stream_source_bypasses_retrieval_and_gemma(monkeypatch):
+    from app.config import settings
+    from app.api import chat_routes as cr
+
+    monkeypatch.setattr(settings, "stream_source", "groq")
+
+    # Không gọi Groq thật: giả nguồn token. Đồng thời chặn retrieval/LLM để
+    # đảm bảo nhánh groq không lẫn qua pipeline RAG/Gemma.
+    def fake_groq(question):
+        yield ("chat.delta", {"text": "Nha Tran "})
+        yield ("chat.delta", {"text": "1225."})
+        yield ("chat.citations", {"citations": []})
+        yield ("chat.completed", {"usedVector": False, "usedGraph": False, "usedWeb": False, "needsRephrase": False})
+
+    monkeypatch.setattr(cr, "_groq_stream_event_tuples", fake_groq)
+
+    def _boom(*a, **k):
+        raise AssertionError("groq source không được gọi retrieval/Gemma")
+
+    monkeypatch.setattr(retrieval_service, "retrieve", _boom)
+    monkeypatch.setattr(llm_service, "generate_stream", _boom)
+
+    with client.stream("POST", "/rag/chat/stream", json={"question": "bất kỳ"}) as response:
+        sse_body = "".join(response.iter_text())
+    assert response.status_code == 200
+    assert sse_body.count("event: chat.delta") == 2
+    assert "event: chat.completed" in sse_body
+
+
+def test_groq_stream_source_reports_missing_key_gracefully(monkeypatch):
+    from app.config import settings
+    from app.api import chat_routes as cr
+
+    monkeypatch.setattr(settings, "stream_source", "groq")
+    monkeypatch.setattr(cr, "_load_groq_env", lambda: (None, "llama-3.1-8b-instant"))
+
+    with client.stream("POST", "/rag/chat/stream", json={"question": "bất kỳ"}) as response:
+        sse_body = "".join(response.iter_text())
+    assert response.status_code == 200
+    assert "GROQ_API_KEY" in sse_body
+    assert "event: chat.completed" in sse_body

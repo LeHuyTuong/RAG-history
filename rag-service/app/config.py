@@ -79,6 +79,13 @@ class Settings(BaseSettings):
     # Nếu không set thì các endpoint này mở (chỉ dùng trong môi trường dev nội bộ).
     rag_api_key: str | None = Field(default=None, validation_alias=AliasChoices("RAG_API_KEY", "RAG_INTERNAL_API_KEY"))
 
+    # MongoDB — log lượt hỏi-đáp RAG để phục vụ evaluation/debug (docs/18).
+    # mongo_url None = tắt log, không ném lỗi (chưa cấu hình = dev/test bình thường).
+    mongo_url: str | None = Field(default=None, validation_alias=AliasChoices("MONGO_URL"))
+    mongo_db: str = "rag_history"
+    query_log_collection: str = "rag_query_logs"
+    query_log_enabled: bool = True
+
     # Namespace sourceId — bảo vệ data sách khỏi bị article ghi đè
     doc_source_id_max: int = 999          # sách PDF dùng sourceId 1–999
     article_source_id_min: int = 1_000_000  # bài viết dùng sourceId 1_000_000+
@@ -91,6 +98,20 @@ class Settings(BaseSettings):
     # Web fallback — tra Wikipedia tiếng Việt khi RAG không đủ dữ liệu
     web_fallback_enabled: bool = True          # env WEB_FALLBACK_ENABLED
     web_fallback_max_chars: int = 2000         # env WEB_FALLBACK_MAX_CHARS
+
+    # Nguồn token cho streaming (SSE/WS) — CHỈ dùng cho benchmark transport.
+    # "gemma" (mặc định) = pipeline RAG thật (retrieval + Gemma). "mock" = bỏ
+    # qua retrieval + LLM, phát token local nhịp cố định → benchmark SSE vs WS
+    # không tốn quota, không phụ thuộc Gemma, cả hai transport nhận input giống
+    # hệt nhau (xem benchmarks/README.md). KHÔNG bật "mock" ở production.
+    stream_source: str = "gemma"               # env STREAM_SOURCE: gemma | mock | ollama
+    stream_mock_tokens: int = 60               # env STREAM_MOCK_TOKENS: số token phát ra
+    stream_mock_delay_ms: int = 20             # env STREAM_MOCK_DELAY_MS: nhịp giữa 2 token (0 = stress)
+
+    # Full-local AI cho benchmark: token thật từ LLM local qua Ollama (dùng khi
+    # STREAM_SOURCE=ollama). Không tốn quota Gemma. Không dùng ở production.
+    ollama_url: str = "http://localhost:11434"  # env OLLAMA_URL
+    ollama_model: str = "llama3.2:3b"           # env OLLAMA_MODEL
 
 
 settings = Settings()
