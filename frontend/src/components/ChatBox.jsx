@@ -181,10 +181,10 @@ const ChatBox = ({ isOpen, onClose }) => {
                 >
                   <DongSonDrumIcon className="w-full h-full text-[#f7d78a]" color="currentColor" />
                 </div>
-                <div className="bg-white border border-[#d9c7a7]/60 p-3 rounded-[20px] rounded-bl-sm shadow-sm flex items-center gap-1.5 h-[42px] px-4">
-                  <span className="w-1.5 h-1.5 bg-[#d99b4a] rounded-full animate-bounce"></span>
-                  <span className="w-1.5 h-1.5 bg-[#d99b4a] rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></span>
-                  <span className="w-1.5 h-1.5 bg-[#d99b4a] rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></span>
+                <div className="bg-white border border-[#d9c7a7]/60 p-3 rounded-[20px] rounded-bl-sm shadow-sm flex items-center justify-center gap-1.5 h-[42px] px-4 min-w-[50px]">
+                  <div className="w-[6px] h-[6px] shrink-0 bg-[#d99b4a] rounded-full animate-bounce"></div>
+                  <div className="w-[6px] h-[6px] shrink-0 bg-[#d99b4a] rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></div>
+                  <div className="w-[6px] h-[6px] shrink-0 bg-[#d99b4a] rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></div>
                 </div>
               </motion.div>
             )}
