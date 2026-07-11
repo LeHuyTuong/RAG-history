@@ -113,5 +113,12 @@ class Settings(BaseSettings):
     ollama_url: str = "http://localhost:11434"  # env OLLAMA_URL
     ollama_model: str = "llama3.2:3b"           # env OLLAMA_MODEL
 
+    # Groq — multi-provider LLM routing. Key đọc từ .env (GROQ_API_KEY),
+    # do Docker Compose truyền vào, KHÔNG phải file benchmark riêng.
+    groq_api_key: str | None = Field(
+        default=None, validation_alias=AliasChoices("GROQ_API_KEY")
+    )
+    groq_base_url: str = "https://api.groq.com/openai/v1"
+
 
 settings = Settings()

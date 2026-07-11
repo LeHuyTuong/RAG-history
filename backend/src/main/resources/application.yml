@@ -43,7 +43,7 @@ logging:
 app:
   rag:
     base-url: ${RAG_SERVICE_URL:http://localhost:8001}
-    request-timeout: ${RAG_SERVICE_REQUEST_TIMEOUT:60s}
+    request-timeout: ${RAG_SERVICE_REQUEST_TIMEOUT:180s}
   upload:
     base-path: ${UPLOAD_BASE_PATH:./uploads}
   cors:

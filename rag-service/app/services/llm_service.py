@@ -19,14 +19,17 @@ key khác trong pool đang rảnh hoàn toàn.
 
 Raise ValueError nếu LLM trả rỗng — chat_routes bắt và fallback về _NO_DATA_MSG.
 """
+import json
 import logging
 import threading
 import time
 
+import httpx
 from google import genai
 from google.genai import types
 
 from app.config import settings
+from app.services.model_registry import resolve_model
 
 logger = logging.getLogger(__name__)
 
@@ -114,10 +117,90 @@ def _invoke(fn, max_rounds: int = 4):
     raise RuntimeError("LLM call thất bại sau nhiều lần thử.")
 
 
+def _groq_generate(system_prompt: str, user_message: str, temperature: float, model: str) -> str:
+    """Non-streaming Groq call — dùng cho /chat endpoint."""
+    if not settings.groq_api_key:
+        raise ValueError("GROQ_API_KEY chưa được cấu hình")
+
+    url = settings.groq_base_url.rstrip("/") + "/chat/completions"
+    headers = {"Authorization": f"Bearer {settings.groq_api_key}"}
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message},
+        ],
+        "temperature": temperature,
+        "stream": False,
+    }
+    try:
+        with httpx.Client(timeout=120) as cli:
+            resp = cli.post(url, headers=headers, json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+            text = (data.get("choices", [{}])[0].get("message", {}).get("content") or "").strip()
+            if not text:
+                raise ValueError("Groq returned empty response")
+            return text
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code == 429:
+            logger.warning("Groq rate-limited (429) cho model %s", model)
+        raise
+
+
+def _groq_stream(system_prompt: str, user_message: str, temperature: float, model: str):
+    """Stream từ Groq (OpenAI-compatible), yield (kind, text) tuples.
+
+    kind='answer' — token câu trả lời.
+    Không có key rotation (Groq free tier ~30 RPM, đủ cho demo nội bộ).
+    """
+    if not settings.groq_api_key:
+        raise ValueError("GROQ_API_KEY chưa được cấu hình")
+
+    url = settings.groq_base_url.rstrip("/") + "/chat/completions"
+    headers = {"Authorization": f"Bearer {settings.groq_api_key}"}
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message},
+        ],
+        "temperature": temperature,
+        "stream": True,
+    }
+    try:
+        with httpx.Client(timeout=120) as cli:
+            with cli.stream("POST", url, headers=headers, json=payload) as resp:
+                for line in resp.iter_lines():
+                    if not line or not line.startswith("data: "):
+                        continue
+                    raw = line[len("data: "):]
+                    if raw.strip() == "[DONE]":
+                        break
+                    try:
+                        obj = json.loads(raw)
+                    except Exception:
+                        continue
+                    delta = obj.get("choices", [{}])[0].get("delta", {})
+                    tok = delta.get("content") or ""
+                    if tok:
+                        yield ("answer", tok)
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code == 429:
+            logger.warning("Groq rate-limited (429) cho model %s", model)
+        raise
+
+    # Groq không hỗ trợ thinking split — không yield chat.thinking
+
+
 def generate(system_prompt: str, user_message: str, temperature: float = 0.2, model: str | None = None) -> str:
+    provider, real_model = resolve_model(model)
+    if provider == "groq":
+        return _groq_generate(system_prompt, user_message, temperature, real_model)
+
     def call(client: genai.Client) -> str:
         response = client.models.generate_content(
-            model=model or settings.llm_model,
+            model=real_model,
             contents=user_message,
             config=types.GenerateContentConfig(
                 system_instruction=system_prompt,
@@ -138,11 +221,19 @@ def generate_stream(system_prompt: str, user_message: str, temperature: float = 
       kind='thinking' — reasoning token từ ThinkingConfig (ẩn với người dùng cuối nếu muốn)
       kind='answer'   — token câu trả lời thực sự
 
+    Multi-provider routing: nếu model là Groq → _groq_stream; nếu là Google →
+    key rotation Google path.
+
     Key rotation chỉ áp dụng TRƯỚC token đầu tiên (không retry giữa chừng → lặp nội dung).
     Giống _invoke: RPD (hết quota ngày) loại key vĩnh viễn; RPM/TPM (tạm thời) round-robin
     thử ngay key khác còn sống trong pool, chỉ sleep khi cả vòng đều bị RPM.
     SDK không hỗ trợ stream → fallback generate() với kind='answer'.
     """
+    provider, real_model = resolve_model(model)
+    if provider == "groq":
+        yield from _groq_stream(system_prompt, user_message, temperature, real_model)
+        return
+
     clients = _get_clients()
     n = len(clients)
     max_rounds = 4
@@ -155,7 +246,7 @@ def generate_stream(system_prompt: str, user_message: str, temperature: float = 
         round_rpm_delay: float | None = None
         for idx in range(start, n):
             done, delay = yield from _stream_one_key(
-                clients[idx], idx, system_prompt, user_message, temperature, model,
+                clients[idx], idx, system_prompt, user_message, temperature, real_model,
             )
             if done:
                 return
@@ -178,8 +269,23 @@ def _stream_one_key(client, idx, system_prompt, user_message, temperature, model
     """
     stream_fn = getattr(client.models, "generate_content_stream", None)
     if stream_fn is None:
-        for t in _chunk_text(generate(system_prompt, user_message, temperature, model)):
-            yield ("answer", t)
+        try:
+            resp = client.models.generate_content(
+                model=model or settings.llm_model,
+                contents=user_message,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_prompt,
+                    temperature=temperature,
+                ),
+            )
+            text = (resp.text or "").strip()
+            if text:
+                for t in _chunk_text(text):
+                    yield ("answer", t)
+            else:
+                raise ValueError("LLM returned empty response")
+        except Exception:
+            raise
         return (True, None)
 
     has_text = False
@@ -247,7 +353,10 @@ def _stream_one_key(client, idx, system_prompt, user_message, temperature, model
 
 
 def suggest_questions(question: str, answer: str, model: str | None = None) -> list[str]:
-    """Sinh 3 câu hỏi gợi ý liên quan dựa trên cặp question-answer vừa trả lời."""
+    """Sinh 3 câu hỏi gợi ý liên quan dựa trên cặp question-answer vừa trả lời.
+
+    Luôn dùng Google default model (settings.llm_model) — gợi ý là tính năng phụ,
+    không đáng tốn RPM Groq."""
     prompt = (
         f"Câu hỏi: {question}\n"
         f"Câu trả lời: {answer[:600]}\n\n"
@@ -258,7 +367,7 @@ def suggest_questions(question: str, answer: str, model: str | None = None) -> l
 
     def call(client: genai.Client) -> str:
         response = client.models.generate_content(
-            model=model or settings.llm_model,
+            model=settings.llm_model,
             contents=prompt,
             config=types.GenerateContentConfig(temperature=0.7),
         )
@@ -269,6 +378,29 @@ def suggest_questions(question: str, answer: str, model: str | None = None) -> l
         lines = [ln.strip().lstrip("-•*").strip() for ln in text.splitlines() if ln.strip()]
         return [ln for ln in lines if len(ln) > 10][:3]
     except Exception:  # noqa: BLE001
+        return []
+
+
+def suggest_questions_from_docs(context: str, n: int = 4) -> list[str]:
+    prompt = (
+        f"Dựa trên các đoạn sử liệu sau:\n\n{context[:4000]}\n\n"
+        f"Hãy đề xuất đúng {n} câu hỏi mà người đọc có thể muốn tìm hiểu. "
+        "Mỗi câu một dòng, không đánh số, không giải thích."
+    )
+
+    def call(client: genai.Client) -> str:
+        response = client.models.generate_content(
+            model=settings.llm_model,
+            contents=prompt,
+            config=types.GenerateContentConfig(temperature=0.7),
+        )
+        return (response.text or "").strip()
+
+    try:
+        text = _invoke(call)
+        lines = [ln.strip().lstrip("-•*").strip() for ln in text.splitlines() if ln.strip()]
+        return [ln for ln in lines if len(ln) > 10][:n]
+    except Exception:
         return []
 
 

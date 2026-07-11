@@ -23,7 +23,7 @@ public class RagFeignConfig {
     @Bean
     public RagFeignClient ragFeignClient(
             @Value("${app.rag.base-url}") String baseUrl,
-            @Value("${app.rag.request-timeout:60s}") String requestTimeout,
+            @Value("${app.rag.request-timeout:180s}") String requestTimeout,
             @Value("${app.rag.api-key:}") String ragApiKey) {
 
         // Tự tạo ObjectMapper thay vì inject bean — Spring Boot 4 không luôn expose

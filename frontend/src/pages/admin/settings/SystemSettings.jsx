@@ -5,9 +5,21 @@ import { settingsService } from '../../../services';
 const AI_MODEL_OPTIONS = [
   {
     value: 'gpt-oss-120b',
-    label: 'GPT-OSS 120B (OpenAI, Free - tốt nhất)',
-    provider: 'OpenAI',
+    label: 'GPT-OSS 120B (Groq, Free - tốt nhất)',
+    provider: 'Groq',
     note: 'Tốt nhất',
+  },
+  {
+    value: 'gpt-oss-20b',
+    label: 'GPT-OSS 20B (Groq, Free - nhanh)',
+    provider: 'Groq',
+    note: 'Nhanh',
+  },
+  {
+    value: 'llama-3.3-70b',
+    label: 'Llama 3.3 70B (Groq, Free)',
+    provider: 'Groq',
+    note: 'Free',
   },
   {
     value: 'gemma-4-26b',
@@ -20,30 +32,6 @@ const AI_MODEL_OPTIONS = [
     label: 'Gemma 4 31B (Google, Free)',
     provider: 'Google',
     note: 'Free',
-  },
-  {
-    value: 'llama-3.3-70b',
-    label: 'Llama 3.3 70B (Meta, Free)',
-    provider: 'Meta',
-    note: 'Free',
-  },
-  {
-    value: 'qwen3-coder-480b',
-    label: 'Qwen3 Coder 480B (Free - code mạnh)',
-    provider: 'Qwen',
-    note: 'Code mạnh',
-  },
-  {
-    value: 'nemotron-3-super',
-    label: 'Nemotron 3 Super (NVIDIA, Free)',
-    provider: 'NVIDIA',
-    note: 'Free',
-  },
-  {
-    value: 'gpt-oss-20b',
-    label: 'GPT-OSS 20B (OpenAI, Free - nhanh)',
-    provider: 'OpenAI',
-    note: 'Nhanh',
   },
   {
     value: 'gemini-2.0-flash',
