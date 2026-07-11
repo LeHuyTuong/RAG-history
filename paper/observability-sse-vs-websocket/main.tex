@@ -60,7 +60,7 @@ The central RQ is decomposed into three falsifiable hypotheses, tested experimen
 H1 and H3 would be falsified by overhead that is large or systematically asymmetric between protocols at realistic rates; H2 would be falsified if per-message and per-event designs showed no cost difference under stress, which would undercut the motivation for choosing span events over per-message spans in \S~\ref{sec:rationale}.
 
 \subsection{Contributions}
-(i) A systematic, tiered review of metrics and tracing practice for SSE and WebSocket in AI streaming, establishing the central research question's tracing gap and the supporting literature context around it; (ii) a five-layer protocol-aware observability framework, derived from the review's findings rather than asserted (\S~\ref{sec:rationale}); (iii) a prototype scope for a backend-independent, agent-free Java/Spring~Boot library that instantiates the framework; and (iv) an experimental test of H1--H3 on that prototype (\S~\ref{sec:experiment}).
+This paper's central contribution is a single \emph{unified, protocol-independent instrumentation model} for message/token-level observability of SSE and WebSocket AI streaming --- concretely, a two-tier design (one connection-lifetime span, plus lightweight per-token span events) derived directly from a systematic literature review's gap analysis rather than asserted. Everything else here is evidence for that one claim, not a separate, competing contribution: the review (\S~\ref{sec:results-synthesis}) establishes the gap the model closes; the five-layer framework (\S~\ref{sec:rationale}) is the model's structural derivation; the Java/Spring~Boot prototype and its experimental test of three falsifiable hypotheses (H1--H3, \S~\ref{sec:experiment}) check whether the model actually achieves protocol-independence without prohibitive overhead; and the real-LLM (Ollama, Groq) and concurrent-load cross-checks extend that test beyond one synthetic benchmark.
 
 %==============================================================
 \section{Background}
@@ -82,25 +82,7 @@ LLM serving is characterised by token-level latency metrics: \emph{time to first
 
 %==============================================================
 \section{Methods}
-This review follows the PRISMA~2020 reporting guideline \cite{prisma2020} as a lightweight protocol. As an early-stage review, final inclusion counts are provisional pending full-text assessment.
-
-\subsection{Eligibility Criteria}
-\emph{Inclusion}: sources discussing SSE, WebSocket, HTTP streaming, or long-lived connections; providing latency, throughput, bandwidth, resource, or connection metrics; discussing tracing/telemetry/monitoring; in a streaming, chatbot, AI, or real-time context; or providing implementation detail relevant to Java\slash Spring~Boot\slash OpenTelemetry. \emph{Exclusion}: frontend-only, no metric/observability content, purely promotional, off-topic, or outdated (unless foundational).
-
-\subsection{Information Sources}
-Academic databases (IEEE Xplore, ACM Digital Library, SpringerLink, arXiv, Google Scholar) and authoritative technical sources (OpenTelemetry, Spring, MDN, W3C, IETF, and vendor engineering blogs). All sources were last searched on 23 June 2026.
-
-\subsection{Search Strategy}
-Representative query clusters: (a) \texttt{("Server-Sent Events" OR SSE) AND WebSocket AND (performance OR latency OR throughput OR scalability)}; (b) \texttt{(WebSocket OR SSE) AND (observability OR tracing OR telemetry OR monitoring)}; (c) \texttt{("LLM streaming" OR "token streaming" OR "AI chatbot") AND (SSE OR WebSocket)}; (d) \texttt{(OpenTelemetry OR "distributed tracing") AND (WebSocket OR SSE OR "long-lived connection" OR streaming)}.
-
-\subsection{Selection Process and Data Items}
-Records were screened by title/abstract then full text against the criteria. For each included source we extracted: id, year, source type, protocol, system context, metrics reported, observability method, trace granularity, strength, and limitation.
-
-\subsection{Risk of Bias (Source Tiering)}
-Because the topic is young and partly documented in industry channels, each source is tiered: \textbf{T1} peer-reviewed (conference/journal/thesis); \textbf{T2} standard, specification, or authoritative vendor technical documentation; \textbf{T3} engineering blog or repository (used as evidence of current practice, not as empirical proof).
-
-\subsection{Synthesis Method}
-Given heterogeneous sources, we use narrative (qualitative) synthesis, grouping evidence by protocol and by metric layer, and answering each research question in turn.
+This review follows the PRISMA~2020 reporting guideline \cite{prisma2020} as a lightweight protocol; as an early-stage review, final inclusion counts are provisional pending full-text assessment. Sources were drawn from academic databases (IEEE Xplore, ACM Digital Library, SpringerLink, arXiv, Google Scholar) and authoritative technical sources (OpenTelemetry, Spring, MDN, W3C, IETF, vendor engineering blogs), last searched 23 June 2026, using query clusters combining SSE/WebSocket terms with performance, observability/tracing, LLM/AI-streaming, and OpenTelemetry/distributed-tracing terms. \emph{Inclusion}: sources discussing SSE, WebSocket, HTTP streaming, or long-lived connections with latency/throughput/bandwidth/connection metrics, tracing/telemetry/monitoring, or Java\slash Spring~Boot\slash OpenTelemetry implementation detail; \emph{exclusion}: frontend-only, no metric/observability content, promotional, off-topic, or outdated (unless foundational). Records were screened by title/abstract then full text, extracting protocol, system context, metrics reported, observability method, trace granularity, strength, and limitation per source. Because the topic is young and partly documented in industry channels, each source is tiered --- \textbf{T1} peer-reviewed (conference/journal/thesis); \textbf{T2} standard, specification, or authoritative vendor technical documentation; \textbf{T3} engineering blog or repository (evidence of current practice, not empirical proof) --- a tiering used throughout the rest of this paper to qualify claim strength. Given heterogeneous sources, we use narrative (qualitative) synthesis, grouping evidence by protocol and by metric layer.
 
 %==============================================================
 \section{Results}
