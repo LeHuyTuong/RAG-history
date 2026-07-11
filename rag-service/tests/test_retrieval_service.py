@@ -24,6 +24,9 @@ def test_retrieve_embeds_query_and_searches_configured_collection(monkeypatch):
     monkeypatch.setattr(retrieval_service, "search", fake_search)
     monkeypatch.setattr(retrieval_service.settings, "qdrant_collection", "history_test")
     monkeypatch.setattr(retrieval_service.settings, "score_threshold", 0.42)
+    # wiki-local là nguồn phụ (RRF) — tắt hẳn ở đây để test này chỉ xác nhận
+    # đúng 1 lời gọi search() trên collection chính, không lẫn lời gọi thứ 2.
+    monkeypatch.setattr(retrieval_service, "_embed_query_wiki_local", lambda question: None)
 
     hits = retrieval_service.retrieve("Nha Tran thanh lap nam nao?", top_k=4, source_ids=[2], tag_ids=[7])
 
