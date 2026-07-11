@@ -8,6 +8,8 @@ import com.example.historyrag.feature.rag.dto.RagIngestRequest;
 import com.example.historyrag.feature.rag.dto.RagIngestResponse;
 import com.example.historyrag.feature.rag.dto.RagRetrieveRequest;
 import com.example.historyrag.feature.rag.dto.RagRetrieveResponse;
+import com.example.historyrag.feature.rag.dto.RagSuggestRequest;
+import com.example.historyrag.feature.rag.dto.RagSuggestResponse;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 public interface RagService {
@@ -19,6 +21,8 @@ public interface RagService {
     SseEmitter streamChat(RagChatRequest request, String traceparent);
 
     RagRetrieveResponse retrieve(RagRetrieveRequest request, String traceparent);
+
+    RagSuggestResponse suggestQuestions(RagSuggestRequest request, String traceparent);
 
     RagIngestResponse ingest(RagIngestRequest request, String traceparent);
 

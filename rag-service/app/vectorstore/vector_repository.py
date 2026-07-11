@@ -15,6 +15,7 @@ Flow ingest:
 Flow chat:
   retrieval_service  →  search(query_vector, top_k, filters)  →  [ScoredPoint, ...]  →  citation_service
 """
+import random
 import uuid
 
 from qdrant_client.models import (
@@ -81,6 +82,34 @@ def search(
         with_payload=True,
     )
     return result.points
+
+
+def sample_chunks(
+    collection: str,
+    source_ids: list[int] | None = None,
+    limit: int = 30,
+    pool_size: int = 200,
+) -> list[dict]:
+    """Lấy mẫu chunk ngẫu nhiên (dùng cho gợi ý câu hỏi).
+
+    scroll() không hỗ trợ order random, luôn trả về cùng thứ tự cố định mỗi
+    lần gọi — nên lấy 1 pool lớn hơn (pool_size) rồi random.sample() xuống
+    còn `limit`, để tránh việc luôn gợi ý dựa trên đúng cùng vài chunk đầu
+    tiên trong collection."""
+    must: list[FieldCondition] = []
+    if source_ids:
+        must.append(FieldCondition(key="sourceId", match=MatchAny(any=source_ids)))
+
+    result = get_client().scroll(
+        collection_name=collection,
+        scroll_filter=Filter(must=must) if must else None,
+        limit=max(limit, pool_size),
+        with_payload=True,
+    )
+    points = result[0]
+    if len(points) > limit:
+        points = random.sample(points, limit)
+    return [p.payload or {} for p in points]
 
 
 def delete_by_source_id(collection: str, source_id: int) -> None:

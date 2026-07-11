@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAIChat } from '../../../hooks/useAIChat';
+import ragService from '../../../services/common/ragService';
 import DongSonDrumIcon from '../../../components/DongSonDrumIcon';
 
 const normalizeMarkdown = (text) => {
@@ -94,9 +95,16 @@ const AIChat = () => {
     sources: [],
   }]);
 
+  const [starterQuestions, setStarterQuestions] = useState([]);
   const [input, setFormInput] = useState('');
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    ragService.suggestQuestions({ sourceIds: [], count: 4 })
+      .then(setStarterQuestions)
+      .catch(() => setStarterQuestions([]));
+  }, []);
 
   const handleSend = () => {
     if (!input.trim() || loading) return;
@@ -318,6 +326,20 @@ const AIChat = () => {
                   <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
                   <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
                 </div>
+              </div>
+            )}
+
+            {messages.length === 1 && starterQuestions.length > 0 && (
+              <div className="flex flex-wrap gap-2 px-6">
+                {starterQuestions.map((q, qi) => (
+                  <button
+                    key={qi}
+                    onClick={() => sendMessage(q)}
+                    className="text-[11px] font-body px-3.5 py-1.5 rounded-full border border-primary/30 text-primary hover:bg-primary hover:text-white transition-all"
+                  >
+                    {q}
+                  </button>
+                ))}
               </div>
             )}
 

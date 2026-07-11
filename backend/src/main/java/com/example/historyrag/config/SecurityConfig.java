@@ -101,7 +101,8 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/rag/chat",
-                                "/api/v1/rag/chat/**"
+                                "/api/v1/rag/chat/**",
+                                "/api/v1/rag/suggest-questions"
                         ).permitAll()
                         .anyRequest().authenticated())
 

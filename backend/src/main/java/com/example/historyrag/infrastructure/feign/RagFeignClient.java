@@ -8,6 +8,8 @@ import com.example.historyrag.feature.rag.dto.RagIngestRequest;
 import com.example.historyrag.feature.rag.dto.RagIngestResponse;
 import com.example.historyrag.feature.rag.dto.RagRetrieveRequest;
 import com.example.historyrag.feature.rag.dto.RagRetrieveResponse;
+import com.example.historyrag.feature.rag.dto.RagSuggestRequest;
+import com.example.historyrag.feature.rag.dto.RagSuggestResponse;
 import feign.Headers;
 import feign.RequestLine;
 import feign.Param;
@@ -32,6 +34,10 @@ public interface RagFeignClient {
     @RequestLine("POST /rag/retrieve")
     @Headers("Content-Type: application/json")
     RagRetrieveResponse retrieve(RagRetrieveRequest request);
+
+    @RequestLine("POST /rag/suggest-questions")
+    @Headers("Content-Type: application/json")
+    RagSuggestResponse suggestQuestions(RagSuggestRequest request);
 
     @RequestLine("POST /rag/ingest")
     @Headers("Content-Type: application/json")

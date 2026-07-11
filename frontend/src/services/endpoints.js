@@ -61,6 +61,7 @@ export const ENDPOINTS = {
     RAG: {
         // JSON, full-answer endpoint
         CHAT: import.meta.env.VITE_RAG_CHAT_URL || `${API_V1}/rag/chat`,
+        SUGGEST_QUESTIONS: `${API_V1}/rag/suggest-questions`,
         // SSE streaming endpoint
         CHAT_STREAM:
             import.meta.env.VITE_RAG_CHAT_STREAM_URL ||

@@ -86,6 +86,15 @@ const ragService = {
         return () => controller.abort();
     },
 
+    async suggestQuestions(payload = {}) {
+        const res = await apiClient.post(ENDPOINTS.RAG.SUGGEST_QUESTIONS, {
+            sourceIds: payload.sourceIds || [],
+            count: payload.count || 4,
+        });
+        const data = unwrap(res);
+        return data.questions || [];
+    },
+
     async syncIndex() {
         const res = await apiClient.post(ENDPOINTS.RAG.SYNC);
         return unwrap(res);

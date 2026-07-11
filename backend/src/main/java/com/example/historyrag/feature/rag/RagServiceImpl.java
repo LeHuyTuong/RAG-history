@@ -8,6 +8,8 @@ import com.example.historyrag.feature.rag.dto.RagIngestRequest;
 import com.example.historyrag.feature.rag.dto.RagIngestResponse;
 import com.example.historyrag.feature.rag.dto.RagRetrieveRequest;
 import com.example.historyrag.feature.rag.dto.RagRetrieveResponse;
+import com.example.historyrag.feature.rag.dto.RagSuggestRequest;
+import com.example.historyrag.feature.rag.dto.RagSuggestResponse;
 import com.example.historyrag.infrastructure.feign.RagClientService;
 import com.example.historyrag.infrastructure.feign.RagStreamEvent;
 import java.io.IOException;
@@ -46,6 +48,11 @@ public class RagServiceImpl implements RagService {
                 emitter::complete);
         emitter.onTimeout(emitter::complete);
         return emitter;
+    }
+
+    @Override
+    public RagSuggestResponse suggestQuestions(RagSuggestRequest request, String traceparent) {
+        return ragClientService.suggestQuestions(request, traceparent);
     }
 
     @Override

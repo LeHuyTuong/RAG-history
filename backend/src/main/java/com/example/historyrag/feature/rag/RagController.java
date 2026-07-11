@@ -9,6 +9,8 @@ import com.example.historyrag.feature.rag.dto.RagIngestRequest;
 import com.example.historyrag.feature.rag.dto.RagIngestResponse;
 import com.example.historyrag.feature.rag.dto.RagRetrieveRequest;
 import com.example.historyrag.feature.rag.dto.RagRetrieveResponse;
+import com.example.historyrag.feature.rag.dto.RagSuggestRequest;
+import com.example.historyrag.feature.rag.dto.RagSuggestResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +56,13 @@ public class RagController {
             @RequestBody @Valid RagRetrieveRequest request,
             @RequestHeader(value = "traceparent", required = false) String traceparent) {
         return ResponseEntity.ok(ApiResponse.success(ragService.retrieve(request, traceparent)));
+    }
+
+    @PostMapping("/suggest-questions")
+    public ResponseEntity<ApiResponse<RagSuggestResponse>> suggestQuestions(
+            @RequestBody @Valid RagSuggestRequest request,
+            @RequestHeader(value = "traceparent", required = false) String traceparent) {
+        return ResponseEntity.ok(ApiResponse.success(ragService.suggestQuestions(request, traceparent)));
     }
 
     @PostMapping("/ingest")
