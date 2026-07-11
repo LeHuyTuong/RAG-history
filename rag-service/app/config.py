@@ -70,9 +70,12 @@ class Settings(BaseSettings):
     neo4j_database: str = Field(default="neo4j", validation_alias=AliasChoices("NEO4J_DATABASE"))
 
     # Giá trị mặc định cho pipeline — request có thể override
-    default_chunk_size: int = 800
-    default_chunk_overlap: int = 120
-    default_top_k: int = 5
+    # Alias thêm CHUNK_SIZE/CHUNK_OVERLAP/TOP_K vì .env đặt tên ngắn này —
+    # trước đây thiếu alias nên các giá trị trong .env bị bỏ qua hoàn toàn,
+    # luôn rơi về default cứng dù .env có set giá trị khác.
+    default_chunk_size: int = Field(default=800, validation_alias=AliasChoices("CHUNK_SIZE", "DEFAULT_CHUNK_SIZE"))
+    default_chunk_overlap: int = Field(default=120, validation_alias=AliasChoices("CHUNK_OVERLAP", "DEFAULT_CHUNK_OVERLAP"))
+    default_top_k: int = Field(default=5, validation_alias=AliasChoices("TOP_K", "DEFAULT_TOP_K"))
     score_threshold: float = Field(default=0.55, validation_alias=AliasChoices("MIN_SCORE", "SCORE_THRESHOLD"))
 
     # API key bảo vệ các endpoint ghi (ingest, delete) — chỉ backend mới biết key này.
