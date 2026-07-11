@@ -16,7 +16,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.chat_routes import router as chat_router
 from app.api.genealogy_routes import router as genealogy_router
 from app.api.ingest_routes import router as ingest_router
+from app.api.log_routes import router as log_router
 from app.api.retrieve_routes import router as retrieve_router
+from app.api.suggest_routes import router as suggest_router
 
 
 @asynccontextmanager
@@ -28,6 +30,8 @@ async def lifespan(_app: FastAPI):
     except Exception:
         pass
     yield
+    from app.services import query_log_service
+    query_log_service.close()
 
 
 app = FastAPI(title="RAG History Service", version="1.0.0", lifespan=lifespan)
@@ -43,4 +47,6 @@ app.add_middleware(
 app.include_router(chat_router, prefix="/rag")
 app.include_router(genealogy_router, prefix="/rag")
 app.include_router(ingest_router, prefix="/rag")
+app.include_router(log_router, prefix="/rag")
 app.include_router(retrieve_router, prefix="/rag")
+app.include_router(suggest_router, prefix="/rag")
