@@ -22,6 +22,7 @@ vậy so sánh benchmark SSE vs WebSocket đo đúng chênh lệch của transpo
 lẫn khác biệt pipeline RAG (xem benchmarks/README.md).
 """
 import json
+import logging
 import time
 from datetime import datetime, timezone
 
@@ -34,6 +35,7 @@ from app.schemas.chat import Citation, RagChatRequest, RagChatResponse
 from app.services import query_log_service
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 _NO_DATA_MSG = "Hiện tại dữ liệu trong hệ thống chưa đủ để kết luận chắc chắn về câu hỏi này."
 _REPHRASE_MSG = "Chưa tìm thấy dữ liệu phù hợp. Bạn thử diễn đạt lại câu hỏi rõ hơn hoặc theo cách khác nhé."
@@ -198,6 +200,7 @@ async def _chat(req: RagChatRequest) -> RagChatResponse:
         user_message = build_user_message(req.question, hits, graph_facts)
         answer = generate(system_prompt, user_message, req.temperature, req.model)
     except Exception:
+        logger.exception("LLM generate() thất bại cho câu hỏi: %r", req.question)
         return RagChatResponse(
             answer=_NO_DATA_MSG,
             citations=[],
@@ -405,6 +408,7 @@ def _stream_chat_event_tuples(req: RagChatRequest):
                 full_answer += chunk
                 yield ("chat.delta", {"text": chunk})
     except Exception:
+        logger.exception("LLM generate_stream() thất bại cho câu hỏi: %r", req.question)
         for event in _answer_events(_NO_DATA_MSG, [], True, bool(graph_facts)):
             yield event
         return
@@ -512,6 +516,7 @@ def _ollama_stream_event_tuples(question: str):
                     if obj.get("done"):
                         break
     except Exception:
+        logger.exception("Ollama stream thất bại cho câu hỏi: %r", question)
         for event in _answer_events(_NO_DATA_MSG, [], False, False):
             yield event
         return
@@ -590,6 +595,7 @@ def _groq_stream_event_tuples(question: str):
                     if tok:
                         yield ("chat.delta", {"text": tok})
     except Exception:
+        logger.exception("Groq stream thất bại cho câu hỏi: %r", question)
         for event in _answer_events(_NO_DATA_MSG, [], False, False):
             yield event
         return
