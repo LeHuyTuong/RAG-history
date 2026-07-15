@@ -102,6 +102,12 @@ class Settings(BaseSettings):
     web_fallback_enabled: bool = True          # env WEB_FALLBACK_ENABLED
     web_fallback_max_chars: int = 2000         # env WEB_FALLBACK_MAX_CHARS
 
+    # Wiki-local RRF — nhánh retrieval phụ dùng model fastembed e5-large trên
+    # collection wiki_chunks_local. Model ~2.2GB nên nạp lazy tốn RAM lớn; tắt
+    # (mặc định) khi máy ít RAM hoặc chưa import wiki để tránh OOM. Bật lại chỉ
+    # khi (a) đã chạy scripts/import_wiki.py và (b) Docker có ≥6GB RAM.
+    wiki_local_enabled: bool = False           # env WIKI_LOCAL_ENABLED
+
     # Nguồn token cho streaming (SSE/WS) — CHỈ dùng cho benchmark transport.
     # "gemma" (mặc định) = pipeline RAG thật (retrieval + Gemma). "mock" = bỏ
     # qua retrieval + LLM, phát token local nhịp cố định → benchmark SSE vs WS

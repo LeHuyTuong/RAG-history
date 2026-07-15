@@ -68,9 +68,13 @@ services:
       - SCORE_THRESHOLD=${MIN_SCORE:-0.5}
       - WEB_FALLBACK_ENABLED=${WEB_FALLBACK_ENABLED:-true}
       - WEB_FALLBACK_MAX_CHARS=${WEB_FALLBACK_MAX_CHARS:-2000}
+      - WIKI_LOCAL_ENABLED=${WIKI_LOCAL_ENABLED:-false}
+      - FASTEMBED_CACHE_DIR=/root/.cache/fastembed
       - MONGO_URL=${MONGO_URL}
     volumes:
       - /Volumes/SSD/RAG-history-pdfs:/data/pdfs:ro
+      # Cache model fastembed e5-large (~2.2GB) để không tải lại mỗi lần restart
+      - rag-model-cache:/root/.cache
     depends_on:
       - qdrant
       - neo4j
@@ -115,3 +119,4 @@ volumes:
   qdrant_data:
   neo4j_data:
   uploaded_files:
+  rag-model-cache:

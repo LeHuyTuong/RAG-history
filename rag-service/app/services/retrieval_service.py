@@ -29,6 +29,8 @@ khác nhau, dù trùng dim thì cosine similarity giữa 2 model vẫn không so
 hằng số dưới đây PHẢI khớp với WIKI_COLLECTION/EMBEDDING_MODEL trong
 scripts/import_wiki.py.
 """
+import os
+
 from qdrant_client.models import ScoredPoint
 
 from app.config import settings
@@ -37,6 +39,11 @@ from app.vectorstore.vector_repository import search
 
 WIKI_LOCAL_COLLECTION = "wiki_chunks_local"
 WIKI_LOCAL_EMBEDDING_MODEL = "intfloat/multilingual-e5-large"
+# Thư mục cache model. Local (chạy Python trực tiếp): để None → fastembed dùng
+# cache mặc định của nó (hợp lệ trên macOS/Linux). Docker: đặt env
+# FASTEMBED_CACHE_DIR=/root/.cache/fastembed (xem docker-compose) để model ~2.2GB
+# rơi vào named volume, không phải tải lại mỗi lần restart.
+WIKI_LOCAL_CACHE_DIR = os.environ.get("FASTEMBED_CACHE_DIR") or None
 
 _wiki_local_model = None  # fastembed TextEmbedding, load lazy 1 lần
 
@@ -47,10 +54,15 @@ def _embed_query_wiki_local(question: str) -> list[float] | None:
     dụng, KHÔNG được để lỗi ở đây làm sập toàn bộ /rag/chat.
     Prefix 'query: ' bắt buộc với e5 (đối xứng với 'passage: ' lúc ingest)."""
     global _wiki_local_model
+    if not settings.wiki_local_enabled:
+        return None
     try:
         if _wiki_local_model is None:
             from fastembed import TextEmbedding
-            _wiki_local_model = TextEmbedding(model_name=WIKI_LOCAL_EMBEDDING_MODEL)
+            kwargs = {"model_name": WIKI_LOCAL_EMBEDDING_MODEL}
+            if WIKI_LOCAL_CACHE_DIR:
+                kwargs["cache_dir"] = WIKI_LOCAL_CACHE_DIR
+            _wiki_local_model = TextEmbedding(**kwargs)
         vector = next(iter(_wiki_local_model.embed([f"query: {question}"])))
         return vector.tolist()
     except Exception:
