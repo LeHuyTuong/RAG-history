@@ -152,7 +152,7 @@ public class PostServiceImpl implements PostService {
         post.setThumbnailUrl(request.thumbnailUrl());
         post.setStatus(status);
         post.setPublishedAt(resolvePublishedAt(status, request.publishedAt()));
-        post.setEvent(resolveEvent(request.eventId()));
+        post.setEvents(resolveEvents(request.eventIds()));
         post.setTags(resolveTags(request.tagIds()));
     }
 
@@ -164,7 +164,7 @@ public class PostServiceImpl implements PostService {
         post.setThumbnailUrl(request.thumbnailUrl());
         post.setStatus(request.status());
         post.setPublishedAt(resolvePublishedAt(request.status(), request.publishedAt()));
-        post.setEvent(resolveEvent(request.eventId()));
+        post.setEvents(resolveEvents(request.eventIds()));
         post.setTags(resolveTags(request.tagIds()));
     }
 
@@ -175,11 +175,11 @@ public class PostServiceImpl implements PostService {
         return requestedPublishedAt;
     }
 
-    private Event resolveEvent(Long eventId) {
-        if (eventId == null) {
-            return null;
+    private List<Event> resolveEvents(List<Long> eventIds) {
+        if (eventIds == null || eventIds.isEmpty()) {
+            return new ArrayList<>();
         }
-        return eventService.getEventEntityById(eventId);
+        return eventService.getEventsByIds(eventIds);
     }
 
     private void tryIngest(Post post) {
@@ -188,8 +188,7 @@ public class PostServiceImpl implements PostService {
             if (rawContent.isBlank()) return;
 
             List<Long> tagIds = post.getTags().stream().map(Tag::getId).toList();
-            List<Long> eventIds = post.getEvent() != null
-                    ? List.of(post.getEvent().getId()) : List.of();
+            List<Long> eventIds = post.getEvents().stream().map(Event::getId).toList();
 
             RagIngestMetadata meta = new RagIngestMetadata(
                     null, null, post.getSlug(), tagIds, eventIds, List.of());

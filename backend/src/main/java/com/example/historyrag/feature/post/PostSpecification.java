@@ -36,7 +36,7 @@ public class PostSpecification {
             }
 
             if (filter.eventId() != null) {
-                predicates.add(cb.equal(from.get("event").get("id"), filter.eventId()));
+                predicates.add(cb.equal(from.join("events", JoinType.INNER).get("id"), filter.eventId()));
             }
 
             if (filter.tagId() != null) {

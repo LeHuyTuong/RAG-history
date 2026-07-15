@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -107,6 +108,24 @@ public class EventServiceImpl implements EventService {
     public Event getEventEntityById(Long id) {
         return eventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NAME, "id", id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Event> getEventsByIds(List<Long> ids) {
+        List<Long> uniqueIds = ids.stream().distinct().toList();
+        List<Event> events = eventRepository.findAllById(uniqueIds);
+        if (events.size() != uniqueIds.size()) {
+            Set<Long> foundIds = events.stream()
+                    .map(Event::getId)
+                    .collect(Collectors.toSet());
+            Long missingId = uniqueIds.stream()
+                    .filter(id -> !foundIds.contains(id))
+                    .findFirst()
+                    .orElseThrow();
+            throw new ResourceNotFoundException(RESOURCE_NAME, "id", missingId);
+        }
+        return events;
     }
 
     private void applyCreateRequest(Event event, CreateEventRequest request) {

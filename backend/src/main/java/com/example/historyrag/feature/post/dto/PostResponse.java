@@ -21,7 +21,7 @@ public record PostResponse(
         PostStatus status,
         Instant publishedAt,
         AuthorResponse author,
-        EventResponse event,
+        List<EventResponse> events,
         List<TagResponse> tags,
         Instant createdAt,
         Instant updatedAt
@@ -37,7 +37,7 @@ public record PostResponse(
                 post.getStatus(),
                 post.getPublishedAt(),
                 AuthorResponse.fromEntity(post.getAdmin()),
-                EventResponse.fromEntity(post.getEvent()),
+                post.getEvents().stream().map(EventResponse::fromEntity).toList(),
                 post.getTags().stream().map(TagResponse::fromEntity).toList(),
                 post.getCreatedAt(),
                 post.getUpdatedAt()

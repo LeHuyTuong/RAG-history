@@ -121,7 +121,7 @@ class PostControllerTest {
                                   "summary":"Tóm tắt",
                                   "content":"Nội dung",
                                   "status":"PUBLISHED",
-                                  "eventId":2,
+                                  "eventIds":[2],
                                   "tagIds":[3]
                                 }
                                 """))
@@ -219,7 +219,7 @@ class PostControllerTest {
                 PostStatus.PUBLISHED,
                 Instant.parse("2026-06-16T00:00:00Z"),
                 new PostResponse.AuthorResponse(1L, "admin", "Admin Name", "admin@example.com"),
-                new PostResponse.EventResponse(2L, "Bạch Đằng", "bach-dang"),
+                List.of(new PostResponse.EventResponse(2L, "Bạch Đằng", "bach-dang")),
                 List.of(new PostResponse.TagResponse(3L, "Nhà Trần", "nha-tran")),
                 Instant.parse("2026-06-16T00:00:00Z"),
                 Instant.parse("2026-06-16T01:00:00Z")
