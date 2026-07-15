@@ -38,7 +38,14 @@ const ChatBox = ({ isOpen, onClose }) => {
     },
   ]);
   const [inputValue, setInputValue] = useState("");
+  const [isExpanded, setIsExpanded] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // Mặc định giữ nguyên cỡ cũ (380×600, ~25% màn hình). Khi bấm phóng to thì
+  // giãn lên ~40% bề ngang (clamp để hợp lý trên mọi màn hình).
+  const panelSize = isExpanded
+    ? { width: "clamp(420px, 40vw, 720px)", height: "min(85vh, 780px)" }
+    : { width: "380px", height: "600px" };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -69,7 +76,7 @@ const ChatBox = ({ isOpen, onClose }) => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          style={{ bottom: "100px", right: "24px", width: "380px", height: "600px", backgroundColor: "#fbf6e8" }}
+          style={{ bottom: "100px", right: "24px", ...panelSize, maxWidth: "calc(100vw - 48px)", maxHeight: "calc(100vh - 120px)", backgroundColor: "#fbf6e8" }}
           className="fixed rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.25)] flex flex-col overflow-hidden border border-[#d99b4a]/60 z-[100]"
         >
           {/* Header */}
@@ -90,12 +97,24 @@ const ChatBox = ({ isOpen, onClose }) => {
                 </span>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="text-[#ffe7b0]/80 hover:text-white hover:rotate-90 transition-all focus:outline-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20"
-            >
-              <span className="material-symbols-outlined text-[20px]">close</span>
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setIsExpanded((v) => !v)}
+                title={isExpanded ? "Thu nhỏ" : "Phóng to"}
+                className="text-[#ffe7b0]/80 hover:text-white transition-all focus:outline-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20"
+              >
+                <span className="material-symbols-outlined text-[20px]">
+                  {isExpanded ? "close_fullscreen" : "open_in_full"}
+                </span>
+              </button>
+              <button
+                onClick={onClose}
+                title="Đóng"
+                className="text-[#ffe7b0]/80 hover:text-white hover:rotate-90 transition-all focus:outline-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
           </div>
 
           {/* Messages Area */}
@@ -162,6 +181,27 @@ const ChatBox = ({ isOpen, onClose }) => {
                             </a>
                           );
                         })}
+                      </div>
+                    </div>
+                  )}
+
+                  {msg.role === "ai" && msg.suggestions && msg.suggestions.length > 0 && (
+                    <div className="space-y-1.5 w-full pl-1 mt-1">
+                      <p className="font-body text-[8px] font-bold text-[#6b0f0d] uppercase tracking-widest flex items-center gap-1 opacity-75">
+                        <span className="material-symbols-outlined text-[10px]">lightbulb</span> Câu hỏi gợi ý
+                      </p>
+                      <div className="flex flex-col gap-1.5 items-start">
+                        {msg.suggestions.map((sug, qIdx) => (
+                          <button
+                            key={qIdx}
+                            onClick={() => !isTyping && sendMessage(sug)}
+                            disabled={isTyping}
+                            className="text-left inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#ffe7b0]/30 border border-[#d99b4a]/50 hover:border-[#6b0f0d]/60 hover:bg-[#ffe7b0]/60 text-[12px] text-[#6b0f0d] font-body font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <span className="material-symbols-outlined text-[13px] shrink-0">north_east</span>
+                            {sug}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   )}
