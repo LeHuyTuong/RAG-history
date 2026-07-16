@@ -4,7 +4,7 @@ import { ENDPOINTS } from '../endpoints';
 
 const sourceService = {
     async filter(params = {}) {
-        const res = await apiClient.get(ENDPOINTS.ADMIN.SOURCES, { params });
+        const res = await apiClient.get(ENDPOINTS.ADMIN.SOURCES, { params: { sort: 'id,desc', ...params } });
         return unwrapPage(res);
     },
 
@@ -29,7 +29,7 @@ const sourceService = {
     },
 
     async listAll(params = { size: 500 }) {
-        const res = await apiClient.get(ENDPOINTS.ADMIN.SOURCES, { params });
+        const res = await apiClient.get(ENDPOINTS.ADMIN.SOURCES, { params: { sort: 'id,desc', ...params } });
         return unwrapPage(res).items;
     },
 };

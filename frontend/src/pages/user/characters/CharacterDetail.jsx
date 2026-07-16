@@ -1,8 +1,12 @@
 import { API_ENDPOINTS, apiClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { stripHtml } from '../../../utils/stringUtils';
 import CharacterFamilyTree, { HISTORICAL_MOCK_RELATIONS, normalizeKey } from '../../../components/character/CharacterFamilyTree';
 import characterImages from '../../../data/characterImages.json';
+import DOMPurify from 'dompurify';
+import { IMAGES } from '../../../config/constants';
+import { resolveImageUrl } from '../../../utils/imageUtils';
 
 const CharacterDetail = () => {
   const { id } = useParams();
@@ -17,17 +21,29 @@ const CharacterDetail = () => {
 
   useEffect(() => {
     const fetchCharacter = async () => {
+      setLoading(true);
+      setCharacter(null);
       try {
         let dbPerson = null;
         let allChars = [];
         try {
-          const url = typeof API_ENDPOINTS.USER_CHARACTER_DETAIL === 'function' ? API_ENDPOINTS.USER_CHARACTER_DETAIL(id) : `${API_ENDPOINTS.USER_CHARACTER_DETAIL}/${id}`;
-          const [charDetailRes, charsListRes] = await Promise.all([
-            apiClient.get(url),
-            apiClient.get(API_ENDPOINTS.USER_CHARACTERS, { params: { size: 500 } }).catch(() => ({ data: [] }))
-          ]);
-          dbPerson = charDetailRes.data?.data || charDetailRes.data;
+          const isNumeric = /^\d+$/.test(id);
+          if (isNumeric) {
+            try {
+              const url = typeof API_ENDPOINTS.USER_CHARACTER_DETAIL === 'function' ? API_ENDPOINTS.USER_CHARACTER_DETAIL(id) : `${API_ENDPOINTS.USER_CHARACTER_DETAIL}/${id}`;
+              const res = await apiClient.get(url);
+              dbPerson = res.data?.data || res.data;
+            } catch (err) {
+              console.error('Failed to fetch character by ID', err);
+            }
+          }
+
+          const charsListRes = await apiClient.get(API_ENDPOINTS.USER_CHARACTERS, { params: { size: 500, status: 'PUBLISHED' } }).catch(() => ({ data: [] }));
           allChars = charsListRes.data?.data?.result || charsListRes.data?.data?.content || charsListRes.data?.data || [];
+
+          if (!dbPerson) {
+            dbPerson = allChars.find(c => c.slug === id || (c.id && c.id.toString() === id));
+          }
         } catch (apiErr) {
           console.error('Failed to fetch character detail from API:', apiErr);
         }
@@ -35,6 +51,7 @@ const CharacterDetail = () => {
         let dbParts = [];
         let relatedLocations = [];
         let relatedPosts = [];
+        let liveDynasties = [];
         try {
           const partsRes = await apiClient.get('/api/v1/admin/participations', { params: { personId: id } });
           dbParts = partsRes.data?.data?.result || partsRes.data?.data || [];
@@ -42,9 +59,17 @@ const CharacterDetail = () => {
           if (dbParts.length > 0) {
             const eventIds = dbParts.map(p => p.event?.id).filter(Boolean);
 
-            const eventsRes = await apiClient.get(API_ENDPOINTS.USER_EVENTS, { params: { size: 500 } });
+            const eventsRes = await apiClient.get(API_ENDPOINTS.USER_EVENTS, { params: { size: 500, status: 'PUBLISHED' } });
             const allEvents = eventsRes.data?.data?.result || eventsRes.data?.data?.content || eventsRes.data?.data || [];
             const characterEvents = allEvents.filter(e => eventIds.includes(e.id));
+
+            if (characterEvents && characterEvents.length > 0) {
+              characterEvents.forEach(e => {
+                if (e.period?.name && !liveDynasties.includes(e.period.name)) {
+                  liveDynasties.push(e.period.name);
+                }
+              });
+            }
 
             const locsMap = new Map();
             characterEvents.forEach(ev => {
@@ -62,9 +87,27 @@ const CharacterDetail = () => {
             relatedLocations = Array.from(locsMap.values());
 
             try {
-              const postsRes = await apiClient.get(API_ENDPOINTS.USER_ARTICLES, { params: { size: 500 } });
+              const postsRes = await apiClient.get(API_ENDPOINTS.USER_ARTICLES, { params: { size: 500, status: 'PUBLISHED' } });
               const allPosts = postsRes.data?.data?.result || postsRes.data?.data?.content || postsRes.data?.data || [];
-              relatedPosts = allPosts.filter(post => post.event?.id && eventIds.includes(post.event.id));
+
+              // 1. Posts linked via Events
+              const eventLinkedPosts = allPosts.filter(post => post.event?.id && eventIds.includes(post.event.id));
+
+              // 2. Posts explicitly linked via ArticleForm (stored in localStorage)
+              const explicitlyLinkedPosts = allPosts.filter(post => {
+                const postCacheRaw = localStorage.getItem(`local_post_relations_${post.id}`) || localStorage.getItem(`local_post_relations_${post.slug}`);
+                if (postCacheRaw) {
+                  try {
+                    const parsed = JSON.parse(postCacheRaw);
+                    const chars = parsed.relatedCharacters || [];
+                    return chars.some(c => c === dbPerson.name || c === dbPerson.id || c === dbPerson.slug || c?.id === dbPerson.id);
+                  } catch (e) { }
+                }
+                return false;
+              });
+
+              // Combine and deduplicate
+              relatedPosts = [...eventLinkedPosts, ...explicitlyLinkedPosts].filter((v, i, a) => a.findIndex(t => t.id === v.id) === i);
             } catch (err) {
               console.error('Error fetching related posts for character:', err);
             }
@@ -79,7 +122,7 @@ const CharacterDetail = () => {
 
           let localRelations = null;
           try {
-            const localData = localStorage.getItem(`character_relations_${dbPerson.id}`);
+            const localData = localStorage.getItem(`local_char_relations_${dbPerson.id}`);
             if (localData) {
               localRelations = JSON.parse(localData);
             }
@@ -89,25 +132,33 @@ const CharacterDetail = () => {
 
           const activeRelations = localRelations || mockMatch;
 
-          setCharacter({
+          const merged = {
             ...dbPerson,
             person_id: dbPerson.id,
-            portrait: characterImages[dbPerson.slug] || dbPerson.image || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+            portrait: resolveImageUrl(characterImages[dbPerson.slug] || dbPerson.imageUrl || dbPerson.image),
             biography: dbPerson.biography || '',
             description: dbPerson.biography || '',
             dynastyTitle: dbPerson.dynasty?.name || 'Vương triều',
+            dynasties: activeRelations.dynasties
+                ? [...new Set([...activeRelations.dynasties, ...liveDynasties])]
+                : (liveDynasties.length > 0 ? liveDynasties : (dbPerson.dynasty ? [dbPerson.dynasty] : ['Vương triều'])),
             templeName: dbPerson.templeName || 'N/A',
             eraName: dbPerson.eraName || 'N/A',
             reign: dbPerson.reign || 'N/A',
             quote: dbPerson.quote || 'Tâm tồn thiên hạ, trí độ vạn dân.',
             milestones: [],
             parents: activeRelations.parents || [],
+            paternalGrandparents: activeRelations.paternalGrandparents || [],
+            maternalGrandparents: activeRelations.maternalGrandparents || [],
             siblings: activeRelations.siblings || [],
             family: activeRelations.family || [],
             steleImg: "/images/home.png",
             relatedLocations,
             relatedArticles: relatedPosts
-          });
+          };
+          setCharacter(merged);
+        } else {
+          setCharacter(null);
         }
       } catch (error) {
         console.error('Error fetching character details:', error);
@@ -138,7 +189,13 @@ const CharacterDetail = () => {
                 <img src={character.portrait} className="w-full aspect-[3/4] object-cover transition-transform duration-1000 group-hover:scale-105 grayscale-[0.3] sepia-[0.2] contrast-100 group-hover:grayscale-0 group-hover:sepia-0 opacity-90 group-hover:opacity-100" alt="Portrait" referrerPolicy="no-referrer" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201] via-[#6b0f0d]/60 to-transparent opacity-80 pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-10 z-10">
-                  <span className="inline-block px-4 py-1.5 bg-[#fcf9ee]/20 backdrop-blur-sm border border-[#d99b4a]/60 text-[#ffe7b0] font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-4 shadow-md">{character.dynastyTitle && character.dynastyTitle.includes('Nhà') ? character.dynastyTitle.replace('Nhà', 'Triều') : character.dynastyTitle}</span>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {(character.dynasties || [character.dynastyTitle]).filter(Boolean).map((dyn, idx) => (
+                      <span key={idx} className="inline-block px-4 py-1.5 bg-[#fcf9ee]/20 backdrop-blur-sm border border-[#d99b4a]/60 text-[#ffe7b0] font-body text-[10px] font-bold uppercase tracking-[0.2em] shadow-md">
+                        {dyn && dyn.includes('Nhà') ? dyn.replace('Nhà', 'Triều') : dyn}
+                      </span>
+                    ))}
+                  </div>
                   <h1 className="font-headline text-5xl md:text-6xl text-[#ffe7b0] font-bold tracking-tight leading-tight drop-shadow-md">{character.name}</h1>
                 </div>
               </div>
@@ -160,7 +217,7 @@ const CharacterDetail = () => {
             </div>
             <div
               className="font-body text-lg text-[#2b1a16]/90 leading-loose border-l-4 border-[#d99b4a] pl-6 space-y-4 ql-editor"
-              dangerouslySetInnerHTML={{ __html: character.description }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(character.description) }}
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
@@ -200,7 +257,13 @@ const CharacterDetail = () => {
         <section className="mb-32">
           <CharacterFamilyTree
             character={character}
-            relations={{ parents: character.parents || [], siblings: character.siblings || [], family: character.family || [] }}
+            relations={{ 
+              parents: character.parents || [], 
+              siblings: character.siblings || [], 
+              family: character.family || [],
+              paternalGrandparents: character.paternalGrandparents || [],
+              maternalGrandparents: character.maternalGrandparents || []
+            }}
             isAdminEditMode={false}
           />
         </section>
@@ -229,6 +292,28 @@ const CharacterDetail = () => {
             </div>
           </div>
         </section>
+
+        {/* 4.5 RELATED ARTICLES */}
+        {character.relatedArticles && character.relatedArticles.length > 0 && (
+          <section className="mb-32">
+            <div className="flex items-center gap-6 mb-16 text-center">
+              <div className="h-px bg-gradient-to-r from-transparent to-[#d99b4a]/60 flex-grow"></div>
+              <h2 className="font-headline text-4xl text-[#6b0f0d] font-bold tracking-tight uppercase">Bài Viết Liên Quan</h2>
+              <div className="h-px bg-gradient-to-l from-transparent to-[#d99b4a]/60 flex-grow"></div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {character.relatedArticles.map((article, i) => (
+                <div key={i} className="bg-[#fffdf8] border border-[#d99b4a]/30 p-6 shadow-md hover:shadow-xl transition-shadow cursor-pointer" onClick={() => navigate(`/articles/${article.slug || article.id}`)}>
+                  <div className="aspect-video w-full mb-4 overflow-hidden border border-[#d99b4a]/20">
+                    <img src={article.thumbnailUrl || article.image || IMAGES.DEFAULT_COVER} className="w-full h-full object-cover grayscale-[0.2] sepia-[0.1]" alt={article.title} />
+                  </div>
+                  <h4 className="font-headline text-xl text-[#6b0f0d] font-semibold mb-2 line-clamp-2">{article.title}</h4>
+                  <p className="font-body text-sm text-[#2b1a16]/70 line-clamp-3">{stripHtml(article.summary || article.description || 'Chưa có tóm tắt.')}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* 5. NEXT NAVIGATION */}
         <section className="border-t border-[#d99b4a]/30 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">

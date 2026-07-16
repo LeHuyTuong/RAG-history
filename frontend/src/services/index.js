@@ -1,6 +1,5 @@
 // ---------- HTTP layer ----------
-export { default as apiClient } from './http/apiClient';
-export { default as mockClient } from './http/mockClient';
+export { default as apiClient, uploadFile } from './http/apiClient';
 export { unwrap, unwrapPage, unwrapResult, extractErrorMessage } from './http/response';
 
 // ---------- Endpoints ----------

@@ -4,6 +4,7 @@ import { StatsGrid } from '../../../components/admin';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 import { dashboardService } from '../../../services';
+import { TEXTURES } from '../../../config/constants';
 
 const CHART_DATA = [35, 50, 25, 70, 45, 90, 60, 80, 40, 65, 85, 55, 75, 45, 60];
 const CHART_DATA_INTERACTIONS = [15, 30, 20, 45, 25, 65, 40, 50, 35, 40, 60, 45, 55, 30, 45];
@@ -43,7 +44,7 @@ const CustomTooltip = ({ active, payload }) => {
 
 const QUICK_ACTIONS = [
   { id: 'event', icon: 'history_edu', label: 'Sự kiện', path: '/admin/events/new', colorClasses: 'hover:bg-amber-50 hover:border-amber-200 hover:text-amber-700' },
-  { id: 'location', icon: 'explore', label: 'Địa danh', path: '/admin/locations/new', colorClasses: 'hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700' },
+  { id: 'location', icon: 'explore', label: 'Di tích', path: '/admin/locations/new', colorClasses: 'hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700' },
   { id: 'character', icon: 'person_pin_circle', label: 'Nhân vật', path: '/admin/characters/new', colorClasses: 'hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700' },
   { id: 'hub', icon: 'hub', label: 'Hub', path: '/admin/hub', colorClasses: 'hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700' }
 ];
@@ -103,7 +104,7 @@ const AdminDashboard = () => {
         {
           id: "stat-4",
           icon: "explore",
-          title: "Địa danh",
+          title: "Di tích",
           value: dashboardData.totalLocations?.toLocaleString() || "0",
           iconBg: "bg-emerald-500/10"
         },
@@ -143,14 +144,14 @@ const AdminDashboard = () => {
 
   return (
     <main
-      className="p-8 lg:p-12 transition-opacity duration-700 ease-out font-body animate-in fade-in min-h-screen bg-surface"
+      className="p-8 lg:p-12 transition-opacity duration-700 ease-out font-body animate-in fade-in min-h-screen bg-transparent"
       style={{ opacity: opacity }}
     >
       <div className="max-w-[1400px] mx-auto space-y-6">
 
         {/* --- BENTO BLOCK 1: PAGE HEADER --- */}
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-surface-low to-white p-10 shadow-sm border border-outline-variant/30 group">
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+          <div className="absolute inset-0 bg-[url(TEXTURES.CUBES)] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
           <div className="absolute -right-20 -top-20 w-96 h-96 bg-primary/5 blur-[100px] rounded-full pointer-events-none group-hover:bg-primary/10 transition-colors duration-700"></div>
           <div className="absolute top-0 right-10 p-8 opacity-[0.03] transform group-hover:scale-110 transition-transform duration-1000 pointer-events-none">
             <span className="material-symbols-outlined text-[200px] leading-none text-primary">account_balance</span>
@@ -158,7 +159,7 @@ const AdminDashboard = () => {
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
               <h2 className="font-headline text-4xl lg:text-5xl text-primary font-bold flex items-center gap-3 mb-4">
-                <span className="material-symbols-outlined text-4xl lg:text-5xl">dashboard</span> Bảng điều khiển Quản trị
+                Bảng điều khiển Quản trị
               </h2>
               <p className="font-body text-sm text-on-surface-variant max-w-xl leading-relaxed">
                 Giám sát tổng quan hệ thống dữ liệu lịch sử Đại Việt. Theo dõi lưu lượng truy cập, quản lý nội dung và cập nhật các hoạt động mới nhất từ AI và thành viên.
@@ -212,10 +213,10 @@ const AdminDashboard = () => {
 
             {/* Metadata Stats */}
             <div
-              onClick={() => navigate('/admin/metadata')}
+              onClick={() => navigate('/admin/tags')}
               className="bg-gradient-to-br from-surface-low to-white border border-outline-variant/30 rounded-[2rem] shadow-sm hover:shadow-md p-6 flex-1 flex flex-col justify-center relative overflow-hidden group cursor-pointer transition-all duration-300 hover:-translate-y-1"
             >
-              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+              <div className="absolute inset-0 bg-[url(TEXTURES.DIAGMONDS_LIGHT)] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
               <div className="flex justify-between items-center mb-6 relative z-10">
                 <h3 className="font-headline text-lg text-primary font-bold flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary/70 text-[20px]">database</span>

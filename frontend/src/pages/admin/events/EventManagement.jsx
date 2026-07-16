@@ -17,6 +17,7 @@ import {
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { getDynastyLabel } from '../../../utils/dynastyUtils';
 import { stripHtml } from '../../../utils/stringUtils';
+import eventImages from '../../../data/eventImages.json';
 
 const EventManagement = () => {
   const navigate = useNavigate();
@@ -33,6 +34,10 @@ const EventManagement = () => {
     if (!modalData || modalData.id === null || modalData.id === undefined) return;
     try {
       await dispatch(deleteEvent(modalData.id)).unwrap();
+      dispatch(fetchEvents({ page: 0, size: 500 }));
+      if (paginatedEvents.length === 1 && currentPage > 1) {
+        setCurrentPage(prev => prev - 1);
+      }
     } catch (error) {
       console.error('Error deleting event:', error);
     }
@@ -87,8 +92,12 @@ const EventManagement = () => {
     {
       key: 'name', header: 'Tên sự kiện', render: (row) => (
         <div className="flex items-center gap-4 py-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-indigo-500/5 flex items-center justify-center border border-indigo-500/10 shadow-sm shrink-0">
-            <span className="material-symbols-outlined text-indigo-600 text-lg">event</span>
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-indigo-500/5 flex items-center justify-center border border-indigo-500/10 shadow-sm shrink-0 overflow-hidden">
+            {(eventImages[row.slug] || row.imageUrl || row.image) ? (
+              <img src={eventImages[row.slug] || row.imageUrl || row.image} alt={row.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="material-symbols-outlined text-indigo-600 text-lg">event</span>
+            )}
           </div>
           <div>
             <div className="font-headline text-on-surface font-bold text-base hover:text-indigo-600 transition-colors cursor-pointer line-clamp-1">{row.name}</div>
@@ -121,6 +130,7 @@ const EventManagement = () => {
         );
       }
     },
+
     {
       key: 'status', header: 'Trạng thái', align: 'center', render: (row) => (
         <span className={`px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider border ${getStatusStyle(getNormalizedStatus(row.status))}`}>
@@ -149,7 +159,7 @@ const EventManagement = () => {
           actionIcon="add"
         />
 
-        
+
 
         {/* FILTER & TABLE SECTION */}
         <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">
@@ -162,7 +172,7 @@ const EventManagement = () => {
                   placeholder="Nhập tên sự kiện..."
                   value={filters.search}
                   onChange={(e) => handleFilterChange('search', e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
+                  className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
                 />
               </div>
               <div className="flex gap-4">
@@ -170,7 +180,7 @@ const EventManagement = () => {
                   <select
                     value={filters.dynasty}
                     onChange={(e) => handleFilterChange('dynasty', e.target.value)}
-                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-indigo-500 hover:border-indigo-500/50 transition-all min-w-[160px]"
+                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[160px]"
                   >
                     <option value="">Tất cả triều đại</option>
                     {Array.from(new Set(data.events.map(e => e.dynasty))).filter(Boolean).map(d => (
@@ -184,7 +194,7 @@ const EventManagement = () => {
                   <select
                     value={filters.status}
                     onChange={(e) => handleFilterChange('status', e.target.value)}
-                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-indigo-500 hover:border-indigo-500/50 transition-all min-w-[150px]"
+                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[150px]"
                   >
                     <option value="">Tất cả trạng thái</option>
                     <option value="published">Công khai</option>

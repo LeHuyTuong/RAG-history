@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.example.historyrag.feature.post.PostStatus;
 
 @Getter
 @Setter
@@ -42,8 +43,31 @@ public class Period extends BaseEntity {
     @Column(name = "end_year")
     private Integer endYear;
 
+    @Column(name = "emperors", columnDefinition = "TEXT")
+    private String emperors;
+
+    @Column(name = "related_locations", columnDefinition = "TEXT")
+    private String relatedLocations;
+
+    @Column(name = "related_events", columnDefinition = "TEXT")
+    private String relatedEvents;
+
+    @Column(name = "related_articles", columnDefinition = "TEXT")
+    private String relatedArticles;
+
     @Lob
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "philosophy", length = 500)
+    private String philosophy;
+
+    @Lob
+    @Column(name = "image_url", columnDefinition = "LONGTEXT")
+    private String imageUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20)
+    private PostStatus status = PostStatus.PUBLISHED;
 
 }

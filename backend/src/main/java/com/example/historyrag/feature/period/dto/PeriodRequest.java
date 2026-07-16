@@ -4,6 +4,7 @@ package com.example.historyrag.feature.period.dto;
 import lombok.Builder;
 import jakarta.validation.constraints.*;
 import java.time.Year;
+import com.example.historyrag.feature.post.PostStatus;
 
 @Builder
 public record PeriodRequest(
@@ -22,8 +23,19 @@ public record PeriodRequest(
         @NotNull(message = "End year is required")
         Integer endYear,
 
-        @Size(max = 100, message = "Description must not exceed 100 characters")
-        String description
+        String description,
+        String philosophy,
+        String imageUrl,
+
+        String emperors,
+
+        String relatedLocations,
+
+        String relatedEvents,
+
+        String relatedArticles,
+
+        PostStatus status
 ) {
     @AssertTrue(message = "Start year must be in the past and before end year")
     public boolean isValidStartYear() {

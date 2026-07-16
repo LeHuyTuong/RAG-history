@@ -1,6 +1,8 @@
 import { API_ENDPOINTS, apiClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
+import { IMAGES } from '../../../config/constants';
 
 const RecordDetail = () => {
    const { id } = useParams();
@@ -28,7 +30,7 @@ const RecordDetail = () => {
             if (dbSource) {
                setRecord({
                   ...dbSource,
-                  coverImg: dbSource.image || 'https://via.placeholder.com/600x800',
+                  coverImg: dbSource.image || IMAGES.PLACEHOLDER_600x800,
                   record_id: dbSource.id,
                   title: dbSource.name,
                   description: dbSource.description || '',
@@ -64,9 +66,10 @@ const RecordDetail = () => {
                   <h1 className="font-headline text-5xl md:text-7xl text-[#6b0f0d] font-semibold leading-tight tracking-tight">
                      {record.title}
                   </h1>
-                  <p className="font-body text-[16px] text-[#2b1a16]/80 leading-relaxed max-w-3xl border-l-4 border-[#d99b4a] pl-6">
-                     {record.description}
-                  </p>
+                  <div
+                     className="font-body text-[16px] text-[#2b1a16]/80 leading-relaxed max-w-3xl border-l-4 border-[#d99b4a] pl-6 prose prose-amber max-w-none"
+                     dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(record.description)}}
+                  />
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                      {(record.metadata || []).map((item, i) => (

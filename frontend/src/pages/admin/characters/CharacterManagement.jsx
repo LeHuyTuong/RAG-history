@@ -16,13 +16,15 @@ import {
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { getDynastyLabel } from '../../../utils/dynastyUtils';
+import { generateSlug } from '../../../utils/stringUtils';
+import characterImages from '../../../data/characterImages.json';
 
 const CharacterManagement = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { data, loading } = useSelector((state) => state.characters);
   const { isOpen, modalType, modalData, openModal, closeModal } = useModalStore();
-  
+
   const [filters, setFilters] = useState({ search: '', dynasty: '' });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -32,6 +34,10 @@ const CharacterManagement = () => {
     if (!modalData || modalData.id === null || modalData.id === undefined) return;
     try {
       await dispatch(deleteCharacter(modalData.id)).unwrap();
+      dispatch(fetchCharacters());
+      if (paginatedCharacters.length === 1 && currentPage > 1) {
+        setCurrentPage(prev => prev - 1);
+      }
     } catch (error) {
       console.error('Error deleting character:', error);
     }
@@ -73,8 +79,12 @@ const CharacterManagement = () => {
     {
       key: 'name', header: 'HỌ VÀ TÊN', render: (row) => (
         <div className="flex items-center gap-4 py-2">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center border border-amber-500/10 shadow-sm shrink-0">
-            <span className="material-symbols-outlined text-amber-600 text-xl">person</span>
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center border border-amber-500/10 shadow-sm shrink-0 overflow-hidden">
+            {(characterImages[row.slug] || characterImages[generateSlug(row.name || '')] || row.avatarUrl || row.avatar || row.imageUrl || row.image) ? (
+              <img src={characterImages[row.slug] || characterImages[generateSlug(row.name || '')] || row.avatarUrl || row.avatar || row.imageUrl || row.image} alt={row.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="material-symbols-outlined text-amber-600 text-xl">person</span>
+            )}
           </div>
           <div className="flex flex-col">
             <span className="font-headline text-on-surface font-bold text-base hover:text-amber-600 transition-colors cursor-pointer line-clamp-1">{row.name}</span>
@@ -137,6 +147,14 @@ const CharacterManagement = () => {
     return matchSearch && matchDynasty && matchStatus;
   });
 
+  const availableDynasties = Array.from(new Set(
+    data.characters.flatMap(char =>
+       Array.isArray(char.dynasties) && char.dynasties.length > 0
+          ? char.dynasties
+          : (char.dynasty ? (Array.isArray(char.dynasty) ? char.dynasty : [char.dynasty]) : [])
+    )
+  )).filter(Boolean).sort();
+
   const paginatedCharacters = filteredCharacters.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
@@ -149,7 +167,7 @@ const CharacterManagement = () => {
         actionIcon="person_add"
       />
 
-      
+
 
       <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col mt-6">
         <div className="p-4 border-b border-outline-variant bg-surface-low/50">
@@ -161,7 +179,7 @@ const CharacterManagement = () => {
                 placeholder="Tìm kiếm nhân vật (Tên, vai trò)..."
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
+                className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
               />
             </div>
             <div className="flex gap-4">
@@ -169,14 +187,12 @@ const CharacterManagement = () => {
                 <select
                   value={filters.dynasty}
                   onChange={(e) => handleFilterChange('dynasty', e.target.value)}
-                  className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-amber-500 hover:border-amber-500/50 transition-all min-w-[160px]"
+                  className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[160px]"
                 >
                   <option value="">Tất cả triều đại</option>
-                  <option value="Nhà Đinh - Tiền Lê">Nhà Đinh - Tiền Lê</option>
-                  <option value="Nhà Lý">Nhà Lý</option>
-                  <option value="Nhà Trần">Nhà Trần</option>
-                  <option value="Nhà Hậu Lê">Nhà Hậu Lê</option>
-                  <option value="Nhà Nguyễn">Nhà Nguyễn</option>
+                  {availableDynasties.map(d => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
                 </select>
                 <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
               </div>
@@ -185,7 +201,7 @@ const CharacterManagement = () => {
                 <select
                   value={filters.status}
                   onChange={(e) => handleFilterChange('status', e.target.value)}
-                  className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-amber-500 hover:border-amber-500/50 transition-all min-w-[150px]"
+                  className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[150px]"
                 >
                   <option value="">Tất cả trạng thái</option>
                   <option value="published">Công khai</option>

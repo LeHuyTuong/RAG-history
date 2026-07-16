@@ -1,4 +1,3 @@
-import mockClient from '../http/mockClient';
 import { unwrap, unwrapPage } from '../http/response';
 import { ENDPOINTS } from '../endpoints';
 
@@ -7,30 +6,23 @@ import periodService from './periodService';
 
 const metadataService = {
     async fetchOverview() {
-        const [tagsPage, periodsPage, tagColorsRes, periodColorsRes] = await Promise.allSettled([
+        const [tagsPage, periodsPage] = await Promise.allSettled([
             tagService.filter({ size: 500 }),
-            periodService.filter({ size: 500 }),
-            mockClient.get(ENDPOINTS.MOCK.TAG_COLORS),
-            mockClient.get(ENDPOINTS.MOCK.PERIOD_COLORS),
+            periodService.filter({ size: 500 })
         ]);
 
         const tags = tagsPage.status === 'fulfilled' ? tagsPage.value.items : [];
         const periods = periodsPage.status === 'fulfilled' ? periodsPage.value.items : [];
-        const tagColors = tagColorsRes.status === 'fulfilled' ? tagColorsRes.value.data : {};
-        const periodColors = periodColorsRes.status === 'fulfilled' ? periodColorsRes.value.data : {};
+        const tagColors = {};
+        const periodColors = {};
 
         return { tags, periods, tagColors, periodColors };
     },
 
     async fetchColors() {
-        const [tagColorsRes, periodColorsRes] = await Promise.allSettled([
-            mockClient.get(ENDPOINTS.MOCK.TAG_COLORS),
-            mockClient.get(ENDPOINTS.MOCK.PERIOD_COLORS),
-        ]);
-
         return {
-            tagColors: tagColorsRes.status === 'fulfilled' ? tagColorsRes.value.data : {},
-            periodColors: periodColorsRes.status === 'fulfilled' ? periodColorsRes.value.data : {},
+            tagColors: {},
+            periodColors: {},
         };
     },
 

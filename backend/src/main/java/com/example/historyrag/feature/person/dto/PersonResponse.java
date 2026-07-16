@@ -17,7 +17,8 @@ public record PersonResponse(
         LocalDate deathDate,
         String biography,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        String imageUrl
 ) {
     public static PersonResponse fromEntity(Person person) {
         return new PersonResponse(
@@ -29,7 +30,8 @@ public record PersonResponse(
                 person.getDeathDate(),
                 person.getBiography(),
                 person.getCreatedAt(),
-                person.getUpdatedAt()
+                person.getUpdatedAt(),
+                person.getImageUrl()
         );
     }
 }

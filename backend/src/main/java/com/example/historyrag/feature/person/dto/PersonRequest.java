@@ -31,7 +31,9 @@ public record PersonRequest(
         LocalDate deathDate,
 
         @Size(max = 10000, message = "Biography must not exceed 10000 characters")
-        String biography
+        String biography,
+
+        String imageUrl
 ) {
     @AssertTrue(message = "Death date must be after birth date")
     public boolean isValidLifeRange() {

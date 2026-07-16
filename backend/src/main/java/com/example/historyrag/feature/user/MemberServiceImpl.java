@@ -1,16 +1,22 @@
 package com.example.historyrag.feature.user;
 
+import com.example.historyrag.dto.ResultPaginationDTO;
+import com.example.historyrag.dto.Meta;
 import com.example.historyrag.exception.DuplicateResourceException;
 import com.example.historyrag.exception.InvalidRequestException;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.feature.user.dto.MemberRequest;
 import com.example.historyrag.feature.user.dto.MemberResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +43,7 @@ public class MemberServiceImpl implements MemberService {
         member.setPasswordHash(passwordEncoder.encode(request.password()));
         return MemberResponse.fromEntity(memberRepository.save(member));
     }
+
     @Override
     @Transactional
     public MemberResponse updateMember(Long id, MemberRequest request) {
@@ -58,6 +65,7 @@ public class MemberServiceImpl implements MemberService {
         }
         return MemberResponse.fromEntity(memberRepository.save(member));
     }
+
     @Override
     @Transactional
     public void deleteMember(Long id) {
@@ -65,6 +73,38 @@ public class MemberServiceImpl implements MemberService {
             throw new ResourceNotFoundException("Member", "id", id);
         }
         memberRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResultPaginationDTO filterMembers(Pageable pageable, String search, String status) {
+        // Implement filter logically if possible, or just default search via repo
+        Page<Member> memberPage;
+        if (search != null && !search.isBlank()) {
+            memberPage = memberRepository.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrFullNameContainingIgnoreCase(
+                    search, search, search, pageable
+            );
+        } else {
+            memberPage = memberRepository.findAll(pageable);
+        }
+
+        // Apply status filter in memory if necessary (or in DB if added to query)
+        List<MemberResponse> items = memberPage.getContent().stream()
+                .filter(m -> status == null || status.isBlank() || status.equalsIgnoreCase(m.getStatus()))
+                .map(MemberResponse::fromEntity)
+                .collect(Collectors.toList());
+
+        Meta meta = Meta.builder()
+                .page(pageable.getPageNumber() + 1)
+                .pageSize(pageable.getPageSize())
+                .pages(memberPage.getTotalPages())
+                .total(memberPage.getTotalElements())
+                .build();
+
+        ResultPaginationDTO dto = new ResultPaginationDTO();
+        dto.setMeta(meta);
+        dto.setItems(items);
+        return dto;
     }
 
     @Override

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_ENDPOINTS, apiClient } from '../../services';
 import characterImages from '../../data/characterImages.json';
+import toast from 'react-hot-toast';
+import { IMAGES } from '../../config/constants';
 
 export const normalizeKey = (str) => {
   if (!str) return '';
@@ -357,13 +359,13 @@ const CharacterFamilyTree = ({
       return {
         id: match.id,
         slug: match.slug,
-        portrait: characterImages[match.slug] || match.image || match.portrait || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+        portrait: characterImages[match.slug] || match.image || match.portrait || IMAGES.DEFAULT_AVATAR,
         years: match.years || (match.birthDate ? `${new Date(match.birthDate).getFullYear()} - ${match.deathDate ? new Date(match.deathDate).getFullYear() : '?'}` : ''),
         clickable: true
       };
     }
     return {
-      portrait: 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+      portrait: IMAGES.DEFAULT_AVATAR,
       years: 'Lịch sử',
       clickable: false
     };
@@ -522,20 +524,22 @@ const CharacterFamilyTree = ({
     e.preventDefault();
     const finalName = selectedRelativeName || searchQuery.trim();
     if (!finalName) {
-      alert('Vui lòng chọn hoặc nhập tên nhân vật.');
+      toast.error('Vui lòng chọn hoặc nhập tên nhân vật.');
       return;
     }
 
     let finalRelation = isCustomRelation ? customRelationText.trim() : relationText.trim();
     if (targetCategory === 'parents' && !isCustomRelation) {
-      finalRelation = `${relationText} (${parentSide === 'Nội' ? 'Nội' : 'Ngoại'})`;
+      if (['Cha', 'Mẹ', 'Cha nuôi', 'Mẹ kế'].includes(relationText)) {
+        finalRelation = `${relationText} (${parentSide === 'Nội' ? 'Nội' : 'Ngoại'})`;
+      }
     } else if ((relationText === 'Con dâu' || relationText === 'Con rể') && marriedToChildName && !isCustomRelation) {
       const spTitle = relationText === 'Con dâu' ? 'Vợ' : 'Chồng';
       finalRelation = `${relationText} (${spTitle} của ${marriedToChildName})`;
     }
 
     if (!finalRelation) {
-      alert('Vui lòng chọn hoặc nhập quan hệ (vai vế).');
+      toast.error('Vui lòng chọn hoặc nhập quan hệ (vai vế).');
       return;
     }
 
@@ -729,7 +733,7 @@ const CharacterFamilyTree = ({
   });
 
   // Resolve active character details
-  const activePortrait = character.portrait || character.avatar || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
+  const activePortrait = character.portrait || character.avatar || IMAGES.DEFAULT_AVATAR;
   const activeYears = character.years || (character.birthYear ? `${character.birthYear} - ${character.deathYear || '?'}` : '');
 
   // Filter available relative choices
@@ -901,7 +905,7 @@ const CharacterFamilyTree = ({
               <div className="flex flex-wrap md:flex-col justify-center items-center gap-4">
                 {siblingNodes.map((s, idx) => (
                   <div key={idx} className="flex items-center gap-3 bg-[#fffdf8]/60 p-2 rounded-lg border border-[#d99b4a]/10 relative group">
-                    <div 
+                    <div
                       onClick={() => handleNodeClick(s.info, s.name)}
                       className={`w-12 h-12 rounded-full overflow-hidden border-2 shadow-sm ${s.info.clickable && !isAdminPreview && !isAdminEditMode ? 'border-[#d99b4a]/60 hover:border-amber-600 cursor-pointer' : 'border-[#d99b4a]/30 cursor-default'}`}
                     >
@@ -914,7 +918,7 @@ const CharacterFamilyTree = ({
 
                     {/* Delete Sibling Button */}
                     {isAdminEditMode && (
-                      <button 
+                      <button
                         onClick={() => handleRemove('siblings', s.name)}
                         className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-800 transition-colors shadow-sm cursor-pointer z-20"
                       >
@@ -926,7 +930,7 @@ const CharacterFamilyTree = ({
 
                 {/* Add Sibling Button */}
                 {isAdminEditMode && (
-                  <div 
+                  <div
                     onClick={() => openAddRelation('siblings')}
                     className="flex items-center justify-center gap-2 bg-white/40 hover:bg-white border border-dashed border-[#d99b4a]/40 p-2 w-32 rounded-lg hover:border-[#d99b4a] hover:scale-105 transition-all cursor-pointer text-[#d99b4a]"
                   >
@@ -971,7 +975,7 @@ const CharacterFamilyTree = ({
                 {spouses.map((sp, idx) => (
                   <div key={idx} className="flex flex-col items-center relative group">
                     <div className="relative">
-                      <div 
+                      <div
                         onClick={() => handleNodeClick(sp.info, sp.name)}
                         className={`w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-3 shadow-md transition-all duration-300 ${sp.info.clickable && !isAdminPreview && !isAdminEditMode ? 'border-[#d99b4a]/80 hover:border-amber-600 hover:scale-105 cursor-pointer' : 'border-[#d99b4a]/40 cursor-default'}`}
                       >
@@ -979,7 +983,7 @@ const CharacterFamilyTree = ({
                       </div>
                       {/* Delete Spouse Button */}
                       {isAdminEditMode && (
-                        <button 
+                        <button
                           onClick={() => handleRemove('family', sp.name)}
                           className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-800 transition-colors shadow-sm cursor-pointer z-20"
                         >
@@ -994,7 +998,7 @@ const CharacterFamilyTree = ({
 
                 {/* Add Spouse Button */}
                 {isAdminEditMode && spouses.length === 0 && (
-                  <div 
+                  <div
                     onClick={() => openAddRelation('spouse')}
                     className="flex flex-col items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full border-3 border-dashed border-[#d99b4a]/40 bg-white/40 hover:bg-white hover:border-[#d99b4a] hover:scale-105 transition-all cursor-pointer text-[#d99b4a]"
                   >
@@ -1212,6 +1216,10 @@ const CharacterFamilyTree = ({
                         <option value="Mẹ">Mẹ</option>
                         <option value="Cha nuôi">Cha nuôi</option>
                         <option value="Mẹ kế">Mẹ kế</option>
+                        <option value="Ông nội">Ông nội</option>
+                        <option value="Bà nội">Bà nội</option>
+                        <option value="Ông ngoại">Ông ngoại</option>
+                        <option value="Bà ngoại">Bà ngoại</option>
                       </>
                     )}
                     {targetCategory === 'siblings' && (

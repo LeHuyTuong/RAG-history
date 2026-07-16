@@ -4,8 +4,13 @@ import { ENDPOINTS } from '../endpoints';
 
 const personService = {
     async filter(params = {}) {
-        const res = await apiClient.get(ENDPOINTS.ADMIN.PERSONS, { params });
-        return unwrapPage(res);
+        const res = await apiClient.get(ENDPOINTS.ADMIN.PERSONS, { params: { sort: 'id,desc', ...params } });
+        const page = unwrapPage(res);
+        if (params.status) {
+            page.items = page.items.filter(p => p.status === params.status || p.status === undefined);
+            page.total = page.items.length;
+        }
+        return page;
     },
 
     async getById(id) {
@@ -29,8 +34,12 @@ const personService = {
     },
 
     async listAll(params = { size: 500 }) {
-        const res = await apiClient.get(ENDPOINTS.ADMIN.PERSONS, { params });
-        return unwrapPage(res).items;
+        const res = await apiClient.get(ENDPOINTS.ADMIN.PERSONS, { params: { sort: 'id,desc', ...params } });
+        let items = unwrapPage(res).items;
+        if (params.status) {
+            items = items.filter(p => p.status === params.status || p.status === undefined);
+        }
+        return items;
     },
 };
 

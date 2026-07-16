@@ -4,7 +4,7 @@ import { ENDPOINTS } from '../endpoints';
 
 const tagService = {
     async filter(params = {}) {
-        const res = await apiClient.get(ENDPOINTS.ADMIN.TAGS, { params });
+        const res = await apiClient.get(ENDPOINTS.ADMIN.TAGS, { params: { sort: 'id,desc', ...params } });
         return unwrapPage(res);
     },
 
@@ -29,7 +29,7 @@ const tagService = {
     },
 
     async listAll(params = { size: 500 }) {
-        const res = await apiClient.get(ENDPOINTS.ADMIN.TAGS, { params });
+        const res = await apiClient.get(ENDPOINTS.ADMIN.TAGS, { params: { sort: 'id,desc', ...params } });
         return unwrapPage(res).items;
     },
 };

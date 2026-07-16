@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { PageHeader } from '../../../components/admin';
+import { PageHeader, AdminLayout } from '../../../components/admin';
 import { settingsService } from '../../../services';
 
 const AI_MODEL_OPTIONS = [
@@ -93,9 +93,9 @@ const ImageSettingCard = ({ title, subtitle, icon, value, onChange, onApply, pre
   };
 
   return (
-    <section className="bg-white rounded-2xl border border-outline-variant/60 shadow-sm overflow-hidden">
-      <div className="p-6 border-b border-outline-variant/60 flex items-start gap-3">
-        <span className="material-symbols-outlined text-[#0f9f6e] text-[22px] mt-0.5">{icon}</span>
+    <section className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden">
+      <div className="p-6 border-b border-outline-variant bg-surface-low/50 flex items-start gap-3">
+        <span className="material-symbols-outlined text-primary text-[22px] mt-0.5">{icon}</span>
         <div>
           <h3 className="font-headline text-lg text-on-surface font-bold">{title}</h3>
           <p className="font-body text-xs text-on-surface-variant mt-1">{subtitle}</p>
@@ -113,12 +113,12 @@ const ImageSettingCard = ({ title, subtitle, icon, value, onChange, onApply, pre
                 value={urlDraft}
                 onChange={event => setUrlDraft(event.target.value)}
                 placeholder="https://... hoặc /images/logo.png"
-                className="min-w-0 flex-1 h-11 rounded-xl border border-outline-variant/70 bg-surface-low/30 px-4 font-body text-sm outline-none focus:border-[#0f9f6e] focus:ring-2 focus:ring-[#0f9f6e]/15"
+                className="min-w-0 flex-1 h-11 rounded-xl border border-outline-variant/70 bg-surface-low/30 px-4 font-body text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
               <button
                 type="button"
                 onClick={applyUrl}
-                className="h-11 px-4 rounded-xl border border-outline-variant/70 text-on-surface text-xs font-bold uppercase tracking-widest hover:border-[#0f9f6e] hover:text-[#0f9f6e] transition-colors"
+                className="h-11 px-4 rounded-xl border border-outline-variant/70 text-on-surface text-xs font-bold uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
               >
                 Áp dụng
               </button>
@@ -126,7 +126,7 @@ const ImageSettingCard = ({ title, subtitle, icon, value, onChange, onApply, pre
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <label className="h-11 px-4 rounded-xl bg-[#0f9f6e] text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2 cursor-pointer hover:bg-[#0c8059] transition-colors">
+            <label className="h-11 px-4 rounded-xl bg-[#6b0f0d] text-[#ffe7b0] text-xs font-bold uppercase tracking-widest flex items-center gap-2 cursor-pointer hover:opacity-90 transition-colors">
               <span className="material-symbols-outlined text-[17px]">upload</span>
               Upload ảnh
               <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
@@ -253,8 +253,8 @@ const SystemSettings = () => {
   };
 
   return (
-    <div className="flex-grow min-h-screen bg-surface pb-20 font-body animate-in fade-in duration-500">
-      <main className="p-8 max-w-7xl mx-auto w-full space-y-6">
+    <AdminLayout>
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <PageHeader
           title="Cài đặt hệ thống"
           subtitle="Đổi model AI, logo và background hiển thị trên website."
@@ -264,9 +264,9 @@ const SystemSettings = () => {
           onActionClick={loadSettings}
         />
 
-        <section className="bg-white rounded-2xl border border-outline-variant/60 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-outline-variant/60 flex items-start gap-3">
-            <span className="material-symbols-outlined text-[#0f9f6e] text-[22px] mt-0.5">smart_toy</span>
+        <section className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-outline-variant bg-surface-low/50 flex items-start gap-3">
+            <span className="material-symbols-outlined text-primary text-[22px] mt-0.5">smart_toy</span>
             <div>
               <h3 className="font-headline text-lg text-on-surface font-bold">AI Model</h3>
               <p className="font-body text-xs text-on-surface-variant mt-1">
@@ -284,7 +284,7 @@ const SystemSettings = () => {
                 value={settings['rag.llm_model']}
                 onChange={event => updateSetting('rag.llm_model', event.target.value)}
                 disabled={loading}
-                className="w-full h-12 rounded-xl border border-outline-variant/70 bg-surface-low/30 px-4 font-body text-sm font-semibold text-on-surface outline-none focus:border-[#0f9f6e] focus:ring-2 focus:ring-[#0f9f6e]/15"
+                className="w-full h-12 rounded-xl border border-outline-variant/70 bg-surface-low/30 px-4 font-body text-sm font-semibold text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
               >
                 {AI_MODEL_OPTIONS.map(option => (
                   <option key={option.value} value={option.value}>
@@ -301,7 +301,7 @@ const SystemSettings = () => {
               </div>
               <div className="rounded-xl border border-outline-variant/50 bg-surface-low/30 p-4">
                 <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Trạng thái</p>
-                <span className="mt-2 inline-flex px-3 py-1 rounded-full bg-[#0f9f6e]/10 text-[#0f9f6e] text-xs font-bold">
+                <span className="mt-2 inline-flex px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">
                   Active
                 </span>
               </div>
@@ -337,13 +337,13 @@ const SystemSettings = () => {
             type="button"
             onClick={handleSave}
             disabled={saving || loading}
-            className="h-12 px-6 rounded-xl bg-[#0f9f6e] text-white shadow-lg hover:bg-[#0c8059] disabled:opacity-60 disabled:cursor-not-allowed font-bold text-xs uppercase tracking-widest flex items-center gap-2 transition-colors"
+            className="h-12 px-6 rounded-xl bg-[#6b0f0d] text-[#ffe7b0] shadow-lg hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed font-bold text-xs uppercase tracking-widest flex items-center gap-2 transition-colors"
           >
             <span className="material-symbols-outlined text-[18px]">{saving ? 'sync' : 'save'}</span>
             {saving ? 'Đang lưu...' : 'Lưu cài đặt'}
           </button>
         </div>
-      </main>
+      </div>
 
       {showSuccess && (
         <div className="fixed bottom-8 right-8 bg-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-8 fade-in z-[200]">
@@ -351,7 +351,7 @@ const SystemSettings = () => {
           <span className="font-body font-bold text-sm tracking-wide">Đã lưu cài đặt thành công!</span>
         </div>
       )}
-    </div>
+    </AdminLayout>
   );
 };
 

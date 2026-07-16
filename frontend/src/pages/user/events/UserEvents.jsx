@@ -1,9 +1,11 @@
 import { API_ENDPOINTS, apiClient, eventService, periodService } from '../../../services';
 import { useState, useEffect } from 'react';
-import { Link, useOutletContext } from 'react-router-dom';
+import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import Pagination from '../../../components/common/Pagination';
 import { stripHtml } from '../../../utils/stringUtils';
 import eventImages from '../../../data/eventImages.json';
+import { IMAGES, MISC_IMAGES } from '../../../config/constants';
+import { resolveImageUrl } from '../../../utils/imageUtils';
 
 const UserEvents = () => {
   const { backgroundUrl = '' } = useOutletContext() || {};
@@ -22,11 +24,11 @@ const UserEvents = () => {
         let dbEvents = [];
         try {
           const [response, pRes] = await Promise.all([
-            eventService.filter({ size: 500 }).catch(apiErr => {
+            eventService.filter({ size: 500, status: 'PUBLISHED' }).catch(apiErr => {
               console.error('Lỗi gọi API sự kiện:', apiErr);
               return { items: [] };
             }),
-            periodService.filter({ size: 500 }).catch(pErr => {
+            periodService.filter({ size: 500, status: 'PUBLISHED' }).catch(pErr => {
               console.error('Lỗi gọi API thời kỳ:', pErr);
               return { items: [] };
             })
@@ -38,35 +40,58 @@ const UserEvents = () => {
           console.error('Lỗi Promise.all:', err);
         }
 
-        let merged = dbEvents.map(dbItem => {
-          const parseEventYear = (dateStr, fallbackYear) => {
-            if (dateStr === null || dateStr === undefined) return fallbackYear;
-            const str = String(dateStr);
-            const isNegative = str.startsWith('-');
-            const cleanStr = isNegative ? str.substring(1) : str;
-            const match = cleanStr.match(/^(\d{4})/);
-            if (match) {
-              const y = parseInt(match[1], 10);
-              return isNegative ? -y : y;
-            }
-            return fallbackYear;
-          };
-          const resolvedStartYear = parseEventYear(dbItem.startDate, dbItem.startYear);
+        let merged = [];
 
-          return {
-            ...dbItem,
-            event_id: dbItem.id,
-            name: dbItem.name,
-            title: dbItem.name,
-            description: dbItem.description,
-            year: resolvedStartYear !== undefined ? resolvedStartYear : '',
-            date: resolvedStartYear !== undefined
-              ? `${Math.abs(resolvedStartYear)} ${resolvedStartYear < 0 ? 'TCN' : ''}`
-              : '',
-            category: dbItem.period?.name || 'Sự kiện',
-            image: eventImages[dbItem.slug] || dbItem.image || 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg'
-          };
-        });
+        if (dbEvents.length > 0) {
+          dbEvents.forEach(dbItem => {
+            const parseEventYear = (dateStr, fallbackYear) => {
+              if (dateStr === null || dateStr === undefined) return fallbackYear;
+              const str = String(dateStr);
+              const isNegative = str.startsWith('-');
+              const cleanStr = isNegative ? str.substring(1) : str;
+              const match = cleanStr.match(/^(\d{4})/);
+              if (match) {
+                const y = parseInt(match[1], 10);
+                return isNegative ? -y : y;
+              }
+              return fallbackYear;
+            };
+            const resolvedStartYear = parseEventYear(dbItem.startDate, dbItem.startYear);
+            const resolvedEndYear = parseEventYear(dbItem.endDate, dbItem.endYear);
+
+            const formatYear = (y) => {
+              if (y === undefined || y === null || y === '') return '';
+              const val = parseInt(y, 10);
+              if (isNaN(val)) return y;
+              return val < 0 ? `${Math.abs(val)} TCN` : `${val}`;
+            };
+
+            const formatRange = (start, end) => {
+              const s = formatYear(start);
+              const e = formatYear(end);
+              if (!s && !e) return 'Chưa rõ';
+              if (!s) return `? - ${e}`;
+              if (!e) return `${s} - ${s}`;
+              return `${s} - ${e}`;
+            };
+
+            const displayDate = formatRange(resolvedStartYear, resolvedEndYear);
+
+            merged.push({
+              ...dbItem,
+              event_id: dbItem.id,
+              name: dbItem.name,
+              title: dbItem.name,
+              description: dbItem.description || '',
+              year: resolvedStartYear !== undefined ? resolvedStartYear : '',
+              date: displayDate,
+              category: dbItem.period?.name || 'Sự kiện',
+              views: dbItem.viewCount || dbItem.views,
+              source: dbItem.source,
+              image: resolveImageUrl(eventImages[dbItem.slug] || dbItem.imageUrl || dbItem.image) || IMAGES.DEFAULT_COVER
+            });
+          });
+        }
 
         setEvents(merged);
       } catch (error) {
@@ -101,7 +126,7 @@ const UserEvents = () => {
         <div className="absolute inset-0 z-0 bg-[#2b0504]">
           <img
             className="w-full h-full object-cover grayscale-[30%] sepia-[40%] brightness-[0.4] animate-ken-burns origin-center"
-            src={backgroundUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2"}
+            src={backgroundUrl || MISC_IMAGES.DEFAULT_ERROR_FALLBACK}
             alt="Events Hero"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#2b0504]/90 via-[#2b0504]/40 to-[#fbf6e8] pointer-events-none"></div>
@@ -191,7 +216,7 @@ const UserEvents = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201]/60 to-transparent opacity-70"></div>
                     <div className="absolute top-3 left-3 z-10">
-                      <span className="bg-[#6b0f0d] text-[#ffe7b0] font-body text-[11px] font-bold px-3 py-1.5 shadow-md border border-[#d99b4a]/40">{event.year}</span>
+                      <span className="bg-[#6b0f0d] text-[#ffe7b0] font-body text-[11px] font-bold px-3 py-1.5 shadow-md border border-[#d99b4a]/40">{event.date}</span>
                     </div>
                   </div>
 
@@ -202,7 +227,15 @@ const UserEvents = () => {
                     <p className="font-body text-[14px] text-[#2b1a16]/80 leading-relaxed line-clamp-3">
                       {stripHtml(event.description)}
                     </p>
-                    <div className="pt-4 mt-auto">
+
+                    {(event.source || event.views != null) && (
+                      <div className="flex flex-col gap-2 mt-2 mb-4 text-[#2b1a16]/60 text-[10px] font-body font-bold uppercase tracking-widest border-t border-[#d99b4a]/20 pt-4">
+                         {event.source && <span className="flex items-center gap-1.5"><span className="material-symbols-outlined text-[14px]">auto_stories</span> Trích: {event.source}</span>}
+                         {event.views != null && <span className="flex items-center gap-1.5"><span className="material-symbols-outlined text-[14px]">visibility</span> {event.views} lượt xem</span>}
+                      </div>
+                    )}
+
+                    <div className="pt-2 mt-auto">
                       <Link to={`/events/${event.event_id}`} className="text-[#6b0f0d] font-body text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 group/link border-t border-[#d99b4a]/20 pt-4 hover:bg-[#d99b4a]/10 transition-colors pb-2">
                         XEM CHI TIẾT <span className="material-symbols-outlined text-[14px] group-hover/link:translate-x-2 transition-transform">east</span>
                       </Link>

@@ -1,4 +1,4 @@
-import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
+import { API_ENDPOINTS, apiClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Pagination from '../../../components/common/Pagination';
@@ -15,43 +15,24 @@ const UserRecords = () => {
       try {
         let dbSources = [];
         try {
-          const response = await apiClient.get(API_ENDPOINTS.USER_RECORDS);
+          const response = await apiClient.get(API_ENDPOINTS.USER_RECORDS, { params: { size: 500, status: 'PUBLISHED' } });
           dbSources = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
         } catch (apiErr) {
-          console.error('Lỗi gọi API sử liệu, chuyển sang dùng mock:', apiErr);
-        }
-
-        let mockRecords = [];
-        try {
-          const mockRes = await mockClient.get('/api/user_records.json');
-          mockRecords = mockRes.data || [];
-        } catch (err) {
-          console.error('Error fetching mock records:', err);
+          console.error('Lỗi gọi API sử liệu:', apiErr);
         }
 
         let merged = [];
         if (dbSources.length > 0) {
           merged = dbSources.map(dbItem => {
-            const mockItem = mockRecords.find(m => m.slug === dbItem.slug) || {};
             return {
-              ...mockItem,
               ...dbItem,
               record_id: dbItem.id,
-              name: dbItem.name || mockItem.name || '',
-              description: dbItem.description || mockItem.description || '',
-              category: dbItem.sourceType || mockItem.category || 'Tư liệu',
-              dynasty: dbItem.period?.name || mockItem.dynasty || 'Không rõ',
+              name: dbItem.name || '',
+              description: dbItem.description || '',
+              category: dbItem.sourceType || 'Tư liệu',
+              dynasty: dbItem.period?.name || 'Không rõ',
             };
           });
-        } else {
-          merged = mockRecords.map(mockItem => ({
-            ...mockItem,
-            record_id: mockItem.id || mockItem.record_id,
-            name: mockItem.name || mockItem.title || '',
-            description: mockItem.description || '',
-            category: mockItem.category || 'Tư liệu',
-            dynasty: mockItem.dynasty || 'Không rõ'
-          }));
         }
 
         setRecords(merged);

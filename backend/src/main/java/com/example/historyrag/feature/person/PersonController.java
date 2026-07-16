@@ -32,8 +32,9 @@ public class PersonController {
     @GetMapping
     public ResponseEntity<ApiResponse<ResultPaginationDTO>> getAllPersons(
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
             @ParameterObject Pageable pageable) {
-        ResultPaginationDTO result = personService.getAllPersons(keyword, pageable);
+        ResultPaginationDTO result = personService.getAllPersons(keyword, status, pageable);
         return ResponseEntity.ok(ApiResponse.success("Lấy danh sách nhân vật thành công", result));
     }
 

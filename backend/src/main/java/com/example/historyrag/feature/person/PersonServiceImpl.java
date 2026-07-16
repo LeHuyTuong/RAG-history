@@ -53,7 +53,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResultPaginationDTO getAllPersons(String keyword, Pageable pageable) {
+    public ResultPaginationDTO getAllPersons(String keyword, String status, Pageable pageable) {
         Page<Person> persons;
         if (keyword != null && !keyword.isBlank()) {
             persons = personRepository.findByNameContainingIgnoreCase(keyword, pageable);
@@ -92,5 +92,6 @@ public class PersonServiceImpl implements PersonService {
         person.setBirthDate(request.birthDate());
         person.setDeathDate(request.deathDate());
         person.setBiography(request.biography());
+        person.setImageUrl(request.imageUrl());
     }
 }

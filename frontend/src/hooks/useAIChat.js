@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import toast from 'react-hot-toast';
 import { extractSourcesFromCitations, transformCitationsToSources } from '../utils/aiSourceUtils';
 import { ragService, settingsService } from '../services';
 import apiClient from '../services/http/apiClient';
@@ -46,6 +47,11 @@ export const useAIChat = (initialMessages = []) => {
 
   const sendMessage = useCallback((question, options = {}) => {
     if (!question.trim() || loading) return;
+
+    if (question.length > 2000) {
+      toast.error('Câu hỏi quá dài (tối đa 2000 ký tự). Vui lòng rút gọn.');
+      return;
+    }
 
     if (stopStreamRef.current) {
       stopStreamRef.current();

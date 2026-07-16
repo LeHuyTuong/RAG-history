@@ -39,7 +39,7 @@ const RELATION_LABELS = Object.freeze({
   ...EVENT_LOCATION_RELATION_LABELS,
   LIEN_KET: 'Liên kết',
   THAM_GIA: 'Tham gia',
-  DIA_DANH_LIEN_QUAN: 'Địa danh liên quan'
+  DIA_DANH_LIEN_QUAN: 'Di tích liên quan'
 });
 
 const VIETNAMESE_CHAR_PATTERN = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;

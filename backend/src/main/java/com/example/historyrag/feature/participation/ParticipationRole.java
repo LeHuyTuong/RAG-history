@@ -16,5 +16,9 @@ public enum ParticipationRole {
     ALLY,
     OPPONENT,
     WITNESS,
-    HISTORIAN
+    HISTORIAN,
+    FOUNDER,
+    REFERENCE,
+    AUTHOR,
+    KEY_FIGURE
 }

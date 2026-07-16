@@ -1,6 +1,7 @@
 import { apiClient } from '../../services';
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { validatePasswordStrength } from '../../utils/validation';
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,6 +16,10 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (!validatePasswordStrength(password)) {
+      setError("Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt, và từ 6 ký tự trở lên.");
+      return;
+    }
     if (password !== confirmPassword) {
       setError("Mật khẩu xác nhận không khớp!");
       return;

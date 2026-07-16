@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 public interface PeriodService {
     PeriodResponse createPeriod(PeriodRequest request);
     PeriodResponse updatePeriod(Long id, PeriodRequest request);
-    ResultPaginationDTO getAllPeriods(String keyword, Pageable pageable);
+    ResultPaginationDTO getAllPeriods(String keyword, String status, Pageable pageable);
     void deletePeriod(Long id);
     long countPeriods();
     Period getPeriodEntityById(Long id);

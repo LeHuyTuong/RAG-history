@@ -15,6 +15,8 @@ import {
   Pagination
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
+import articleImages from '../../../data/articleImages.json';
+import { resolveImageUrl } from '../../../utils/imageUtils';
 
 const ArticleManagement = () => {
   const navigate = useNavigate();
@@ -31,6 +33,10 @@ const ArticleManagement = () => {
     if (!modalData || modalData.id === null || modalData.id === undefined) return;
     try {
       await dispatch(deleteArticle(modalData.id)).unwrap();
+      dispatch(fetchArticles({ page: 0, size: 500 })); // Refetch to guarantee sync
+      if (paginatedArticles.length === 1 && currentPage > 1) {
+        setCurrentPage(prev => prev - 1);
+      }
     } catch (error) {
       console.error('Error deleting article:', error);
     }
@@ -85,8 +91,12 @@ const ArticleManagement = () => {
     {
       key: 'title', header: 'Sử liệu / Mã số', render: (row) => (
         <div className="flex items-center gap-4 py-2">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/10 shadow-sm shrink-0">
-            <span className="material-symbols-outlined text-primary text-xl">history_edu</span>
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/10 shadow-sm shrink-0 overflow-hidden">
+            {(articleImages[row.slug] || row.thumbnailUrl || row.image) ? (
+              <img src={resolveImageUrl(articleImages[row.slug] || row.thumbnailUrl || row.image)} alt={row.title} className="w-full h-full object-cover" />
+            ) : (
+              <span className="material-symbols-outlined text-primary text-xl">history_edu</span>
+            )}
           </div>
           <div className="flex flex-col">
             <span className="font-headline text-on-surface font-bold text-base hover:text-primary transition-colors cursor-pointer line-clamp-1">{row.title}</span>
@@ -147,7 +157,7 @@ const ArticleManagement = () => {
           actionIcon="add"
         />
 
-        
+
 
         {/* FILTER & TABLE SECTION */}
         <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">

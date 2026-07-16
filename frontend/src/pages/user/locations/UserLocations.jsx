@@ -1,54 +1,28 @@
-import { API_ENDPOINTS, apiClient, mockClient, locationService, periodService } from '../../../services';
+import { API_ENDPOINTS, apiClient, locationService, periodService } from '../../../services';
+import { stripHtml } from '../../../utils/stringUtils';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useNavigate, useLocation, useOutletContext } from 'react-router-dom';
 import VietnamMap from '../../../components/VietnamMap';
-
-const LOCATION_TYPE_MAP = {
-  'REGION': 'VÙNG ĐẤT',
-  'CITADEL': 'THÀNH LŨY',
-  'MOUNTAIN': 'NÚI',
-  'CITY': 'ĐÔ THỊ',
-  'BATTLEFIELD': 'CHIẾN TRƯỜNG',
-  'CAPITAL': 'KINH ĐÔ',
-  'PALACE': 'CUNG ĐIỆN',
-  'BASE': 'CĂN CỨ',
-  'relic': 'DI TÍCH',
-  'historical_site': 'DI TÍCH LỊCH SỬ'
-};
-
-const PROVINCE_MAP = {
-  'phu-tho': 'Phú Thọ',
-  'co-loa': 'Đông Anh, Hà Nội',
-  'me-linh': 'Mê Linh, Hà Nội',
-  'nui-nua': 'Triệu Sơn, Thanh Hóa',
-  'long-bien': 'Bắc Ninh',
-  'hoan-chau': 'Nghệ An',
-  'song-bach-dang': 'Quảng Ninh - Hải Phòng',
-  'hoa-lu': 'Ninh Bình',
-  'thang-long': 'Hà Nội',
-  'song-nhu-nguyet': 'Bắc Ninh',
-  'dong-bo-dau': 'Hà Nội',
-  'thien-truong': 'Nam Định',
-  'tay-do': 'Vĩnh Lộc, Thanh Hóa',
-  'lam-son': 'Thọ Xuân, Thanh Hóa',
-  'dong-kinh': 'Hà Nội',
-  'phu-xuan': 'Huế',
-  'go-dong-da': 'Đống Đa, Hà Nội',
-  'kinh-thanh-hue': 'Huế',
-  'da-nang': 'Đà Nẵng',
-  'dien-bien-phu': 'Điện Biên'
-};
+import { getXPercent, getYPercent } from '../../../utils/mapCoordinates';
+import Pagination from '../../../components/common/Pagination';
+import DOMPurify from 'dompurify';
+import { IMAGES, MISC_IMAGES } from '../../../config/constants';
 
 export default function UserLocations() {
   const { backgroundUrl = '' } = useOutletContext() || {};
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialSearch = queryParams.get('search') || '';
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'map'
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedDynasty, setSelectedDynasty] = useState('');
   const [locations, setLocations] = useState([]);
   const [dynasties, setDynasties] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 9;
 
   // Map state
   const [selectedSite, setSelectedSite] = useState(null);
@@ -63,23 +37,18 @@ export default function UserLocations() {
         let rawPeriods = [];
 
         try {
-          const [locationRes, mockResponse, periodRes] = await Promise.all([
-            locationService.filter({ size: 500 }).catch(err => {
-              console.error('Lỗi gọi API địa danh, chuyển sang dùng mock:', err);
+          const [locationRes, periodRes] = await Promise.all([
+            locationService.filter({ size: 500, status: 'PUBLISHED' }).catch(err => {
+              console.error('Lỗi gọi API địa danh:', err);
               return { items: [] };
             }),
-            mockClient.get('/api/user_locations.json').catch(err => {
-              console.error('Error fetching mock locations:', err);
-              return { data: { locations: [] } };
-            }),
-            periodService.filter({ size: 500 }).catch(err => {
+            periodService.filter({ size: 500, status: 'PUBLISHED' }).catch(err => {
               console.error('Lỗi gọi API thời kỳ:', err);
               return { items: [] };
             })
           ]);
 
           dbLocations = locationRes?.items || [];
-          mockLocations = mockResponse?.data?.locations || mockResponse?.data || [];
           rawPeriods = periodRes?.items || [];
           setDynasties(rawPeriods.map(p => p.name).filter(Boolean));
         } catch (apiErr) {
@@ -87,48 +56,28 @@ export default function UserLocations() {
         }
 
         let merged = [];
+
         if (dbLocations.length > 0) {
-          merged = dbLocations.map(dbItem => {
-            const mockItem = mockLocations.find(m => m.slug === dbItem.slug) || {};
-            const lat = dbItem.latitude || mockItem.latitude;
-            const lon = dbItem.longitude || mockItem.longitude;
-            let finalX = mockItem.x !== undefined ? mockItem.x : 50;
-            let finalY = mockItem.y !== undefined ? mockItem.y : 50;
+          dbLocations.forEach(dbItem => {
+            const lat = dbItem.latitude;
+            const lon = dbItem.longitude;
+            let finalX = 50;
+            let finalY = 50;
             if (lat && lon) {
-              finalX = 45.45 + (lon - 105.3) * 6.14;
-              finalY = 0.27 + (23.39 - lat) * 6.394;
+              finalX = getXPercent(lon);
+              finalY = getYPercent(lat);
             }
-            return {
-              ...mockItem,
+            merged.push({
               ...dbItem,
               location_id: dbItem.id,
-              location_type: LOCATION_TYPE_MAP[dbItem.locationType] || LOCATION_TYPE_MAP[mockItem.location_type] || mockItem.location_type || 'VÙNG ĐẤT',
-              description: dbItem.description || mockItem.description || '',
+              location_type: dbItem.locationType || 'REGION',
+              description: dbItem.description || '',
               x: finalX,
               y: finalY,
-              province: PROVINCE_MAP[dbItem.slug] || PROVINCE_MAP[mockItem.slug] || mockItem.province || 'Việt Nam',
-              period: dbItem.period?.name || mockItem.period || '',
-            };
-          });
-        } else {
-          merged = mockLocations.map(mockItem => {
-            const lat = mockItem.latitude;
-            const lon = mockItem.longitude;
-            let finalX = mockItem.x !== undefined ? mockItem.x : 50;
-            let finalY = mockItem.y !== undefined ? mockItem.y : 50;
-            if (lat && lon) {
-              finalX = 45.45 + (lon - 105.3) * 6.14;
-              finalY = 0.27 + (23.39 - lat) * 6.394;
-            }
-            return {
-              ...mockItem,
-              location_id: mockItem.id || mockItem.location_id,
-              location_type: LOCATION_TYPE_MAP[mockItem.location_type] || mockItem.location_type || 'VÙNG ĐẤT',
-              x: finalX,
-              y: finalY,
-              province: PROVINCE_MAP[mockItem.slug] || mockItem.province || 'Việt Nam',
-              period: mockItem.period || '',
-            };
+              province: 'Việt Nam',
+              period: dbItem.period?.name || '',
+              image: dbItem.imageUrl || dbItem.image || IMAGES.DEFAULT_LOCATION,
+            });
           });
         }
 
@@ -159,6 +108,9 @@ export default function UserLocations() {
     );
   }
 
+  const totalPages = Math.ceil(displayedLocations.length / ITEMS_PER_PAGE);
+  const paginatedLocations = displayedLocations.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
   if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải địa danh...</div>;
 
   return (
@@ -168,7 +120,7 @@ export default function UserLocations() {
         <div className="absolute inset-0 z-0 bg-[#2b0504]">
           <img
             className="w-full h-full object-cover grayscale-[30%] sepia-[40%] brightness-[0.4] animate-ken-burns origin-center"
-            src={backgroundUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2"}
+            src={backgroundUrl || MISC_IMAGES.DEFAULT_ERROR_FALLBACK}
             alt="Locations Hero"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#2b0504]/90 via-[#2b0504]/40 to-[#fbf6e8] pointer-events-none"></div>
@@ -191,7 +143,10 @@ export default function UserLocations() {
               type="text"
               placeholder="Tìm kiếm di tích..."
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={e => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
               className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] placeholder-[#6b0f0d]/40 rounded-lg py-3 pl-12 pr-4 outline-none focus:border-[#6b0f0d]/60 transition-colors font-body shadow-inner"
             />
           </div>
@@ -199,7 +154,10 @@ export default function UserLocations() {
             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#6b0f0d]/60">filter_alt</span>
             <select
               value={selectedDynasty}
-              onChange={e => setSelectedDynasty(e.target.value)}
+              onChange={e => {
+                setSelectedDynasty(e.target.value);
+                setCurrentPage(1);
+              }}
               className="w-full bg-[#fcf9ee]/50 border border-[#d99b4a]/30 text-[#2b1a16] rounded-lg py-3 pl-12 pr-10 appearance-none outline-none focus:border-[#6b0f0d]/60 transition-colors font-body cursor-pointer shadow-inner"
             >
               <option value="">Tất cả triều đại</option>
@@ -216,10 +174,10 @@ export default function UserLocations() {
         {/* VIEW MODE TOGGLE */}
         <div className="flex justify-end mb-6 relative z-10">
           <div className="flex bg-white/80 backdrop-blur rounded-lg p-1 shadow-sm border border-gray-100">
-            <button onClick={() => setViewMode('grid')} className={`px-4 py-1.5 rounded-md flex items-center gap-2 text-sm font-bold transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-[#9e1b1b]' : 'text-gray-500 hover:text-gray-700'}`}>
+            <button onClick={() => { setViewMode('grid'); setCurrentPage(1); }} className={`px-4 py-1.5 rounded-md flex items-center gap-2 text-sm font-bold transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-[#9e1b1b]' : 'text-gray-500 hover:text-gray-700'}`}>
               <span className="material-symbols-outlined text-[18px]">grid_view</span> Lưới
             </button>
-            <button onClick={() => setViewMode('map')} className={`px-4 py-1.5 rounded-md flex items-center gap-2 text-sm font-bold transition-all ${viewMode === 'map' ? 'bg-white shadow-sm text-[#9e1b1b]' : 'text-gray-500 hover:text-gray-700'}`}>
+            <button onClick={() => { setViewMode('map'); setCurrentPage(1); }} className={`px-4 py-1.5 rounded-md flex items-center gap-2 text-sm font-bold transition-all ${viewMode === 'map' ? 'bg-white shadow-sm text-[#9e1b1b]' : 'text-gray-500 hover:text-gray-700'}`}>
               <span className="material-symbols-outlined text-[18px]">map</span> Bản đồ
             </button>
           </div>
@@ -229,8 +187,9 @@ export default function UserLocations() {
         {viewMode === 'grid' ? (
           /* GRID VIEW */
           displayedLocations.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {displayedLocations.map((loc) => (
+            <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {paginatedLocations.map((loc) => (
                 <motion.div
                   key={loc.location_id}
                   initial={{ opacity: 0, y: 20 }}
@@ -256,11 +215,15 @@ export default function UserLocations() {
                     </div>
                     <h3 className="font-headline text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#9e1b1b] transition-colors line-clamp-1">{loc.name}</h3>
                     <p className="text-gray-600 font-body text-sm leading-relaxed line-clamp-3 mb-4">
-                      {loc.description}
+                      {stripHtml(loc.description)}
                     </p>
                   </div>
                 </motion.div>
               ))}
+              </div>
+              <div className="mt-12">
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+              </div>
             </div>
           ) : (
             <div className="py-20 text-center">
@@ -302,7 +265,7 @@ export default function UserLocations() {
                           : 'bg-white border-[#9e1b1b]/30 text-[#9e1b1b] hover:border-[#9e1b1b] z-20'
                           }`}>
                           <span className="material-symbols-outlined text-[16px]">
-                            {site.location_type === 'KINH ĐÔ' || site.location_type === 'CUNG ĐIỆN' || site.location_type === 'THÀNH LŨY' ? 'castle' : (site.location_type === 'DI TÍCH' || site.location_type === 'DI TÍCH LỊCH SỬ') ? 'history_edu' : 'account_balance'}
+                            {site.location_type === 'Hoàng thành' ? 'castle' : (site.location_type === 'Di tích văn hóa' || site.location_type === 'Khu lăng tẩm') ? 'history_edu' : 'account_balance'}
                           </span>
                         </div>
 
@@ -361,7 +324,10 @@ export default function UserLocations() {
 
                     <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 mb-6 relative z-10">
                       <p className="font-headline text-lg text-gray-800 mb-2 font-semibold">Tóm lược sớ sử</p>
-                      <p className="text-gray-600 leading-relaxed font-body text-sm">{selectedSite.description}</p>
+                      <div
+                        className="text-gray-600 leading-relaxed font-body text-sm prose prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedSite.description)}}
+                      />
                     </div>
 
                     {selectedSite.famousCharacters && (

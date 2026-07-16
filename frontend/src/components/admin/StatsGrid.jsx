@@ -1,4 +1,5 @@
 import React from 'react';
+import { TEXTURES } from '../../config/constants';
 
 const StatsGrid = ({ stats, loading }) => {
   if (loading) {
@@ -45,13 +46,13 @@ const StatsGrid = ({ stats, loading }) => {
         ];
 
         return (
-          <div 
-            key={idx} 
+          <div
+            key={idx}
             className={`relative overflow-hidden bg-gradient-to-br bg-white/85 ${gradients[idx % gradients.length]} border backdrop-blur-xl p-6 rounded-[2rem] transition-all duration-500 hover:-translate-y-1.5 group ${hoverShadows[idx % hoverShadows.length]}`}
           >
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.02] mix-blend-overlay pointer-events-none"></div>
+            <div className="absolute inset-0 bg-[url(TEXTURES.CUBES)] opacity-[0.02] mix-blend-overlay pointer-events-none"></div>
             <div className="absolute -right-10 -top-10 w-28 h-28 bg-white/60 rounded-full blur-3xl group-hover:bg-white/80 transition-colors pointer-events-none"></div>
-            
+
             <div className="flex items-center justify-between relative z-10 gap-2">
               <div className="flex flex-col gap-1 min-w-0">
                 <p className="text-on-surface-variant font-body text-[10px] lg:text-[11px] font-bold uppercase tracking-wider truncate opacity-85" title={stat.title || stat.label}>
@@ -65,7 +66,7 @@ const StatsGrid = ({ stats, loading }) => {
                 <span className="material-symbols-outlined text-2xl">{stat.icon}</span>
               </div>
             </div>
-            
+
             {/* Decorative bottom line */}
             <div className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-transparent via-current to-transparent opacity-10 w-full group-hover:opacity-30 transition-opacity"></div>
           </div>

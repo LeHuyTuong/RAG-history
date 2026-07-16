@@ -4,7 +4,7 @@ import { ENDPOINTS } from '../endpoints';
 
 const participationService = {
     async filter(params = {}) {
-        const res = await apiClient.get(ENDPOINTS.ADMIN.PARTICIPATIONS, { params });
+        const res = await apiClient.get(ENDPOINTS.ADMIN.PARTICIPATIONS, { params: { sort: 'id,desc', ...params } });
         return unwrapPage(res);
     },
 

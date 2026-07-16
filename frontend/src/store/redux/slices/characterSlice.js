@@ -73,7 +73,17 @@ export const fetchCharacters = createAsyncThunk(
           liveDyns.forEach(d => dyns.add(d));
         }
 
-        const allDyns = Array.from(dyns);
+        const cached = localStorage.getItem(`local_char_relations_${c.id}`);
+        if (cached) {
+            try {
+                const parsed = JSON.parse(cached);
+                if (parsed.dynasties && parsed.dynasties.length > 0) {
+                    parsed.dynasties.forEach(d => dyns.add(d));
+                }
+            } catch(e) {}
+        }
+
+        const allDyns = Array.from(dyns).filter(Boolean);
 
         return {
           ...c,

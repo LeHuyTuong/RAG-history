@@ -1,15 +1,19 @@
-import { API_ENDPOINTS, apiClient, mockClient, postService, periodService } from '../../../services';
+import { API_ENDPOINTS, apiClient, postService, periodService } from '../../../services';
 import { useState, useEffect } from 'react';
-import { Link, useOutletContext } from 'react-router-dom';
+import { Link, useLocation, useOutletContext } from 'react-router-dom';
 import { Heart, MessageSquare } from 'lucide-react';
 import Pagination from '../../../components/common/Pagination';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { stripHtml } from '../../../utils/stringUtils';
+import { IMAGES, MISC_IMAGES } from '../../../config/constants';
 
 const UserPosts = () => {
   const { backgroundUrl = '' } = useOutletContext() || {};
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialSearch = queryParams.get('search') || '';
   const { getPeriodStyle } = usePeriodColors();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [filterPeriod, setFilterPeriod] = useState('');
   const [articles, setArticles] = useState([]);
   const [periods, setPeriods] = useState([]);
@@ -23,31 +27,14 @@ const UserPosts = () => {
       try {
         let dbPosts = [];
         try {
-          // Add timeout to prevent hanging
-          const response = await Promise.race([
-            postService.filter({ size: 500 }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
-          ]);
+          const response = await postService.filter({ size: 500, status: 'PUBLISHED' });
           dbPosts = response.items || [];
         } catch (apiErr) {
           console.error('Lỗi gọi API bài viết:', apiErr);
         }
 
-        // FALLBACK TO MOCK
-        if (!dbPosts || dbPosts.length === 0) {
-          try {
-            const mockRes = await mockClient.get('/api/user_articles.json');
-            dbPosts = mockRes.data || [];
-          } catch (e) {
-            console.error('Lỗi lấy dữ liệu bài viết mẫu:', e);
-          }
-        }
-
         try {
-          const pRes = await Promise.race([
-            periodService.filter({ size: 500 }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
-          ]);
+          const pRes = await periodService.filter({ size: 500, status: 'PUBLISHED' });
           const rawPeriods = pRes.items || [];
           setPeriods(rawPeriods.map(p => p.name).filter(Boolean));
         } catch (pErr) {
@@ -55,16 +42,17 @@ const UserPosts = () => {
         }
 
         let merged = dbPosts.map((dbItem, index) => {
-          const validThumbnail = dbItem.thumbnailUrl && dbItem.thumbnailUrl.trim() !== '' && dbItem.thumbnailUrl !== 'null';
           return {
             featured: index === 0,
             ...dbItem,
             id: dbItem.id,
-            thumbnail_url: validThumbnail ? dbItem.thumbnailUrl : "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg",
-            dynasty: dbItem.dynasty || (dbItem.tags && dbItem.tags[0] ? (typeof dbItem.tags[0] === 'object' ? dbItem.tags[0].name : dbItem.tags[0]) : ''),
+            thumbnail_url: dbItem.imageUrl,
+            dynasty: dbItem.tags?.[0]?.name || 'Lịch sử',
             dynasties: dbItem.tags && dbItem.tags.length > 0
-              ? dbItem.tags.map(t => typeof t === 'object' ? t.name : t).filter(t => t?.toLowerCase() !== 'lịch sử')
-              : (dbItem.dynasty ? [dbItem.dynasty] : []),
+              ? dbItem.tags.map(t => typeof t === 'object' ? t.name : t)
+              : [dbItem.tags?.[0]?.name || 'Lịch sử'],
+            startYear: dbItem.startYear || dbItem.event?.startYear || dbItem.eventStartYear,
+            endYear: dbItem.endYear || dbItem.event?.endYear || dbItem.eventEndYear,
             readTime: '5 MIN',
             likes: parseInt(localStorage.getItem(`likesCount_${dbItem.slug || dbItem.id}`) || '0', 10),
             isLiked: localStorage.getItem(`liked_${dbItem.slug || dbItem.id}`) === 'true',
@@ -74,7 +62,10 @@ const UserPosts = () => {
               } catch (e) {
                 return 0;
               }
-            })()
+            })(),
+            author: dbItem.authorName || dbItem.createdBy,
+            views: dbItem.viewCount || dbItem.views,
+            createdAt: dbItem.createdAt ? new Date(dbItem.createdAt).toLocaleDateString('vi-VN') : null
           };
         });
 
@@ -126,7 +117,7 @@ const UserPosts = () => {
         <div className="absolute inset-0 z-0 bg-[#2b0504]">
           <img
             className="w-full h-full object-cover grayscale-[30%] sepia-[40%] brightness-[0.4] animate-ken-burns origin-center"
-            src={backgroundUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2"}
+            src={backgroundUrl || MISC_IMAGES.DEFAULT_ERROR_FALLBACK}
             alt="Articles Hero"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#2b0504]/90 via-[#2b0504]/40 to-[#fbf6e8] pointer-events-none"></div>
@@ -189,14 +180,27 @@ const UserPosts = () => {
                       {featuredArt.title}
                     </h3>
                   </Link>
-                  <p className="font-body text-[15px] text-[#2b1a16]/80 mb-10 leading-relaxed">
-                    {featuredArt.summary}
+                  <p className="font-body text-[15px] text-[#2b1a16]/80 mb-6 leading-relaxed">
+                    {stripHtml(featuredArt.summary || '')}
                   </p>
-                  <div className="flex items-center justify-between mt-auto">
-                    <div className="flex flex-col gap-2 text-[#2b1a16]/60 font-body text-[10px] font-bold">
-                      <span className="flex items-center gap-1.5"><span className="material-symbols-outlined text-sm">schedule</span> {(featuredArt.readTime || '').toUpperCase()}</span>
-                      <span className="flex items-center gap-1.5"><span className="material-symbols-outlined text-sm">verified</span> CHỨNG THỰC</span>
+
+                  {(featuredArt.startYear || featuredArt.endYear) && (
+                    <div className="flex items-center gap-2 mb-4 font-body text-[12px] text-[#6b0f0d] font-bold uppercase tracking-widest">
+                      <span className="material-symbols-outlined text-[16px]">calendar_month</span>
+                      <span>
+                        {featuredArt.startYear === featuredArt.endYear || !featuredArt.endYear
+                          ? featuredArt.startYear
+                          : !featuredArt.startYear ? featuredArt.endYear : `${featuredArt.startYear} - ${featuredArt.endYear}`}
+                      </span>
                     </div>
+                  )}
+
+                  <div className="flex items-center gap-4 mb-8 text-[#2b1a16]/60 text-xs font-body font-medium">
+                    {featuredArt.author && <div className="flex items-center gap-1.5"><span className="material-symbols-outlined text-[14px]">edit_square</span> Biên soạn: {featuredArt.author}</div>}
+                    {featuredArt.views != null && <div className="flex items-center gap-1.5"><span className="material-symbols-outlined text-[14px]">visibility</span> {featuredArt.views} lượt xem</div>}
+                  </div>
+
+                  <div className="flex items-center justify-end mt-auto">
                     <Link
                       to={`/articles/${featuredArt.slug}`}
                       className="bg-[#6b0f0d] text-[#ffe7b0] px-8 py-3 font-bold text-[10px] uppercase tracking-widest hover:bg-[#8b1512] transition-all shadow-md border border-[#d99b4a]/50 flex items-center gap-2 group/btn"
@@ -282,24 +286,42 @@ const UserPosts = () => {
                     />
                   </Link>
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201]/60 to-transparent opacity-70 pointer-events-none"></div>
-                </div>
-
-                <div className="p-6 flex flex-col flex-grow relative z-10">
-                  <div className="flex flex-wrap gap-1.5 mb-3">
-                    {(art.dynasties || [art.dynasty]).map((dyn, idx) => (
-                      <span key={idx} className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border shadow-sm ${getPeriodStyle(dyn)}`}>
+                  <div className="absolute bottom-4 left-4 z-10 flex flex-wrap gap-1.5">
+                    {(art.dynasties || []).map((dyn, idx) => (
+                      <span key={idx} className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border shadow-md ${getPeriodStyle(dyn)}`}>
                         {dyn}
                       </span>
                     ))}
                   </div>
+                </div>
+
+                <div className="p-6 flex flex-col flex-grow relative z-10">
                   <Link to={`/articles/${art.slug}`}>
                     <h4 className="font-headline text-2xl text-[#2b0504] font-semibold group-hover:text-[#6b0f0d] transition-colors mb-4 leading-tight tracking-tight">
                       {art.title}
                     </h4>
                   </Link>
-                  <p className="font-body text-[14px] text-[#2b1a16]/80 line-clamp-3 mb-6 leading-relaxed">
+                  <p className="font-body text-[14px] text-[#2b1a16]/80 line-clamp-3 mb-4 leading-relaxed">
                     {stripHtml(art.summary)}
                   </p>
+
+                  {(art.startYear || art.endYear) && (
+                    <div className="flex items-center gap-1.5 mb-3 font-body text-[10px] text-[#6b0f0d] font-bold uppercase tracking-widest">
+                      <span className="material-symbols-outlined text-[14px]">calendar_month</span>
+                      <span>
+                        {art.startYear === art.endYear || !art.endYear
+                          ? art.startYear
+                          : !art.startYear ? art.endYear : `${art.startYear} - ${art.endYear}`}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-x-4 gap-y-2 mb-6 text-[#2b1a16]/50 text-[10px] font-body uppercase tracking-wider font-bold">
+                    {art.author && <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">person</span> {art.author}</span>}
+                    {art.createdAt && <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">update</span> {art.createdAt}</span>}
+                    {art.views != null && <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">visibility</span> {art.views}</span>}
+                  </div>
+
                   <div className="flex items-center justify-between pt-4 border-t border-[#d99b4a]/20 mt-auto font-body">
                     <div className="flex gap-4">
                       <span className={`flex items-center gap-1.5 text-[10px] font-bold ${art.isLiked ? 'text-[#6b0f0d]' : 'text-[#6b0f0d]/70'}`}>
@@ -309,7 +331,6 @@ const UserPosts = () => {
                         <MessageSquare size={16} strokeWidth={2} /> {art.comments}
                       </span>
                     </div>
-                    <span className="text-[10px] font-bold uppercase text-[#2b1a16]/50 tracking-widest">{art.readTime}</span>
                   </div>
                 </div>
               </div>

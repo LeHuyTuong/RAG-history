@@ -16,6 +16,8 @@ import UserVietnamMap from '../../../components/VietnamMap';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { getLocationLabel, getLocationStyle, getLocationIcon } from '../../../utils/locationTypeUtils';
 import { getDynastyLabel } from '../../../utils/dynastyUtils';
+import { getXPercent, getYPercent } from '../../../utils/mapCoordinates';
+import { TEXTURES } from '../../../config/constants';
 
 const LocationManagement = () => {
   const navigate = useNavigate();
@@ -23,15 +25,11 @@ const LocationManagement = () => {
   const { data, loading } = useSelector((state) => state.locations);
   const { isOpen, modalType, modalData, openModal, closeModal } = useModalStore();
 
-  const [filters, setFilters] = useState({ search: '', type: '', status: '' });
+  const [filters, setFilters] = useState({ search: '', type: '', dynasty: '', status: '' });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const { periodColors, getPeriodStyle: getDynastyStyle } = usePeriodColors();
   const [hoveredSite, setHoveredSite] = useState(null);
-
-  // Conversion formulas calibrated for UserVietnamMap projection
-  const getXPercent = (lng) => 45.45 + (parseFloat(lng) - 105.3) * 6.14;
-  const getYPercent = (lat) => 0.27 + (23.39 - parseFloat(lat)) * 6.394;
 
   const handleDelete = async () => {
     if (!modalData || modalData.id === null || modalData.id === undefined) return;
@@ -78,10 +76,14 @@ const LocationManagement = () => {
 
   const columns = [
     {
-      key: 'name', header: 'Địa danh', render: (row) => (
+      key: 'name', header: 'Di tích', render: (row) => (
         <div className="flex items-center gap-4 py-2">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center border border-emerald-500/10 shadow-sm shrink-0">
-            <span className="material-symbols-outlined text-emerald-600 text-xl">location_on</span>
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center border border-emerald-500/10 shadow-sm shrink-0 overflow-hidden">
+            {(row.imageUrl || row.image) ? (
+              <img src={row.imageUrl || row.image} alt={row.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="material-symbols-outlined text-emerald-600 text-xl">location_on</span>
+            )}
           </div>
           <div className="flex flex-col">
             <span className="font-headline text-on-surface font-bold text-base hover:text-emerald-600 transition-colors cursor-pointer line-clamp-1">{row.name}</span>
@@ -100,6 +102,7 @@ const LocationManagement = () => {
         </span>
       )
     },
+
     {
       key: 'status', header: 'Trạng thái', align: 'center', render: (row) => (
         <span className={`px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider border ${getStatusStyle(getNormalizedStatus(row.status))}`}>
@@ -120,8 +123,11 @@ const LocationManagement = () => {
   const filteredLocations = data.locations.filter(loc => {
     const matchSearch = loc.name?.toLowerCase().includes(filters.search.toLowerCase());
     const matchType = filters.type ? loc.type === filters.type : true;
+    const matchDynasty = filters.dynasty
+      ? (loc.dynasties?.includes(filters.dynasty) || loc.dynasty === filters.dynasty)
+      : true;
     const matchStatus = filters.status ? getNormalizedStatus(loc.status) === filters.status : true;
-    return matchSearch && matchType && matchStatus;
+    return matchSearch && matchType && matchDynasty && matchStatus;
   });
 
   const paginatedLocations = filteredLocations.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -129,9 +135,9 @@ const LocationManagement = () => {
   return (
     <AdminLayout>
       <PageHeader
-        title="Quản lý Địa danh Lịch sử"
-        subtitle="Quản lý và hiệu đính các địa danh, di tích và chiến trường lịch sử."
-        actionLabel="Thêm địa danh mới"
+        title="Quản lý Di tích Lịch sử"
+        subtitle="Quản lý và hiệu đính các di tích, di tích và chiến trường lịch sử."
+        actionLabel="Thêm di tích mới"
         actionHref="/admin/locations/new"
         actionIcon="add_location"
       />
@@ -146,18 +152,28 @@ const LocationManagement = () => {
             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
             <input
               type="text"
-              placeholder="Tìm kiếm địa danh (Tên, tọa độ)..."
+              placeholder="Tìm kiếm di tích (Tên, tọa độ)..."
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
+              className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
             />
           </div>
           <div className="flex gap-4">
+            <select
+              className="px-4 py-2 bg-surface-low border border-outline-variant/50 rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-[180px]"
+              value={filters.dynasty}
+              onChange={(e) => handleFilterChange('dynasty', e.target.value)}
+            >
+              <option value="">Tất cả triều đại</option>
+              {periodColors && Object.keys(periodColors).map(dynasty => (
+                <option key={dynasty} value={dynasty}>{getDynastyLabel(dynasty)}</option>
+              ))}
+            </select>
             <div className="relative">
               <select
                 value={filters.type}
                 onChange={(e) => handleFilterChange('type', e.target.value)}
-                className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-emerald-500 hover:border-emerald-500/50 transition-all min-w-[160px]"
+                className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[160px]"
               >
                 <option value="">Tất cả loại hình</option>
                 {Array.from(new Set(data.locations.map(l => l.type))).filter(Boolean).map(t => (
@@ -171,7 +187,7 @@ const LocationManagement = () => {
               <select
                 value={filters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
-                className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-emerald-500 hover:border-emerald-500/50 transition-all min-w-[150px]"
+                className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[150px]"
               >
                 <option value="">Tất cả trạng thái</option>
                 <option value="published">Công khai</option>
@@ -190,7 +206,7 @@ const LocationManagement = () => {
               columns={columns}
               data={paginatedLocations}
               loading={loading}
-              emptyMessage="Không tìm thấy địa danh nào phù hợp"
+              emptyMessage="Không tìm thấy di tích nào phù hợp"
               onRowClick={(row) => navigate(`/admin/locations/edit/${row.id}`)}
               rowKey="id"
               striped={false}
@@ -208,39 +224,61 @@ const LocationManagement = () => {
           </div>
         </div>
 
-        <div className="col-span-12 lg:col-span-4 space-y-6">
-          <div className="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-md">
-            <div className="p-3 bg-surface-low border-b border-outline-variant flex justify-between items-center">
-              <span className="font-body text-[10px] font-bold uppercase tracking-widest text-primary">Bản đồ Di tích</span>
-              <span className="material-symbols-outlined text-sm text-primary">explore</span>
+        <div className="col-span-12 lg:col-span-4 sticky top-8">
+          <div className="bg-[#fcfaf2] border-2 border-[#e2dcc8] rounded-3xl overflow-hidden shadow-2xl relative group">
+
+            {/* Antique Frame Decoration */}
+            <div className="absolute inset-3 border border-[#e2dcc8] pointer-events-none z-10 rounded-2xl"></div>
+
+            <div className="p-4 bg-[#e2dcc8]/30 border-b border-[#e2dcc8] flex justify-between items-center relative z-20">
+              <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#6b4226]">Bản đồ Địa linh</span>
+              <span className="material-symbols-outlined text-[#6b4226] text-sm">history_edu</span>
             </div>
-            <div className="aspect-[3/4] bg-[#fffdf8] relative group overflow-hidden border-b border-outline-variant flex items-center justify-center">
-              <UserVietnamMap className="absolute inset-0 w-full h-full opacity-90 group-hover:scale-105 transition-transform duration-[5s] drop-shadow-[0_10px_20px_rgba(158,27,27,0.15)]" />
-              
-              {filteredLocations.map((site) => {
-                const xVal = site.x !== undefined ? site.x : (site.longitude ? getXPercent(site.longitude) : 50);
-                const yVal = site.y !== undefined ? site.y : (site.latitude ? getYPercent(site.latitude) : 50);
-                
-                return (
-                  <div
-                    key={site.id}
-                    className="absolute cursor-pointer transition-all duration-500 z-20"
-                    style={{ left: `${xVal}%`, top: `${yVal}%` }}
-                    onClick={() => navigate(`/admin/locations/edit/${site.id}`)}
-                    onMouseEnter={() => setHoveredSite(site)}
-                    onMouseLeave={() => setHoveredSite(null)}
-                  >
-                    <div className="relative flex items-center justify-center">
-                      <div className={`relative w-4 h-4 flex items-center justify-center rounded-full border border-white bg-[#9e1b1b] text-white shadow-sm hover:scale-150 hover:shadow-lg transition-transform z-20`}>
-                      </div>
-                      <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-[9px] font-bold tracking-widest uppercase rounded shadow-lg whitespace-nowrap transition-all duration-300 pointer-events-none ${hoveredSite?.id === site.id ? 'opacity-100 translate-y-0 z-50' : 'opacity-0 translate-y-2 -z-10'}`}>
-                        {site.name}
+
+            {/* Map Canvas */}
+            <div className="aspect-[3/4] relative overflow-hidden bg-[url(TEXTURES.PARCHMENT)] bg-repeat flex items-center justify-center">
+              <div className="relative w-full aspect-square">
+                <div className="absolute inset-0 grayscale-[0.3] sepia-[0.4] opacity-90 transition-transform duration-[10s] group-hover:scale-110">
+                  <UserVietnamMap className="w-full h-full" />
+                </div>
+
+                {/* Plotting Markers */}
+                {filteredLocations.map((site) => {
+                  const x = getXPercent(site.longitude);
+                  const y = getYPercent(site.latitude);
+                  if (isNaN(x) || isNaN(y)) return null;
+
+                  return (
+                    <div
+                      key={site.id}
+                      className="absolute z-30 group/marker"
+                      style={{ left: `${x}%`, top: `${y}%` }}
+                      onMouseEnter={() => setHoveredSite(site)}
+                      onMouseLeave={() => setHoveredSite(null)}
+                      onClick={() => navigate(`/admin/locations/edit/${site.id}`)}
+                    >
+                      {/* Marker: Wax Seal Style */}
+                      <div className="relative -translate-x-1/2 -translate-y-1/2 cursor-pointer">
+                        <div className="w-3.5 h-3.5 bg-[#9e1b1b] rounded-full border-2 border-[#fcfaf2] shadow-[0_2px_10px_rgba(158,27,27,0.4)] group-hover/marker:scale-150 transition-transform duration-300"></div>
+
+                        {/* Tooltip Label */}
+                        <div className={`absolute bottom-full mb-3 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-[#2d1b0e] text-[#fcfaf2] rounded-lg shadow-2xl transition-all duration-300 pointer-events-none whitespace-nowrap z-50 ${hoveredSite?.id === site.id ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-2 scale-90'}`}>
+                          <p className="font-headline text-xs font-bold">{site.name}</p>
+                          <p className="font-mono text-[8px] opacity-60 text-center uppercase tracking-tighter mt-0.5">{site.latitude}, {site.longitude}</p>
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-[#2d1b0e]"></div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-              <div className="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur p-2 rounded text-[9px] font-bold border border-outline-variant uppercase shadow-sm z-20 text-center pointer-events-none">Bản đồ Di tích Tổng hợp</div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Map Footer */}
+            <div className="p-5 bg-white/50 border-t border-[#e2dcc8] text-center relative z-20">
+              <p className="font-mono text-[9px] uppercase font-bold text-[#6b4226] tracking-widest opacity-70">
+                Hệ thống tọa độ sử liệu quốc gia
+              </p>
             </div>
           </div>
         </div>

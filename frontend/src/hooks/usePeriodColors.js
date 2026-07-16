@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { metadataService, ENDPOINTS } from '../services';
-import mockClient from '../services/http/mockClient';
+
 
 export const usePeriodColors = () => {
   const [periodColors, setPeriodColors] = useState(null);
@@ -17,8 +17,7 @@ export const usePeriodColors = () => {
           const { periodColors: colors } = await metadataService.fetchColors();
           palette = colors;
         } catch (e) {
-          const res = await mockClient.get(ENDPOINTS.MOCK.PERIOD_COLORS);
-          palette = res.data;
+          console.error('Cannot fetch period colors from API:', e);
         }
         if (!cancelled) setPeriodColors(palette);
       } catch (error) {

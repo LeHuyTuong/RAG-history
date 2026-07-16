@@ -14,7 +14,7 @@ const HEADER_HEIGHT = 80;
 
 const UserLayout = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  
+
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
   const { isOpen, modalType, openModal, closeModal } = useModalStore();
@@ -39,6 +39,7 @@ const UserLayout = () => {
   }, [dispatch]);
 
   useEffect(() => {
+
     document.title = siteName;
   }, [siteName]);
 
@@ -68,7 +69,7 @@ const UserLayout = () => {
   return (
     <div className={`min-h-screen font-body selection:bg-[#d99b4a]/20 relative flex flex-col ${backgroundUrl ? 'bg-[#fbf6e8]' : 'bg-[#fbf6e8] parchment-texture'}`}>
       <div className="grain-overlay pointer-events-none fixed inset-0 z-0 opacity-5" />
-      
+
       <SystemBackground backgroundUrl={backgroundUrl} />
 
       {/* HEADER */}

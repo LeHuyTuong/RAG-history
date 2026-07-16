@@ -33,6 +33,10 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (password.length < 6) {
+      setError("Mật khẩu không hợp lệ.");
+      return;
+    }
     setError("");
     setLoading(true);
     try {
@@ -46,9 +50,9 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(user));
 
       if (user.role === 'ROLE_ADMIN') {
-        window.location.href = "/admin";
+        navigate("/admin", { replace: true });
       } else {
-        window.location.href = "/";
+        navigate("/", { replace: true });
       }
     } catch (err) {
       if (err.response?.status === 401) {

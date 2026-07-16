@@ -5,12 +5,13 @@ import remarkGfm from 'remark-gfm';
 import { useAIChat } from '../../../hooks/useAIChat';
 import ragService from '../../../services/common/ragService';
 import DongSonDrumIcon from '../../../components/DongSonDrumIcon';
+import { MISC_IMAGES } from '../../../config/constants';
 
 const normalizeMarkdown = (text) => {
   if (!text) return '';
   // Standardize newlines
   let normalized = text.replace(/\r\n/g, '\n');
-  
+
   // Ensure that lists and headers have double newlines before them
   normalized = normalized
     .replace(/([^\n])\n(\s*[-*+•]\s)/g, '$1\n\n$2') // bullets
@@ -20,7 +21,7 @@ const normalizeMarkdown = (text) => {
   // Replace any remaining single newlines (that are not double newlines) with double newlines
   // so they don't get collapsed into spaces by ReactMarkdown
   normalized = normalized.replace(/(?<!\n)\n(?!\n)/g, '\n\n');
-  
+
   return normalized;
 };
 
@@ -365,11 +366,16 @@ const AIChat = () => {
               />
               <button
                 onClick={handleSend}
-                disabled={loading || !input.trim()}
+                disabled={loading || !input.trim() || input.length > 2000}
                 className="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
               >
                 <span className="material-symbols-outlined">send</span>
               </button>
+            </div>
+            <div className="mt-2 flex justify-end px-4">
+              <span className={`text-xs font-body font-bold ${input.length > 2000 ? 'text-red-500' : 'text-on-surface-variant/60'}`}>
+                {input.length}/2000
+              </span>
             </div>
             <div className="mt-3 flex justify-center gap-6 font-body text-[9px] font-bold text-on-surface-variant opacity-60 uppercase tracking-tighter">
               <span># Nhà Hậu Lê</span>
@@ -387,7 +393,7 @@ const AIChat = () => {
               <EntityItem
                 name="Lý Thường Kiệt" type="Nhân vật"
                 desc="Thái úy triều Lý, danh tướng lừng lẫy phòng tuyến sông Như Nguyệt."
-                img="https://lh3.googleusercontent.com/aida-public/AB6AXuBXLbkFqj-insp0Ywy8bF_fVUuZ67qvyvjRAfWo7w1iKuhghv8n0rYBxfEdRAY4aib4mh7rde3JgELR5JXKp3cGMaRjeCxeUb6g3ojhnFsZ5WnZul23ymRLAXAr4sh3CqkKXZz3SmImreYEbG-r4wAxbSHkx6lO9jqQ9K52SYWCjWO9bmXaal066YFxd0DrXQNWzQ5PZiSvR_uYc2Rms-ZCahCqqVGdjXGVfyVSF6a8qypNfChSdB3nPsN1yPj6fRpIJbohlTl2CPyA"
+                img={MISC_IMAGES.AICHAT_BG}
               />
               <button className="w-full py-2 border-2 border-dashed border-primary/20 text-primary rounded-lg font-body text-[9px] font-bold uppercase tracking-widest hover:bg-primary/5 transition-all flex items-center justify-center gap-2">
                 <span className="material-symbols-outlined text-sm">hub</span> Mở bản đồ tri thức

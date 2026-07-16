@@ -1,12 +1,17 @@
-import { API_ENDPOINTS, apiClient, eventService, periodService } from '../../../services';
+import { API_ENDPOINTS, apiClient, eventService, periodService, personService, locationService, postService } from '../../../services';
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
+import { stripHtml } from '../../../utils/stringUtils';
 
 const UserPeriods = () => {
   const { backgroundUrl = '' } = useOutletContext() || {};
 
   const [periodsData, setPeriodsData] = useState([]);
   const [eventsData, setEventsData] = useState([]);
+  const [personsData, setPersonsData] = useState([]);
+  const [locationsData, setLocationsData] = useState([]);
+  const [postsData, setPostsData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [activePeriod, setActivePeriod] = useState(null);
   const [loading, setLoading] = useState(true);
   const sectionRefs = useRef({});
@@ -17,7 +22,17 @@ const UserPeriods = () => {
     if (activePeriod && sidebarListRef.current) {
       const activeElement = sidebarListRef.current.querySelector(`[data-period-id="${activePeriod}"]`);
       if (activeElement) {
-        activeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const container = sidebarListRef.current;
+        const elementTop = activeElement.offsetTop;
+        const elementBottom = elementTop + activeElement.offsetHeight;
+        const containerTop = container.scrollTop;
+        const containerBottom = containerTop + container.offsetHeight;
+
+        if (elementTop < containerTop) {
+          container.scrollTo({ top: elementTop, behavior: 'smooth' });
+        } else if (elementBottom > containerBottom) {
+          container.scrollTo({ top: elementBottom - container.offsetHeight, behavior: 'smooth' });
+        }
       }
     }
   }, [activePeriod]);
@@ -27,47 +42,76 @@ const UserPeriods = () => {
       try {
         let dbPeriods = [];
         let allEvents = [];
+        let allPersons = [];
+        let allLocations = [];
+        let allPosts = [];
         try {
-          const [response, evtRes] = await Promise.all([
-            periodService.filter({ size: 500 }),
-            eventService.filter({ size: 500 })
+          const [response, evtRes, perRes, locRes, posRes] = await Promise.all([
+            periodService.filter({ size: 500, status: 'PUBLISHED' }),
+            eventService.filter({ size: 500, status: 'PUBLISHED' }),
+            personService.filter({ size: 500, status: 'PUBLISHED' }),
+            locationService.filter({ size: 500, status: 'PUBLISHED' }),
+            postService.filter({ size: 500, status: 'PUBLISHED' })
           ]);
           dbPeriods = response?.items || [];
           allEvents = evtRes?.items || [];
+          allPersons = perRes?.items || [];
+          allLocations = locRes?.items || [];
+          allPosts = posRes?.items || [];
         } catch (apiErr) {
           console.error('Lỗi gọi API:', apiErr);
         }
 
         setEventsData(allEvents);
+        setPersonsData(allPersons);
+        setLocationsData(allLocations);
+        setPostsData(allPosts);
+
+        const formatYear = (y) => {
+          if (y === undefined || y === null || y === '') return '';
+          const val = parseInt(y, 10);
+          if (isNaN(val)) return y;
+          return val < 0 ? `${Math.abs(val)} TCN` : `${val}`;
+        };
+
+        const parseArrayString = (str) => {
+          if (!str) return [];
+          if (Array.isArray(str)) return str;
+          if (typeof str === 'string') {
+            try {
+               const parsed = JSON.parse(str);
+               if (Array.isArray(parsed)) return parsed;
+            } catch(e) {
+               // Ignore
+            }
+            return str.split(',').map(s => s.trim()).filter(Boolean);
+          }
+          return [];
+        };
 
         let merged = dbPeriods.map(dbItem => ({
           ...dbItem,
           period_id: dbItem.id,
           category: "Thời Kỳ",
           name: dbItem.name,
-          range: dbItem.startYear !== undefined && dbItem.endYear !== undefined
-            ? `${Math.abs(dbItem.startYear)} ${dbItem.startYear < 0 ? 'TCN' : ''} - ${dbItem.endYear ? Math.abs(dbItem.endYear) + (dbItem.endYear < 0 ? ' TCN' : '') : 'Nay'}`
+          range: (dbItem.startYear !== null && dbItem.startYear !== undefined) || (dbItem.endYear !== null && dbItem.endYear !== undefined)
+            ? `${formatYear(dbItem.startYear)} - ${dbItem.endYear ? formatYear(dbItem.endYear) : 'Nay'}`
             : '',
           description: dbItem.description,
           details: [],
-          image: dbItem.image || 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg'
+          image: dbItem.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg',
+          emperors: parseArrayString(dbItem.emperors),
+          relatedLocations: parseArrayString(dbItem.relatedLocations),
+          relatedEvents: parseArrayString(dbItem.relatedEvents),
+          relatedArticles: parseArrayString(dbItem.relatedArticles)
         }));
 
-        // Apply custom period order if exists
-        const periodOrderStr = localStorage.getItem('home_period_order') || localStorage.getItem('admin_period_order');
-        if (periodOrderStr) {
-          try {
-            const savedOrder = JSON.parse(periodOrderStr);
-            const orderMap = new Map(savedOrder.map((id, idx) => [String(id), idx]));
-            merged.sort((a, b) => {
-              const indexA = orderMap.has(String(a.id)) ? orderMap.get(String(a.id)) : 999999;
-              const indexB = orderMap.has(String(b.id)) ? orderMap.get(String(b.id)) : 999999;
-              return indexA - indexB;
-            });
-          } catch (e) {
-            console.error('Error sorting user periods by custom order', e);
-          }
-        }
+        // Always sort chronologically by default
+        merged.sort((a, b) => {
+          const startA = a.startYear !== undefined && a.startYear !== null ? Number(a.startYear) : 999999;
+          const startB = b.startYear !== undefined && b.startYear !== null ? Number(b.startYear) : 999999;
+          return startA - startB;
+        });
 
         setPeriodsData(merged);
         if (merged.length > 0) {
@@ -113,7 +157,10 @@ const UserPeriods = () => {
     }
   };
 
-  const displayedPeriods = periodsData;
+  const displayedPeriods = periodsData.filter(p =>
+    (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (p.category || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải triều đại...</div>;
 
@@ -158,6 +205,19 @@ const UserPeriods = () => {
               <h2 className="text-[#ffe7b0] font-headline text-2xl font-bold uppercase tracking-widest">Các Thời Kỳ</h2>
             </div>
 
+            <div className="p-4 border-b border-[#d99b4a]/30">
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50">search</span>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Tìm kiếm thời kỳ..."
+                  className="w-full bg-white border border-[#d99b4a]/40 pl-10 pr-4 py-2 rounded-full font-body text-sm outline-none focus:border-[#d99b4a] focus:ring-2 focus:ring-[#d99b4a]/20 transition-all text-[#2b1a16] placeholder:text-on-surface-variant/50"
+                />
+              </div>
+            </div>
+
             <ul ref={sidebarListRef} className="py-2 overflow-y-auto max-h-[60vh] lg:max-h-[calc(100vh-12rem)] scrollbar-thin scrollbar-thumb-[#d99b4a]/50 scrollbar-track-transparent">
               {displayedPeriods.map(p => (
                 <li key={p.period_id} data-period-id={p.period_id}>
@@ -185,7 +245,11 @@ const UserPeriods = () => {
           <div className="absolute left-[11px] lg:left-[23px] top-4 bottom-0 w-[2px] bg-gradient-to-b from-[#6b0f0d] via-[#d99b4a]/60 to-transparent"></div>
 
           <div className="space-y-20 lg:space-y-32">
-            {displayedPeriods.map(p => (
+            {displayedPeriods.length === 0 ? (
+              <div className="w-full text-center py-12 font-body text-lg text-[#6b0f0d]">
+                Không tìm thấy thời kỳ nào phù hợp với từ khóa "{searchTerm}".
+              </div>
+            ) : displayedPeriods.map(p => (
               <section
                 key={p.period_id}
                 id={p.period_id}
@@ -218,35 +282,141 @@ const UserPeriods = () => {
                       </div>
 
                       <h3 className={`font-headline text-3xl md:text-4xl font-bold tracking-tight transition-colors duration-500 ${activePeriod === p.period_id ? 'text-[#6b0f0d]' : 'text-[#2b0504] group-hover/card:text-[#6b0f0d]'}`}>{p.name}</h3>
+                      {p.philosophy && (
+                        <p className="font-body text-[#d99b4a] italic font-semibold text-lg">"{p.philosophy}"</p>
+                      )}
 
-                      <p className="font-body text-[15px] text-[#2b1a16]/80 leading-relaxed pt-2">"{p.description}"</p>
+                      <p className="font-body text-[15px] text-[#2b1a16]/80 leading-relaxed pt-2">
+                        "{stripHtml(p.description)}"
+                      </p>
 
                       <div className="space-y-3 py-4 border-t border-b border-[#d99b4a]/20">
                         {(() => {
-                          // Tìm sự kiện thuộc triều đại này
-                          const periodEvents = eventsData.filter(evt => {
-                            const pName = p.name;
-                            const eDynasty = evt.dynasty || '';
-                            return pName.includes(eDynasty) || eDynasty.includes(pName.replace('Nhà ', '').replace('Triều ', ''));
-                          }).slice(0, 3); // Lấy tối đa 3 sự kiện tiêu biểu
+                          let periodEvents = [];
+                          if (p.relatedEvents && p.relatedEvents.length > 0) {
+                            periodEvents = p.relatedEvents.slice(0, 3).map((eventName, idx) => {
+                              const matchedEvent = eventsData.find(e => e.name === eventName);
+                              return matchedEvent || { id: `unlinked-${idx}`, name: eventName, isUnlinked: true };
+                            });
+                          }
+
+                          const sections = [];
 
                           if (periodEvents.length > 0) {
-                            return (
-                              <div className="space-y-3">
+                            sections.push(
+                              <div key="events" className="mt-4 first:mt-0">
                                 <span className="font-headline text-[13px] text-[#6b0f0d] font-bold uppercase tracking-widest flex items-center gap-1 mb-2">
                                   <span className="material-symbols-outlined text-[16px]">local_fire_department</span>
                                   Sự kiện tiêu biểu:
                                 </span>
                                 <div className="flex flex-col gap-2">
                                   {periodEvents.map(evt => (
-                                    <Link key={evt.id} to={`/events/${evt.id}`} className="group/evt flex items-start gap-2">
-                                      <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#d99b4a] group-hover/evt:bg-[#ff4d4d] transition-colors shrink-0"></div>
-                                      <span className="font-body text-[14px] text-[#4a2a22] font-semibold group-hover/evt:text-[#ff4d4d] transition-colors">{evt.name}</span>
-                                    </Link>
+                                    evt.isUnlinked ? (
+                                      <div key={evt.id} className="flex items-start gap-2">
+                                        <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#d99b4a] shrink-0"></div>
+                                        <span className="font-body text-[14px] text-[#4a2a22] font-semibold">{evt.name}</span>
+                                      </div>
+                                    ) : (
+                                      <Link key={evt.id} to={`/events/${evt.id}`} className="group/evt flex items-start gap-2">
+                                        <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#d99b4a] group-hover/evt:bg-[#ff4d4d] transition-colors shrink-0"></div>
+                                        <span className="font-body text-[14px] text-[#4a2a22] font-semibold group-hover/evt:text-[#ff4d4d] transition-colors">{evt.name}</span>
+                                      </Link>
+                                    )
                                   ))}
                                 </div>
                               </div>
                             );
+                          }
+
+                          if (p.emperors && p.emperors.length > 0) {
+                            sections.push(
+                              <div key="emperors" className="mt-4 first:mt-0">
+                                <span className="font-headline text-[13px] text-[#6b0f0d] font-bold uppercase tracking-widest flex items-center gap-1 mb-2">
+                                  <span className="material-symbols-outlined text-[16px]">groups</span>
+                                  Nhân vật then chốt:
+                                </span>
+                                <div className="flex flex-col gap-1">
+                                  {p.emperors.slice(0, 3).map((emp, i) => {
+                                    const match = personsData.find(p => p.name === emp);
+                                    return (
+                                      <div key={i} className="flex items-start gap-2">
+                                        <div className="mt-2 w-1 h-1 rotate-45 bg-[#d99b4a] shrink-0"></div>
+                                        {match ? (
+                                          <Link to={`/characters/${match.id}`} className="font-body text-[14px] text-[#4a2a22] font-semibold italic hover:text-[#6b0f0d] hover:underline underline-offset-2 transition-colors">{emp}</Link>
+                                        ) : (
+                                          <span className="font-body text-[14px] text-[#4a2a22] italic">{emp}</span>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                  {p.emperors.length > 3 && (
+                                    <span className="font-body text-[12px] text-[#4a2a22]/60 italic ml-3">...và nhiều nhân vật khác</span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          if (p.relatedLocations && p.relatedLocations.length > 0) {
+                            sections.push(
+                              <div key="locations" className="mt-4 first:mt-0">
+                                <span className="font-headline text-[13px] text-[#6b0f0d] font-bold uppercase tracking-widest flex items-center gap-1 mb-2">
+                                  <span className="material-symbols-outlined text-[16px]">location_on</span>
+                                  Địa danh:
+                                </span>
+                                <div className="flex flex-col gap-1">
+                                  {p.relatedLocations.slice(0, 3).map((loc, i) => {
+                                    const match = locationsData.find(l => l.name === loc);
+                                    return (
+                                      <div key={i} className="flex items-start gap-2">
+                                        <div className="mt-2 w-1 h-1 bg-[#d99b4a] rounded-full shrink-0"></div>
+                                        {match ? (
+                                          <Link to={`/locations/${match.id}`} className="font-body text-[14px] text-[#4a2a22] font-semibold hover:text-[#6b0f0d] hover:underline underline-offset-2 transition-colors">{loc}</Link>
+                                        ) : (
+                                          <span className="font-body text-[14px] text-[#4a2a22]">{loc}</span>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                  {p.relatedLocations.length > 3 && (
+                                    <span className="font-body text-[12px] text-[#4a2a22]/60 italic ml-3">...và nhiều địa danh khác</span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          if (p.relatedArticles && p.relatedArticles.length > 0) {
+                            sections.push(
+                              <div key="articles" className="mt-4 first:mt-0">
+                                <span className="font-headline text-[13px] text-[#6b0f0d] font-bold uppercase tracking-widest flex items-center gap-1 mb-2">
+                                  <span className="material-symbols-outlined text-[16px]">article</span>
+                                  Bài viết:
+                                </span>
+                                <div className="flex flex-col gap-1">
+                                  {p.relatedArticles.slice(0, 3).map((art, i) => {
+                                    const match = postsData.find(p => p.title === art);
+                                    return (
+                                      <div key={i} className="flex items-start gap-2">
+                                        <div className="mt-2 w-1 h-1 bg-[#d99b4a] rotate-45 shrink-0"></div>
+                                        {match ? (
+                                          <Link to={`/posts/${match.id}`} className="font-body text-[14px] text-[#4a2a22] font-semibold hover:text-[#6b0f0d] hover:underline underline-offset-2 transition-colors">{art}</Link>
+                                        ) : (
+                                          <span className="font-body text-[14px] text-[#4a2a22]">{art}</span>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                  {p.relatedArticles.length > 3 && (
+                                    <span className="font-body text-[12px] text-[#4a2a22]/60 italic ml-3">...và nhiều bài viết khác</span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          if (sections.length > 0) {
+                            return <div className="space-y-1">{sections}</div>;
                           }
 
                           return (p.details || []).map(detail => (

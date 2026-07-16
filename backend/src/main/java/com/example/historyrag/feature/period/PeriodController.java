@@ -25,8 +25,9 @@ public class PeriodController {
     @GetMapping
     public ResponseEntity<ApiResponse<ResultPaginationDTO>> getAllPeriods(
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
             @ParameterObject @PageableDefault(size = 20, sort = "startYear", direction = Sort.Direction.ASC) Pageable pageable) {
-        ResultPaginationDTO result = periodService.getAllPeriods(keyword, pageable);
+        ResultPaginationDTO result = periodService.getAllPeriods(keyword, status, pageable);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 

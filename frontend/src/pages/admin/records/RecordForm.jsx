@@ -2,19 +2,22 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { generateSlug } from '../../../utils/stringUtils';
 import { RichTextEditor, FormHeader, TagInput, EntityRelationInput } from '../../../components/admin';
-import { mockClient, apiClient, extractErrorMessage, API_ENDPOINTS, eventService, personService, locationService, periodService } from '../../../services';
+import { apiClient, uploadFile, extractErrorMessage, API_ENDPOINTS, eventService, personService, locationService, periodService } from '../../../services';
+import toast from 'react-hot-toast';
 
 const RecordForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const isEdit = !!id;
 
   const [form, setForm] = useState({
-    title: '', slug: '', author: '', publicationYear: '', sourceType: 'Bộ chính sử', content: '',
+    title: '', slug: '', author: '', publicationYear: '', sourceType: 'Chính sử (Quốc sử)', content: '',
     status: 'published', tags: [], relatedLocations: [], relatedCharacters: [], relatedEvents: []
   });
   const [originalData, setOriginalData] = useState({});
   const [filePath, setFilePath] = useState(null);
+  const [errors, setErrors] = useState({});
 
   const [availableEvents, setAvailableEvents] = useState([]);
   const [availableCharacters, setAvailableCharacters] = useState([]);
@@ -39,22 +42,10 @@ const RecordForm = () => {
             }
           }
 
-          if (!record) {
-            const response = await mockClient.get('/api/admin_records.json');
-            const data = response.data;
-            record = data.records?.find(r => String(r.id) === String(id) || String(r.id).endsWith('-' + id));
-          }
-
-          if (!record) {
-            const response = await mockClient.get('/api/user_record_detail.json');
-            const data = response.data;
-            record = (String(data.id) === String(id) || String(data.id).endsWith('-' + id)) ? data : null;
-          }
-
           if (record) {
             setOriginalData(record);
 
-            let typeLabel = 'Bộ chính sử';
+            let typeLabel = 'Chính sử (Quốc sử)';
             if (record.sourceType === 'BOOK') typeLabel = 'Chính sử (Quốc sử)';
             else if (record.sourceType === 'ARTICLE') typeLabel = 'Dã sử';
             else if (record.sourceType === 'MANUAL') typeLabel = 'Thần tích';
@@ -110,7 +101,7 @@ const RecordForm = () => {
         setAvailableEvents(events.map(e => ({ id: e.id, name: e.name, status: 'PUBLISHED' })));
         setAvailableCharacters(chars.map(c => ({ id: c.id, name: c.name, status: 'PUBLISHED' })));
         setAvailableLocations(locs.map(l => ({ id: l.id, name: l.name, status: 'PUBLISHED' })));
-        setAvailablePeriods(periods.map(p => p.name));
+        setAvailablePeriods(periods.filter(p => p.status === 'PUBLISHED' || !p.status).map(p => p.name));
       } catch (error) {
         console.error('Lỗi tải dữ liệu liên kết cho sử liệu:', error);
       }
@@ -119,16 +110,54 @@ const RecordForm = () => {
   }, [id, isEdit]);
 
   const handleSave = async () => {
+    const newErrors = {};
+    if (!form.title.trim()) newErrors.title = 'Vui lòng nhập tiêu đề bản thảo.';
+    if (!form.slug.trim()) {
+      newErrors.slug = 'Vui lòng nhập đường dẫn (slug).';
+    } else if (!/^[a-z0-9-]+$/.test(form.slug)) {
+      newErrors.slug = 'Slug chỉ gồm chữ thường, số và dấu gạch ngang.';
+    }
+
+    if (form.publicationYear) {
+      const pYear = parseInt(form.publicationYear, 10);
+      if (isNaN(pYear) || pYear <= 0) {
+        newErrors.publicationYear = 'Năm xuất bản phải lớn hơn 0.';
+      }
+    }
+
+    if (!filePath && !isEdit && !originalData?.filePath) {
+      newErrors.filePath = 'Vui lòng đính kèm tệp sử liệu.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error('Vui lòng kiểm tra lại thông tin nhập bị lỗi.');
+      return;
+    }
+    setErrors({});
+
+    setLoading(true);
     try {
       let backendType = 'BOOK';
       if (form.sourceType === 'Dã sử') backendType = 'ARTICLE';
       else if (form.sourceType === 'Thần tích') backendType = 'MANUAL';
 
+      let finalFilePath = filePath ? (typeof filePath === 'string' ? filePath : filePath.name) : null;
+      if (filePath instanceof File) {
+        try {
+          const uploadedUrl = await uploadFile(filePath);
+          finalFilePath = uploadedUrl;
+        } catch (uploadError) {
+          console.error('Lỗi upload file:', uploadError);
+          toast.error('Lỗi khi tải lên file sử liệu. Đang lưu với tên gốc.');
+        }
+      }
+
       const payload = {
         title: form.title,
         sourceType: backendType,
         sourceUrl: null,
-        filePath: filePath ? filePath.name : null,
+        filePath: finalFilePath,
         content: form.content,
         author: form.author || null,
         publicationYear: form.publicationYear ? parseInt(form.publicationYear) : null,
@@ -137,10 +166,9 @@ const RecordForm = () => {
 
       let savedRecordId = Number(id);
       if (isEdit && !isNaN(Number(id))) {
-        await apiClient.put(`${API_ENDPOINTS.ADMIN_SOURCES}/${id}`, payload);
+        await sourceService.update(Number(id), payload);
       } else {
-        const res = await apiClient.post(API_ENDPOINTS.ADMIN_SOURCES, payload);
-        const newRecord = res.data?.data || res.data;
+        const newRecord = await sourceService.create(payload);
         if (newRecord && newRecord.id) {
           savedRecordId = Number(newRecord.id);
         }
@@ -159,7 +187,7 @@ const RecordForm = () => {
     } catch (error) {
       console.error('Lỗi khi lưu sử liệu:', error);
       const errMsg = extractErrorMessage(error, 'Có lỗi xảy ra khi lưu sử liệu!');
-      alert(errMsg);
+      toast.error(errMsg);
     }
   };
 
@@ -167,13 +195,15 @@ const RecordForm = () => {
     <div className="flex-grow bg-surface min-h-screen font-body">
       <main className="p-8 max-w-7xl mx-auto space-y-8">
 
-        <FormHeader
+        <FormHeader loading={loading}
           title={isEdit ? 'Chỉnh sửa Sử liệu' : 'Thêm Sử liệu Mới'}
           subtitle="Quản lý kho sử liệu, văn bản cổ, chính sử và tài liệu nghiên cứu lịch sử."
           icon="menu_book"
           isEdit={isEdit}
           onCancel={() => navigate('/admin/records')}
           onSave={handleSave}
+          status={form.status}
+          contentType="record"
         />
 
         <div className="grid grid-cols-12 gap-8 items-start">
@@ -188,26 +218,34 @@ const RecordForm = () => {
                   onChange={e => {
                     const newTitle = e.target.value;
                     setForm(prev => ({ ...prev, title: newTitle, slug: generateSlug(newTitle) }));
+                    if (errors.title) setErrors(prev => ({ ...prev, title: null, slug: null }));
                   }}
-                  className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 font-headline text-2xl text-on-surface outline-none transition-all"
+                  className={`w-full bg-transparent border-b py-2 font-headline text-2xl text-on-surface outline-none transition-all ${errors.title ? 'border-red-500 focus:border-red-600' : 'border-outline-variant focus:border-primary'}`}
                   placeholder="Ví dụ: Đại Việt Sử Ký Toàn Thư..."
                 />
+                {errors.title && <p className="text-red-500 text-[11px] font-bold mt-1 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">error</span> {errors.title}</p>}
               </div>
-              <div className="flex items-center gap-2 text-on-surface-variant font-body text-[11px] mb-4">
-                <span className="opacity-50 lowercase tracking-normal italic">suviet.vn/su-lieu/</span>
-                <input
-                  type="text" value={form.slug} readOnly
-                  className="flex-1 bg-surface-low px-2 py-1 rounded outline-none text-on-surface-variant font-bold cursor-not-allowed opacity-70"
-                />
+              <div className="space-y-1 mb-4 mt-2">
+                <div className={`flex items-center gap-2 text-on-surface-variant font-body text-[11px] bg-surface-low/30 border rounded-xl p-3 ${errors.slug ? 'border-red-500' : 'border-outline-variant/40'}`}>
+                  <span className="material-symbols-outlined text-[16px] text-primary/60">link</span>
+                  <span className="opacity-50 lowercase tracking-normal italic">suviet.vn/su-lieu/</span>
+                  <input
+                    type="text" value={form.slug} readOnly
+                    className={`flex-1 bg-transparent border-none outline-none font-bold cursor-not-allowed opacity-70 ${errors.slug ? 'text-red-500' : 'text-on-surface-variant'}`}
+                  />
+                </div>
+                {errors.slug && <p className="text-red-500 text-[11px] font-bold mt-1 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">error</span> {errors.slug}</p>}
               </div>
               <div className="grid grid-cols-2 gap-8">
                 <div className="space-y-1">
                   <label className="font-body text-[10px] font-bold uppercase text-on-surface-variant">Tác giả / Chủ biên</label>
-                  <input type="text" value={form.author} onChange={e => setForm(prev => ({ ...prev, author: e.target.value }))} className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 outline-none" placeholder="Vd: Ngô Sĩ Liên" />
+                  <input type="text" value={form.author} onChange={e => { setForm(prev => ({ ...prev, author: e.target.value })); if(errors.author) setErrors(prev => ({ ...prev, author: null })); }} className={`w-full bg-transparent border-b py-2 outline-none ${errors.author ? 'border-red-500 focus:border-red-600' : 'border-outline-variant focus:border-primary'}`} placeholder="Vd: Ngô Sĩ Liên" />
+                  {errors.author && <p className="text-red-500 text-[11px] font-bold mt-1 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">error</span> {errors.author}</p>}
                 </div>
                 <div className="space-y-1">
                   <label className="font-body text-[10px] font-bold uppercase text-on-surface-variant">Năm xuất bản/khởi soạn</label>
-                  <input type="number" value={form.publicationYear} onChange={e => setForm(prev => ({ ...prev, publicationYear: e.target.value }))} className="w-full bg-transparent border-b border-outline-variant focus:border-primary py-2 outline-none" placeholder="Vd: 1479" />
+                  <input type="text" inputMode="numeric" pattern="[0-9]*" value={form.publicationYear} onChange={e => { setForm(prev => ({ ...prev, publicationYear: e.target.value.replace(/\D/g, '') })); if(errors.publicationYear) setErrors(prev => ({ ...prev, publicationYear: null })); }} className={`w-full bg-transparent border-b py-2 outline-none ${errors.publicationYear ? 'border-red-500 focus:border-red-600' : 'border-outline-variant focus:border-primary'}`} placeholder="Vd: 1479" />
+                  {errors.publicationYear && <p className="text-red-500 text-[11px] font-bold mt-1 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">error</span> {errors.publicationYear}</p>}
                 </div>
 
               </div>
@@ -234,10 +272,10 @@ const RecordForm = () => {
                 CẤU HÌNH SỬ LIỆU
               </h4>
 
-              {/* 1. XUẤT BẢN / TRẠNG THÁI */}
+              {/* 1. TRẠNG THÁI XUẤT BẢN */}
               <div className="space-y-4 relative z-10 text-left">
                 <p className="font-body text-[10px] font-bold text-[#6b0f0d] uppercase tracking-widest flex items-center gap-2 border-b border-outline-variant/30 pb-1">
-                  <span className="material-symbols-outlined text-[14px]">publish</span> XUẤT BẢN / TRẠNG THÁI
+                  <span className="material-symbols-outlined text-[14px]">publish</span> TRẠNG THÁI XUẤT BẢN
                 </p>
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -278,12 +316,13 @@ const RecordForm = () => {
                 <p className="font-body text-[10px] font-bold text-[#6b0f0d] uppercase tracking-widest flex items-center gap-2 border-b border-outline-variant/30 pb-1">
                   <span className="material-symbols-outlined text-[14px]">upload_file</span> TỆP ĐÍNH KÈM (PDF/DOCX)
                 </p>
-                <label className="border-2 border-dashed border-outline-variant/60 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-surface-low/50 transition-all group text-center bg-surface-low/20">
-                  <span className="material-symbols-outlined text-4xl text-[#6b0f0d] mb-2 group-hover:scale-110 transition-transform">description</span>
-                  <p className="font-headline text-xs text-[#6b0f0d] font-bold">Tải lên sử liệu</p>
+                <label className={`border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-surface-low/50 transition-all group text-center ${errors.filePath ? 'border-red-500 bg-red-50/50' : 'border-outline-variant/60 bg-surface-low/20'}`}>
+                  <span className={`material-symbols-outlined text-4xl mb-2 group-hover:scale-110 transition-transform ${errors.filePath ? 'text-red-500' : 'text-[#6b0f0d]'}`}>description</span>
+                  <p className={`font-headline text-xs font-bold ${errors.filePath ? 'text-red-500' : 'text-[#6b0f0d]'}`}>Tải lên sử liệu</p>
                   <p className="text-[9px] text-on-surface-variant mt-1">Hỗ trợ PDF, DOC, DOCX</p>
-                  <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={(e) => setFilePath(e.target.files[0])} />
+                  <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={(e) => { setFilePath(e.target.files[0]); if(errors.filePath) setErrors(prev => ({ ...prev, filePath: null })); }} />
                 </label>
+                {errors.filePath && <p className="text-red-500 text-[11px] font-bold mt-1 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">error</span> {errors.filePath}</p>}
                 {filePath && (
                   <div className="mt-2 p-2 bg-[#6b0f0d]/5 border border-[#6b0f0d]/20 rounded-xl flex items-center gap-2">
                     <span className="material-symbols-outlined text-[#6b0f0d] text-sm">description</span>
@@ -308,11 +347,11 @@ const RecordForm = () => {
                   />
                 </div>
 
-                {/* ĐỊA DANH LIÊN QUAN */}
+                {/* DI TÍCH LIÊN QUAN */}
                 <div className="pt-2">
                   <EntityRelationInput
                     type="location"
-                    label="Địa danh liên quan"
+                    label="Di tích liên quan"
                     icon="location_on"
                     entities={form.relatedLocations || []}
                     availableEntities={availableLocations}

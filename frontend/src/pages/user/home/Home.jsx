@@ -4,15 +4,15 @@ import {
     periodService,
     personService,
     eventService,
-    postService,
-    mockClient
+    postService
 } from '../../../services';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { stripHtml } from '../../../utils/stringUtils';
 import characterImages from '../../../data/characterImages.json';
+import { IMAGES, MISC_IMAGES } from '../../../config/constants';
 
 const DEFAULT_PERIOD_ICONS = ['hourglass_empty', 'history', 'person', 'account_balance', 'map', 'auto_stories'];
-const DEFAULT_CHAR_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg';
+const DEFAULT_CHAR_IMAGE = IMAGES.DEFAULT_COVER;
 
 const Home = () => {
     const { backgroundUrl = '' } = useOutletContext() || {};
@@ -32,19 +32,19 @@ const Home = () => {
 
                 try {
                     const [periodsRes, personsRes, eventsRes, postsRes] = await Promise.all([
-                        periodService.filter({ size: 6, sort: 'startYear,asc' }).catch(err => {
+                        periodService.filter({ size: 6, sort: 'startYear,asc', status: 'PUBLISHED' }).catch(err => {
                             console.error('Failed to fetch periods:', err);
                             return { items: [] };
                         }),
-                        personService.filter({ size: 3 }).catch(err => {
+                        personService.filter({ size: 3, status: 'PUBLISHED' }).catch(err => {
                             console.error('Failed to fetch persons:', err);
                             return { items: [] };
                         }),
-                        eventService.filter({ size: 4 }).catch(err => {
+                        eventService.filter({ size: 4, status: 'PUBLISHED' }).catch(err => {
                             console.error('Failed to fetch events:', err);
                             return { items: [] };
                         }),
-                        postService.filter({ size: 2 }).catch(err => {
+                        postService.filter({ size: 2, status: 'PUBLISHED' }).catch(err => {
                             console.error('Failed to fetch posts:', err);
                             return { items: [] };
                         }),
@@ -94,17 +94,34 @@ const Home = () => {
                         ? `${c.birthDate ? c.birthDate : '?'} - ${c.deathDate ? c.deathDate : '?'}`
                         : '',
                     desc: stripHtml(c.biography || c.description || ''),
-                    image: characterImages[c.slug] || c.avatar || DEFAULT_CHAR_IMAGE,
+                    image: characterImages[c.slug] || c.imageUrl || c.avatar || DEFAULT_CHAR_IMAGE,
                 }));
 
-                let mergedEvents = dbEvents.slice(0, 4).map(e => ({
-                    ...e,
-                    date: e.startYear !== undefined
-                        ? `${Math.abs(e.startYear)} ${e.startYear < 0 ? 'TCN' : ''}`
-                        : '',
-                    desc: stripHtml(e.description || ''),
-                    title: e.name || '',
-                }));
+                let mergedEvents = dbEvents.slice(0, 4).map(e => {
+                    // Hỗ trợ cả camelCase (API) và snake_case (mock data)
+                    const startYear = e.startYear ?? e.start_year;
+                    const endYear = e.endYear ?? e.end_year;
+                    const formatYear = (y) => {
+                        if (y === undefined || y === null || y === '') return '';
+                        const val = parseInt(y, 10);
+                        if (isNaN(val)) return y;
+                        return val < 0 ? `${Math.abs(val)} TCN` : `${val}`;
+                    };
+                    const formatRange = (start, end) => {
+                        const s = formatYear(start);
+                        const e = formatYear(end);
+                        if (!s && !e) return 'Chưa rõ';
+                        if (!s) return `? - ${e}`;
+                        if (!e) return `${s} - ${s}`;
+                        return `${s} - ${e}`;
+                    };
+                    return {
+                        ...e,
+                        date: formatRange(startYear, endYear),
+                        desc: stripHtml(e.description || ''),
+                        title: e.name || '',
+                    };
+                });
 
                 let mergedPosts = dbPosts.slice(0, 2).map(p => ({
                     ...p,
@@ -113,6 +130,8 @@ const Home = () => {
                         : '',
                     desc: stripHtml(p.summary || p.description || ''),
                     category: p.tags?.[0]?.name || 'Nghiên cứu',
+                    startYear: p.startYear || p.event?.startYear || p.eventStartYear,
+                    endYear: p.endYear || p.event?.endYear || p.eventEndYear,
                 }));
 
                 setData({
@@ -305,6 +324,18 @@ const Home = () => {
                                 <h3 className="font-headline text-2xl font-bold text-[#6b0f0d] group-hover:text-[#8b1512] mb-3 leading-tight transition-colors">
                                     {post.title}
                                 </h3>
+
+                                {(post.startYear || post.endYear) && (
+                                    <div className="flex items-center gap-2 mb-3 font-body text-[11px] text-[#6b0f0d] font-bold uppercase tracking-widest">
+                                        <span className="material-symbols-outlined text-[14px]">calendar_month</span>
+                                        <span>
+                                            {post.startYear === post.endYear || !post.endYear
+                                                ? post.startYear
+                                                : !post.startYear ? post.endYear : `${post.startYear} - ${post.endYear}`}
+                                        </span>
+                                    </div>
+                                )}
+
                                 <p className="font-body text-[14px] text-[#2b1a16]/70 leading-relaxed italic line-clamp-2 border-l-2 border-[#d99b4a]/30 pl-3">
                                     {post.desc}
                                 </p>
@@ -490,7 +521,7 @@ const Home = () => {
                 <div className="bg-[#2b0504] border border-[#d99b4a]/40 rounded-xl p-10 md:p-20 flex flex-col items-center relative overflow-hidden group shadow-2xl">
                     <img
                         className="absolute inset-0 w-full h-full object-cover opacity-[0.2] mix-blend-luminosity grayscale-[30%] sepia-[50%] group-hover:scale-105 transition-transform duration-[20s]"
-                        src={backgroundUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuAFP8chLPXP9CFXQ9SWX7y1oh1bbGSfFCnXG0FkWzHIhsKyn_elKHpxt_a66FO7iKc5Ixrf0cZwLguOY5sIYf920OubLX3TpHpuIXc3EOOwjToUQkjHqMjFysh3Gv_inAM7hwmG55ONut6T3mWBwvOXAek4fqGnOGoYFlhB6JMN-CoxjCW2CZDy-rNIkjpReJG3oKbFknSZaa8NObGutb82o07nPH-RQLWi9N76OL-rE9tUnnn37hswsSZvNmXzVXJ2fGdMvBzVcjnI"}
+                        src={backgroundUrl || MISC_IMAGES.HOME_BG}
                         alt="Bản đồ Di tích"
                     />
 

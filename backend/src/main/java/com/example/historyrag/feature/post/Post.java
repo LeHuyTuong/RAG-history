@@ -63,8 +63,14 @@ public class Post extends BaseEntity {
     @Column(name = "content", columnDefinition = "LONGTEXT")
     private String content;
 
-    @Size(max = 1000)
-    @Column(name = "thumbnail_url", length = 1000)
+    @Column(name = "start_year")
+    private Integer startYear;
+
+    @Column(name = "end_year")
+    private Integer endYear;
+
+    @Lob
+    @Column(name = "thumbnail_url", columnDefinition = "LONGTEXT")
     private String thumbnailUrl;
 
     @NotNull

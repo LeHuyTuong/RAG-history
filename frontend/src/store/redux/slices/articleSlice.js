@@ -26,6 +26,7 @@ export const fetchArticles = createAsyncThunk(
           title: p.title,
           slug: p.slug,
           summary: p.summary,
+          thumbnailUrl: p.thumbnailUrl,
           tags: p.tags && p.tags.length > 0 ? p.tags.map(t => t.name) : ['Chưa rõ'],
           author: p.author?.fullName || p.author?.username || 'Admin',
           status: p.status
@@ -70,7 +71,6 @@ const articleSlice = createSlice({
       })
       .addCase(deleteArticle.fulfilled, (state, action) => {
         state.data.articles = state.data.articles.filter(a => String(a.id) !== String(action.payload));
-        // You could also update stats here if you want to be fully accurate
       });
   },
 });

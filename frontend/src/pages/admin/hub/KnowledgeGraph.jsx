@@ -47,10 +47,6 @@ const KnowledgeGraph = () => {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ search: '', type: '', entityGroup: '' });
   const [deleteModal, setDeleteModal] = useState({ open: false, relation: null });
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [sourceNode, setSourceNode] = useState('');
-  const [targetNode, setTargetNode] = useState('');
-  const [relationText, setRelationText] = useState('');
   const [selectedEntity, setSelectedEntity] = useState(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 500 });
 
@@ -91,49 +87,6 @@ const KnowledgeGraph = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [viewMode]);
 
-  const participationCount = relations.filter((r) => r.type === 'participation').length;
-  const eventLocationCount = relations.filter((r) => r.type === 'event_location').length;
-  const customCount = relations.filter((r) => r.type === 'custom').length;
-  const stats = {
-    total: relations.length.toLocaleString(),
-    participation: participationCount.toLocaleString(),
-    eventLocation: eventLocationCount.toLocaleString(),
-    custom: customCount.toLocaleString(),
-  };
-
-  const filteredRelations = relations.filter((row) => {
-    const q = filters.search.toLowerCase();
-    const matchSearch =
-      !q ||
-      row.sourceName?.toLowerCase().includes(q) ||
-      row.targetName?.toLowerCase().includes(q) ||
-      row.relation?.toLowerCase().includes(q);
-    const matchType = filters.type ? row.type === filters.type : true;
-    const matchGroup = filters.entityGroup
-      ? row.sourceGroup === filters.entityGroup || row.targetGroup === filters.entityGroup
-      : true;
-    return matchSearch && matchType && matchGroup;
-  });
-
-  let previewGraphData = graphData;
-  if (selectedEntity) {
-    const neighborIds = new Set([String(selectedEntity.id)]);
-    links.forEach((l) => {
-      const sId = typeof l.source === 'object' ? l.source.id : l.source;
-      const tId = typeof l.target === 'object' ? l.target.id : l.target;
-      if (String(sId) === String(selectedEntity.id)) neighborIds.add(String(tId));
-      if (String(tId) === String(selectedEntity.id)) neighborIds.add(String(sId));
-    });
-    previewGraphData = {
-      nodes: nodes.filter((n) => neighborIds.has(String(n.id))),
-      links: links.filter((l) => {
-        const sId = typeof l.source === 'object' ? l.source.id : l.source;
-        const tId = typeof l.target === 'object' ? l.target.id : l.target;
-        return neighborIds.has(String(sId)) && neighborIds.has(String(tId));
-      }),
-    };
-  }
-
   const handleDelete = async () => {
     if (!deleteModal.relation?.link) return;
     try {
@@ -144,74 +97,6 @@ const KnowledgeGraph = () => {
     } catch (error) {
       console.error('Lỗi khi xóa mối quan hệ:', error);
       alert('Có lỗi xảy ra khi xóa mối quan hệ.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSaveRelation = async (e) => {
-    e.preventDefault();
-    if (!sourceNode.trim() || !targetNode.trim() || !relationText.trim()) {
-      alert('Vui lòng nhập đầy đủ thông tin.');
-      return;
-    }
-
-    const sNodeObj = nodes.find(
-      (n) => n.name.toLowerCase() === sourceNode.trim().toLowerCase()
-    );
-    const tNodeObj = nodes.find(
-      (n) => n.name.toLowerCase() === targetNode.trim().toLowerCase()
-    );
-
-    const exists = relations.some(
-      (r) =>
-        (String(r.sourceId) === String(sNodeObj?.id) &&
-          String(r.targetId) === String(tNodeObj?.id)) ||
-        (String(r.targetId) === String(sNodeObj?.id) &&
-          String(r.sourceId) === String(tNodeObj?.id))
-    );
-    if (exists) {
-      alert('Mối quan hệ giữa hai thực thể này đã tồn tại.');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const isPersonAndEvent =
-        (sNodeObj?.group === 'character' && tNodeObj?.group === 'event') ||
-        (sNodeObj?.group === 'event' && tNodeObj?.group === 'character');
-      const isEventAndLocation =
-        (sNodeObj?.group === 'event' && tNodeObj?.group === 'location') ||
-        (sNodeObj?.group === 'location' && tNodeObj?.group === 'event');
-
-      if (isPersonAndEvent || isEventAndLocation) {
-        await hubService.createRelation({
-          sourceNode: sNodeObj,
-          targetNode: tNodeObj,
-          relationText,
-        });
-      } else {
-        throw new Error('UNSUPPORTED_RELATION_TYPE');
-      }
-      setSourceNode('');
-      setTargetNode('');
-      setRelationText('');
-      setIsModalOpen(false);
-      await loadData();
-    } catch (error) {
-      const msg = error.message || '';
-      if (msg === 'UNSUPPORTED_RELATION_TYPE') {
-        alert('Hệ thống hiện tại chỉ hỗ trợ liên kết Nhân vật – Sự kiện và Sự kiện – Địa danh.');
-      } else if (msg.startsWith('NOT_FOUND_SOURCE:')) {
-        alert(`Không tìm thấy thực thể: "${msg.split(':')[1]}"`);
-      } else if (msg.startsWith('NOT_FOUND_TARGET:')) {
-        alert(`Không tìm thấy thực thể: "${msg.split(':')[1]}"`);
-      } else if (msg === 'SELF_RELATION') {
-        alert('Không thể tạo mối quan hệ của một thực thể với chính nó.');
-      } else {
-        console.error('Lỗi khi lưu mối quan hệ:', error);
-        alert('Có lỗi xảy ra khi tạo mối quan hệ.');
-      }
     } finally {
       setLoading(false);
     }
@@ -272,30 +157,6 @@ const KnowledgeGraph = () => {
               <div className="font-headline font-bold text-on-surface truncate">{row.sourceName}</div>
               <EntityBadge group={row.sourceGroup} />
             </div>
-            <div className="flex gap-1 shrink-0">
-              {editUrl && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(editUrl);
-                  }}
-                  className="w-7 h-7 flex items-center justify-center bg-surface-low border border-outline-variant text-on-surface-variant hover:bg-primary hover:text-white rounded-lg transition-all cursor-pointer"
-                  title={`Chỉnh sửa ${row.sourceGroup === 'character' ? 'Nhân vật' : row.sourceGroup === 'event' ? 'Sự kiện' : 'Địa danh'}`}
-                >
-                  <span className="material-symbols-outlined text-[15px]">edit</span>
-                </button>
-              )}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/admin/hub/edit/${row.sourceId}`);
-                }}
-                className="w-7 h-7 flex items-center justify-center bg-surface-low border border-outline-variant text-on-surface-variant hover:bg-secondary hover:text-white rounded-lg transition-all cursor-pointer"
-                title="Chỉnh sửa liên kết của thực thể này"
-              >
-                <span className="material-symbols-outlined text-[15px]">hub</span>
-              </button>
-            </div>
           </div>
         );
       },
@@ -325,30 +186,6 @@ const KnowledgeGraph = () => {
             <div className="min-w-0">
               <div className="font-headline font-bold text-on-surface truncate">{row.targetName}</div>
               <EntityBadge group={row.targetGroup} />
-            </div>
-            <div className="flex gap-1 shrink-0">
-              {editUrl && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(editUrl);
-                  }}
-                  className="w-7 h-7 flex items-center justify-center bg-surface-low border border-outline-variant text-on-surface-variant hover:bg-primary hover:text-white rounded-lg transition-all cursor-pointer"
-                  title={`Chỉnh sửa ${row.targetGroup === 'character' ? 'Nhân vật' : row.targetGroup === 'event' ? 'Sự kiện' : 'Địa danh'}`}
-                >
-                  <span className="material-symbols-outlined text-[15px]">edit</span>
-                </button>
-              )}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/admin/hub/edit/${row.targetId}`);
-                }}
-                className="w-7 h-7 flex items-center justify-center bg-surface-low border border-outline-variant text-on-surface-variant hover:bg-secondary hover:text-white rounded-lg transition-all cursor-pointer"
-                title="Chỉnh sửa liên kết của thực thể này"
-              >
-                <span className="material-symbols-outlined text-[15px]">hub</span>
-              </button>
             </div>
           </div>
         );
@@ -380,18 +217,30 @@ const KnowledgeGraph = () => {
     },
   ];
 
+  const filteredRelations = relations.filter((row) => {
+    const q = filters.search.toLowerCase();
+    const matchSearch =
+      !q ||
+      row.sourceName?.toLowerCase().includes(q) ||
+      row.targetName?.toLowerCase().includes(q) ||
+      row.relation?.toLowerCase().includes(q);
+    const matchType = filters.type ? row.type === filters.type : true;
+    const matchGroup = filters.entityGroup
+      ? row.sourceGroup === filters.entityGroup || row.targetGroup === filters.entityGroup
+      : true;
+    return matchSearch && matchType && matchGroup;
+  });
+
   return (
     <AdminLayout>
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <PageHeader
           title="Quản lý Mối quan hệ"
-          subtitle="Quản trị liên kết giữa nhân vật, sự kiện và địa danh trong hệ thống."
+          subtitle="Quản trị liên kết giữa nhân vật, sự kiện và di tích trong hệ thống."
           actionLabel="Thêm quan hệ"
           actionIcon="add"
-          onActionClick={() => setIsModalOpen(true)}
+          onActionClick={() => navigate('/admin/hub/new')}
         />
-
-        
 
         <div className="flex gap-2">
           <button
@@ -438,7 +287,7 @@ const KnowledgeGraph = () => {
                   >
                     <option value="">Tất cả loại quan hệ</option>
                     <option value="participation">Nhân vật – Sự kiện</option>
-                    <option value="event_location">Sự kiện – Địa danh</option>
+                    <option value="event_location">Sự kiện – Di tích</option>
                     <option value="custom">Tùy chỉnh</option>
                   </select>
                   <select
@@ -449,7 +298,9 @@ const KnowledgeGraph = () => {
                     <option value="">Tất cả thực thể</option>
                     <option value="character">Nhân vật</option>
                     <option value="event">Sự kiện</option>
-                    <option value="location">Địa danh</option>
+                    <option value="location">Di tích</option>
+                    <option value="article">Bài viết</option>
+                    <option value="record">Sử liệu</option>
                   </select>
                 </div>
               </div>
@@ -483,8 +334,8 @@ const KnowledgeGraph = () => {
                     : `${relations.length} quan hệ có thể quản trị`}
                 </p>
               </div>
-              {selectedEntity && (
-                <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2">
+                {selectedEntity && (
                   <button
                     onClick={() => {
                       let editUrl = '';
@@ -498,20 +349,29 @@ const KnowledgeGraph = () => {
                   >
                     Chỉnh sửa thực thể
                   </button>
+                )}
+                {selectedEntity && (
                   <button
-                    onClick={() => navigate(`/admin/hub/edit/${selectedEntity.id}`)}
+                    onClick={() => navigate(`/admin/hub/edit/${selectedEntity.group}_${selectedEntity.id}`)}
                     className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest bg-surface-low border border-outline-variant hover:border-primary/50 text-on-surface-variant hover:text-primary rounded-lg transition-all cursor-pointer"
                   >
                     Chỉnh sửa liên kết
                   </button>
-                  <button
-                    onClick={() => setSelectedEntity(null)}
-                    className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest border border-outline-variant rounded-lg hover:bg-surface-low transition-all cursor-pointer"
-                  >
-                    Xem toàn bộ
-                  </button>
-                </div>
-              )}
+                )}
+                <button
+                  onClick={() => navigate('/admin/hub/new')}
+                  className="px-6 py-2.5 bg-[#6b0f0d] text-[#ffe7b0] rounded-xl hover:bg-[#520a08] hover:-translate-y-1 active:scale-95 transition-all shadow-lg hover:shadow-[#6b0f0d]/30 font-bold text-[11px] uppercase tracking-widest flex items-center gap-2 border border-[#ffe7b0]/25"
+                >
+                  <span className="material-symbols-outlined text-[16px]">add_link</span>
+                  Thêm Mối Quan Hệ
+                </button>
+                <button
+                  onClick={() => setSelectedEntity(null)}
+                  className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest border border-outline-variant rounded-lg hover:bg-surface-low transition-all cursor-pointer"
+                >
+                  Xem toàn bộ
+                </button>
+              </div>
             </div>
             <div ref={containerRef} className="relative h-[520px] bg-surface">
               <div className="absolute top-4 right-4 z-20 flex items-center gap-1 bg-white/90 border border-outline-variant p-1 rounded-lg shadow-lg">
@@ -535,7 +395,30 @@ const KnowledgeGraph = () => {
                   ref={graphRef}
                   width={dimensions.width}
                   height={dimensions.height}
-                  graphData={selectedEntity ? previewGraphData : graphData}
+                  graphData={selectedEntity ? {
+                    nodes: nodes.filter((n) => {
+                      const neighborIds = new Set([String(selectedEntity.id)]);
+                      links.forEach((l) => {
+                        const sId = typeof l.source === 'object' ? l.source.id : l.source;
+                        const tId = typeof l.target === 'object' ? l.target.id : l.target;
+                        if (String(sId) === String(selectedEntity.id)) neighborIds.add(String(tId));
+                        if (String(tId) === String(selectedEntity.id)) neighborIds.add(String(sId));
+                      });
+                      return neighborIds.has(String(n.id));
+                    }),
+                    links: links.filter((l) => {
+                      const neighborIds = new Set([String(selectedEntity.id)]);
+                      links.forEach((li) => {
+                        const sId = typeof li.source === 'object' ? li.source.id : li.source;
+                        const tId = typeof li.target === 'object' ? li.target.id : li.target;
+                        if (String(sId) === String(selectedEntity.id)) neighborIds.add(String(tId));
+                        if (String(tId) === String(selectedEntity.id)) neighborIds.add(String(sId));
+                      });
+                      const sId = typeof l.source === 'object' ? l.source.id : l.source;
+                      const tId = typeof l.target === 'object' ? l.target.id : l.target;
+                      return neighborIds.has(String(sId)) && neighborIds.has(String(tId));
+                    })
+                  } : graphData}
                   nodeLabel={(node) => {
                     return `<div style="background:rgba(30,41,59,0.95);color:#fff;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:bold;line-height:1.4;box-shadow:0 4px 12px rgba(0,0,0,0.15);">
                       <div>${node.name} <span style="font-size:9px;opacity:0.7;padding-left:4px;">(${node.type})</span></div>
@@ -553,6 +436,19 @@ const KnowledgeGraph = () => {
                     else if (node.group === 'event') editUrl = `/admin/events/edit/${rawId}`;
                     else if (node.group === 'location') editUrl = `/admin/locations/edit/${rawId}`;
                     if (editUrl) navigate(editUrl);
+                  }}
+                  onLinkDoubleClick={(link) => {
+                    const sName = typeof link.source === 'object' ? link.source.name : nodes.find(n => n.id === link.source)?.name;
+                    const tName = typeof link.target === 'object' ? link.target.name : nodes.find(n => n.id === link.target)?.name;
+                    navigate(`/admin/hub/relations/edit`, {
+                      state: {
+                        sourceNode: sName,
+                        targetNode: tName,
+                        relationText: link.relation,
+                        isEdit: true,
+                        oldRelation: link
+                      }
+                    });
                   }}
                   linkDirectionalParticles={2}
                   linkDirectionalParticleSpeed={(d) => (d.value || 2) * 0.005}
@@ -593,77 +489,6 @@ const KnowledgeGraph = () => {
         item={{ name: deleteModal.relation?.label }}
         onConfirm={handleDelete}
       />
-
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-surface rounded-[2rem] border border-outline-variant shadow-2xl max-w-md w-full p-8 space-y-6 relative">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-6 right-6 material-symbols-outlined text-on-surface-variant hover:text-red-500 transition-colors cursor-pointer"
-            >
-              close
-            </button>
-            <div className="space-y-1">
-              <h3 className="font-headline text-2xl text-primary font-bold">Thêm Mối Quan Hệ</h3>
-              <p className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest">
-                Nhân vật–Sự kiện và Sự kiện–Địa danh lưu vào DB; các loại khác lưu tùy chỉnh
-              </p>
-            </div>
-            <form onSubmit={handleSaveRelation} className="space-y-5">
-              <div className="space-y-2">
-                <label className="block font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Thực thể nguồn</label>
-                <input
-                  type="text"
-                  list="nodes-source"
-                  value={sourceNode}
-                  onChange={(e) => setSourceNode(e.target.value)}
-                  placeholder="Nhân vật, sự kiện hoặc địa danh..."
-                  className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 text-sm font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                />
-                <datalist id="nodes-source">
-                  {nodes.map((n) => (
-                    <option key={n.id} value={n.name}>{n.type} - {n.dynasty || 'Khác'}</option>
-                  ))}
-                </datalist>
-              </div>
-              <div className="space-y-2">
-                <label className="block font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Thực thể đích</label>
-                <input
-                  type="text"
-                  list="nodes-target"
-                  value={targetNode}
-                  onChange={(e) => setTargetNode(e.target.value)}
-                  placeholder="Nhân vật, sự kiện hoặc địa danh..."
-                  className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 text-sm font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                />
-                <datalist id="nodes-target">
-                  {nodes.map((n) => (
-                    <option key={n.id} value={n.name}>{n.type} - {n.dynasty || 'Khác'}</option>
-                  ))}
-                </datalist>
-              </div>
-              <div className="space-y-2">
-                <label className="block font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Mối quan hệ</label>
-                <input
-                  type="text"
-                  value={relationText}
-                  onChange={(e) => setRelationText(e.target.value)}
-                  placeholder="Vd: Tướng lĩnh, Nơi diễn ra trận chiến..."
-                  className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 text-sm font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-              <div className="pt-2 flex justify-end gap-3">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 border border-primary/30 text-primary rounded-xl font-bold text-xs uppercase tracking-widest">
-                  Hủy bỏ
-                </button>
-                <button type="submit" className="px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-md">
-                  Xác nhận
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </AdminLayout>
   );
 };

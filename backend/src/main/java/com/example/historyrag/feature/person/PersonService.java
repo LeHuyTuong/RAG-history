@@ -13,7 +13,7 @@ public interface PersonService {
 
     PersonResponse getById(Long id);
 
-    ResultPaginationDTO getAllPersons(String keyword, Pageable pageable);
+    ResultPaginationDTO getAllPersons(String keyword, String status, Pageable pageable);
 
     void deletePerson(Long id);
 

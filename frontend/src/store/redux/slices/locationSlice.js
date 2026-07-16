@@ -12,7 +12,7 @@ export const fetchLocations = createAsyncThunk(
         dbLocations = res.items || [];
         totalElements = res.totalElements || dbLocations.length;
       } catch (apiErr) {
-        console.error('Lỗi gọi API địa danh admin:', apiErr);
+        console.error('Lỗi gọi API di tích admin:', apiErr);
       }
 
       let merged = dbLocations.map(dbItem => {
@@ -36,7 +36,7 @@ export const fetchLocations = createAsyncThunk(
       return {
         locations: merged,
         stats: [
-          { id: 1, label: 'Tổng số địa danh', value: totalElements || merged.length, icon: 'location_on', color: 'text-emerald-600' }
+          { id: 1, label: 'Tổng số di tích', value: totalElements || merged.length, icon: 'location_on', color: 'text-emerald-600' }
         ]
       };
     } catch (error) {

@@ -1,13 +1,16 @@
-import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
+import { API_ENDPOINTS, apiClient, hubService } from '../../../services';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 
-import { generateSlug } from '../../../utils/stringUtils';
-import { getRelationLabel } from '../../../utils/relationUtils';
+import { generateSlug, stripHtml } from '../../../utils/stringUtils';
+import { getRelationLabel, PARTICIPATION_ROLE_LABELS, EVENT_LOCATION_RELATION_LABELS } from '../../../utils/relationUtils';
+import { FormHeader } from '../../../components/admin';
+import toast from 'react-hot-toast';
 
 const HubEntityForm = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const { id } = useParams();
 
   // Clean prefix if present (e.g. "character_12" -> "12")
@@ -28,9 +31,10 @@ const HubEntityForm = () => {
 
   const [entity, setEntity] = useState(null);
   const [entityType, setEntityType] = useState(''); // 'character', 'event', 'location'
-  const [typeLabel, setTypeLabel] = useState(''); // 'Nhân vật', 'Sự kiện', 'Địa danh'
+  const [typeLabel, setTypeLabel] = useState(''); // 'Nhân vật', 'Sự kiện', 'Di tích'
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
+  const [formErrors, setFormErrors] = useState({});
 
   // Lists of all available entities for linking
   const [allCharacters, setAllCharacters] = useState([]);
@@ -65,12 +69,6 @@ const HubEntityForm = () => {
           }));
         } catch (e) {
           console.error("Lỗi khi tải nhân vật từ API:", e);
-          try {
-            const res = await mockClient.get('/api/admin_characters.json');
-            baseChars = res.data.characters || [];
-          } catch (e2) {
-            console.error("Lỗi khi tải nhân vật từ mock JSON:", e2);
-          }
         }
 
         // Fetch events
@@ -86,12 +84,6 @@ const HubEntityForm = () => {
           }));
         } catch (e) {
           console.error("Lỗi khi tải sự kiện từ API:", e);
-          try {
-            const res = await mockClient.get('/api/admin_events.json');
-            baseEvents = res.data.events || [];
-          } catch (e2) {
-            console.error("Lỗi khi tải sự kiện từ mock JSON:", e2);
-          }
         }
 
         // Fetch locations
@@ -107,13 +99,7 @@ const HubEntityForm = () => {
             status: 'PUBLISHED'
           }));
         } catch (e) {
-          console.error("Lỗi khi tải địa danh từ API:", e);
-          try {
-            const res = await mockClient.get('/api/admin_locations.json');
-            baseLocations = res.data.locations || [];
-          } catch (e2) {
-            console.error("Lỗi khi tải địa danh từ mock JSON:", e2);
-          }
+          console.error("Lỗi khi tải di tích từ API:", e);
         }
 
         const mergedChars = baseChars;
@@ -127,7 +113,7 @@ const HubEntityForm = () => {
         // Find the target entity
         let target = null;
         let type = forcedType || 'character';
-        let tLabel = type === 'character' ? 'Nhân vật' : type === 'event' ? 'Sự kiện' : 'Địa danh';
+        let tLabel = type === 'character' ? 'Nhân vật' : type === 'event' ? 'Sự kiện' : 'Di tích';
 
         if (type === 'character') {
           target = mergedChars.find(c => String(c.id) === String(cleanId) || String(c.id) === String(id));
@@ -155,7 +141,7 @@ const HubEntityForm = () => {
           target = mergedLocations.find(l => String(l.id || l.location_id) === String(cleanId) || String(l.id || l.location_id) === String(id));
           if (target) {
             type = 'location';
-            tLabel = 'Địa danh';
+            tLabel = 'Di tích';
           }
         }
 
@@ -207,122 +193,88 @@ const HubEntityForm = () => {
           setEntityType(type);
           setTypeLabel(tLabel);
           setName(target.name || '');
-          setDesc(target.biography || target.description || target.shortDesc || '');
+          setDesc(stripHtml(target.biography || target.description || target.shortDesc || ''));
 
-          // Resolve relations
-          const ownRelations = [];
-          const dbRelationsList = [];
-
+          let ownRelations = [];
           if (!isNaN(Number(cleanId))) {
-            if (type === 'character') {
-              try {
-                const partRes = await apiClient.get('/api/v1/admin/participations', {
-                  params: { personId: cleanId, size: 500 }
-                });
-                const partData = partRes.data?.data?.result || partRes.data?.data || [];
-                partData.forEach(p => {
-                  if (p.event) {
-                    const relItem = {
-                      id: `part_${p.id}`,
-                      targetId: p.event.id,
-                      name: p.event.name,
-                      type: 'Sự kiện',
-                      group: 'event',
-                      relation: p.note || p.role || 'Tham gia',
-                      isCustom: true,
-                      isBackend: true,
-                      backendType: 'participation',
-                      backendId: p.id
-                    };
-                    ownRelations.push(relItem);
-                    dbRelationsList.push(relItem);
-                  }
-                });
-              } catch (err) {
-                console.error('Lỗi khi tải participations cho nhân vật:', err);
-              }
-            } else if (type === 'event') {
-              try {
-                const partRes = await apiClient.get('/api/v1/admin/participations', {
-                  params: { eventId: cleanId, size: 500 }
-                });
-                const partData = partRes.data?.data?.result || partRes.data?.data || [];
-                partData.forEach(p => {
-                  if (p.person) {
-                    const relItem = {
-                      id: `part_${p.id}`,
-                      targetId: p.person.id,
-                      name: p.person.name,
-                      type: 'Nhân vật',
-                      group: 'character',
-                      relation: p.note || p.role || 'Tham gia',
-                      isCustom: true,
-                      isBackend: true,
-                      backendType: 'participation',
-                      backendId: p.id
-                    };
-                    ownRelations.push(relItem);
-                    dbRelationsList.push(relItem);
-                  }
-                });
-              } catch (err) {
-                console.error('Lỗi khi tải participations cho sự kiện:', err);
-              }
+            ownRelations = await hubService.fetchEntityFullRelations(type, cleanId, target);
+          }
 
-              // Load event_location relations
-              if (target && target.locationRelations) {
-                target.locationRelations.forEach(lr => {
-                  const relItem = {
-                    id: `el_${cleanId}_${lr.locationId}`,
-                    targetId: lr.locationId,
-                    name: lr.name,
-                    type: 'Địa danh',
-                    group: 'location',
-                    relation: lr.relationType || 'Địa danh liên quan',
-                    isCustom: true,
-                    isBackend: true,
-                    backendType: 'event_location',
-                    eventId: cleanId,
-                    locationId: lr.locationId
-                  };
-                  ownRelations.push(relItem);
-                  dbRelationsList.push(relItem);
-                });
-              }
-            } else if (type === 'location') {
-              try {
-                const eventRes = await apiClient.get(API_ENDPOINTS.ADMIN_EVENTS, { params: { size: 500 } });
-                const eventData = eventRes.data?.data?.result || eventRes.data?.data?.content || [];
-                eventData.forEach(event => {
-                  if (event.locationRelations) {
-                    const locRel = event.locationRelations.find(lr => String(lr.locationId) === String(cleanId));
-                    if (locRel) {
-                      const relItem = {
-                        id: `el_${event.id}_${cleanId}`,
-                        targetId: event.id,
-                        name: event.name,
-                        type: 'Sự kiện',
-                        group: 'event',
-                        relation: locRel.relationType || 'Địa danh liên quan',
-                        isCustom: true,
-                        isBackend: true,
-                        backendType: 'event_location',
-                        eventId: event.id,
-                        locationId: cleanId
-                      };
-                      ownRelations.push(relItem);
-                      dbRelationsList.push(relItem);
-                    }
+          // MERGE LOCAL STORAGE RELATIONS
+          const findTargetNode = (rawName) => {
+            if (!rawName) return null;
+            const lower = rawName.toString().toLowerCase().trim();
+            let match = mergedChars.find(c => c.name.toLowerCase() === lower);
+            if (match) return { id: match.id, name: match.name, type: 'Nhân vật', group: 'character' };
+            match = mergedEvents.find(e => e.name.toLowerCase() === lower);
+            if (match) return { id: match.id, name: match.name, type: 'Sự kiện', group: 'event' };
+            match = mergedLocations.find(l => l.name.toLowerCase() === lower);
+            if (match) return { id: match.id || match.location_id, name: match.name, type: 'Di tích', group: 'location' };
+            return null;
+          };
+
+          const pushLocalRelation = (list, defaultRole) => {
+            if (Array.isArray(list)) {
+              list.forEach(rel => {
+                const rawName = typeof rel === 'string' ? rel : (rel?.name || '');
+                const targetNode = findTargetNode(rawName);
+                if (targetNode && String(targetNode.id) !== String(cleanId)) {
+                  if (!ownRelations.some(r => String(r.targetId) === String(targetNode.id))) {
+                    ownRelations.push({
+                      id: `local_${targetNode.id}_${Date.now()}_${Math.random()}`,
+                      targetId: targetNode.id,
+                      name: targetNode.name,
+                      type: targetNode.type,
+                      group: targetNode.group,
+                      relation: rel?.relation || defaultRole,
+                      isCustom: true,
+                      isBackend: false
+                    });
                   }
-                });
-              } catch (err) {
-                console.error('Lỗi khi tải danh sách sự kiện cho địa danh:', err);
-              }
+                }
+              });
+            }
+          };
+
+          if (type === 'character') {
+            if (target.parents) pushLocalRelation(target.parents, 'Cha/Mẹ');
+            if (target.siblings) pushLocalRelation(target.siblings, 'Anh/Chị/Em');
+            if (target.family) pushLocalRelation(target.family, 'Gia đình');
+            if (target.relatedCharacters) pushLocalRelation(target.relatedCharacters, 'Liên quan');
+            const localDataStr = localStorage.getItem(`local_char_relations_${cleanId}`) || (target.slug ? localStorage.getItem(`local_char_relations_${target.slug}`) : null);
+            if (localDataStr) {
+              try {
+                const data = JSON.parse(localDataStr);
+                pushLocalRelation(data.parents, 'Cha/Mẹ');
+                pushLocalRelation(data.siblings, 'Anh/Chị/Em');
+                pushLocalRelation(data.family, 'Gia đình');
+                pushLocalRelation(data.relatedCharacters, 'Liên quan');
+              } catch (e) { }
+            }
+          } else if (type === 'event') {
+            if (target.relatedCharacters) pushLocalRelation(target.relatedCharacters, 'Nhân vật liên quan');
+            const localDataStr = localStorage.getItem(`local_event_relations_${cleanId}`);
+            if (localDataStr) {
+              try {
+                const data = JSON.parse(localDataStr);
+                pushLocalRelation(data.relatedCharacters, 'Nhân vật liên quan');
+              } catch (e) { }
+            }
+          } else if (type === 'location') {
+            if (target.relatedCharacters) pushLocalRelation(target.relatedCharacters, 'Nhân vật liên quan');
+            if (target.relatedEvents) pushLocalRelation(target.relatedEvents, 'Sự kiện liên quan');
+            const localDataStr = localStorage.getItem(`local_location_relations_${cleanId}`);
+            if (localDataStr) {
+              try {
+                const data = JSON.parse(localDataStr);
+                pushLocalRelation(data.relatedCharacters, 'Nhân vật liên quan');
+                pushLocalRelation(data.relatedEvents, 'Sự kiện liên quan');
+              } catch (e) { }
             }
           }
 
           setRelatedEntities(ownRelations);
-          setOriginalRelations(dbRelationsList);
+          setOriginalRelations(ownRelations.map(x => ({ ...x })));
         }
       } catch (error) {
         console.error('Error fetching details:', error);
@@ -333,7 +285,7 @@ const HubEntityForm = () => {
 
   const handleAddLink = () => {
     if (!newLinkName.trim() || !newLinkRelation.trim()) {
-      alert("Vui lòng điền đầy đủ tên thực thể và mối quan hệ.");
+      toast.error("Vui lòng điền đầy đủ tên thực thể và mối quan hệ.");
       return;
     }
 
@@ -348,23 +300,23 @@ const HubEntityForm = () => {
     }
     if (!targetNode) {
       targetNode = allLocations.find(l => l.name.toLowerCase() === newLinkName.trim().toLowerCase());
-      tType = 'Địa danh';
+      tType = 'Di tích';
       tGroup = 'location';
     }
 
     if (!targetNode) {
-      alert(`Không tìm thấy thực thể nào có tên "${newLinkName}"`);
+      toast.error(`Không tìm thấy thực thể nào có tên "${newLinkName}"`);
       return;
     }
 
     if (String(targetNode.id) === String(id)) {
-      alert("Không thể tạo liên kết tới chính nó.");
+      toast.error("Không thể tạo liên kết tới chính nó.");
       return;
     }
 
     const duplicate = relatedEntities.some(re => String(re.targetId) === String(targetNode.id));
     if (duplicate) {
-      alert("Mối liên kết với thực thể này đã tồn tại.");
+      toast.error("Mối liên kết với thực thể này đã tồn tại.");
       return;
     }
 
@@ -389,9 +341,11 @@ const HubEntityForm = () => {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      alert("Tên thực thể không được để trống.");
+      setFormErrors({ name: 'Vui lòng nhập tên thực thể.' });
+      toast.error("Vui lòng kiểm tra lại thông tin nhập bị lỗi.");
       return;
     }
+    setFormErrors({});
 
     try {
       // 1. Save base entity information
@@ -442,7 +396,7 @@ const HubEntityForm = () => {
       }
     } catch (error) {
       console.error('Lỗi khi lưu thông tin thực thể vào backend:', error);
-      alert('Có lỗi xảy ra khi lưu vào database. Vui lòng kiểm tra lại.');
+      toast.error('Có lỗi xảy ra khi lưu vào database. Vui lòng kiểm tra lại.');
       return;
     }
 
@@ -570,7 +524,7 @@ const HubEntityForm = () => {
         }
       } catch (err) {
         console.error('Lỗi khi đồng bộ các mối quan hệ:', err);
-        alert('Có lỗi xảy ra khi cập nhật các liên kết dữ liệu.');
+        toast.error('Có lỗi xảy ra khi cập nhật các liên kết dữ liệu.');
       }
     }
 
@@ -581,6 +535,55 @@ const HubEntityForm = () => {
     return [...allCharacters, ...allEvents, ...allLocations].filter(n => String(n.id) !== String(cleanId) && String(n.id) !== String(id));
   };
 
+  if (!id) {
+    return (
+      <div className="flex-grow bg-surface min-h-screen font-body pb-20 animate-in fade-in duration-500">
+        <main className="p-8 max-w-7xl mx-auto space-y-8">
+          <FormHeader loading={loading}
+            title="Thêm Mối Quan Hệ"
+            subtitle="Chọn một thực thể làm gốc để bắt đầu thêm các liên kết."
+            icon="hub"
+            isEdit={false}
+            onCancel={() => navigate('/admin/hub')}
+            hideSave={true}
+          />
+          <div className="bg-white p-8 rounded-[2rem] border border-outline-variant/60 shadow-sm space-y-6 max-w-2xl mx-auto mt-12">
+            <h3 className="font-headline text-2xl text-primary font-bold border-b border-outline-variant/40 pb-3 flex items-center gap-2">
+              <span className="material-symbols-outlined text-[24px]">search</span>
+              Chọn Thực Thể Nguồn
+            </h3>
+            <p className="text-sm text-on-surface-variant italic">Tìm kiếm và chọn một nhân vật, sự kiện hoặc di tích để bắt đầu tạo mối quan hệ.</p>
+            <div className="space-y-3 pt-4">
+              <label className="font-body text-[11px] font-bold uppercase tracking-widest text-primary flex items-center gap-2 opacity-80">
+                Tên thực thể
+              </label>
+              <input
+                type="text"
+                list="all-nodes"
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const foundChar = allCharacters.find(c => c.name === val);
+                  if (foundChar) return navigate(`/admin/hub/edit/character_${foundChar.id}`);
+                  const foundEvent = allEvents.find(ev => ev.name === val);
+                  if (foundEvent) return navigate(`/admin/hub/edit/event_${foundEvent.id}`);
+                  const foundLoc = allLocations.find(l => l.name === val);
+                  if (foundLoc) return navigate(`/admin/hub/edit/location_${foundLoc.id || foundLoc.location_id}`);
+                }}
+                placeholder="Nhập tên nhân vật, sự kiện hoặc di tích..."
+                className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-4 text-base font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-inner"
+              />
+              <datalist id="all-nodes">
+                {allCharacters.map(c => <option key={`c-${c.id}`} value={c.name}>Nhân vật</option>)}
+                {allEvents.map(e => <option key={`e-${e.id}`} value={e.name}>Sự kiện</option>)}
+                {allLocations.map(l => <option key={`l-${l.id || l.location_id}`} value={l.name}>Di tích</option>)}
+              </datalist>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   if (!entity) {
     return (
       <div className="flex items-center justify-center min-h-screen font-body text-primary bg-[#FDFBF0]">
@@ -590,21 +593,18 @@ const HubEntityForm = () => {
   }
 
   return (
-    <div className="flex-grow bg-surface min-h-screen font-body pb-20">
-      <header className="h-16 sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-outline-variant px-8 flex justify-between items-center">
-        <div className="flex items-center gap-2 font-body text-[10px] uppercase text-on-surface-variant tracking-wider">
-          <span>Mạng lưới tri thức</span> <span className="material-symbols-outlined text-[10px] opacity-50">chevron_right</span>
-          <span className="text-primary font-bold">Thiết lập liên kết thực thể</span>
-        </div>
-        <div className="flex gap-3 font-body text-[10px] font-bold tracking-widest">
-          <button onClick={() => navigate('/admin/hub')} className="px-5 py-2.5 border border-primary/30 text-primary hover:bg-primary/5 rounded-xl transition-all cursor-pointer">HỦY BỎ</button>
-          <button onClick={handleSave} className="px-6 py-2.5 bg-primary hover:bg-primary-container text-white shadow-lg flex items-center gap-2 transition-all rounded-xl cursor-pointer">
-            <span className="material-symbols-outlined text-sm">save</span> LƯU THAY ĐỔI
-          </button>
-        </div>
-      </header>
-
-      <main className="p-8 max-w-6xl mx-auto space-y-10">
+    <div className="flex-grow bg-surface min-h-screen font-body pb-20 animate-in fade-in duration-500">
+      <main className="p-8 max-w-7xl mx-auto space-y-8">
+        <FormHeader loading={loading}
+          title="Thiết lập liên kết thực thể"
+          subtitle="Quản lý và điều chỉnh các mối quan hệ của thực thể trên Mạng lưới tri thức."
+          icon="hub"
+          isEdit={true}
+          onCancel={() => navigate('/admin/hub')}
+          onSave={handleSave}
+          status="published"
+          contentType="relation"
+        />
         <div className="grid grid-cols-12 gap-8 items-start">
           {/* CỘT TRÁI: THÔNG TIN CHÍNH */}
           <div className="col-span-12 lg:col-span-8 space-y-8">
@@ -619,9 +619,10 @@ const HubEntityForm = () => {
                   <input
                     type="text"
                     value={name}
-                    onChange={e => setName(e.target.value)}
-                    className="w-full bg-transparent border-0 border-b-2 border-outline-variant focus:border-primary py-2.5 font-headline text-2xl font-bold text-primary outline-none transition-colors"
+                    onChange={e => { setName(e.target.value); if(formErrors.name) setFormErrors({}); }}
+                    className={`w-full bg-transparent border-0 border-b-2 py-2.5 font-headline text-2xl font-bold outline-none transition-colors ${formErrors.name ? 'border-red-500 focus:border-red-600 text-red-500' : 'border-outline-variant focus:border-primary text-primary'}`}
                   />
+                  {formErrors.name && <p className="text-red-500 text-[11px] font-bold mt-1 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">error</span> {formErrors.name}</p>}
                 </div>
                 <div className="col-span-2 md:col-span-1 space-y-2">
                   <label className="font-body text-[10px] font-bold uppercase tracking-widest opacity-60">Loại thực thể</label>
@@ -681,30 +682,41 @@ const HubEntityForm = () => {
 
                 <div className="space-y-3">
                   <div className="relative">
-                    <input
-                      type="text"
-                      list="avail-nodes"
+                    <select
                       value={newLinkName}
                       onChange={e => setNewLinkName(e.target.value)}
-                      placeholder="Chọn thực thể kết nối..."
-                      className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-xs font-bold text-on-surface outline-none focus:border-primary"
-                    />
-                    <datalist id="avail-nodes">
+                      className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-xs font-bold text-on-surface outline-none focus:border-primary appearance-none pr-8 cursor-pointer"
+                    >
+                      <option value="" disabled>-- Chọn thực thể kết nối --</option>
                       {getCombinedNodes().map(n => (
                         <option key={n.id} value={n.name}>
-                          {(n.type || (n.years ? 'Nhân vật' : 'Sự kiện'))}
+                          {n.name} - {(n.type || (n.years ? 'Nhân vật' : 'Sự kiện'))}
                         </option>
                       ))}
-                    </datalist>
+                    </select>
+                    <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-sm">expand_more</span>
                   </div>
 
-                  <input
-                    type="text"
-                    value={newLinkRelation}
-                    onChange={e => setNewLinkRelation(e.target.value)}
-                    placeholder="Mối quan hệ (Vd: Học trò, Tướng lĩnh...)"
-                    className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-xs font-bold text-on-surface outline-none focus:border-primary"
-                  />
+                  <div className="relative">
+                    <select
+                      value={newLinkRelation}
+                      onChange={e => setNewLinkRelation(e.target.value)}
+                      className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-xs font-bold text-on-surface outline-none focus:border-primary appearance-none pr-8 cursor-pointer"
+                    >
+                      <option value="" disabled>-- Chọn loại mối quan hệ --</option>
+                      <optgroup label="Nhân vật - Sự kiện">
+                        {Object.entries(PARTICIPATION_ROLE_LABELS).map(([key, label]) => (
+                          <option key={`p-${key}`} value={key}>{label}</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Sự kiện - Di tích">
+                        {Object.entries(EVENT_LOCATION_RELATION_LABELS).map(([key, label]) => (
+                          <option key={`l-${key}`} value={key}>{label}</option>
+                        ))}
+                      </optgroup>
+                    </select>
+                    <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-sm">expand_more</span>
+                  </div>
 
                   <button
                     onClick={handleAddLink}

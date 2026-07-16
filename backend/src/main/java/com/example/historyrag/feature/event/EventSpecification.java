@@ -51,6 +51,10 @@ public class EventSpecification {
                 predicates.add(cb.lessThanOrEqualTo(from.get("startYear"), filter.startYearTo()));
             }
 
+            if (filter.status() != null) {
+                predicates.add(cb.equal(from.get("status"), filter.status()));
+            }
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }

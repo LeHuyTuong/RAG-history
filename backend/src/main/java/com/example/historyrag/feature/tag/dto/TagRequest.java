@@ -14,7 +14,7 @@ public record TagRequest(
 
         @NotBlank(message = "Slug is required")
         @Size(max = 100, message = "Slug must not exceed 100 characters")
-        @Pattern(regexp = "^[a-z0-9]+(?:-[a-z0-9]+)*$", message = "Slug must be valid format (lowercase, hyphen-separated)")
+        @Pattern(regexp = "^[a-z0-9-]+$", message = "Slug must be valid format (lowercase, hyphen-separated)")
         String slug,
 
         @Size(max = 500, message = "Description must not exceed 500 characters")

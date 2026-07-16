@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import { aiService, mockClient, ENDPOINTS } from '../../../services';
+import { aiService, ENDPOINTS } from '../../../services';
 
 const AiManagement = () => {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -14,8 +14,7 @@ const AiManagement = () => {
         try {
           payload = await aiService.getStats();
         } catch (e) {
-          const fallback = await mockClient.get(ENDPOINTS.MOCK.ADMIN_AI);
-          payload = fallback.data;
+          console.error('Cannot fetch from API:', e);
         }
         setData(payload || { stats: [], history: [] });
       } catch (error) {
@@ -59,7 +58,7 @@ const AiManagement = () => {
       </div>
 
       {/* Stats Bento */}
-      
+
 
       <div className="grid grid-cols-12 gap-8">
         {/* Cấu hình Model */}

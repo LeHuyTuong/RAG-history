@@ -65,6 +65,25 @@ const RichTextEditor = ({ value, onChange, placeholder, className = "" }) => {
           .ql-font-georgia {
             font-family: Georgia, serif;
           }
+          /* Fix Quill Editor Height & Borders */
+          .quill {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+          }
+          .ql-container.ql-snow {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            border: none !important;
+          }
+          .ql-editor {
+            flex-grow: 1;
+          }
+          .ql-toolbar.ql-snow {
+            border: none !important;
+            border-bottom: 1px solid var(--color-outline-variant) !important;
+          }
         `}
       </style>
       <ReactQuill

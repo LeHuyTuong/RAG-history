@@ -77,35 +77,6 @@ export const ENDPOINTS = {
         BY_KEY: (key) => `${API_V1}/admin/settings/${encodeURIComponent(key)}`,
     },
 
-    // ---------- Mock JSON fixtures (under public/api) ----------
-    MOCK: {
-        ADMIN_METADATA: '/api/admin_metadata.json',
-        ADMIN_TAG_COLORS: '/api/admin_tag_colors.json',
-        ADMIN_AI: '/api/admin_ai.json',
-        ADMIN_MEMBERS: '/api/admin_members.json',
-        ADMIN_EVENTS: '/api/admin_events.json',
-        ADMIN_CHARACTERS: '/api/admin_characters.json',
-        ADMIN_LOCATIONS: '/api/admin_locations.json',
-        ADMIN_SETTINGS: '/api/admin_settings.json',
-        DASHBOARD: '/api/dashboard.json',
-        PERIOD_COLORS: '/api/period_colors.json',
-        TAG_COLORS: '/api/tag_colors.json',
-        LOCATION_TYPE_COLORS: '/api/location_type_colors.json',
-        USER_HOME: '/api/user_home.json',
-        USER_PROFILE_HISTORY: '/api/user_profile_history.json',
-        USER_ARTICLES: '/api/user_articles.json',
-        USER_ARTICLE_DETAIL: (id) => `/api/user_article_detail.json`,
-        USER_CHARACTERS: '/api/user_characters.json',
-        USER_CHARACTER_DETAIL: (id) => `/api/user_character_detail.json`,
-        USER_EVENTS: '/api/user_events.json',
-        USER_EVENT_DETAIL: (id) => `/api/user_event_detail.json`,
-        USER_LOCATIONS: '/api/user_locations.json',
-        USER_LOCATION_DETAIL: (id) => `/api/user_location_detail.json`,
-        USER_PERIODS: '/api/user_periods.json',
-        USER_PERIOD_DETAIL: (id) => `/api/user_period_detail.json`,
-        USER_RECORDS: '/api/user_records.json',
-        USER_RECORD_DETAIL: (id) => `/api/user_record_detail.json`,
-    },
 };
 
 export default ENDPOINTS;

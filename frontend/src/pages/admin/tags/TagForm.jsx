@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
 import { generateSlug } from '../../../utils/stringUtils';
-import { ActionModal } from '../../../components/admin';
-import { mockClient, apiClient, extractErrorMessage, API_ENDPOINTS } from '../../../services';
+import { ActionModal, FormHeader } from '../../../components/admin';
+import { apiClient, extractErrorMessage, API_ENDPOINTS } from '../../../services';
 
-const MetadataTagForm = () => {
+import toast from 'react-hot-toast';
+
+const TagForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [searchParams] = useSearchParams();
@@ -21,7 +23,15 @@ const MetadataTagForm = () => {
   const [category, setCategory] = useState('dynasty');
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [formErrors, setFormErrors] = useState({});
+  const [status, setStatus] = useState('published');
   const [originalData, setOriginalData] = useState({});
+  const [linkedItems, setLinkedItems] = useState({
+    articles: [],
+    events: [],
+    characters: [],
+    locations: []
+  });
 
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newCatName, setNewCatName] = useState('');
@@ -30,6 +40,16 @@ const MetadataTagForm = () => {
   const [deleteModal, setDeleteModal] = useState({ open: false, id: null, label: '' });
 
   const handleSave = async () => {
+    const newErrors = {};
+    if (!tagName?.trim()) newErrors.tagName = 'Vui lòng nhập tên thẻ hệ thống.';
+
+    if (Object.keys(newErrors).length > 0) {
+      setFormErrors(newErrors);
+      toast.error('Vui lòng kiểm tra lại thông tin nhập bị lỗi.');
+      return;
+    }
+    setFormErrors({});
+
     try {
       const payload = {
         name: tagName,
@@ -43,11 +63,19 @@ const MetadataTagForm = () => {
         await apiClient.post(API_ENDPOINTS.ADMIN_TAG_CATEGORIES, payload);
       }
 
-      navigate('/admin/metadata');
+      // Save local frontend-only fields
+      const savedId = id || payload.slug;
+      localStorage.setItem(`local_tag_relations_${savedId}`, JSON.stringify({
+        color: tagColor,
+        status: status,
+        category: category
+      }));
+      toast.success('Đã lưu thẻ thành công!');
+      navigate('/admin/tags');
     } catch (e) {
       console.error('Lỗi khi lưu thẻ metadata:', e);
       const errMsg = extractErrorMessage(e, 'Có lỗi xảy ra khi lưu thẻ metadata!');
-      alert(errMsg);
+      toast.error(errMsg);
     }
   };
 
@@ -107,13 +135,13 @@ const MetadataTagForm = () => {
     setDeleteModal({ open: false, id: null, label: '' });
   };
 
-  useEffect(() => {
+    useEffect(() => {
     const init = async () => {
       let loadedCategories = [];
       try {
-        const response = await mockClient.get('/api/admin_tag_categories.json');
-        const data = response.data;
-        loadedCategories = data;
+        // Tag Categories should be fetched from API if available,
+        // but for now we initialize empty or with defaults if no endpoint exists
+        loadedCategories = [];
         setCategories(loadedCategories);
       } catch (error) {
         console.error('Error fetching tag categories:', error);
@@ -123,19 +151,87 @@ const MetadataTagForm = () => {
 
       if (id) {
         try {
-          const response = await mockClient.get('/api/admin_metadata.json');
-          const data = response.data;
-          const allTags = data.tags || [];
+          let tagMatch = null;
+          try {
+            const realRes = await apiClient.get(API_ENDPOINTS.ADMIN_TAG_CATEGORIES, { params: { size: 500 } });
+            const realTags = realRes.data?.data?.result || realRes.data?.data?.content || realRes.data || [];
+            tagMatch = realTags.find(t => String(t.id) === String(id));
+          } catch(e) {
+            console.error('Cannot fetch from API', e);
+          }
 
-          const tag = allTags.find(t => String(t.id) === String(id));
-          if (tag) {
-            setOriginalData(tag);
-            setTagName(tag.name || '');
-            if (tag.type) {
-              // Dùng loadedCategories thay vì biến categories (chưa cập nhật kịp do bất đồng bộ)
-              const categoryMatch = loadedCategories.find(c => c.label.toLowerCase() === tag.type.toLowerCase());
-              if (categoryMatch) setCategory(categoryMatch.id);
+          if (tagMatch) {
+            setOriginalData(tagMatch);
+            setTagName(tagMatch.name || tagMatch.label || '');
+            // Hydrate local relations for Tag (color, status, category)
+            const cached = localStorage.getItem(`local_tag_relations_${id}`);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (parsed.color) setTagColor(parsed.color);
+                if (parsed.status) setStatus(parsed.status);
+                if (parsed.category) setCategory(parsed.category);
+            } else {
+                if (tagMatch.color) setTagColor(tagMatch.color);
+                if (tagMatch.status) setStatus(tagMatch.status);
+                const typeStr = tagMatch.type || tagMatch.description?.replace('Type: ', '') || '';
+                const categoryMatch = loadedCategories.find(c => c.label.toLowerCase() === typeStr.toLowerCase());
+                if (categoryMatch) setCategory(categoryMatch.id);
             }
+
+            // TÌM KIẾM LIÊN KẾT (Auto-link fallback)
+            const tagNameStr = tagMatch.name || tagMatch.label || '';
+            const tagLower = tagNameStr.toLowerCase();
+            let arts = [], evts = [], chars = [], locs = [];
+
+            try {
+              const artRes = await apiClient.get(API_ENDPOINTS.ADMIN_ARTICLES, { params: { size: 500 } }).catch(() => ({ data: [] }));
+              const allArts = artRes.data?.data?.result || artRes.data?.data?.content || artRes.data || [];
+              arts = allArts.filter(a =>
+                a.tags?.some(t => t.name === tagNameStr || String(t.id) === String(id)) ||
+                (a.title && a.title.toLowerCase().includes(tagLower)) ||
+                (a.category && a.category.toLowerCase().includes(tagLower))
+              );
+            } catch(e) {}
+
+            try {
+              const evtRes = await apiClient.get(API_ENDPOINTS.ADMIN_EVENTS, { params: { size: 500 } }).catch(() => ({ data: [] }));
+              const allEvts = evtRes.data?.data?.result || evtRes.data?.data?.content || evtRes.data || [];
+              evts = allEvts.filter(e => {
+                const localData = localStorage.getItem(`local_event_relations_${e.id}`);
+                const hasTag = localData && JSON.parse(localData).tags?.includes(tagNameStr);
+                const hasNameMatch = e.name && e.name.toLowerCase().includes(tagLower);
+                return hasTag || hasNameMatch;
+              });
+            } catch(e) {}
+
+            try {
+              const charRes = await apiClient.get(API_ENDPOINTS.ADMIN_CHARACTERS, { params: { size: 500 } }).catch(() => ({ data: [] }));
+              const allChars = charRes.data?.data?.result || charRes.data?.data?.content || charRes.data || [];
+              chars = allChars.filter(c => {
+                const localData = localStorage.getItem(`local_char_relations_${c.id}`);
+                const hasTag = localData && JSON.parse(localData).tags?.includes(tagNameStr);
+                const hasNameMatch = c.name && c.name.toLowerCase().includes(tagLower);
+                return hasTag || hasNameMatch;
+              });
+            } catch(e) {}
+
+            try {
+              const locRes = await apiClient.get(API_ENDPOINTS.ADMIN_LOCATIONS, { params: { size: 500 } }).catch(() => ({ data: [] }));
+              const allLocs = locRes.data?.data?.result || locRes.data?.data?.content || locRes.data || [];
+              locs = allLocs.filter(l => {
+                const localData = localStorage.getItem(`local_loc_relations_${l.id}`);
+                const hasTag = localData && JSON.parse(localData).tags?.includes(tagNameStr);
+                const hasNameMatch = l.name && l.name.toLowerCase().includes(tagLower);
+                return hasTag || hasNameMatch;
+              });
+            } catch(e) {}
+
+            setLinkedItems({
+              articles: arts,
+              events: evts,
+              characters: chars,
+              locations: locs
+            });
           }
         } catch (error) {
           console.error('Error fetching tag detail:', error);
@@ -159,32 +255,17 @@ const MetadataTagForm = () => {
     <div className="flex-grow bg-surface min-h-screen font-body pb-20 animate-in fade-in duration-500">
       <main className="p-8 max-w-6xl mx-auto space-y-8">
 
-        <div className="flex flex-col md:flex-row justify-between items-end border-b border-outline-variant/40 pb-6 gap-4">
-          <div>
-            <h2 className="font-headline text-4xl font-black tracking-tight bg-gradient-to-r from-[#6b0f0d] to-amber-600 bg-clip-text text-transparent">
-              {id ? 'Hiệu đính Thẻ Metadata' : 'Khởi tạo Thẻ mới'}
-            </h2>
-            <p className="font-body text-sm text-on-surface-variant mt-3 italic flex items-center gap-2">
-              <span className="material-symbols-outlined text-[16px] text-[#6b0f0d]">local_offer</span>
-              Quản lý hệ thống thẻ phân loại dữ liệu lịch sử tinh gọn.
-            </p>
-          </div>
-          <div className="flex gap-3 font-body text-xs font-bold tracking-widest">
-            <button
-              onClick={() => navigate('/admin/metadata')}
-              className="px-6 py-2.5 rounded-xl border-2 border-[#6b0f0d]/20 text-[#6b0f0d] hover:bg-[#6b0f0d]/5 hover:border-[#6b0f0d]/40 transition-all uppercase cursor-pointer"
-            >
-              HỦY BỎ
-            </button>
-            <button
-              onClick={handleSave}
-              className="px-8 py-2.5 rounded-xl bg-[#6b0f0d] text-[#ffe7b0] hover:bg-[#520a08] shadow-lg shadow-[#6b0f0d]/20 hover:-translate-y-0.5 flex items-center gap-2 transition-all active:scale-95 uppercase border border-[#ffe7b0]/25 cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-sm">save</span>
-              {id ? 'CẬP NHẬT' : 'LƯU THẺ'}
-            </button>
-          </div>
-        </div>
+        <FormHeader
+          loading={loading}
+          title={id ? 'Hiệu đính Thẻ Metadata' : 'Khởi tạo Thẻ mới'}
+          subtitle="Quản lý hệ thống thẻ phân loại dữ liệu lịch sử tinh gọn."
+          icon="local_offer"
+          isEdit={!!id}
+          onCancel={() => navigate('/admin/tags')}
+          onSave={handleSave}
+          status={status}
+          contentType="metadata"
+        />
 
         <div className="grid grid-cols-12 gap-8 items-start">
 
@@ -207,10 +288,11 @@ const MetadataTagForm = () => {
                   <input
                     type="text"
                     value={tagName}
-                    onChange={(e) => setTagName(e.target.value)}
-                    className="w-full bg-transparent border-0 border-b border-outline-variant/60 focus:border-primary py-3 font-headline text-3xl text-on-surface font-bold outline-none transition-all placeholder:text-outline-variant/60 placeholder:font-light"
+                    onChange={(e) => { setTagName(e.target.value); if(formErrors.tagName) setFormErrors(prev => ({ ...prev, tagName: null })); }}
+                    className={`w-full bg-transparent border-0 border-b py-3 font-headline text-3xl text-on-surface font-bold outline-none transition-all placeholder:text-outline-variant/60 placeholder:font-light ${formErrors.tagName ? 'border-red-500 focus:border-red-600' : 'border-outline-variant/60 focus:border-primary'}`}
                     placeholder="Ví dụ: Lý Thái Tổ..."
                   />
+                  {formErrors.tagName && <p className="text-red-500 text-[11px] font-bold mt-1 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">error</span> {formErrors.tagName}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -369,8 +451,40 @@ const MetadataTagForm = () => {
           </div>
 
           {/* CỘT PHẢI: CẤU HÌNH */}
-          <aside className="col-span-12 lg:col-span-4 space-y-6">
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-1 rounded-3xl shadow-xl sticky top-8 hover:shadow-2xl hover:scale-[1.02] transition-all duration-500">
+          <aside className="col-span-12 lg:col-span-4 space-y-6 sticky top-8 self-start">
+            <div className="bg-white p-6 border border-outline-variant shadow-sm rounded-3xl flex flex-col space-y-6 relative overflow-hidden">
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#6b0f0d]/10 rounded-full blur-3xl pointer-events-none"></div>
+
+              <h4 className="font-body text-[10px] font-bold uppercase tracking-widest text-[#6b0f0d] border-b border-outline-variant/60 pb-3 flex items-center justify-center gap-2 text-center relative z-10">
+                <span className="material-symbols-outlined text-[16px]">tune</span>
+                CẤU HÌNH THẺ
+              </h4>
+
+              {/* 1. TRẠNG THÁI XUẤT BẢN */}
+              <div className="space-y-4 relative z-10 text-left">
+                <p className="font-body text-[10px] font-bold text-[#6b0f0d] uppercase tracking-widest flex items-center gap-2 border-b border-outline-variant/30 pb-1">
+                  <span className="material-symbols-outlined text-[14px]">publish</span> TRẠNG THÁI XUẤT BẢN
+                </p>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Trạng thái</label>
+                    <div className="relative">
+                      <select
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                        className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-2.5 text-sm font-bold text-on-surface outline-none cursor-pointer hover:border-[#6b0f0d] focus:border-[#6b0f0d] focus:ring-2 focus:ring-[#6b0f0d]/20 transition-all appearance-none"
+                      >
+                        <option value="draft">Bản nháp</option>
+                        <option value="published">Công khai</option>
+                      </select>
+                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-1 rounded-3xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-500">
               <div className="bg-surface/95 backdrop-blur-xl p-8 rounded-[22px] text-center space-y-6 h-full border border-white/10">
 
                 <p className="font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant flex items-center justify-center gap-2">
@@ -404,6 +518,73 @@ const MetadataTagForm = () => {
                 </div>
               </div>
             </div>
+
+            {id && (
+              <div className="bg-white p-6 rounded-3xl shadow-sm border border-outline-variant/60 mt-6">
+                <p className="font-body text-[10px] font-bold uppercase tracking-widest text-[#6b0f0d] flex items-center justify-center gap-2 border-b border-outline-variant/30 pb-3 mb-4">
+                  <span className="material-symbols-outlined text-[14px]">link</span>
+                  THÔNG TIN LIÊN KẾT
+                </p>
+
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center text-sm font-body">
+                    <span className="text-on-surface-variant flex items-center gap-2"><span className="material-symbols-outlined text-[16px]">description</span> Bài viết:</span>
+                    <span className="font-bold text-primary">{linkedItems.articles.length}</span>
+                  </div>
+                  {linkedItems.articles.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {linkedItems.articles.map(a => (
+                        <Link key={`a-${a.id}`} to={`/admin/articles/edit/${a.id}`} className="text-[10px] bg-primary/5 text-primary px-2 py-1 rounded hover:bg-primary/10 transition-colors line-clamp-1 max-w-full" title={a.title}>
+                          {a.title}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center text-sm font-body border-t border-outline-variant/20 pt-3">
+                    <span className="text-on-surface-variant flex items-center gap-2"><span className="material-symbols-outlined text-[16px]">history_edu</span> Sự kiện:</span>
+                    <span className="font-bold text-accent">{linkedItems.events.length}</span>
+                  </div>
+                  {linkedItems.events.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {linkedItems.events.map(e => (
+                        <Link key={`e-${e.id}`} to={`/admin/events/edit/${e.id}`} className="text-[10px] bg-accent/5 text-accent px-2 py-1 rounded hover:bg-accent/10 transition-colors line-clamp-1 max-w-full" title={e.name}>
+                          {e.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center text-sm font-body border-t border-outline-variant/20 pt-3">
+                    <span className="text-on-surface-variant flex items-center gap-2"><span className="material-symbols-outlined text-[16px]">person</span> Nhân vật:</span>
+                    <span className="font-bold text-indigo-600">{linkedItems.characters.length}</span>
+                  </div>
+                  {linkedItems.characters.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {linkedItems.characters.map(c => (
+                        <Link key={`c-${c.id}`} to={`/admin/characters/edit/${c.id}`} className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-1 rounded hover:bg-indigo-100 transition-colors line-clamp-1 max-w-full" title={c.name}>
+                          {c.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center text-sm font-body border-t border-outline-variant/20 pt-3">
+                    <span className="text-on-surface-variant flex items-center gap-2"><span className="material-symbols-outlined text-[16px]">explore</span> Di tích:</span>
+                    <span className="font-bold text-emerald-600">{linkedItems.locations.length}</span>
+                  </div>
+                  {linkedItems.locations.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {linkedItems.locations.map(l => (
+                        <Link key={`l-${l.id}`} to={`/admin/locations/edit/${l.id}`} className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-1 rounded hover:bg-emerald-100 transition-colors line-clamp-1 max-w-full" title={l.name}>
+                          {l.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </aside>
 
         </div>
@@ -419,4 +600,4 @@ const MetadataTagForm = () => {
     </div>
   );
 };
-export default MetadataTagForm;
+export default TagForm;

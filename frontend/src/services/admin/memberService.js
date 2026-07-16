@@ -1,38 +1,31 @@
-import mockClient from '../http/mockClient';
 import apiClient from '../http/apiClient';
-import { unwrap } from '../http/response';
+import { unwrap, unwrapPage } from '../http/response';
 import { ENDPOINTS } from '../endpoints';
 
 const memberService = {
     async filter(params = {}) {
-        const res = await mockClient.get('/api/admin_members.json');
-        const list = res.data?.members || [];
-        return {
-            items: list,
-            meta: { total: list.length }
-        };
+        const res = await apiClient.get('/api/v1/admin/members', { params: { sort: 'id,desc', ...params } });
+        return unwrapPage(res);
     },
 
     async getById(id) {
-        const res = await mockClient.get('/api/admin_members.json');
-        const list = res.data?.members || [];
-        const member = list.find(m => String(m.id) === String(id));
-        return member || null;
+        const res = await apiClient.get(`/api/v1/admin/members/${id}`);
+        return unwrap(res);
     },
 
     async create(payload) {
-        console.log('Mock memberService.create:', payload);
-        return { id: `MB-${Date.now()}`, ...payload };
+        const res = await apiClient.post('/api/v1/admin/members', payload);
+        return unwrap(res);
     },
 
     async update(id, payload) {
-        console.log('Mock memberService.update:', id, payload);
-        return { id, ...payload };
+        const res = await apiClient.put(`/api/v1/admin/members/${id}`, payload);
+        return unwrap(res);
     },
 
     async delete(id) {
-        console.log('Mock memberService.delete:', id);
-        return { success: true };
+        const res = await apiClient.delete(`/api/v1/admin/members/${id}`);
+        return unwrap(res);
     },
 
     async getMe() {

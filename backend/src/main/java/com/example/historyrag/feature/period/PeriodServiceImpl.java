@@ -1,5 +1,7 @@
 package com.example.historyrag.feature.period;
 
+import com.example.historyrag.feature.post.PostStatus;
+
 import com.example.historyrag.dto.ResultPaginationDTO;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.exception.ConflictException;
@@ -33,6 +35,15 @@ public class PeriodServiceImpl implements PeriodService {
         period.setStartYear(request.startYear());
         period.setEndYear(request.endYear());
         period.setDescription(request.description());
+        period.setPhilosophy(request.philosophy());
+        period.setImageUrl(request.imageUrl());
+        period.setEmperors(request.emperors());
+        period.setRelatedLocations(request.relatedLocations());
+        period.setRelatedEvents(request.relatedEvents());
+        period.setRelatedArticles(request.relatedArticles());
+        if (request.status() != null) {
+            period.setStatus(request.status());
+        }
 
         Period saved = periodRepository.save(period);
         return PeriodResponse.fromEntity(saved);
@@ -56,18 +67,44 @@ public class PeriodServiceImpl implements PeriodService {
         period.setStartYear(request.startYear());
         period.setEndYear(request.endYear());
         period.setDescription(request.description());
+        period.setPhilosophy(request.philosophy());
+        period.setImageUrl(request.imageUrl());
+        period.setEmperors(request.emperors());
+        period.setRelatedLocations(request.relatedLocations());
+        period.setRelatedEvents(request.relatedEvents());
+        period.setRelatedArticles(request.relatedArticles());
+        if (request.status() != null) {
+            period.setStatus(request.status());
+        }
 
         Period updated = periodRepository.save(period);
         return PeriodResponse.fromEntity(updated);
     }
 
     @Override
-    public ResultPaginationDTO getAllPeriods(String keyword, Pageable pageable) {
+    public ResultPaginationDTO getAllPeriods(String keyword, String status, Pageable pageable) {
         Page<Period> periods;
+        PostStatus postStatus = null;
+        if (status != null && !status.isBlank()) {
+            try {
+                postStatus = PostStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // ignore
+            }
+        }
+
         if (keyword != null && !keyword.isBlank()) {
-            periods = periodRepository.findByNameContainingIgnoreCase(keyword, pageable);
+            if (postStatus != null) {
+                periods = periodRepository.findByNameContainingIgnoreCaseAndStatus(keyword, postStatus, pageable);
+            } else {
+                periods = periodRepository.findByNameContainingIgnoreCase(keyword, pageable);
+            }
         } else {
-            periods = periodRepository.findAll(pageable);
+            if (postStatus != null) {
+                periods = periodRepository.findByStatus(postStatus, pageable);
+            } else {
+                periods = periodRepository.findAll(pageable);
+            }
         }
         return ResultPaginationDTO.fromPage(periods.map(PeriodResponse::fromEntity));
     }

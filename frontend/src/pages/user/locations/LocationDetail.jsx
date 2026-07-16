@@ -1,43 +1,10 @@
-import { API_ENDPOINTS, apiClient, mockClient } from '../../../services';
+import { API_ENDPOINTS, apiClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { stripHtml } from '../../../utils/stringUtils';
 import VietnamMap from '../../../components/VietnamMap';
-
-const LOCATION_TYPE_MAP = {
-  'REGION': 'VÙNG ĐẤT',
-  'CITADEL': 'THÀNH LŨY',
-  'MOUNTAIN': 'NÚI',
-  'CITY': 'ĐÔ THỊ',
-  'BATTLEFIELD': 'CHIẾN TRƯỜNG',
-  'CAPITAL': 'KINH ĐÔ',
-  'PALACE': 'CUNG ĐIỆN',
-  'BASE': 'CĂN CỨ',
-  'relic': 'DI TÍCH',
-  'historical_site': 'DI TÍCH LỊCH SỬ'
-};
-
-const PROVINCE_MAP = {
-  'phu-tho': 'Phú Thọ',
-  'co-loa': 'Đông Anh, Hà Nội',
-  'me-linh': 'Mê Linh, Hà Nội',
-  'nui-nua': 'Triệu Sơn, Thanh Hóa',
-  'long-bien': 'Bắc Ninh',
-  'hoan-chau': 'Nghệ An',
-  'song-bach-dang': 'Quảng Ninh - Hải Phòng',
-  'hoa-lu': 'Ninh Bình',
-  'thang-long': 'Hà Nội',
-  'song-nhu-nguyet': 'Bắc Ninh',
-  'dong-bo-dau': 'Hà Nội',
-  'thien-truong': 'Nam Định',
-  'tay-do': 'Vĩnh Lộc, Thanh Hóa',
-  'lam-son': 'Thọ Xuân, Thanh Hóa',
-  'dong-kinh': 'Hà Nội',
-  'phu-xuan': 'Huế',
-  'go-dong-da': 'Đống Đa, Hà Nội',
-  'kinh-thanh-hue': 'Huế',
-  'da-nang': 'Đà Nẵng',
-  'dien-bien-phu': 'Điện Biên'
-};
+import { getXPercent, getYPercent } from '../../../utils/mapCoordinates';
+import { IMAGES } from '../../../config/constants';
 
 const LocationDetail = () => {
   const { id } = useParams();
@@ -52,38 +19,51 @@ const LocationDetail = () => {
 
   useEffect(() => {
     const fetchLocation = async () => {
+      setLoading(true);
+      setLocation(null);
       try {
         let dbLocation = null;
         try {
-          const url = typeof API_ENDPOINTS.USER_LOCATION_DETAIL === 'function' ? API_ENDPOINTS.USER_LOCATION_DETAIL(id) : `${API_ENDPOINTS.USER_LOCATION_DETAIL}/${id}`;
-          const response = await apiClient.get(url);
-          dbLocation = response.data?.data || response.data;
+          const isNumeric = /^\d+$/.test(id);
+          if (isNumeric) {
+            try {
+              const url = typeof API_ENDPOINTS.USER_LOCATION_DETAIL === 'function' ? API_ENDPOINTS.USER_LOCATION_DETAIL(id) : `${API_ENDPOINTS.USER_LOCATION_DETAIL}/${id}`;
+              const response = await apiClient.get(url);
+              dbLocation = response.data?.data || response.data;
+            } catch (err) {
+              console.error('Failed to fetch location by ID', err);
+            }
+          }
+
+          if (!dbLocation) {
+            const locsListRes = await apiClient.get(API_ENDPOINTS.USER_LOCATIONS, { params: { size: 500, status: 'PUBLISHED' } }).catch(() => ({ data: [] }));
+            const allLocs = locsListRes.data?.data?.result || locsListRes.data?.data?.content || locsListRes.data?.data || [];
+            dbLocation = allLocs.find(l => l.slug === id || (l.id && l.id.toString() === id));
+          }
         } catch (apiErr) {
           console.error('Failed to fetch location detail from API:', apiErr);
         }
 
-        let mockLocations = [];
-        try {
-          const mockRes = await mockClient.get('/api/user_locations.json');
-          mockLocations = mockRes.data?.locations || mockRes.data || [];
-        } catch (err) {
-          console.error('Error fetching mock locations:', err);
-        }
-
         if (dbLocation) {
-          const mockItem = mockLocations.find(m => m.slug === dbLocation.slug) || {};
+          const lat = dbLocation.latitude;
+          const lon = dbLocation.longitude;
+          let finalX = 50;
+          let finalY = 50;
+          if (lat && lon) {
+            finalX = getXPercent(lon);
+            finalY = getYPercent(lat);
+          }
 
           setLocation({
-            ...mockItem,
             ...dbLocation,
-            heroImg: dbLocation.image || mockItem.heroImg || mockItem.image || 'https://via.placeholder.com/800x400',
+            heroImg: dbLocation.imageUrl || dbLocation.image || IMAGES.PLACEHOLDER_800x400,
             location_id: dbLocation.id,
-            location_type: LOCATION_TYPE_MAP[dbLocation.locationType] || LOCATION_TYPE_MAP[mockItem.location_type] || mockItem.location_type || 'VÙNG ĐẤT',
-            description: dbLocation.description || mockItem.description || '',
-            x: mockItem.x !== undefined ? mockItem.x : 50,
-            y: mockItem.y !== undefined ? mockItem.y : 50,
-            province: PROVINCE_MAP[dbLocation.slug] || PROVINCE_MAP[mockItem.slug] || mockItem.province || 'Việt Nam',
-            period: dbLocation.period?.name || mockItem.period || '',
+            location_type: dbLocation.locationType || 'REGION',
+            description: dbLocation.description || '',
+            x: finalX,
+            y: finalY,
+            province: 'Việt Nam',
+            period: dbLocation.period?.name || '',
           });
         }
       } catch (error) {
@@ -117,7 +97,7 @@ const LocationDetail = () => {
               {location.name}
             </h1>
             <p className="text-[#fcf9ee]/90 font-body text-[16px] max-w-2xl leading-relaxed border-l-4 border-[#d99b4a] pl-6">
-              {location.shortDesc || location.description}
+              {stripHtml(location.shortDesc || location.description || '')}
             </p>
           </div>
         </div>

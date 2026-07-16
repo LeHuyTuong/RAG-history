@@ -80,7 +80,7 @@ const ChatBox = ({ isOpen, onClose }) => {
           className="fixed rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.25)] flex flex-col overflow-hidden border border-[#d99b4a]/60 z-[100]"
         >
           {/* Header */}
-          <div 
+          <div
             style={{ background: "linear-gradient(to right, #5a0c0a, #7a1210)" }}
             className="text-[#ffe7b0] px-5 py-4 flex justify-between items-center relative shrink-0 shadow-md z-20"
           >
@@ -120,7 +120,7 @@ const ChatBox = ({ isOpen, onClose }) => {
           {/* Messages Area */}
           <div className="flex-1 p-5 overflow-y-auto flex flex-col space-y-5 relative scroll-smooth custom-scrollbar z-10">
             <div className="grain-overlay pointer-events-none absolute inset-0 opacity-[0.04]" />
-            
+
             {messages.map((msg) => (
               <motion.div
                 key={msg.id}
@@ -129,7 +129,7 @@ const ChatBox = ({ isOpen, onClose }) => {
                 className={`relative z-10 flex ${msg.role === "user" ? "justify-end" : "justify-start"} items-end gap-2.5`}
               >
                 {msg.role === "ai" && (
-                  <div 
+                  <div
                     style={{ background: "linear-gradient(to bottom, #7a1210, #5a0c0a)" }}
                     className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white shadow-md mb-1 border border-[#d99b4a]/30 p-1.5"
                   >
@@ -139,7 +139,7 @@ const ChatBox = ({ isOpen, onClose }) => {
                 <div className={`relative flex flex-col ${msg.role === "user" ? "items-end" : "items-start"} gap-2`} style={{ maxWidth: "80%" }}>
                   <div
                     style={
-                      msg.role === "user" 
+                      msg.role === "user"
                         ? { background: "linear-gradient(to bottom right, #7a1210, #6b0f0d)" }
                         : { backgroundColor: "#ffffff" }
                     }
@@ -215,7 +215,7 @@ const ChatBox = ({ isOpen, onClose }) => {
                 animate={{ opacity: 1 }}
                 className="relative z-10 flex justify-start items-end gap-2.5"
               >
-                <div 
+                <div
                   style={{ background: "linear-gradient(to bottom, #7a1210, #5a0c0a)" }}
                   className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white shadow-md mb-1 border border-[#d99b4a]/30 p-1.5"
                 >
@@ -245,9 +245,9 @@ const ChatBox = ({ isOpen, onClose }) => {
               />
               <button
                 onClick={handleSend}
-                disabled={!inputValue.trim() || isTyping}
+                disabled={!inputValue.trim() || isTyping || inputValue.length > 2000}
                 style={{
-                  ...((inputValue.trim() && !isTyping) ? { background: "linear-gradient(to right, #7a1210, #5a0c0a)" } : { backgroundColor: "#ccc" }),
+                  ...((inputValue.trim() && !isTyping && inputValue.length <= 2000) ? { background: "linear-gradient(to right, #7a1210, #5a0c0a)" } : { backgroundColor: "#ccc" }),
                   position: "absolute",
                   right: "6px",
                   top: "50%",
@@ -257,6 +257,11 @@ const ChatBox = ({ isOpen, onClose }) => {
               >
                 <span className="material-symbols-outlined text-[18px] ml-0.5">send</span>
               </button>
+            </div>
+            <div className="mt-1 flex justify-end">
+              <span className={`text-[10px] font-body font-bold ${inputValue.length > 2000 ? 'text-red-500' : 'text-[#2b1a16]/40'}`}>
+                {inputValue.length}/2000
+              </span>
             </div>
           </div>
         </motion.div>

@@ -12,7 +12,7 @@ public record EventLocationRelationRequest(
         Long locationId,
 
         @Size(max = 50, message = "Relation type must not exceed 50 characters")
-        @Pattern(regexp = "^[A-Z]*$", message = "Relation type must be a valid enum-like value")
+        @Pattern(regexp = "^[A-Z_]*$", message = "Relation type must be a valid enum-like value")
         String relationType
 ) {
 }
