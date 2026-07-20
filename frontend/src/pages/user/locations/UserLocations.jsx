@@ -8,6 +8,8 @@ import { getXPercent, getYPercent } from '../../../utils/mapCoordinates';
 import Pagination from '../../../components/common/Pagination';
 import DOMPurify from 'dompurify';
 import { IMAGES, MISC_IMAGES } from '../../../config/constants';
+import { resolveImageUrl } from '../../../utils/imageUtils';
+
 
 export default function UserLocations() {
   const { backgroundUrl = '' } = useOutletContext() || {};
@@ -76,7 +78,7 @@ export default function UserLocations() {
               y: finalY,
               province: 'Việt Nam',
               period: dbItem.period?.name || '',
-              image: dbItem.imageUrl || dbItem.image || IMAGES.DEFAULT_LOCATION,
+              image: resolveImageUrl(dbItem.imageUrl || dbItem.image || IMAGES.DEFAULT_LOCATION) + '?v=2',
             });
           });
         }

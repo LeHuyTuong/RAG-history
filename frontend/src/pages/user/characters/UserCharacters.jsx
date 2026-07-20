@@ -1,7 +1,7 @@
 import { API_ENDPOINTS, apiClient, personService } from '../../../services';
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useOutletContext } from 'react-router-dom';
-import characterImages from '../../../data/characterImages.json';
+
 import Pagination from '../../../components/common/Pagination';
 import { IMAGES, MISC_IMAGES } from '../../../config/constants';
 import { resolveImageUrl } from '../../../utils/imageUtils';
@@ -104,7 +104,7 @@ const UserCharacters = () => {
               realName: dbItem.alias || '',
               desc: cleanDesc,
               dynasties: cachedDynasties.length > 0 ? cachedDynasties : (dbItem.dynasty ? [dbItem.dynasty] : ['Chưa rõ']),
-              image: resolveImageUrl(characterImages[dbItem.slug] || dbItem.imageUrl || dbItem.avatar),
+              image: resolveImageUrl(dbItem.imageUrl || dbItem.avatar),
               achievements: [],
               years: dbItem.birthDate || dbItem.deathDate
                 ? `${dbItem.birthDate ? dbItem.birthDate : '?'} - ${dbItem.deathDate ? dbItem.deathDate : '?'}`

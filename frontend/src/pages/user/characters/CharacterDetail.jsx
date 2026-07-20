@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { stripHtml } from '../../../utils/stringUtils';
 import CharacterFamilyTree, { HISTORICAL_MOCK_RELATIONS, normalizeKey } from '../../../components/character/CharacterFamilyTree';
-import characterImages from '../../../data/characterImages.json';
+
 import DOMPurify from 'dompurify';
 import { IMAGES } from '../../../config/constants';
 import { resolveImageUrl } from '../../../utils/imageUtils';
@@ -135,7 +135,7 @@ const CharacterDetail = () => {
           const merged = {
             ...dbPerson,
             person_id: dbPerson.id,
-            portrait: resolveImageUrl(characterImages[dbPerson.slug] || dbPerson.imageUrl || dbPerson.image),
+            portrait: resolveImageUrl(dbPerson.imageUrl || dbPerson.image),
             biography: dbPerson.biography || '',
             description: dbPerson.biography || '',
             dynastyTitle: dbPerson.dynasty?.name || 'Vương triều',

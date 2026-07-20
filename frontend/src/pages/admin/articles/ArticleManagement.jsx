@@ -15,8 +15,26 @@ import {
   Pagination
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
-import articleImages from '../../../data/articleImages.json';
+
 import { resolveImageUrl } from '../../../utils/imageUtils';
+
+const getFallbackImage = (period) => {
+  console.log('[DEBUG] getFallbackImage called with period:', period);
+  if (!period) return "/images/post_history.png";
+  const periodName = typeof period === 'object' ? (period.name || period.title || '') : period;
+  if (!periodName || typeof periodName !== 'string') return "/images/post_history.png";
+  const name = periodName.toLowerCase();
+  console.log('[DEBUG] getFallbackImage periodName:', periodName, 'name:', name);
+  if (name.includes('hùng vương') || name.includes('hồng bàng') || name.includes('âu lạc') || name.includes('văn lang')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuCVTT2QqvD6K9-wucC1WkR7VZnFnP0rjHn6TrcyVqbMkCLEt-GrSb7RFMcwfuFYl9579qyI-CbhlttwgMYFgZtqaEK6hcj7gIzEvC-x8r1WJkxShSTdvgJAiGZim3mnjYlIdJsvmeUw2bip5ou99uGqVBVApXptp6Lpy5LmjEOMY2yZYFGSQzjZdZ5ZBKHO-vZMXFRcwX7gOF6f0s6dB3ZlO7K3KuUYQcdtVpUeP-fDnTut1_okhKeJqvG2OJTJ0xZCroTJlNoWryp1";
+  if (name.includes('lý') || name.includes('ngô') || name.includes('đinh') || name.includes('tiền lê')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuB-vfyWu8AZJ8zXJcGYqxgtuwF8kgnNnxqHfqVCWu6IexNxd58MLyYryN2Pd4GPPIwQcgir92iGx39PPcocu5YwY0dKB88RM80ItVGkDs80nIlov0g4PRkKkWZqNqeAX2cgwfngoBoFqIt07Pir--2qzfNsUbTW8P_bXbYNjOL9IKt34YPVLuKa93Sk3GhQCaHLTecwGQGCZuSq0bnrOOq6oXKKmx5RiNGxRXHOQb6CiTjXlTeHajpZq_8iG4JClpUY9GWZsiRXvkTh";
+  if (name.includes('trần') || name.includes('hồ') || name.includes('khúc') || name.includes('dương')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuBArlscw3wc_0llom4YXbNv7OUtmTW1u8adGJtB0r_R9ouLWRlOhBtwANhi8h-y-oKCXyjtcMAw-fv_DqJa8j9I0UYbf6VIaYfgHL50aCXOYoKCdQKYmjZdoMl1JYnzrRbkzkf79To66-2d-f1XfB1xrJTtxZoVqJiuNrqbgJSqttpHAF3wZGHnereJFQmlr7zvRv_OYZP3ifnXN8WYT8_1w8_n43OLOx1lJp01FpEjYuFGNSEqolT22CJMX1LelRwU2FVHe3Qq_fbP";
+  if (name.includes('lê') || name.includes('mạc') || name.includes('trịnh') || name.includes('nguyễn') || name.includes('tây sơn')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuDDTXt3tOmQLzCboBJbQ63U5COKxdxaq5GrOn1775TXtXg3zq28AuTTb3mfVjKs6uj5Nkhc7auEFnCrMuCs6G4YIcZmzBgEE4ZdY3awqlP12VklH3BWkRe6Q83fhxNWatx1MbYcLIq7RztTsqI3HQRxPVW7T-TPQdwD7HM2eOSpwVHwup9Hp3K7KuNRjtoiaNSNbwvYXV_yv4pvRx5WIpTl05zH0YYusegbAB7v9qKEqrHI9SzL2DI2Hb0snIW35b9H7yKKrRRXIf79";
+  
+  if (name.includes('quân sự') || name.includes('chiến thắng') || name.includes('khởi nghĩa') || name.includes('kháng chiến') || name.includes('trận') || name.includes('điện biên phủ') || name.includes('độc lập')) return "/images/post_war.png";
+  if (name.includes('văn hóa') || name.includes('xã hội') || name.includes('kinh tế') || name.includes('văn học') || name.includes('cải cách')) return "/images/post_culture.png";
+  if (name.includes('lịch sử') || name.includes('tổng hợp') || name.includes('chính trị') || name.includes('cổ đại') || name.includes('cận đại') || name.includes('triều đại') || name.includes('bắc thuộc') || name.includes('địa danh')) return "/images/post_history.png";
+  return "/images/post_history.png";
+};
 
 const ArticleManagement = () => {
   const navigate = useNavigate();
@@ -92,8 +110,17 @@ const ArticleManagement = () => {
       key: 'title', header: 'Sử liệu / Mã số', render: (row) => (
         <div className="flex items-center gap-4 py-2">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/10 shadow-sm shrink-0 overflow-hidden">
-            {(articleImages[row.slug] || row.thumbnailUrl || row.image) ? (
-              <img src={resolveImageUrl(articleImages[row.slug] || row.thumbnailUrl || row.image)} alt={row.title} className="w-full h-full object-cover" />
+            {(row.thumbnailUrl || row.image) ? (
+              <img 
+                src={resolveImageUrl(row.thumbnailUrl || row.image) + '?v=2'} 
+                alt={row.title} 
+                className="w-full h-full object-cover" 
+                onError={(e) => {
+                  e.target.onerror = null;
+                  const dynasty = (row.tags || [])[0] || '';
+                  e.target.src = getFallbackImage(dynasty);
+                }}
+              />
             ) : (
               <span className="material-symbols-outlined text-primary text-xl">history_edu</span>
             )}

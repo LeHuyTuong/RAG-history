@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import Pagination from '../../../components/common/Pagination';
 import { stripHtml } from '../../../utils/stringUtils';
-import eventImages from '../../../data/eventImages.json';
+
 import { IMAGES, MISC_IMAGES } from '../../../config/constants';
 import { resolveImageUrl } from '../../../utils/imageUtils';
 
@@ -88,7 +88,7 @@ const UserEvents = () => {
               category: dbItem.period?.name || 'Sự kiện',
               views: dbItem.viewCount || dbItem.views,
               source: dbItem.source,
-              image: resolveImageUrl(eventImages[dbItem.slug] || dbItem.imageUrl || dbItem.image) || IMAGES.DEFAULT_COVER
+              image: (resolveImageUrl(dbItem.imageUrl || dbItem.image) || IMAGES.DEFAULT_COVER) + '?v=2'
             });
           });
         }

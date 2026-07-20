@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { stripHtml } from '../../../utils/stringUtils';
 import { getRelationLabel } from '../../../utils/relationUtils';
-import eventImages from '../../../data/eventImages.json';
+
 import DOMPurify from 'dompurify';
 import { IMAGES } from '../../../config/constants';
 import { resolveImageUrl } from '../../../utils/imageUtils';
@@ -81,6 +81,8 @@ const EventDetail = () => {
             return fallbackYear;
           };
           const resolvedStartYear = parseEventYear(dbEvent?.startDate, dbEvent?.startYear);
+          const resolvedImgUrl = resolveImageUrl(dbEvent.imageUrl || dbEvent.image);
+          const finalImgWithCache = resolvedImgUrl ? resolvedImgUrl + '?v=2' : IMAGES.DEFAULT_COVER;
 
           const mergedEvent = {
             ...dbEvent,
@@ -94,8 +96,9 @@ const EventDetail = () => {
               ? dbEvent.locationRelations.map(l => l.name).join(', ')
               : 'Chưa rõ',
             locationRelations: dbEvent.locationRelations || [],
-            heroImg: resolveImageUrl(eventImages[dbEvent.slug] || dbEvent.imageUrl || dbEvent.image),
-            mapImg: resolveImageUrl(eventImages[dbEvent.slug] || dbEvent.imageUrl || dbEvent.image),
+            image: finalImgWithCache,
+            heroImg: finalImgWithCache,
+            mapImg: finalImgWithCache,
             participations: dbParts,
             relatedArticles: dbArticles
           };
