@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { AdminLayout, PageHeader, DataTable, StatsGrid, FilterBar, FilterInput, FilterSelect, ActionModal } from '../../../components/admin';
+import { AdminLayout, PageHeader, DataTable, FilterBar, FilterInput, FilterSelect, ActionModal, Pagination } from '../../../components/admin';
 
-import { API_ENDPOINTS, mockClient } from '../../../services';
+import { API_ENDPOINTS, memberService } from '../../../services';
+import toast from 'react-hot-toast';
+import { IMAGES } from '../../../config/constants';
 const MemberManagement = () => {
   const navigate = useNavigate();
   // State quản lý các loại Modal
@@ -11,9 +13,12 @@ const MemberManagement = () => {
   const [data, setData] = useState({ stats: [], members: [] });
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ search: '', status: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
   };
 
   const filteredMembers = data.members.filter(member => {
@@ -22,24 +27,30 @@ const MemberManagement = () => {
     return matchSearch && matchStatus;
   });
 
+  const paginatedMembers = filteredMembers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await mockClient.get('/api/admin_members.json');
-        const payload = response.data || {};
-        const membersList = payload.members || [];
+        let membersList = [];
+        try {
+          const res = await memberService.filter({ size: 1000 });
+          membersList = res.items || [];
+        } catch (err) {
+          console.error("Failed to load members:", err);
+        }
 
         setData({
-          stats: payload.stats || [
+          stats: [
             { id: 1, label: 'Tổng số thành viên', value: membersList.length, icon: 'group', color: 'text-indigo-600' },
-            { id: 2, label: 'Thành viên đang khóa', value: membersList.filter(m => m.status === 'locked').length, icon: 'lock', color: 'text-rose-600' }
+            { id: 2, label: 'Thành viên đang khóa', value: membersList.filter(m => m.status === 'locked' || m.status === 'LOCKED').length, icon: 'lock', color: 'text-rose-600' }
           ],
           members: membersList.map(m => ({
             id: m.id,
-            name: m.name || m.fullName || m.username,
+            name: m.name || m.fullName || m.username || m.email,
             email: m.email || '',
-            role: m.role || 'Thành viên',
+            role: m.role || m.roleName || 'Thành viên',
             joinDate: m.joinDate || '',
             status: m.status === 'locked' ? 'locked' : 'active',
             raw: m
@@ -73,7 +84,7 @@ const MemberManagement = () => {
           members: remaining
         };
       });
-      alert('Đã xóa thành viên (chế độ mock)!');
+      toast.success('Đã xóa thành viên (chế độ mock)!');
     } catch (error) {
       console.error('Error deleting member:', error);
     } finally {
@@ -84,10 +95,10 @@ const MemberManagement = () => {
   const handleLock = async () => {
     if (!activeModal.data || activeModal.data.id === null || activeModal.data.id === undefined) return;
     const lockId = activeModal.data.id;
-    
+
     const currentStatus = activeModal.data.status;
     const newStatus = currentStatus === 'active' ? 'locked' : 'active';
-    
+
     try {
       // Simulate lock/unlock locally
       setData(prev => {
@@ -109,7 +120,7 @@ const MemberManagement = () => {
           members: updated
         };
       });
-      alert(`Đã ${newStatus === 'locked' ? 'khóa' : 'mở khóa'} thành viên (chế độ mock)!`);
+      toast.error(`Đã ${newStatus === 'locked' ? 'khóa' : 'mở khóa'} thành viên (chế độ mock)!`);
     } catch (error) {
       console.error('Error locking/unlocking member:', error);
     } finally {
@@ -180,13 +191,10 @@ const MemberManagement = () => {
           actionLabel="Thêm thành viên"
           actionHref="/admin/members/new"
           actionIcon="person_add"
-          icon="group"
         />
 
         {/* STATS GRID */}
-        <div className="mb-6">
-          <StatsGrid stats={data.stats.map(({ sub, ...rest }) => rest)} loading={loading} />
-        </div>
+
 
         {/* FILTER & MEMBER TABLE */}
         <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">
@@ -222,9 +230,17 @@ const MemberManagement = () => {
           <div className="p-0">
             <DataTable
               columns={columns}
-              data={filteredMembers}
-              rowClassName={(row) => row.status === 'active' ? 'bg-emerald-50/80 !font-semibold border-l-4 border-l-emerald-500 shadow-sm relative z-10' : ''}
+              data={paginatedMembers}
+              rowClassName={(row) => row.status === 'active' ? '!font-semibold border-l-4 border-l-emerald-500 relative z-10' : ''}
               className="border-0 shadow-none rounded-none"
+            />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(filteredMembers.length / itemsPerPage)}
+              totalItems={filteredMembers.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={setItemsPerPage}
             />
           </div>
         </div>
@@ -240,13 +256,13 @@ const MemberManagement = () => {
 
 // --- SUB-COMPONENTS & MODALS ---
 
-// MODAL 1: XEM NHANH HỒ SƠ
+// MODAL 1: XEM NHANH HỒ S�
 const QuickViewModal = ({ data, onClose }) => (
   <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
     <div className="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row animate-in fade-in zoom-in duration-300">
       <div className="w-full md:w-1/3 bg-primary text-white p-8 flex flex-col items-center text-center">
         <div className="w-24 h-24 rounded-full border-4 border-accent overflow-hidden mb-4 shadow-lg">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png" alt="avatar" />
+          <img src={IMAGES.DEFAULT_AVATAR} alt="avatar" />
         </div>
         <h3 className="font-headline text-2xl font-bold">{data.name}</h3>
         <div className="mt-8 space-y-3 text-[11px] w-full text-left opacity-80 border-t border-white/20 pt-6">

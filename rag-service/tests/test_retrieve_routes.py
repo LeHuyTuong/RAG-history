@@ -84,6 +84,7 @@ def test_retrieve_endpoint_uses_default_top_k(monkeypatch):
         return []
 
     monkeypatch.setattr(retrieval_service, "retrieve", fake_retrieve)
+    monkeypatch.setattr("app.config.settings.default_top_k", 5)
 
     response = client.post("/rag/retrieve", json={"question": "Noi dung gi?"})
 

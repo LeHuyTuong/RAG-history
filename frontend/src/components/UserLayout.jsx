@@ -1,46 +1,45 @@
+import { apiClient } from '../services';
 import React, { useState, useEffect } from "react";
-import { Link, Outlet, useNavigate, NavLink } from "react-router-dom";
+import { Link, Outlet, useNavigate, NavLink, useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux';
+import { login, logout } from '../store/redux/slices/authSlice';
+import useModalStore from '../store/zustand/useModalStore';
 import LogoutModal from "./LogoutModal";
 import ChatBox from "./ChatBox";
-import apiClient from "../services/apiClient";
-
-import { mockClient } from "../services/apiClient";
+import DongSonDrumIcon from "./DongSonDrumIcon";
+import useSystemAppearance from '../hooks/useSystemAppearance';
+import SystemBackground from './SystemBackground';
 
 const HEADER_HEIGHT = 80;
 
 const UserLayout = () => {
-  const [isRulesOpen, setIsRulesOpen] = useState(false);
-  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [user, setUser] = useState(null);
+
+  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
+  const { isOpen, modalType, openModal, closeModal } = useModalStore();
 
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [siteName, setSiteName] = useState('Sử Việt');
+  // Reset modal states when navigating or pressing back to prevent getting stuck
+  useEffect(() => {
+    closeModal();
+    setIsChatOpen(false);
+  }, [location.pathname]);
+
+  const { siteName, logoUrl, backgroundUrl } = useSystemAppearance();
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
-    if (savedUser) setUser(JSON.parse(savedUser));
-  }, []);
-
-  useEffect(() => {
-    const customSettings = JSON.parse(localStorage.getItem('admin_new_settings') || '[]');
-    const siteNameParam = customSettings.find(p => p.key === 'site_name');
-    if (siteNameParam) {
-      setSiteName(siteNameParam.value);
-    } else {
-      mockClient.get('/api/admin_settings.json')
-        .then(res => {
-          const defaultSiteName = res.data.parameters?.find(p => p.key === 'site_name')?.value;
-          if (defaultSiteName) {
-            setSiteName(defaultSiteName);
-          }
-        })
-        .catch(err => console.error('Error loading settings:', err));
+    const savedToken = localStorage.getItem("accessToken");
+    if (savedUser && savedToken) {
+      dispatch(login({ user: JSON.parse(savedUser), token: savedToken }));
     }
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
+
     document.title = siteName;
   }, [siteName]);
 
@@ -52,12 +51,13 @@ const UserLayout = () => {
     } finally {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
-      setIsLogoutOpen(false);
-      setUser(null);
+      dispatch(logout());
+      closeModal();
       navigate("/login");
       window.location.reload();
     }
   };
+
 
 
 
@@ -67,8 +67,10 @@ const UserLayout = () => {
     }`;
 
   return (
-    <div className="min-h-screen bg-[#fbf6e8] font-body selection:bg-[#d99b4a]/20 relative flex flex-col">
+    <div className={`min-h-screen font-body selection:bg-[#d99b4a]/20 relative flex flex-col ${backgroundUrl ? 'bg-[#fbf6e8]' : 'bg-[#fbf6e8] parchment-texture'}`}>
       <div className="grain-overlay pointer-events-none fixed inset-0 z-0 opacity-5" />
+
+      <SystemBackground backgroundUrl={backgroundUrl} />
 
       {/* HEADER */}
       <header
@@ -85,7 +87,11 @@ const UserLayout = () => {
               to={user?.role === 'admin' ? '/admin' : '/'}
               className="shrink-0 font-headline text-[26px] lg:text-[30px] font-bold text-[#f7d78a] tracking-wider hover:opacity-80 transition drop-shadow-md flex items-center gap-3"
             >
-              <span className="material-symbols-outlined text-[28px] lg:text-[32px] text-[#f7d78a]">account_balance</span>
+              {logoUrl ? (
+                <img src={logoUrl} alt={siteName} className="w-9 h-9 lg:w-10 lg:h-10 object-contain rounded-sm bg-[#f7d78a]/10 p-0.5" />
+              ) : (
+                <span className="material-symbols-outlined text-[28px] lg:text-[32px] text-[#f7d78a]">account_balance</span>
+              )}
               {siteName}
             </Link>
 
@@ -95,7 +101,7 @@ const UserLayout = () => {
                 Trang chủ
               </NavLink>
 
-              <NavLink to="/posts" end className={navLinkClass}>
+              <NavLink to="/posts" className={(navData) => navLinkClass({ isActive: navData.isActive || location.pathname.startsWith('/articles') })}>
                 Bài viết
               </NavLink>
 
@@ -122,21 +128,17 @@ const UserLayout = () => {
             <div className="shrink-0 flex items-center gap-4">
               {user ? (
                 <div className="flex items-center gap-4 border-l border-[#d99b4a]/30 pl-5">
-                  <div className="text-right hidden xl:block">
-                    <Link to="/profile" className="font-headline font-bold text-[#f7d78a] text-[15px] italic leading-none drop-shadow-sm hover:text-[#d9c7a7] transition-colors">
-                      {user.username}
+                  <div className="hidden xl:block">
+                    <Link to="/profile" className="w-10 h-10 rounded-full border-2 border-[#d99b4a]/50 flex items-center justify-center bg-[#2b0504] text-[#f7d78a] hover:bg-[#4a0a08] hover:scale-105 hover:border-[#d99b4a] transition-all overflow-hidden shadow-lg group">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt="avatar" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                      ) : (
+                        <span className="material-symbols-outlined text-[24px]">account_circle</span>
+                      )}
                     </Link>
-
                   </div>
-
-                  <Link
-                    to="/profile"
-                    className="h-10 px-5 rounded-sm border border-[#d99b4a]/30 bg-transparent text-[#f7d78a] font-body font-bold text-[10.5px] uppercase tracking-widest hover:bg-[#d99b4a]/20 hover:border-[#d99b4a]/60 transition-all active:scale-95 flex items-center"
-                  >
-                    Hồ sơ
-                  </Link>
                   <button
-                    onClick={() => setIsLogoutOpen(true)}
+                    onClick={() => openModal('logout')}
                     className="h-10 px-5 rounded-sm bg-[#6b0f0d] text-[#ffe7b0] font-body font-bold text-[10.5px] uppercase tracking-widest shadow-lg hover:bg-[#8b1512] transition-all active:scale-95"
                   >
                     Đăng xuất
@@ -169,7 +171,7 @@ const UserLayout = () => {
         className="relative z-10 flex-grow"
         style={{ paddingTop: `${HEADER_HEIGHT}px` }}
       >
-        <Outlet />
+        <Outlet context={{ backgroundUrl }} />
       </main>
 
       {/* FOOTER */}
@@ -187,7 +189,7 @@ const UserLayout = () => {
           </div>
 
           <div className="flex justify-center md:justify-end gap-12 font-body text-[10px] font-bold uppercase tracking-widest text-on-surface-variant self-end">
-            <button onClick={() => setIsRulesOpen(true)} className="hover:text-primary uppercase cursor-pointer">
+            <button onClick={() => openModal('rules')} className="hover:text-primary uppercase cursor-pointer">
               Quy định
             </button>
           </div>
@@ -195,12 +197,12 @@ const UserLayout = () => {
       </footer>
 
       {/* QUY DINH MODAL */}
-      {isRulesOpen && (
+      {isOpen && modalType === 'rules' && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
           <div className="bg-[#fbf6e8] w-full max-w-2xl rounded-sm shadow-2xl overflow-hidden border border-[#d99b4a]/50">
             <div className="bg-[#6b0f0d] p-5 flex justify-between items-center text-[#ffe7b0]">
               <h3 className="font-headline text-xl font-bold uppercase tracking-widest">Quy Định Sử Dụng</h3>
-              <button onClick={() => setIsRulesOpen(false)} className="hover:rotate-90 transition-transform"><span className="material-symbols-outlined">close</span></button>
+              <button onClick={closeModal} className="hover:rotate-90 transition-transform"><span className="material-symbols-outlined">close</span></button>
             </div>
             <div className="p-8 font-body text-[#2b1a16] space-y-6 max-h-[70vh] overflow-y-auto">
               <div className="space-y-2">
@@ -217,7 +219,7 @@ const UserLayout = () => {
               </div>
             </div>
             <div className="p-4 border-t border-[#d99b4a]/30 bg-[#fcf9ee] text-right">
-              <button onClick={() => setIsRulesOpen(false)} className="px-8 py-2.5 bg-[#6b0f0d] text-[#ffe7b0] hover:bg-[#8b1512] font-bold uppercase tracking-widest text-[11px] rounded-sm shadow-md transition-colors">Đồng ý & Đóng</button>
+              <button onClick={closeModal} className="px-8 py-2.5 bg-[#6b0f0d] text-[#ffe7b0] hover:bg-[#8b1512] font-bold uppercase tracking-widest text-[11px] rounded-sm shadow-md transition-colors">Đồng ý & Đóng</button>
             </div>
           </div>
         </div>
@@ -225,22 +227,22 @@ const UserLayout = () => {
 
       {/* LOGOUT MODAL */}
       <LogoutModal
-        isOpen={isLogoutOpen}
-        onClose={() => setIsLogoutOpen(false)}
+        isOpen={isOpen && modalType === 'logout'}
+        onClose={closeModal}
         onConfirm={handleConfirmLogout}
       />
 
       {/* Nút Chat AI Floating */}
-      <button 
+      <button
         onClick={() => setIsChatOpen(!isChatOpen)}
-        className="group fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#9e1b1b] rounded-full shadow-[0_8px_30px_rgba(158,27,27,0.4)] flex items-center justify-center hover:bg-[#b02a2a] hover:scale-110 active:scale-95 transition-all duration-300 overflow-hidden"
+        className="group fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#9e1b1b] rounded-full shadow-[0_8px_30px_rgba(158,27,27,0.4)] flex items-center justify-center hover:bg-[#b02a2a] hover:scale-110 active:scale-95 transition-all duration-300 overflow-hidden p-2.5"
       >
         <div className="absolute inset-0 bg-white/20 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 origin-center"></div>
-        <span className="material-symbols-outlined text-white text-[28px] relative z-10">smart_toy</span>
-        
+        <DongSonDrumIcon className="w-full h-full text-white relative z-10 animate-[spin_10s_linear_infinite]" />
+
         {/* Tooltip */}
         <div className="absolute right-[110%] top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gray-900 text-white text-[11px] font-bold tracking-widest uppercase rounded shadow-lg opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 pointer-events-none transition-all duration-300 whitespace-nowrap">
-           Hỏi Đáp AI
+          Hỏi Đáp AI
         </div>
       </button>
 

@@ -702,6 +702,8 @@ Notes:
 | rag.llm_model | gemini-2.0-flash | Gemini LLM model |
 | rag.temperature | 0.2 | LLM temperature |
 | rag.enable_graph | true | Enable Graph RAG via Neo4j |
+| ui.logo_url |  | URL logo dùng chung cho user/admin; rỗng dùng biểu tượng mặc định |
+| ui.background_url |  | URL ảnh nền dùng chung cho user/admin; rỗng dùng nền mặc định |
 
 Notes:
 - First admin account should be created through an API or a dedicated seed migration.
@@ -714,6 +716,7 @@ Notes:
 - Total tables: 17.
 - Main migration file: [`V1__init.sql`](../backend/src/main/resources/db/migration/V1__init.sql).
 - `V3__add_tag_updated_at.sql` adds `tag.updated_at` for shared JPA audit mapping.
+- `V4__seed_ui_system_settings.sql` seeds UI-facing settings for editable logo/background controls. The AI model uses existing `rag.llm_model`.
 - The migration uses `SET NAMES utf8mb4` and creates every table with `ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`.
 - Flyway should become the schema source of truth once backend integration starts.
 - Recommended JPA setting when Flyway is enabled: `ddl-auto=validate` or `ddl-auto=none`.

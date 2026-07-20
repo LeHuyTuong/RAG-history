@@ -3,12 +3,26 @@ import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAIChat } from '../../../hooks/useAIChat';
+import ragService from '../../../services/common/ragService';
+import DongSonDrumIcon from '../../../components/DongSonDrumIcon';
+import { MISC_IMAGES } from '../../../config/constants';
 
 const normalizeMarkdown = (text) => {
   if (!text) return '';
-  return text
-    .replace(/([^\n])\n(\s*[-*+]\s)/g, '$1\n\n$2')
-    .replace(/([^\n])\n(\s*\d+\.\s)/g, '$1\n\n$2');
+  // Standardize newlines
+  let normalized = text.replace(/\r\n/g, '\n');
+
+  // Ensure that lists and headers have double newlines before them
+  normalized = normalized
+    .replace(/([^\n])\n(\s*[-*+•]\s)/g, '$1\n\n$2') // bullets
+    .replace(/([^\n])\n(\s*\d+\.\s)/g, '$1\n\n$2')  // numbered lists
+    .replace(/([^\n])\n(\s*#+\s)/g, '$1\n\n$2');    // headers
+
+  // Replace any remaining single newlines (that are not double newlines) with double newlines
+  // so they don't get collapsed into spaces by ReactMarkdown
+  normalized = normalized.replace(/(?<!\n)\n(?!\n)/g, '\n\n');
+
+  return normalized;
 };
 
 const MD_COMPONENTS = {
@@ -75,15 +89,23 @@ const AIChat = () => {
   const {
     messages, loading, error,
     streamingMsgId, tokensPerSecond,
-    sendMessage, clearMessages,
+    sendMessage, clearMessages, sendFeedback,
   } = useAIChat([{
     role: 'ai',
     content: 'Kính chào quý học giả. Tôi là Trợ lý AI được huấn luyện từ kho tàng Đại Việt Sử Ký. Bạn muốn tìm hiểu sâu hơn về triều đại hay sự kiện nào?',
     sources: [],
   }]);
 
+  const [starterQuestions, setStarterQuestions] = useState([]);
   const [input, setFormInput] = useState('');
   const chatEndRef = useRef(null);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    ragService.suggestQuestions({ sourceIds: [], count: 4 })
+      .then(setStarterQuestions)
+      .catch(() => setStarterQuestions([]));
+  }, []);
 
   const handleSend = () => {
     if (!input.trim() || loading) return;
@@ -134,8 +156,8 @@ const AIChat = () => {
           {/* Header */}
           <div className="p-4 bg-surface-low border-b border-outline-variant/20 flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-md">
-                <span className="material-symbols-outlined">auto_awesome</span>
+              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-md p-1.5">
+                <DongSonDrumIcon className="w-full h-full text-white" />
               </div>
               <div>
                 <p className="font-headline font-bold text-primary italic leading-none">Sử Quan AI</p>
@@ -174,8 +196,8 @@ const AIChat = () => {
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start items-start gap-4'}`}
               >
                 {msg.role === 'ai' && (
-                  <div className="w-8 h-8 rounded-full bg-secondary shrink-0 flex items-center justify-center text-white">
-                    <span className="material-symbols-outlined text-sm">menu_book</span>
+                  <div className="w-8 h-8 rounded-full bg-secondary shrink-0 flex items-center justify-center text-white p-1.5">
+                    <DongSonDrumIcon className="w-full h-full text-white" />
                   </div>
                 )}
 
@@ -198,6 +220,58 @@ const AIChat = () => {
                       msg.content
                     )}
                   </div>
+
+                  {/* Web badge + rating */}
+                  {msg.usedWeb && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+                        <span className="material-symbols-outlined text-amber-600 text-sm">public</span>
+                        <span className="text-[10px] text-amber-800 font-body">
+                          Nguồn: Wikipedia tiếng Việt (chưa kiểm chứng nội bộ)
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[9px] text-on-surface-variant font-body">
+                          Đánh giá:
+                        </span>
+                        {['GOOD', 'BAD', 'INSUFFICIENT'].map((r) => {
+                          const labels = { GOOD: '👍 Đúng', BAD: '👎 Sai', INSUFFICIENT: '⚠️ Chưa đủ' };
+                          const colors = {
+                            GOOD: 'border-green-300 text-green-700 hover:bg-green-50',
+                            BAD: 'border-red-300 text-red-700 hover:bg-red-50',
+                            INSUFFICIENT: 'border-gray-300 text-gray-600 hover:bg-gray-50',
+                          };
+                          const prev = idx > 0 ? messages[idx - 1] : null;
+                          const question = prev?.role === 'user' ? prev.content : '';
+                          const srcUrl = msg.sources?.[0]?.url || '';
+                          return (
+                            <button
+                              key={r}
+                              onClick={() => sendFeedback(question, msg.content, true, srcUrl, r)}
+                              className={`text-[10px] font-body px-2 py-1 rounded border ${colors[r]} transition-all`}
+                            >
+                              {labels[r]}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Rephrase */}
+                  {msg.needsRephrase && (
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-[10px] text-blue-800 font-body">
+                        Chưa tìm thấy kết quả phù hợp. Bạn có muốn diễn đạt lại câu hỏi?
+                      </p>
+                      <button
+                        onClick={() => inputRef.current?.focus()}
+                        className="mt-2 text-[10px] font-body px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition-all"
+                      >
+                        Gửi lại / Diễn đạt khác
+                      </button>
+                    </div>
+                  )}
 
                   {/* Gợi ý câu hỏi */}
                   {msg.role === 'ai' && msg.suggestions?.length > 0 && (
@@ -245,14 +319,28 @@ const AIChat = () => {
             {/* Typing indicator — chỉ hiện khi chưa có token nào */}
             {loading && !streamingMsgId && (
               <div className="flex justify-start items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-secondary shrink-0 flex items-center justify-center text-white">
-                  <span className="material-symbols-outlined text-sm">menu_book</span>
+                <div className="w-8 h-8 rounded-full bg-secondary shrink-0 flex items-center justify-center text-white p-1.5">
+                  <DongSonDrumIcon className="w-full h-full text-white" />
                 </div>
                 <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-outline-variant/20 shadow-sm flex items-center gap-1.5 h-[42px] px-5">
                   <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />
                   <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
                   <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
                 </div>
+              </div>
+            )}
+
+            {messages.length === 1 && starterQuestions.length > 0 && (
+              <div className="flex flex-wrap gap-2 px-6">
+                {starterQuestions.map((q, qi) => (
+                  <button
+                    key={qi}
+                    onClick={() => sendMessage(q)}
+                    className="text-[11px] font-body px-3.5 py-1.5 rounded-full border border-primary/30 text-primary hover:bg-primary hover:text-white transition-all"
+                  >
+                    {q}
+                  </button>
+                ))}
               </div>
             )}
 
@@ -268,6 +356,7 @@ const AIChat = () => {
           <div className="p-6 bg-white border-t border-outline-variant/30">
             <div className="relative bg-surface-low rounded-full flex items-center px-6 py-1 shadow-inner border border-outline-variant/30">
               <input
+                ref={inputRef}
                 type="text"
                 value={input}
                 onChange={(e) => setFormInput(e.target.value)}
@@ -277,11 +366,16 @@ const AIChat = () => {
               />
               <button
                 onClick={handleSend}
-                disabled={loading || !input.trim()}
+                disabled={loading || !input.trim() || input.length > 2000}
                 className="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
               >
                 <span className="material-symbols-outlined">send</span>
               </button>
+            </div>
+            <div className="mt-2 flex justify-end px-4">
+              <span className={`text-xs font-body font-bold ${input.length > 2000 ? 'text-red-500' : 'text-on-surface-variant/60'}`}>
+                {input.length}/2000
+              </span>
             </div>
             <div className="mt-3 flex justify-center gap-6 font-body text-[9px] font-bold text-on-surface-variant opacity-60 uppercase tracking-tighter">
               <span># Nhà Hậu Lê</span>
@@ -299,7 +393,7 @@ const AIChat = () => {
               <EntityItem
                 name="Lý Thường Kiệt" type="Nhân vật"
                 desc="Thái úy triều Lý, danh tướng lừng lẫy phòng tuyến sông Như Nguyệt."
-                img="https://lh3.googleusercontent.com/aida-public/AB6AXuBXLbkFqj-insp0Ywy8bF_fVUuZ67qvyvjRAfWo7w1iKuhghv8n0rYBxfEdRAY4aib4mh7rde3JgELR5JXKp3cGMaRjeCxeUb6g3ojhnFsZ5WnZul23ymRLAXAr4sh3CqkKXZz3SmImreYEbG-r4wAxbSHkx6lO9jqQ9K52SYWCjWO9bmXaal066YFxd0DrXQNWzQ5PZiSvR_uYc2Rms-ZCahCqqVGdjXGVfyVSF6a8qypNfChSdB3nPsN1yPj6fRpIJbohlTl2CPyA"
+                img={MISC_IMAGES.AICHAT_BG}
               />
               <button className="w-full py-2 border-2 border-dashed border-primary/20 text-primary rounded-lg font-body text-[9px] font-bold uppercase tracking-widest hover:bg-primary/5 transition-all flex items-center justify-center gap-2">
                 <span className="material-symbols-outlined text-sm">hub</span> Mở bản đồ tri thức

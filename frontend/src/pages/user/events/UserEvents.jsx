@@ -1,11 +1,14 @@
+import { API_ENDPOINTS, apiClient, eventService, periodService } from '../../../services';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import Pagination from '../../../components/common/Pagination';
 import { stripHtml } from '../../../utils/stringUtils';
+import eventImages from '../../../data/eventImages.json';
+import { IMAGES, MISC_IMAGES } from '../../../config/constants';
+import { resolveImageUrl } from '../../../utils/imageUtils';
 
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient from '../../../services/apiClient';
 const UserEvents = () => {
+  const { backgroundUrl = '' } = useOutletContext() || {};
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriods, setSelectedPeriods] = useState([]);
   const [searchYear, setSearchYear] = useState('');
@@ -20,48 +23,75 @@ const UserEvents = () => {
       try {
         let dbEvents = [];
         try {
-          const response = await apiClient.get(API_ENDPOINTS.USER_EVENTS);
-          dbEvents = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
-        } catch (apiErr) {
-          console.error('Lỗi gọi API sự kiện:', apiErr);
-        }
-
-        try {
-          const pRes = await apiClient.get(API_ENDPOINTS.USER_PERIODS);
-          const rawPeriods = pRes.data?.data?.result || pRes.data?.data?.content || pRes.data?.data || [];
+          const [response, pRes] = await Promise.all([
+            eventService.filter({ size: 500, status: 'PUBLISHED' }).catch(apiErr => {
+              console.error('Lỗi gọi API sự kiện:', apiErr);
+              return { items: [] };
+            }),
+            periodService.filter({ size: 500, status: 'PUBLISHED' }).catch(pErr => {
+              console.error('Lỗi gọi API thời kỳ:', pErr);
+              return { items: [] };
+            })
+          ]);
+          dbEvents = response?.items || [];
+          const rawPeriods = pRes?.items || [];
           setPeriods(rawPeriods.map(p => p.name).filter(Boolean));
-        } catch (pErr) {
-          console.error('Lỗi gọi API thời kỳ:', pErr);
+        } catch (err) {
+          console.error('Lỗi Promise.all:', err);
         }
 
-        let merged = dbEvents.map(dbItem => {
-          const parseEventYear = (dateStr, fallbackYear) => {
-            if (!dateStr) return fallbackYear;
-            const isNegative = dateStr.startsWith('-');
-            const cleanStr = isNegative ? dateStr.substring(1) : dateStr;
-            const match = cleanStr.match(/^(\d{4})/);
-            if (match) {
-              const y = parseInt(match[1], 10);
-              return isNegative ? -y : y;
-            }
-            return fallbackYear;
-          };
-          const resolvedStartYear = parseEventYear(dbItem.startDate, dbItem.startYear);
-          
-          return {
-            ...dbItem,
-            event_id: dbItem.id,
-            name: dbItem.name,
-            title: dbItem.name,
-            description: dbItem.description,
-            year: resolvedStartYear !== undefined ? resolvedStartYear : '',
-            date: resolvedStartYear !== undefined 
-              ? `${Math.abs(resolvedStartYear)} ${resolvedStartYear < 0 ? 'TCN' : ''}`
-              : '',
-            category: dbItem.period?.name || 'Sự kiện',
-            image: dbItem.image || 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg'
-          };
-        });
+        let merged = [];
+
+        if (dbEvents.length > 0) {
+          dbEvents.forEach(dbItem => {
+            const parseEventYear = (dateStr, fallbackYear) => {
+              if (dateStr === null || dateStr === undefined) return fallbackYear;
+              const str = String(dateStr);
+              const isNegative = str.startsWith('-');
+              const cleanStr = isNegative ? str.substring(1) : str;
+              const match = cleanStr.match(/^(\d{4})/);
+              if (match) {
+                const y = parseInt(match[1], 10);
+                return isNegative ? -y : y;
+              }
+              return fallbackYear;
+            };
+            const resolvedStartYear = parseEventYear(dbItem.startDate, dbItem.startYear);
+            const resolvedEndYear = parseEventYear(dbItem.endDate, dbItem.endYear);
+
+            const formatYear = (y) => {
+              if (y === undefined || y === null || y === '') return '';
+              const val = parseInt(y, 10);
+              if (isNaN(val)) return y;
+              return val < 0 ? `${Math.abs(val)} TCN` : `${val}`;
+            };
+
+            const formatRange = (start, end) => {
+              const s = formatYear(start);
+              const e = formatYear(end);
+              if (!s && !e) return 'Chưa rõ';
+              if (!s) return `? - ${e}`;
+              if (!e) return `${s} - ${s}`;
+              return `${s} - ${e}`;
+            };
+
+            const displayDate = formatRange(resolvedStartYear, resolvedEndYear);
+
+            merged.push({
+              ...dbItem,
+              event_id: dbItem.id,
+              name: dbItem.name,
+              title: dbItem.name,
+              description: dbItem.description || '',
+              year: resolvedStartYear !== undefined ? resolvedStartYear : '',
+              date: displayDate,
+              category: dbItem.period?.name || 'Sự kiện',
+              views: dbItem.viewCount || dbItem.views,
+              source: dbItem.source,
+              image: resolveImageUrl(eventImages[dbItem.slug] || dbItem.imageUrl || dbItem.image) || IMAGES.DEFAULT_COVER
+            });
+          });
+        }
 
         setEvents(merged);
       } catch (error) {
@@ -76,9 +106,11 @@ const UserEvents = () => {
 
   // Filter events
   const filteredEvents = events.filter(e => {
-    const matchSearch = (e.name || "").toLowerCase().includes(searchTerm.toLowerCase()) || (e.description || "").toLowerCase().includes(searchTerm.toLowerCase());
+    const safeSearchTerm = String(searchTerm || "").toLowerCase();
+    const matchSearch = String(e.name || "").toLowerCase().includes(safeSearchTerm) ||
+      String(e.description || "").toLowerCase().includes(safeSearchTerm);
     const matchYear = searchYear ? String(e.year || "").includes(searchYear) : true;
-    const matchPeriod = selectedPeriods.length > 0 ? selectedPeriods.some(p => (e.category || "").includes(p)) : true;
+    const matchPeriod = selectedPeriods.length > 0 ? selectedPeriods.some(p => String(e.category || "").includes(p)) : true;
     return matchSearch && matchYear && matchPeriod;
   });
 
@@ -88,13 +120,13 @@ const UserEvents = () => {
 
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20">
       {/* HERO SECTION */}
       <section className="relative h-[450px] flex items-center justify-center overflow-hidden border-b border-[#d99b4a]/30">
         <div className="absolute inset-0 z-0 bg-[#2b0504]">
           <img
             className="w-full h-full object-cover grayscale-[30%] sepia-[40%] brightness-[0.4] animate-ken-burns origin-center"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGUI3HT9Jex5a-ZERUyLKKX086wzQHpxtpVeEbPJEpbnTS-rw0ElAg5co6141j6KJDTDCz1ORbq5naaR6yRj54VbXWefWH04BoEsovGxeQp_RFUEbdBmUClcwLmx3guee6Cg-dzz_WWbe_KByIYQUUoJXxlhsKBoU1OVMdNif6YQ-rPbN56YQNjt1Dwqs9vuDdE_LzBbakJz5a2f0D-msrRSxENoyfI4SU6jI0WnQ_Fb5KC5LHNrNpJVLFv-rEYPmp-8J8a9SWgOV2"
+            src={backgroundUrl || MISC_IMAGES.DEFAULT_ERROR_FALLBACK}
             alt="Events Hero"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#2b0504]/90 via-[#2b0504]/40 to-[#fbf6e8] pointer-events-none"></div>
@@ -165,45 +197,53 @@ const UserEvents = () => {
             {loading ? (
               <div className="col-span-full text-center text-[#6b0f0d] py-10 font-body">Đang tải dữ liệu...</div>
             ) : paginatedEvents.map((event) => (
-                <article key={event.event_id} className="group bg-[#fffdf8] border border-[#d99b4a]/40 shadow-lg hover:shadow-[0_20px_50px_rgba(43,5,4,0.12)] transition-all duration-700 flex flex-col p-2">
+              <article key={event.event_id} className="group bg-[#fffdf8] border border-[#d99b4a]/40 shadow-lg hover:shadow-[0_20px_50px_rgba(43,5,4,0.12)] transition-all duration-700 flex flex-col p-2">
 
-                  {/* Lớp viền trong cùng */}
-                  <div className="border border-[#d99b4a]/30 relative flex flex-col h-full bg-[#fcf9ee] dong-son-pattern w-full">
-                    {/* Decorative corners */}
-                    <div className="absolute top-1 left-1 w-2 h-2 border-t border-l border-[#d99b4a] opacity-80 z-20"></div>
-                    <div className="absolute top-1 right-1 w-2 h-2 border-t border-r border-[#d99b4a] opacity-80 z-20"></div>
-                    <div className="absolute bottom-1 left-1 w-2 h-2 border-b border-l border-[#d99b4a] opacity-80 z-20"></div>
-                    <div className="absolute bottom-1 right-1 w-2 h-2 border-b border-r border-[#d99b4a] opacity-80 z-20"></div>
+                {/* Lớp viền trong cùng */}
+                <div className="border border-[#d99b4a]/30 relative flex flex-col h-full bg-[#fcf9ee] dong-son-pattern w-full">
+                  {/* Decorative corners */}
+                  <div className="absolute top-1 left-1 w-2 h-2 border-t border-l border-[#d99b4a] opacity-80 z-20"></div>
+                  <div className="absolute top-1 right-1 w-2 h-2 border-t border-r border-[#d99b4a] opacity-80 z-20"></div>
+                  <div className="absolute bottom-1 left-1 w-2 h-2 border-b border-l border-[#d99b4a] opacity-80 z-20"></div>
+                  <div className="absolute bottom-1 right-1 w-2 h-2 border-b border-r border-[#d99b4a] opacity-80 z-20"></div>
 
-                    {/* Image header */}
-                    <div className="h-56 overflow-hidden relative border-b border-[#d99b4a]/30 shrink-0">
-                      <img
-                        src={event.image}
-                        className="w-full h-full object-cover grayscale-[0.6] sepia-[0.3] group-hover:grayscale-[0.1] group-hover:sepia-[0.1] group-hover:scale-105 transition-all duration-1000"
-                        alt={event.name}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201]/60 to-transparent opacity-70"></div>
-                      <div className="absolute top-3 left-3 z-10">
-                        <span className="bg-[#6b0f0d] text-[#ffe7b0] font-body text-[11px] font-bold px-3 py-1.5 shadow-md border border-[#d99b4a]/40">{event.year}</span>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-6 space-y-4 flex-grow relative z-10 flex flex-col">
-                      <span className="font-body text-[9px] font-bold text-[#6b0f0d] uppercase tracking-widest block border-b border-[#d99b4a]/30 pb-2">{(event.category || "").includes('Nhà') ? (event.category || "").replace('Nhà', 'Triều') : (event.category || "Chưa rõ")}</span>
-                      <h3 className="font-headline text-2xl text-[#2b0504] font-semibold tracking-tight leading-tight group-hover:text-[#6b0f0d] transition-colors">{event.name}</h3>
-                      <p className="font-body text-[14px] text-[#2b1a16]/80 leading-relaxed line-clamp-3">
-                        {stripHtml(event.description)}
-                      </p>
-                      <div className="pt-4 mt-auto">
-                        <Link to={`/events/${event.event_id}`} className="text-[#6b0f0d] font-body text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 group/link border-t border-[#d99b4a]/20 pt-4 hover:bg-[#d99b4a]/10 transition-colors pb-2">
-                          XEM CHI TIẾT <span className="material-symbols-outlined text-[14px] group-hover/link:translate-x-2 transition-transform">east</span>
-                        </Link>
-                      </div>
+                  {/* Image header */}
+                  <div className="h-56 overflow-hidden relative border-b border-[#d99b4a]/30 shrink-0">
+                    <img
+                      src={event.image}
+                      className="w-full h-full object-cover grayscale-[0.6] sepia-[0.3] group-hover:grayscale-[0.1] group-hover:sepia-[0.1] group-hover:scale-105 transition-all duration-1000"
+                      alt={event.name}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201]/60 to-transparent opacity-70"></div>
+                    <div className="absolute top-3 left-3 z-10">
+                      <span className="bg-[#6b0f0d] text-[#ffe7b0] font-body text-[11px] font-bold px-3 py-1.5 shadow-md border border-[#d99b4a]/40">{event.date}</span>
                     </div>
                   </div>
-                </article>
-              ))}
+
+                  {/* Content */}
+                  <div className="p-6 space-y-4 flex-grow relative z-10 flex flex-col">
+                    <span className="font-body text-[9px] font-bold text-[#6b0f0d] uppercase tracking-widest block border-b border-[#d99b4a]/30 pb-2">{(event.category || "").includes('Nhà') ? (event.category || "").replace('Nhà', 'Triều') : (event.category || "Chưa rõ")}</span>
+                    <h3 className="font-headline text-2xl text-[#2b0504] font-semibold tracking-tight leading-tight group-hover:text-[#6b0f0d] transition-colors">{event.name}</h3>
+                    <p className="font-body text-[14px] text-[#2b1a16]/80 leading-relaxed line-clamp-3">
+                      {stripHtml(event.description)}
+                    </p>
+
+                    {(event.source || event.views != null) && (
+                      <div className="flex flex-col gap-2 mt-2 mb-4 text-[#2b1a16]/60 text-[10px] font-body font-bold uppercase tracking-widest border-t border-[#d99b4a]/20 pt-4">
+                         {event.source && <span className="flex items-center gap-1.5"><span className="material-symbols-outlined text-[14px]">auto_stories</span> Trích: {event.source}</span>}
+                         {event.views != null && <span className="flex items-center gap-1.5"><span className="material-symbols-outlined text-[14px]">visibility</span> {event.views} lượt xem</span>}
+                      </div>
+                    )}
+
+                    <div className="pt-2 mt-auto">
+                      <Link to={`/events/${event.event_id}`} className="text-[#6b0f0d] font-body text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 group/link border-t border-[#d99b4a]/20 pt-4 hover:bg-[#d99b4a]/10 transition-colors pb-2">
+                        XEM CHI TIẾT <span className="material-symbols-outlined text-[14px] group-hover/link:translate-x-2 transition-transform">east</span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
           </div>
 
           {/* 4. PAGINATION */}

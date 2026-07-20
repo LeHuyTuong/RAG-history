@@ -33,6 +33,10 @@ public class LocationSpecification {
                 predicates.add(cb.equal(from.get("locationType"), filter.locationType()));
             }
 
+            if (filter.status() != null) {
+                predicates.add(cb.equal(from.get("status"), filter.status()));
+            }
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }

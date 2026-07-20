@@ -58,9 +58,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(
                 Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
-        configuration.setAllowedHeaders(
-                Arrays.asList("Authorization", "Content-Type", "Cache-Control", "traceparent", "tracestate"));
-        configuration.setExposedHeaders(Arrays.asList("traceparent", "tracestate"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
 
         configuration.setAllowCredentials(true);
 
@@ -99,9 +97,12 @@ public class SecurityConfig {
                                 "/api/v1/admin/participations",
                                 "/api/v1/admin/participations/**",
                                 "/api/v1/admin/settings",
-                                "/api/v1/admin/settings/**",
+                                "/api/v1/admin/settings/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST,
                                 "/api/v1/rag/chat",
-                                "/api/v1/rag/chat/**"
+                                "/api/v1/rag/chat/**",
+                                "/api/v1/rag/suggest-questions"
                         ).permitAll()
                         .anyRequest().authenticated())
 

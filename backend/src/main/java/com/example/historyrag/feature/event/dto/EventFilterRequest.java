@@ -1,6 +1,5 @@
 package com.example.historyrag.feature.event.dto;
 
-
 import lombok.Builder;
 import com.example.historyrag.feature.event.EventCertaintyLevel;
 
@@ -11,5 +10,6 @@ public record EventFilterRequest(
         Long locationId,
         EventCertaintyLevel certaintyLevel,
         Integer startYearFrom,
-        Integer startYearTo
-) {}
+        Integer startYearTo,
+        com.example.historyrag.feature.post.PostStatus status) {
+}

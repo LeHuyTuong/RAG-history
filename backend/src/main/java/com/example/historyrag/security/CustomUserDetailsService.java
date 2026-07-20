@@ -32,11 +32,20 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        org.slf4j.LoggerFactory.getLogger(CustomUserDetailsService.class).error("================> TRYING TO LOAD USER: {}", email);
         return adminRepository.findByEmail(email)
-                .map(this::buildAdminDetails)
-                .or(() -> memberRepository.findByEmail(email).map(this::buildMemberDetails))
-                .orElseThrow(() -> new UsernameNotFoundException(
-                        "Không tìm thấy tài khoản admin hoặc user với email: " + email));
+                .map(admin -> {
+                    org.slf4j.LoggerFactory.getLogger(CustomUserDetailsService.class).error("================> Found admin: {} status: {}", admin.getEmail(), admin.getStatus());
+                    return buildAdminDetails(admin);
+                })
+                .or(() -> memberRepository.findByEmail(email).map(member -> {
+                    org.slf4j.LoggerFactory.getLogger(CustomUserDetailsService.class).error("================> Found member: {} status: {}", member.getEmail(), member.getStatus());
+                    return buildMemberDetails(member);
+                }))
+                .orElseThrow(() -> {
+                    org.slf4j.LoggerFactory.getLogger(CustomUserDetailsService.class).error("================> User not found!");
+                    return new UsernameNotFoundException("Không tìm thấy tài khoản admin hoặc user với email: " + email);
+                });
     }
 
     private UserDetails buildAdminDetails(Admin admin) {

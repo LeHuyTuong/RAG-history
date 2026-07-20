@@ -4,6 +4,7 @@ import { StatsGrid } from '../../../components/admin';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 import { dashboardService } from '../../../services';
+import { TEXTURES } from '../../../config/constants';
 
 const CHART_DATA = [35, 50, 25, 70, 45, 90, 60, 80, 40, 65, 85, 55, 75, 45, 60];
 const CHART_DATA_INTERACTIONS = [15, 30, 20, 45, 25, 65, 40, 50, 35, 40, 60, 45, 55, 30, 45];
@@ -43,7 +44,7 @@ const CustomTooltip = ({ active, payload }) => {
 
 const QUICK_ACTIONS = [
   { id: 'event', icon: 'history_edu', label: 'Sự kiện', path: '/admin/events/new', colorClasses: 'hover:bg-amber-50 hover:border-amber-200 hover:text-amber-700' },
-  { id: 'location', icon: 'explore', label: 'Địa danh', path: '/admin/locations/new', colorClasses: 'hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700' },
+  { id: 'location', icon: 'explore', label: 'Di tích', path: '/admin/locations/new', colorClasses: 'hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700' },
   { id: 'character', icon: 'person_pin_circle', label: 'Nhân vật', path: '/admin/characters/new', colorClasses: 'hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700' },
   { id: 'hub', icon: 'hub', label: 'Hub', path: '/admin/hub', colorClasses: 'hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700' }
 ];
@@ -72,23 +73,92 @@ const AdminDashboard = () => {
     fetchDashboardData();
   }, []);
 
+  const getNormalizedStats = () => {
+    if (dashboardData.stats && dashboardData.stats.length > 0) {
+      return dashboardData.stats;
+    }
+
+    if (dashboardData.totalPosts !== undefined || dashboardData.totalPersons !== undefined) {
+      return [
+        {
+          id: "stat-1",
+          icon: "menu_book",
+          title: "Tổng Bài viết",
+          value: dashboardData.totalPosts?.toLocaleString() || "0",
+          iconBg: "bg-primary/10"
+        },
+        {
+          id: "stat-2",
+          icon: "history_edu",
+          title: "Sự kiện Lịch sử",
+          value: dashboardData.totalEvents?.toLocaleString() || "0",
+          iconBg: "bg-accent/10"
+        },
+        {
+          id: "stat-3",
+          icon: "person_pin_circle",
+          title: "Nhân vật",
+          value: dashboardData.totalPersons?.toLocaleString() || "0",
+          iconBg: "bg-surface-variant"
+        },
+        {
+          id: "stat-4",
+          icon: "explore",
+          title: "Di tích",
+          value: dashboardData.totalLocations?.toLocaleString() || "0",
+          iconBg: "bg-emerald-500/10"
+        },
+        {
+          id: "stat-5",
+          icon: "auto_stories",
+          title: "Sử liệu / Nguồn",
+          value: dashboardData.totalSources?.toLocaleString() || "0",
+          iconBg: "bg-amber-500/10"
+        },
+        {
+          id: "stat-6",
+          icon: "group",
+          title: "Thành viên",
+          value: dashboardData.totalMembers?.toLocaleString() || "0",
+          iconBg: "bg-primary/5"
+        }
+      ];
+    }
+    return [];
+  };
+
+  const getNormalizedMetadataStats = () => {
+    if (dashboardData.metadataStats && dashboardData.metadataStats.length > 0) {
+      return dashboardData.metadataStats;
+    }
+
+    if (dashboardData.totalTags !== undefined || dashboardData.totalPeriods !== undefined) {
+      return [
+        { label: "Danh mục chính", value: "18", icon: "category" },
+        { label: "Thẻ hệ thống", value: dashboardData.totalTags?.toLocaleString() || "0", icon: "sell" },
+        { label: "Thời kỳ lịch sử", value: dashboardData.totalPeriods?.toLocaleString() || "0", icon: "timeline" }
+      ];
+    }
+    return [];
+  };
+
   return (
     <main
-      className="p-8 lg:p-12 transition-opacity duration-700 ease-out font-body animate-in fade-in min-h-screen bg-surface"
+      className="p-8 lg:p-12 transition-opacity duration-700 ease-out font-body animate-in fade-in min-h-screen bg-transparent"
       style={{ opacity: opacity }}
     >
       <div className="max-w-[1400px] mx-auto space-y-6">
 
         {/* --- BENTO BLOCK 1: PAGE HEADER --- */}
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-surface-low to-white p-10 shadow-sm border border-outline-variant/30 group">
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+          <div className="absolute inset-0 bg-[url(TEXTURES.CUBES)] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
           <div className="absolute -right-20 -top-20 w-96 h-96 bg-primary/5 blur-[100px] rounded-full pointer-events-none group-hover:bg-primary/10 transition-colors duration-700"></div>
           <div className="absolute top-0 right-10 p-8 opacity-[0.03] transform group-hover:scale-110 transition-transform duration-1000 pointer-events-none">
             <span className="material-symbols-outlined text-[200px] leading-none text-primary">account_balance</span>
           </div>
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-              <h2 className="font-headline text-4xl lg:text-5xl text-primary font-bold italic tracking-tight mb-4">
+              <h2 className="font-headline text-4xl lg:text-5xl text-primary font-bold flex items-center gap-3 mb-4">
                 Bảng điều khiển Quản trị
               </h2>
               <p className="font-body text-sm text-on-surface-variant max-w-xl leading-relaxed">
@@ -96,7 +166,10 @@ const AdminDashboard = () => {
               </p>
             </div>
             <div className="flex gap-4">
-              <button onClick={() => navigate('/admin/articles/new')} className="px-6 py-3 bg-primary hover:bg-primary-container text-white hover:-translate-y-1 active:scale-95 border border-primary/20 rounded-xl text-[11px] uppercase tracking-widest font-bold transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+              <button
+                onClick={() => navigate('/admin/articles/new')}
+                className="px-6 py-3 bg-[#6b0f0d] text-[#ffe7b0] hover:bg-[#520a08] border border-[#ffe7b0]/25 hover:-translate-y-1 active:scale-95 rounded-xl text-[11px] uppercase tracking-widest font-bold transition-all shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer"
+              >
                 <span className="material-symbols-outlined text-[16px]">edit_document</span>
                 Viết Bài
               </button>
@@ -109,7 +182,7 @@ const AdminDashboard = () => {
 
         {/* --- BENTO BLOCK 2: TỔNG QUAN --- */}
         <section>
-          <StatsGrid stats={dashboardData.stats} loading={loading} />
+          <StatsGrid stats={getNormalizedStats()} loading={loading} />
         </section>
 
         {/* --- MAIN BENTO GRID --- */}
@@ -120,7 +193,7 @@ const AdminDashboard = () => {
             {/* Thao tác nhanh */}
             <div className="bg-white/80 backdrop-blur-xl border border-outline-variant/50 rounded-[2rem] shadow-sm p-6 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 blur-3xl rounded-full -z-10 group-hover:bg-amber-500/20 transition-colors pointer-events-none"></div>
-              <h3 className="font-headline text-xl text-primary font-bold italic mb-5 flex items-center gap-2">
+              <h3 className="font-headline text-xl text-primary font-bold mb-5 flex items-center gap-2">
                 <span className="material-symbols-outlined text-amber-500">bolt</span>
                 Thao tác nhanh
               </h3>
@@ -140,19 +213,19 @@ const AdminDashboard = () => {
 
             {/* Metadata Stats */}
             <div
-              onClick={() => navigate('/admin/metadata')}
+              onClick={() => navigate('/admin/tags')}
               className="bg-gradient-to-br from-surface-low to-white border border-outline-variant/30 rounded-[2rem] shadow-sm hover:shadow-md p-6 flex-1 flex flex-col justify-center relative overflow-hidden group cursor-pointer transition-all duration-300 hover:-translate-y-1"
             >
-              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+              <div className="absolute inset-0 bg-[url(TEXTURES.DIAGMONDS_LIGHT)] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
               <div className="flex justify-between items-center mb-6 relative z-10">
-                <h3 className="font-headline text-lg text-primary font-bold italic flex items-center gap-2">
+                <h3 className="font-headline text-lg text-primary font-bold flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary/70 text-[20px]">database</span>
                   Hệ thống Dữ liệu
                 </h3>
                 <span className="material-symbols-outlined text-primary/50 group-hover:text-primary group-hover:translate-x-1 transition-all">arrow_forward</span>
               </div>
               <div className="space-y-4 relative z-10">
-                {dashboardData.metadataStats?.map((meta, i) => (
+                {getNormalizedMetadataStats()?.map((meta, i) => (
                   <div key={i} className="flex justify-between items-center bg-white p-3 rounded-xl border border-outline-variant/30 hover:border-primary/20 hover:shadow-sm transition-all">
                     <div className="flex items-center gap-3">
                       <span className="material-symbols-outlined text-primary/60 text-[18px]">{meta.icon}</span>
@@ -165,13 +238,15 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* BENTO BLOCK 4: BIỂU ĐỒ (Col Span 6) */}
-          <div className="lg:col-span-6 bg-white/80 backdrop-blur-xl border border-outline-variant/50 rounded-[2rem] shadow-sm p-8 flex flex-col relative overflow-hidden group">
+          {/* BENTO BLOCK 4: BIỂU ĐỒ (Col Span 9) */}
+          <div className="lg:col-span-9 bg-white/80 backdrop-blur-xl border border-outline-variant/50 rounded-[2rem] shadow-sm p-8 flex flex-col relative overflow-hidden group">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-32 bg-primary/5 blur-[80px] rounded-full pointer-events-none group-hover:bg-primary/10 transition-colors duration-700"></div>
 
             <div className="flex justify-between items-end mb-10 relative z-10">
               <div>
-                <h3 className="font-headline text-2xl text-primary font-bold italic">Lưu lượng truy cập</h3>
+                <h3 className="font-headline text-2xl text-primary font-bold flex items-center gap-2">
+                  <span className="material-symbols-outlined text-2xl">monitoring</span> Lưu lượng truy cập
+                </h3>
                 <p className="text-[11px] text-on-surface-variant font-bold uppercase tracking-widest mt-1">30 Ngày gần nhất</p>
               </div>
               <div className="flex gap-3 bg-surface-low p-1.5 rounded-full border border-outline-variant/50 shadow-inner">
@@ -215,48 +290,7 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* BENTO BLOCK 5: HOẠT ĐỘNG MỚI (Col Span 3) */}
-          <div className="lg:col-span-3 bg-white/80 backdrop-blur-xl border border-outline-variant/50 rounded-[2rem] shadow-sm p-6 flex flex-col relative">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-headline text-xl text-primary font-bold italic">Hoạt động mới</h3>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-low transition-colors group">
-                <span className="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-primary transition-colors">more_horiz</span>
-              </button>
-            </div>
 
-            <div className="flex-1 space-y-5 overflow-y-auto pr-2 custom-scrollbar relative">
-              {loading ? (
-                <div className="text-center text-[11px] text-on-surface-variant py-4 font-body animate-pulse">Đang tải hoạt động...</div>
-              ) : (
-                <>
-                  <div className="absolute top-2 bottom-2 left-[15px] w-0.5 bg-gradient-to-b from-primary/30 via-outline-variant/30 to-transparent"></div>
-                  {dashboardData.activities?.map((act, index) => {
-                    const actColor = act.color || 'text-primary';
-                    return (
-                      <div key={act.id || index} className="relative pl-10 group/act cursor-pointer">
-                        <div className={`absolute top-1 left-[7px] w-4 h-4 rounded-full flex items-center justify-center bg-white border-2 border-white shadow-sm z-10 transition-transform group-hover/act:scale-125 ${actColor.replace('text', 'bg').replace('bg-on-surface', 'bg-slate-400')}`}>
-                          <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-                        </div>
-
-                        <div className="bg-surface-low/50 group-hover/act:bg-surface p-3.5 rounded-2xl border border-outline-variant/30 group-hover/act:border-primary/20 group-hover/act:shadow-md transition-all duration-300">
-                          <div className="flex items-center gap-1.5 mb-2">
-                            <span className={`material-symbols-outlined text-[14px] ${actColor}`}>{act.icon}</span>
-                            <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest">{act.time}</p>
-                          </div>
-                          <p className="text-[12px] text-on-surface leading-relaxed" dangerouslySetInnerHTML={{ __html: act.textHtml || '' }}></p>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </>
-              )}
-            </div>
-
-            <button className="w-full mt-4 py-3 text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/5 hover:bg-primary/10 rounded-xl transition-colors flex items-center justify-center gap-2">
-              Xem toàn bộ lịch sử
-              <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-            </button>
-          </div>
 
         </section>
 

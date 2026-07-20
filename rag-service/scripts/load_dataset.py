@@ -173,11 +173,15 @@ def _parse_retry_delay(exc: Exception) -> float | None:
 
 
 def _is_hard_daily_quota(exc: Exception) -> bool:
-    """True khi Google API xác nhận hết quota ngày (RPD) qua QuotaFailure metric."""
+    """True CHỈ khi Google API xác nhận hết quota NGÀY (RPD) — lúc đó mới đáng xoay key.
+
+    Lưu ý: KHÔNG dùng "free_tier_requests" làm dấu hiệu vì chuỗi này cũng xuất hiện
+    trong lỗi per-minute (RPM) của free tier — bắt nhầm sẽ xoay sạch key rồi bỏ cuộc
+    dù chỉ cần chờ vài chục giây. Chỉ các marker PerDay/per-day mới là quota ngày thật.
+    """
     msg = str(exc)
     return "RESOURCE_EXHAUSTED" in msg and (
         "PerDay" in msg or "per-day" in msg or "requests-per-day" in msg
-        or "free_tier_requests" in msg
     )
 
 

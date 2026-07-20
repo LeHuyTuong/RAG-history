@@ -1,15 +1,15 @@
 import {  useState  } from 'react';
 
-const EntityRelationInput = ({ 
-  entities, 
-  availableEntities, 
-  type = 'location', 
-  label = 'Địa danh liên quan', 
-  icon = 'location_on', 
+const EntityRelationInput = ({
+  entities,
+  availableEntities,
+  type = 'location',
+  label = 'Di tích liên quan',
+  icon = 'location_on',
   itemIcon = 'location_on',
   placeholder = 'Gõ & Enter để thêm...',
-  onAdd, 
-  onRemove 
+  onAdd,
+  onRemove
 }) => {
   const [inputVal, setInputVal] = useState('');
   const safeEntities = entities || [];
@@ -17,6 +17,21 @@ const EntityRelationInput = ({
 
   const getLabel = (e) => (e && (e.name || e.title)) ? (e.name || e.title) : '';
   const getSubLabel = (e) => (e && (e.type || e.title || e.dynasty)) ? (e.type || e.title || e.dynasty) : '';
+
+  const handleChange = (e) => {
+    const val = e.target.value;
+    setInputVal(val);
+
+    // Auto-add if it matches an option in the datalist exactly
+    const isExactMatch = (availableEntities || []).some(ent => getLabel(ent) === val);
+    if (isExactMatch && val.trim()) {
+      const exists = safeEntities.some(ent => (typeof ent === 'object' ? ent.name : ent) === val.trim());
+      if (!exists) {
+        onAdd(val.trim());
+      }
+      setInputVal('');
+    }
+  };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && e.target.value.trim()) {
@@ -31,11 +46,11 @@ const EntityRelationInput = ({
   };
 
   return (
-    <div className="space-y-3 relative z-10 pt-4 border-t border-outline-variant/40 first:border-0 first:pt-0">
+    <div className="space-y-3 pt-4 border-t border-outline-variant/40 first:border-0 first:pt-0">
       <p className="font-body text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
         <span className="material-symbols-outlined text-[14px]">{icon}</span> {label}
       </p>
-      
+
       <div className={type === 'character' ? "space-y-2" : "flex flex-wrap gap-2"}>
         {safeEntities.length === 0 ? (
           <span className="text-[10px] font-bold text-on-surface-variant italic">Chưa liên kết</span>
@@ -54,12 +69,12 @@ const EntityRelationInput = ({
                   <div className="flex-1 flex flex-col min-w-0">
                     <span className="text-xs font-bold text-on-surface truncate">{entityName}</span>
                     {isObject && (
-                      <input 
-                        type="text" 
-                        value={entityRelation} 
-                        onChange={(e) => onAdd({ name: entityName, relation: e.target.value }, true)} 
-                        placeholder="Mối quan hệ..." 
-                        className="text-[10px] text-on-surface-variant bg-transparent border-b border-outline-variant/30 focus:border-primary outline-none mt-0.5" 
+                      <input
+                        type="text"
+                        value={entityRelation}
+                        onChange={(e) => onAdd({ name: entityName, relation: e.target.value }, true)}
+                        placeholder="Mối quan hệ..."
+                        className="text-[10px] text-on-surface-variant bg-transparent border-b border-outline-variant/30 focus:border-primary outline-none mt-0.5"
                       />
                     )}
                   </div>
@@ -95,7 +110,7 @@ const EntityRelationInput = ({
           className="w-full bg-transparent border-none px-2 py-1.5 text-[11px] font-bold text-on-surface outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
           placeholder={placeholder}
           value={inputVal}
-          onChange={(e) => setInputVal(e.target.value)}
+          onChange={handleChange}
           onKeyDown={handleKeyDown}
         />
         <datalist id={datalistId}>

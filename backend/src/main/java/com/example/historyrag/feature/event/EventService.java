@@ -7,6 +7,8 @@ import com.example.historyrag.feature.event.dto.EventResponse;
 import com.example.historyrag.feature.event.dto.UpdateEventRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface EventService {
 
     EventResponse create(CreateEventRequest request);
@@ -22,4 +24,6 @@ public interface EventService {
     long countEvents();
 
     Event getEventEntityById(Long id);
+
+    List<Event> getEventsByIds(List<Long> ids);
 }

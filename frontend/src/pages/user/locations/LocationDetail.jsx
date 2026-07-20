@@ -1,9 +1,10 @@
+import { API_ENDPOINTS, apiClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { stripHtml } from '../../../utils/stringUtils';
 import VietnamMap from '../../../components/VietnamMap';
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient from '../../../services/apiClient';
-import { mockClient } from '../../../services/api';
+import { getXPercent, getYPercent } from '../../../utils/mapCoordinates';
+import { IMAGES } from '../../../config/constants';
 
 const LocationDetail = () => {
   const { id } = useParams();
@@ -18,37 +19,51 @@ const LocationDetail = () => {
 
   useEffect(() => {
     const fetchLocation = async () => {
+      setLoading(true);
+      setLocation(null);
       try {
         let dbLocation = null;
         try {
-          const url = typeof API_ENDPOINTS.USER_LOCATION_DETAIL === 'function' ? API_ENDPOINTS.USER_LOCATION_DETAIL(id) : `${API_ENDPOINTS.USER_LOCATION_DETAIL}/${id}`;
-          const response = await apiClient.get(url);
-          dbLocation = response.data?.data || response.data;
+          const isNumeric = /^\d+$/.test(id);
+          if (isNumeric) {
+            try {
+              const url = typeof API_ENDPOINTS.USER_LOCATION_DETAIL === 'function' ? API_ENDPOINTS.USER_LOCATION_DETAIL(id) : `${API_ENDPOINTS.USER_LOCATION_DETAIL}/${id}`;
+              const response = await apiClient.get(url);
+              dbLocation = response.data?.data || response.data;
+            } catch (err) {
+              console.error('Failed to fetch location by ID', err);
+            }
+          }
+
+          if (!dbLocation) {
+            const locsListRes = await apiClient.get(API_ENDPOINTS.USER_LOCATIONS, { params: { size: 500, status: 'PUBLISHED' } }).catch(() => ({ data: [] }));
+            const allLocs = locsListRes.data?.data?.result || locsListRes.data?.data?.content || locsListRes.data?.data || [];
+            dbLocation = allLocs.find(l => l.slug === id || (l.id && l.id.toString() === id));
+          }
         } catch (apiErr) {
           console.error('Failed to fetch location detail from API:', apiErr);
         }
 
-        let mockLocations = [];
-        try {
-          const mockRes = await mockClient.get('/api/user_locations.json');
-          mockLocations = mockRes.data?.locations || mockRes.data || [];
-        } catch (err) {
-          console.error('Error fetching mock locations:', err);
-        }
-
         if (dbLocation) {
-          const mockItem = mockLocations.find(m => m.slug === dbLocation.slug) || {};
+          const lat = dbLocation.latitude;
+          const lon = dbLocation.longitude;
+          let finalX = 50;
+          let finalY = 50;
+          if (lat && lon) {
+            finalX = getXPercent(lon);
+            finalY = getYPercent(lat);
+          }
 
           setLocation({
             ...dbLocation,
-            heroImg: dbLocation.image || 'https://via.placeholder.com/800x400',
+            heroImg: dbLocation.imageUrl || dbLocation.image || IMAGES.PLACEHOLDER_800x400,
             location_id: dbLocation.id,
-            location_type: dbLocation.locationType || mockItem.location_type || 'REGION',
-            description: dbLocation.description || mockItem.description || '',
-            x: mockItem.x !== undefined ? mockItem.x : 50,
-            y: mockItem.y !== undefined ? mockItem.y : 50,
-            province: mockItem.province || 'Việt Nam',
-            period: dbLocation.period?.name || mockItem.period || '',
+            location_type: dbLocation.locationType || 'REGION',
+            description: dbLocation.description || '',
+            x: finalX,
+            y: finalY,
+            province: 'Việt Nam',
+            period: dbLocation.period?.name || '',
           });
         }
       } catch (error) {
@@ -60,11 +75,11 @@ const LocationDetail = () => {
     fetchLocation();
   }, [id]);
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải di tích...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải di tích...</div>;
   if (!location) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Không tìm thấy di tích.</div>;
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20 pb-20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20 pb-20">
       {/* 1. HERO SECTION */}
       <section className="relative h-[70vh] w-full overflow-hidden border-b-[6px] border-[#d99b4a]/40">
         <img
@@ -82,7 +97,7 @@ const LocationDetail = () => {
               {location.name}
             </h1>
             <p className="text-[#fcf9ee]/90 font-body text-[16px] max-w-2xl leading-relaxed border-l-4 border-[#d99b4a] pl-6">
-              {location.shortDesc || location.description}
+              {stripHtml(location.shortDesc || location.description || '')}
             </p>
           </div>
         </div>
@@ -188,7 +203,7 @@ const LocationDetail = () => {
                 />
               ))}
             </div>
-            <button 
+            <button
               onClick={() => navigate('/characters')}
               className="w-full mt-10 py-3 border border-[#d99b4a]/40 text-[#f7d78a] text-[10px] font-bold uppercase tracking-widest hover:bg-[#d99b4a]/10 hover:text-white transition-all relative z-10 bg-[#1a0201]/40"
             >

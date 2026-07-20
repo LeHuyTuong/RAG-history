@@ -37,7 +37,7 @@ public record UpdatePostRequest(
 
         Instant publishedAt,
 
-        Long eventId,
+        List<Long> eventIds,
 
         List<Long> tagIds
 ) {}

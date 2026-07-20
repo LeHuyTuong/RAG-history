@@ -1,6 +1,33 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useAIChat } from "../hooks/useAIChat";
+import DongSonDrumIcon from "./DongSonDrumIcon";
+
+const normalizeMarkdown = (text) => {
+  if (!text) return '';
+  let normalized = text.replace(/\r\n/g, '\n');
+  normalized = normalized
+    .replace(/([^\n])\n(\s*[-*+•]\s)/g, '$1\n\n$2')
+    .replace(/([^\n])\n(\s*\d+\.\s)/g, '$1\n\n$2')
+    .replace(/([^\n])\n(\s*#+\s)/g, '$1\n\n$2');
+  normalized = normalized.replace(/(?<!\n)\n(?!\n)/g, '\n\n');
+  return normalized;
+};
+
+const MD_COMPONENTS = {
+  p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed text-[13px]">{children}</p>,
+  ul: ({ children }) => <ul className="mb-2 mt-1 space-y-1 pl-4">{children}</ul>,
+  ol: ({ children }) => <ol className="mb-2 mt-1 space-y-1 pl-4 list-decimal">{children}</ol>,
+  li: ({ children }) => <li className="text-[13px] leading-relaxed list-disc text-[#2b1a16]">{children}</li>,
+  strong: ({ children }) => <strong className="font-bold text-[#6b0f0d]">{children}</strong>,
+  em: ({ children }) => <em className="italic text-[#2b1a16]/80">{children}</em>,
+  h1: ({ children }) => <h1 className="text-sm font-bold text-[#6b0f0d] mt-3 mb-1">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-[13px] font-bold text-[#6b0f0d] mt-2 mb-1">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-[13px] font-bold text-[#2b1a16] mt-2 mb-1">{children}</h3>,
+  hr: () => <hr className="my-2 border-[#d9c7a7]/30" />,
+};
 
 const ChatBox = ({ isOpen, onClose }) => {
   const { messages, loading: isTyping, sendMessage } = useAIChat([
@@ -11,7 +38,14 @@ const ChatBox = ({ isOpen, onClose }) => {
     },
   ]);
   const [inputValue, setInputValue] = useState("");
+  const [isExpanded, setIsExpanded] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // Mặc định giữ nguyên cỡ cũ (380×600, ~25% màn hình). Khi bấm phóng to thì
+  // giãn lên ~40% bề ngang (clamp để hợp lý trên mọi màn hình).
+  const panelSize = isExpanded
+    ? { width: "clamp(420px, 40vw, 720px)", height: "min(85vh, 780px)" }
+    : { width: "380px", height: "600px" };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -42,18 +76,18 @@ const ChatBox = ({ isOpen, onClose }) => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          style={{ bottom: "100px", right: "24px", width: "380px", height: "600px", backgroundColor: "#fbf6e8" }}
+          style={{ bottom: "100px", right: "24px", ...panelSize, maxWidth: "calc(100vw - 48px)", maxHeight: "calc(100vh - 120px)", backgroundColor: "#fbf6e8" }}
           className="fixed rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.25)] flex flex-col overflow-hidden border border-[#d99b4a]/60 z-[100]"
         >
           {/* Header */}
-          <div 
+          <div
             style={{ background: "linear-gradient(to right, #5a0c0a, #7a1210)" }}
             className="text-[#ffe7b0] px-5 py-4 flex justify-between items-center relative shrink-0 shadow-md z-20"
           >
             <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: "linear-gradient(to right, transparent, rgba(217,155,74,0.8), transparent)" }}></div>
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center border border-[#d99b4a]/40 shadow-inner" style={{ backgroundColor: "rgba(251,246,232,0.1)" }}>
-                <span className="material-symbols-outlined text-[22px] text-[#f7d78a]">smart_toy</span>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center border border-[#d99b4a]/40 shadow-inner p-1.5" style={{ backgroundColor: "rgba(251,246,232,0.1)" }}>
+                <DongSonDrumIcon className="w-full h-full text-[#f7d78a]" color="currentColor" />
               </div>
               <div>
                 <h3 className="font-headline font-bold uppercase tracking-[0.1em] text-[15px] text-[#f7d78a] leading-none drop-shadow-sm">Trợ lý Sử Việt</h3>
@@ -63,18 +97,30 @@ const ChatBox = ({ isOpen, onClose }) => {
                 </span>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="text-[#ffe7b0]/80 hover:text-white hover:rotate-90 transition-all focus:outline-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20"
-            >
-              <span className="material-symbols-outlined text-[20px]">close</span>
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setIsExpanded((v) => !v)}
+                title={isExpanded ? "Thu nhỏ" : "Phóng to"}
+                className="text-[#ffe7b0]/80 hover:text-white transition-all focus:outline-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20"
+              >
+                <span className="material-symbols-outlined text-[20px]">
+                  {isExpanded ? "close_fullscreen" : "open_in_full"}
+                </span>
+              </button>
+              <button
+                onClick={onClose}
+                title="Đóng"
+                className="text-[#ffe7b0]/80 hover:text-white hover:rotate-90 transition-all focus:outline-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
           </div>
 
           {/* Messages Area */}
           <div className="flex-1 p-5 overflow-y-auto flex flex-col space-y-5 relative scroll-smooth custom-scrollbar z-10">
             <div className="grain-overlay pointer-events-none absolute inset-0 opacity-[0.04]" />
-            
+
             {messages.map((msg) => (
               <motion.div
                 key={msg.id}
@@ -83,17 +129,17 @@ const ChatBox = ({ isOpen, onClose }) => {
                 className={`relative z-10 flex ${msg.role === "user" ? "justify-end" : "justify-start"} items-end gap-2.5`}
               >
                 {msg.role === "ai" && (
-                  <div 
+                  <div
                     style={{ background: "linear-gradient(to bottom, #7a1210, #5a0c0a)" }}
-                    className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white shadow-md mb-1 border border-[#d99b4a]/30"
+                    className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white shadow-md mb-1 border border-[#d99b4a]/30 p-1.5"
                   >
-                    <span className="material-symbols-outlined text-[15px] text-[#f7d78a]">auto_awesome</span>
+                    <DongSonDrumIcon className="w-full h-full text-[#f7d78a]" color="currentColor" />
                   </div>
                 )}
                 <div className={`relative flex flex-col ${msg.role === "user" ? "items-end" : "items-start"} gap-2`} style={{ maxWidth: "80%" }}>
                   <div
                     style={
-                      msg.role === "user" 
+                      msg.role === "user"
                         ? { background: "linear-gradient(to bottom right, #7a1210, #6b0f0d)" }
                         : { backgroundColor: "#ffffff" }
                     }
@@ -103,7 +149,13 @@ const ChatBox = ({ isOpen, onClose }) => {
                         : "border border-[#d9c7a7]/60 text-[#2b1a16] rounded-bl-sm"
                     }`}
                   >
-                    {msg.text}
+                    {msg.role === "ai" ? (
+                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>
+                        {normalizeMarkdown(msg.text)}
+                      </ReactMarkdown>
+                    ) : (
+                      msg.text
+                    )}
                   </div>
 
                   {msg.role === "ai" && msg.sources && msg.sources.length > 0 && (
@@ -132,6 +184,27 @@ const ChatBox = ({ isOpen, onClose }) => {
                       </div>
                     </div>
                   )}
+
+                  {msg.role === "ai" && msg.suggestions && msg.suggestions.length > 0 && (
+                    <div className="space-y-1.5 w-full pl-1 mt-1">
+                      <p className="font-body text-[8px] font-bold text-[#6b0f0d] uppercase tracking-widest flex items-center gap-1 opacity-75">
+                        <span className="material-symbols-outlined text-[10px]">lightbulb</span> Câu hỏi gợi ý
+                      </p>
+                      <div className="flex flex-col gap-1.5 items-start">
+                        {msg.suggestions.map((sug, qIdx) => (
+                          <button
+                            key={qIdx}
+                            onClick={() => !isTyping && sendMessage(sug)}
+                            disabled={isTyping}
+                            className="text-left inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#ffe7b0]/30 border border-[#d99b4a]/50 hover:border-[#6b0f0d]/60 hover:bg-[#ffe7b0]/60 text-[12px] text-[#6b0f0d] font-body font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <span className="material-symbols-outlined text-[13px] shrink-0">north_east</span>
+                            {sug}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -142,16 +215,16 @@ const ChatBox = ({ isOpen, onClose }) => {
                 animate={{ opacity: 1 }}
                 className="relative z-10 flex justify-start items-end gap-2.5"
               >
-                <div 
+                <div
                   style={{ background: "linear-gradient(to bottom, #7a1210, #5a0c0a)" }}
-                  className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white shadow-md mb-1 border border-[#d99b4a]/30"
+                  className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white shadow-md mb-1 border border-[#d99b4a]/30 p-1.5"
                 >
-                  <span className="material-symbols-outlined text-[15px] text-[#f7d78a]">auto_awesome</span>
+                  <DongSonDrumIcon className="w-full h-full text-[#f7d78a]" color="currentColor" />
                 </div>
-                <div className="bg-white border border-[#d9c7a7]/60 p-3 rounded-[20px] rounded-bl-sm shadow-sm flex items-center gap-1.5 h-[42px] px-4">
-                  <span className="w-1.5 h-1.5 bg-[#d99b4a] rounded-full animate-bounce"></span>
-                  <span className="w-1.5 h-1.5 bg-[#d99b4a] rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></span>
-                  <span className="w-1.5 h-1.5 bg-[#d99b4a] rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></span>
+                <div className="bg-white border border-[#d9c7a7]/60 p-3 rounded-[20px] rounded-bl-sm shadow-sm flex items-center justify-center gap-1.5 h-[42px] px-4 min-w-[50px]">
+                  <div className="w-[6px] h-[6px] shrink-0 bg-[#d99b4a] rounded-full animate-bounce"></div>
+                  <div className="w-[6px] h-[6px] shrink-0 bg-[#d99b4a] rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></div>
+                  <div className="w-[6px] h-[6px] shrink-0 bg-[#d99b4a] rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></div>
                 </div>
               </motion.div>
             )}
@@ -172,9 +245,9 @@ const ChatBox = ({ isOpen, onClose }) => {
               />
               <button
                 onClick={handleSend}
-                disabled={!inputValue.trim() || isTyping}
+                disabled={!inputValue.trim() || isTyping || inputValue.length > 2000}
                 style={{
-                  ...((inputValue.trim() && !isTyping) ? { background: "linear-gradient(to right, #7a1210, #5a0c0a)" } : { backgroundColor: "#ccc" }),
+                  ...((inputValue.trim() && !isTyping && inputValue.length <= 2000) ? { background: "linear-gradient(to right, #7a1210, #5a0c0a)" } : { backgroundColor: "#ccc" }),
                   position: "absolute",
                   right: "6px",
                   top: "50%",
@@ -184,6 +257,11 @@ const ChatBox = ({ isOpen, onClose }) => {
               >
                 <span className="material-symbols-outlined text-[18px] ml-0.5">send</span>
               </button>
+            </div>
+            <div className="mt-1 flex justify-end">
+              <span className={`text-[10px] font-body font-bold ${inputValue.length > 2000 ? 'text-red-500' : 'text-[#2b1a16]/40'}`}>
+                {inputValue.length}/2000
+              </span>
             </div>
           </div>
         </motion.div>

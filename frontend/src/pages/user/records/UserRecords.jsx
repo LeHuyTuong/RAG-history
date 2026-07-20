@@ -1,8 +1,7 @@
+import { API_ENDPOINTS, apiClient } from '../../../services';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Pagination from '../../../components/common/Pagination';
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient, { mockClient } from '../../../services/apiClient';
 
 const UserRecords = () => {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' hoặc 'list'
@@ -16,43 +15,24 @@ const UserRecords = () => {
       try {
         let dbSources = [];
         try {
-          const response = await apiClient.get(API_ENDPOINTS.USER_RECORDS);
+          const response = await apiClient.get(API_ENDPOINTS.USER_RECORDS, { params: { size: 500, status: 'PUBLISHED' } });
           dbSources = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
         } catch (apiErr) {
-          console.error('Lỗi gọi API sử liệu, chuyển sang dùng mock:', apiErr);
-        }
-
-        let mockRecords = [];
-        try {
-          const mockRes = await mockClient.get('/api/user_records.json');
-          mockRecords = mockRes.data || [];
-        } catch (err) {
-          console.error('Error fetching mock records:', err);
+          console.error('Lỗi gọi API sử liệu:', apiErr);
         }
 
         let merged = [];
         if (dbSources.length > 0) {
           merged = dbSources.map(dbItem => {
-            const mockItem = mockRecords.find(m => m.slug === dbItem.slug) || {};
             return {
-              ...mockItem,
               ...dbItem,
               record_id: dbItem.id,
-              name: dbItem.name || mockItem.name || '',
-              description: dbItem.description || mockItem.description || '',
-              category: dbItem.sourceType || mockItem.category || 'Tư liệu',
-              dynasty: dbItem.period?.name || mockItem.dynasty || 'Không rõ',
+              name: dbItem.name || '',
+              description: dbItem.description || '',
+              category: dbItem.sourceType || 'Tư liệu',
+              dynasty: dbItem.period?.name || 'Không rõ',
             };
           });
-        } else {
-          merged = mockRecords.map(mockItem => ({
-            ...mockItem,
-            record_id: mockItem.id || mockItem.record_id,
-            name: mockItem.name || mockItem.title || '',
-            description: mockItem.description || '',
-            category: mockItem.category || 'Tư liệu',
-            dynasty: mockItem.dynasty || 'Không rõ'
-          }));
         }
 
         setRecords(merged);
@@ -68,10 +48,10 @@ const UserRecords = () => {
   const totalPages = Math.ceil(records.length / ITEMS_PER_PAGE);
   const paginatedRecords = records.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải thư tịch...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải thư tịch...</div>;
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20">
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-16 animate-in fade-in duration-700 relative z-10">
 
         {/* 1. BODY HEADER: TIÊU ĐỀ HOÀNH TRÁNG */}

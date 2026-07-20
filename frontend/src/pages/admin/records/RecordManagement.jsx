@@ -9,18 +9,21 @@ import {
   FilterSelect,
   DataTable,
   ActionModal,
-  TableActions
+  TableActions,
+  Pagination
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient, { mockClient } from '../../../services/apiClient';
+import { API_ENDPOINTS, apiClient } from '../../../services';
+import toast from 'react-hot-toast';
 const RecordManagement = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ open: false, itemName: '', id: null });
   const [data, setData] = useState({ stats: { total: { value: '...', sub: '...' }, pending: { value: '...', sub: '...' } }, records: [] });
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ search: '', type: '', dynasty: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const { periodColors, getPeriodStyle: getDynastyStyle } = usePeriodColors();
 
   const handleDelete = async () => {
@@ -40,12 +43,13 @@ const RecordManagement = () => {
       setDeleteModal({ open: false, itemName: '', id: null });
     } catch (e) {
       console.error('Lỗi khi xóa sử liệu:', e);
-      alert('Có lỗi xảy ra khi xóa sử liệu!');
+      toast.error('Có lỗi xảy ra khi xóa sử liệu!');
     }
   };
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
   };
 
   const filteredRecords = data.records.filter(record => {
@@ -55,6 +59,8 @@ const RecordManagement = () => {
     const matchDynasty = filters.dynasty ? record.dynasty === filters.dynasty : true;
     return matchSearch && matchType && matchDynasty;
   });
+
+  const paginatedRecords = filteredRecords.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,12 +94,11 @@ const RecordManagement = () => {
             };
           }
         } catch (apiErr) {
-          console.error('Lỗi khi tải sử liệu từ API, chuyển sang mock:', apiErr);
+          console.error('Lỗi khi tải sử liệu từ API:', apiErr);
         }
 
         if (!result) {
-          const response = await mockClient.get('/api/admin_records.json');
-          result = response.data || { stats: { total: { value: '0', sub: '' }, pending: { value: '0', sub: '' } }, records: [] };
+          result = { stats: { total: { value: '0', sub: '' }, pending: { value: '0', sub: '' } }, records: [] };
         }
 
         setData(result);
@@ -184,7 +189,7 @@ const RecordManagement = () => {
                   placeholder="Nhập tên sử liệu, tác giả..."
                   value={filters.search}
                   onChange={(e) => handleFilterChange('search', e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-amber-700 focus:ring-2 focus:ring-amber-700/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
+                  className="w-full pl-12 pr-4 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:font-medium placeholder:opacity-50"
                 />
               </div>
               <div className="flex gap-4">
@@ -192,7 +197,7 @@ const RecordManagement = () => {
                   <select
                     value={filters.type}
                     onChange={(e) => handleFilterChange('type', e.target.value)}
-                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-amber-700 hover:border-amber-700/50 transition-all min-w-[160px]"
+                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[160px]"
                   >
                     <option value="">Tất cả loại hình</option>
                     {Array.from(new Set(data.records.map(r => r.type))).filter(Boolean).map(t => (
@@ -206,7 +211,7 @@ const RecordManagement = () => {
                   <select
                     value={filters.dynasty}
                     onChange={(e) => handleFilterChange('dynasty', e.target.value)}
-                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-amber-700 hover:border-amber-700/50 transition-all min-w-[160px]"
+                    className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[160px]"
                   >
                     <option value="">Tất cả triều đại</option>
                     {Array.from(new Set(data.records.map(r => r.dynasty))).filter(Boolean).map(d => (
@@ -222,13 +227,21 @@ const RecordManagement = () => {
           <div className="p-0">
             <DataTable
               columns={columns}
-              data={filteredRecords}
+              data={paginatedRecords}
               loading={loading}
               emptyMessage="Không tìm thấy sử liệu nào phù hợp"
               onRowClick={(row) => navigate(`/admin/records/edit/${row.id}`)}
               rowKey="id"
               striped={false}
               className="border-0 shadow-none rounded-none"
+            />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(filteredRecords.length / itemsPerPage)}
+              totalItems={filteredRecords.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={setItemsPerPage}
             />
           </div>
         </div>

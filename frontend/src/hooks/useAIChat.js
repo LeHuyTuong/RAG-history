@@ -1,6 +1,9 @@
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import toast from 'react-hot-toast';
 import { extractSourcesFromCitations, transformCitationsToSources } from '../utils/aiSourceUtils';
-import { ragService } from '../services';
+import { ragService, settingsService } from '../services';
+import apiClient from '../services/http/apiClient';
+import { unwrap } from '../services/http/response';
 
 export const useAIChat = (initialMessages = []) => {
   const [messages, setMessages] = useState(
@@ -11,6 +14,8 @@ export const useAIChat = (initialMessages = []) => {
       text: msg.content || msg.text || '',
       sources: msg.sources || [],
       suggestions: msg.suggestions || [],
+      usedWeb: msg.usedWeb || false,
+      needsRephrase: msg.needsRephrase || false,
       createdAt: msg.createdAt || new Date(),
     }))
   );
@@ -18,14 +23,35 @@ export const useAIChat = (initialMessages = []) => {
   const [error, setError] = useState(null);
   const [streamingMsgId, setStreamingMsgId] = useState(null);
   const [tokensPerSecond, setTokensPerSecond] = useState(0);
+  const [aiModel, setAiModel] = useState(null);
 
   const stopStreamRef = useRef(null);
   const tokenCountRef = useRef(0);
   const streamStartRef = useRef(null);
   const tpsIntervalRef = useRef(null);
 
+  useEffect(() => {
+    const loadAiModel = () => {
+      settingsService.getByKey('rag.llm_model')
+        .then(setting => setAiModel(setting?.value || null))
+        .catch(() => setAiModel(null));
+    };
+
+    loadAiModel();
+    window.addEventListener('history-rag-settings-updated', loadAiModel);
+
+    return () => {
+      window.removeEventListener('history-rag-settings-updated', loadAiModel);
+    };
+  }, []);
+
   const sendMessage = useCallback((question, options = {}) => {
     if (!question.trim() || loading) return;
+
+    if (question.length > 2000) {
+      toast.error('Câu hỏi quá dài (tối đa 2000 ký tự). Vui lòng rút gọn.');
+      return;
+    }
 
     if (stopStreamRef.current) {
       stopStreamRef.current();
@@ -51,6 +77,8 @@ export const useAIChat = (initialMessages = []) => {
       thinking: '',
       sources: [],
       suggestions: [],
+      usedWeb: false,
+      needsRephrase: false,
       createdAt: new Date(),
     };
 
@@ -88,6 +116,7 @@ export const useAIChat = (initialMessages = []) => {
         sourceIds: options.sourceIds || [],
         tagIds: options.tagIds || [],
         temperature: options.temperature || 0.2,
+        model: options.model || aiModel || undefined,
       },
       {
         onThinking: (text) =>
@@ -107,10 +136,16 @@ export const useAIChat = (initialMessages = []) => {
         onSuggestions: (suggestions) =>
           updateAiMsg(() => ({ suggestions })),
 
-        onDone: () => {
+        onDone: (data) => {
           stopStream();
           setLoading(false);
           stopStreamRef.current = null;
+          if (data) {
+            updateAiMsg((m) => ({
+              usedWeb: data.usedWeb || false,
+              needsRephrase: data.needsRephrase || false,
+            }));
+          }
         },
 
         onError: (err) => {
@@ -125,7 +160,17 @@ export const useAIChat = (initialMessages = []) => {
         },
       }
     );
-  }, [loading]);
+  }, [aiModel, loading]);
+
+  const sendFeedback = useCallback(async (question, answer, usedWeb, sourceUrl, rating) => {
+    try {
+      await apiClient.post('/api/v1/chat/feedback', {
+        question, answer, usedWeb, sourceUrl, rating,
+      });
+    } catch {
+      // silently ignore feedback errors
+    }
+  }, []);
 
   const clearMessages = useCallback(() => {
     if (stopStreamRef.current) {
@@ -154,6 +199,7 @@ export const useAIChat = (initialMessages = []) => {
     sendMessage,
     clearMessages,
     allSources,
+    sendFeedback,
   };
 };
 

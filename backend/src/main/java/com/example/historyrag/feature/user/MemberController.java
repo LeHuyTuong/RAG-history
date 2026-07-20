@@ -29,6 +29,16 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    @GetMapping
+    public ResponseEntity<ApiResponse<ResultPaginationDTO>> index(
+            @ParameterObject Pageable pageable,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status) {
+
+        ResultPaginationDTO result = memberService.filterMembers(pageable, search, status);
+        return ResponseEntity.ok(ApiResponse.success("Lấy danh sách thành viên thành công", result));
+    }
+
     @PostMapping
     public ResponseEntity<ApiResponse<MemberResponse>> create(@Valid @RequestBody MemberRequest request) {
         MemberResponse response = memberService.createMember(request);

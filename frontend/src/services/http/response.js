@@ -31,11 +31,21 @@ export const unwrapResult = (response) => {
 export const extractErrorMessage = (error, fallback = 'Có lỗi xảy ra, vui lòng thử lại.') => {
     if (!error?.response) return error?.message || fallback;
     const { data } = error.response;
-    return (
+    let msg = (
         data?.message ||
         data?.error ||
         data?.data?.message ||
         (typeof data === 'string' ? data : null) ||
         fallback
     );
+    if (data?.details && Array.isArray(data.details) && data.details.length > 0) {
+        msg += '\n- ' + data.details.join('\n- ');
+    } else if (msg === 'Bad Request' || msg === 'Internal Server Error') {
+        if (data?.path) {
+            msg = `Lỗi hệ thống hoặc định dạng dữ liệu không hợp lệ. Vui lòng kiểm tra lại các ô nhập (ví dụ: năm quá lớn).`;
+        } else {
+            msg = 'Định dạng dữ liệu không hợp lệ. Vui lòng kiểm tra lại.';
+        }
+    }
+    return msg;
 };

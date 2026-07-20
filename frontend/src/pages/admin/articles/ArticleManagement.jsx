@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchArticles, deleteArticle } from '../../../store/redux/slices/articleSlice';
+import useModalStore from '../../../store/zustand/useModalStore';
 import {
   AdminLayout,
   PageHeader,
@@ -8,72 +11,45 @@ import {
   FilterSelect,
   DataTable,
   ActionModal,
-  StatsGrid,
-  TableActions
+  TableActions,
+  Pagination
 } from '../../../components/admin';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
-import { postService } from '../../../services';
+import articleImages from '../../../data/articleImages.json';
+import { resolveImageUrl } from '../../../utils/imageUtils';
 
 const ArticleManagement = () => {
   const navigate = useNavigate();
-  const [modal, setModal] = useState({ open: false, type: '', item: null });
-  const [data, setData] = useState({ stats: [], articles: [] });
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { data, loading } = useSelector((state) => state.articles);
+  const { isOpen, modalType, modalData, openModal, closeModal } = useModalStore();
+
   const [filters, setFilters] = useState({ search: '', status: '', tag: '', author: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const { periodColors, getPeriodStyle } = usePeriodColors();
 
   const handleDelete = async () => {
-    if (!modal.item || modal.item.id === null || modal.item.id === undefined) return;
-    const deleteId = modal.item.id;
-
+    if (!modalData || modalData.id === null || modalData.id === undefined) return;
     try {
-      await postService.delete(deleteId);
-      setData(prev => ({
-        ...prev,
-        articles: prev.articles.filter(a => String(a.id) !== String(deleteId))
-      }));
+      await dispatch(deleteArticle(modalData.id)).unwrap();
+      dispatch(fetchArticles({ page: 0, size: 500 })); // Refetch to guarantee sync
+      if (paginatedArticles.length === 1 && currentPage > 1) {
+        setCurrentPage(prev => prev - 1);
+      }
     } catch (error) {
       console.error('Error deleting article:', error);
     }
-
     closeModal();
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const { items: posts, totalElements } = await postService.filter({ page: 0, size: 500 });
-
-        setData({
-          stats: [
-            { id: 1, label: 'Tổng số bài viết', value: totalElements || posts.length, icon: 'article', color: 'text-primary' },
-            { id: 2, label: 'Đã xuất bản', value: posts.filter(p => p.status === 'PUBLISHED').length, icon: 'check_circle', color: 'text-emerald-600' }
-          ],
-          articles: posts.map(p => ({
-            id: p.id,
-            title: p.title,
-            slug: p.slug,
-            summary: p.summary,
-            tags: p.tags && p.tags.length > 0 ? p.tags.map(t => t.name) : ['Chưa rõ'],
-            author: p.author?.fullName || p.author?.username || 'Admin',
-            status: p.status
-          }))
-        });
-      } catch (error) {
-        console.error('Error fetching articles data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  const openModal = (type, item) => setModal({ open: true, type, item });
-  const closeModal = () => setModal({ open: false, type: '', item: null });
+    dispatch(fetchArticles({ page: 0, size: 500 }));
+  }, [dispatch]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
   };
 
   const getNormalizedStatus = (status) => {
@@ -109,12 +85,18 @@ const ArticleManagement = () => {
     return matchSearch && matchStatus && matchTag && matchAuthor;
   });
 
+  const paginatedArticles = filteredArticles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   const columns = [
     {
       key: 'title', header: 'Sử liệu / Mã số', render: (row) => (
         <div className="flex items-center gap-4 py-2">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/10 shadow-sm shrink-0">
-            <span className="material-symbols-outlined text-primary text-xl">history_edu</span>
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/10 shadow-sm shrink-0 overflow-hidden">
+            {(articleImages[row.slug] || row.thumbnailUrl || row.image) ? (
+              <img src={resolveImageUrl(articleImages[row.slug] || row.thumbnailUrl || row.image)} alt={row.title} className="w-full h-full object-cover" />
+            ) : (
+              <span className="material-symbols-outlined text-primary text-xl">history_edu</span>
+            )}
           </div>
           <div className="flex flex-col">
             <span className="font-headline text-on-surface font-bold text-base hover:text-primary transition-colors cursor-pointer line-clamp-1">{row.title}</span>
@@ -127,7 +109,7 @@ const ArticleManagement = () => {
       )
     },
     {
-      key: 'tags', header: 'Chủ đề / Thẻ', render: (row) => (
+      key: 'tags', header: 'Thời kỳ / Triều đại', render: (row) => (
         <div className="flex flex-wrap gap-1 max-w-[200px]">
           {row.tags.map((t, idx) => (
             <span key={idx} className={`border px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${getPeriodStyle(t)}`}>
@@ -138,7 +120,7 @@ const ArticleManagement = () => {
       )
     },
     {
-      key: 'author', header: 'Tác giả', render: (row) => (
+      key: 'author', header: 'Người tạo', render: (row) => (
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-full bg-surface-variant flex items-center justify-center text-[10px] font-bold text-on-surface uppercase shrink-0">
             {row.author.charAt(0)}
@@ -175,10 +157,7 @@ const ArticleManagement = () => {
           actionIcon="add"
         />
 
-        {/* BENTO STATS */}
-        <div className="mb-6">
-          <StatsGrid stats={data.stats.map(({ sub, ...rest }) => rest)} loading={loading} />
-        </div>
+
 
         {/* FILTER & TABLE SECTION */}
         <div className="bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">
@@ -201,7 +180,7 @@ const ArticleManagement = () => {
                     onChange={(e) => handleFilterChange('tag', e.target.value)}
                     className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[160px]"
                   >
-                    <option value="">Tất cả chủ đề / thẻ</option>
+                    <option value="">Tất cả thời kỳ / triều đại</option>
                     {Array.from(new Set(data.articles.flatMap(a => a.tags || []))).filter(t => t && t !== 'Chưa rõ').map(t => (
                       <option key={t} value={t}>{t}</option>
                     ))}
@@ -215,7 +194,7 @@ const ArticleManagement = () => {
                     onChange={(e) => handleFilterChange('author', e.target.value)}
                     className="appearance-none pl-4 pr-10 py-3 bg-surface-low border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface outline-none cursor-pointer focus:border-primary hover:border-primary/50 transition-all min-w-[150px]"
                   >
-                    <option value="">Tất cả tác giả</option>
+                    <option value="">Tất cả người tạo</option>
                     {Array.from(new Set(data.articles.map(a => a.author))).filter(Boolean).map(a => (
                       <option key={a} value={a}>{a}</option>
                     ))}
@@ -242,24 +221,32 @@ const ArticleManagement = () => {
           <div className="p-0">
             <DataTable
               columns={columns}
-              data={filteredArticles}
+              data={paginatedArticles}
               loading={loading}
               emptyMessage="Không tìm thấy bài viết nào phù hợp"
               onRowClick={(row) => navigate(`/admin/articles/edit/${row.id}`)}
               rowKey="id"
               striped={false}
-              rowClassName={(row) => getNormalizedStatus(row.status) === 'published' ? 'bg-emerald-50/80 !font-semibold border-l-4 border-l-emerald-500 shadow-sm relative z-10' : ''}
+              rowClassName={(row) => getNormalizedStatus(row.status) === 'published' ? '!font-semibold border-l-4 border-l-emerald-500 relative z-10' : ''}
               className="border-0 shadow-none rounded-none"
+            />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(filteredArticles.length / itemsPerPage)}
+              totalItems={filteredArticles.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={setItemsPerPage}
             />
           </div>
         </div>
       </div>
 
       <ActionModal
-        isOpen={modal.open}
+        isOpen={isOpen && modalType === 'delete'}
         onClose={closeModal}
-        type={modal.type}
-        item={modal.item}
+        type="delete"
+        item={modalData}
         onConfirm={handleDelete}
       />
     </AdminLayout>

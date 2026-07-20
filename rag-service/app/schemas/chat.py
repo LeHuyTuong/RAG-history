@@ -25,6 +25,7 @@ class Citation(BaseModel):
     pageNumber: int | None = None
     chunkIndex: int | None = None
     score: float | None = None  # cosine similarity score từ Qdrant
+    sourceUrl: str | None = None  # URL đầy đủ (vd link Wikipedia)
 
 
 class RagChatRequest(BaseModel):
@@ -34,6 +35,7 @@ class RagChatRequest(BaseModel):
     sourceIds: list[int] = []  # filter: chỉ search trong các source này
     tagIds: list[int] = []     # filter: chỉ search chunk có gắn tag này
     temperature: float = 0.2
+    model: str | None = None    # model override từ admin settings
 
 
 class RagChatResponse(BaseModel):
@@ -41,4 +43,6 @@ class RagChatResponse(BaseModel):
     citations: list[Citation]
     usedVector: bool
     usedGraph: bool
+    usedWeb: bool = False
+    needsRephrase: bool = False
     suggestions: list[str] = []

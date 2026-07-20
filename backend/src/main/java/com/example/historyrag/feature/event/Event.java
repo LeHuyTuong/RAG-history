@@ -2,6 +2,7 @@ package com.example.historyrag.feature.event;
 
 import com.example.historyrag.common.BaseEntity;
 import com.example.historyrag.feature.period.Period;
+import com.example.historyrag.feature.tag.Tag;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import com.example.historyrag.feature.post.PostStatus;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,4 +67,21 @@ public class Event extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<EventLocation> eventLocations = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20)
+    private PostStatus status = PostStatus.PUBLISHED;
+
+    @Lob
+    @Column(name = "image_url", columnDefinition = "LONGTEXT")
+    private String imageUrl;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "event_tags",
+            joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    @Builder.Default
+    private List<Tag> tags = new ArrayList<>();
 }

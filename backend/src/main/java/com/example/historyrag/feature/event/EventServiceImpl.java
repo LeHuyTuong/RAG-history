@@ -24,7 +24,9 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -109,6 +111,24 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NAME, "id", id));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Event> getEventsByIds(List<Long> ids) {
+        List<Long> uniqueIds = ids.stream().distinct().toList();
+        List<Event> events = eventRepository.findAllById(uniqueIds);
+        if (events.size() != uniqueIds.size()) {
+            Set<Long> foundIds = events.stream()
+                    .map(Event::getId)
+                    .collect(Collectors.toSet());
+            Long missingId = uniqueIds.stream()
+                    .filter(id -> !foundIds.contains(id))
+                    .findFirst()
+                    .orElseThrow();
+            throw new ResourceNotFoundException(RESOURCE_NAME, "id", missingId);
+        }
+        return events;
+    }
+
     private void applyCreateRequest(Event event, CreateEventRequest request) {
         event.setName(request.name());
         event.setSlug(request.slug());
@@ -118,6 +138,10 @@ public class EventServiceImpl implements EventService {
         event.setStartDate(request.startDate());
         event.setEndDate(request.endDate());
         event.setCertaintyLevel(request.certaintyLevel());
+        event.setImageUrl(request.imageUrl());
+        if (request.status() != null) {
+            event.setStatus(request.status());
+        }
     }
 
     private void applyUpdateRequest(Event event, UpdateEventRequest request) {
@@ -129,6 +153,10 @@ public class EventServiceImpl implements EventService {
         event.setStartDate(request.startDate());
         event.setEndDate(request.endDate());
         event.setCertaintyLevel(request.certaintyLevel());
+        event.setImageUrl(request.imageUrl());
+        if (request.status() != null) {
+            event.setStatus(request.status());
+        }
     }
 
     private Period resolvePeriod(Long periodId) {
@@ -141,21 +169,37 @@ public class EventServiceImpl implements EventService {
     private void replaceLocationRelations(
             Event event,
             List<EventLocationRelationRequest> locationRelations) {
-        event.getEventLocations().clear();
         if (locationRelations == null || locationRelations.isEmpty()) {
+            event.getEventLocations().clear();
             return;
         }
 
         validateNoDuplicateLocations(locationRelations);
         Map<Long, Location> locationById = resolveLocations(locationRelations);
+
+        Map<Long, EventLocationRelationRequest> requestMap = locationRelations.stream()
+                .collect(Collectors.toMap(EventLocationRelationRequest::locationId, req -> req));
+
+        event.getEventLocations().removeIf(el -> !requestMap.containsKey(el.getLocation().getId()));
+
         for (EventLocationRelationRequest relation : locationRelations) {
             Location location = locationById.get(relation.locationId());
-            event.getEventLocations().add(EventLocation.builder()
-                    .id(new EventLocationId(event.getId(), location.getId()))
-                    .event(event)
-                    .location(location)
-                    .relationType(normalizeRelationType(relation.relationType()))
-                    .build());
+            String newRelationType = normalizeRelationType(relation.relationType());
+
+            Optional<EventLocation> existing = event.getEventLocations().stream()
+                    .filter(el -> el.getLocation().getId().equals(location.getId()))
+                    .findFirst();
+
+            if (existing.isPresent()) {
+                existing.get().setRelationType(newRelationType);
+            } else {
+                event.getEventLocations().add(EventLocation.builder()
+                        .id(new EventLocationId(event.getId(), location.getId()))
+                        .event(event)
+                        .location(location)
+                        .relationType(newRelationType)
+                        .build());
+            }
         }
     }
 
@@ -166,7 +210,8 @@ public class EventServiceImpl implements EventService {
                 throw new InvalidRequestException("Location relation must include locationId");
             }
             if (!locationIds.add(relation.locationId())) {
-                throw new InvalidRequestException("Duplicate locationId in locationRelations: " + relation.locationId());
+                throw new InvalidRequestException(
+                        "Duplicate locationId in locationRelations: " + relation.locationId());
             }
         }
     }

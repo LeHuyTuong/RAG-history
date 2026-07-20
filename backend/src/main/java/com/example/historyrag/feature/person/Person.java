@@ -2,6 +2,7 @@ package com.example.historyrag.feature.person;
 
 import com.example.historyrag.common.BaseEntity;
 import jakarta.persistence.*;
+import com.example.historyrag.feature.post.PostStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -49,4 +50,12 @@ public class Person extends BaseEntity {
     @Column(name = "biography", columnDefinition = "TEXT")
     private String biography;
 
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20)
+    private PostStatus status = PostStatus.PUBLISHED;
+
+    @Lob
+    @Column(name = "image_url", columnDefinition = "LONGTEXT")
+    private String imageUrl;
 }

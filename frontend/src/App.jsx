@@ -51,12 +51,12 @@ import RecordManagement from './pages/admin/records/RecordManagement';
 import RecordForm from './pages/admin/records/RecordForm';
 
 // Metadata (Siêu dữ liệu)
-import MetadataManagement from './pages/admin/metadata/MetadataManagement';
-import MetadataTagForm from './pages/admin/metadata/MetadataTagForm';
-import MetadataCategoryForm from './pages/admin/metadata/MetadataCategoryForm';
-import MetadataPeriodForm from './pages/admin/metadata/MetadataPeriodForm';
+import TagManagement from './pages/admin/tags/TagManagement';
+import PeriodManagement from './pages/admin/periods/PeriodManagement';
+import TagForm from './pages/admin/tags/TagForm';
+import PeriodForm from './pages/admin/periods/PeriodForm';
 
-// Hub (Mối quan hệ)
+// Hub (Đồ thị tri thức)
 import KnowledgeGraph from './pages/admin/hub/KnowledgeGraph';
 import HubEntityForm from './pages/admin/hub/HubEntityForm';
 
@@ -66,7 +66,8 @@ import MemberForm from './pages/admin/members/MemberForm';
 
 // Settings & AI
 import SystemSettings from './pages/admin/settings/SystemSettings';
-// import AiManagement from './pages/admin/ai/AiManagement'; 
+import ParamForm from './pages/admin/settings/ParamForm';
+// import AiManagement from './pages/admin/ai/AiManagement';
 
 function App() {
   return (
@@ -127,17 +128,17 @@ function App() {
           <Route path="records/new" element={<RecordForm />} />
           <Route path="records/edit/:id" element={<RecordForm />} />
 
-          {/* Quản lý Siêu dữ liệu */}
-          <Route path="metadata" element={<MetadataManagement />} />
-          <Route path="metadata/tags/new" element={<MetadataTagForm />} />
-          <Route path="metadata/tags/edit/:id" element={<MetadataTagForm />} />
-          <Route path="metadata/categories/new" element={<MetadataCategoryForm />} />
-          <Route path="metadata/categories/edit/:id" element={<MetadataCategoryForm />} />
-          <Route path="metadata/periods/new" element={<MetadataPeriodForm />} />
-          <Route path="metadata/periods/edit/:id" element={<MetadataPeriodForm />} />
+          {/* Metadata (Siêu dữ liệu) */}
+          <Route path="tags" element={<TagManagement />} />
+          <Route path="periods" element={<PeriodManagement />} />
+          <Route path="tags/new" element={<TagForm />} />
+          <Route path="tags/edit/:id" element={<TagForm />} />
+          <Route path="periods/new" element={<PeriodForm />} />
+          <Route path="periods/edit/:id" element={<PeriodForm />} />
 
           {/* Quản lý Mối quan hệ (Hub) */}
           <Route path="hub" element={<KnowledgeGraph />} />
+          <Route path="hub/new" element={<HubEntityForm />} />
           <Route path="hub/edit/:id" element={<HubEntityForm />} />
 
           {/* Quản lý Thành viên */}
@@ -147,6 +148,8 @@ function App() {
 
           {/* Cài đặt hệ thống */}
           <Route path="settings" element={<SystemSettings />} />
+          <Route path="settings/new" element={<ParamForm />} />
+          <Route path="settings/edit/:key" element={<ParamForm />} />
 
           {/* <Route path="ai" element={<AiManagement />} /> */}
         </Route>

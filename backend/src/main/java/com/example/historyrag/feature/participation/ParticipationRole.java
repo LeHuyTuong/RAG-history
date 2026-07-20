@@ -11,9 +11,14 @@ public enum ParticipationRole {
     OFFICIAL,
     DIPLOMAT,
     SOLDIER,
+    LEADER,
     REBEL_LEADER,
     ALLY,
     OPPONENT,
     WITNESS,
-    HISTORIAN
+    HISTORIAN,
+    FOUNDER,
+    REFERENCE,
+    AUTHOR,
+    KEY_FIGURE
 }

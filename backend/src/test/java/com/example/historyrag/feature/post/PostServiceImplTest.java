@@ -66,11 +66,11 @@ class PostServiceImplTest {
         Admin admin = admin(1L);
         Event event = event(2L);
         Tag tag = tag(3L);
-        CreatePostRequest request = createRequest(PostStatus.PUBLISHED, null, event.getId(), List.of(tag.getId()));
+        CreatePostRequest request = createRequest(PostStatus.PUBLISHED, null, List.of(event.getId()), List.of(tag.getId()));
 
         when(postRepository.existsBySlug("chien-thang-bach-dang")).thenReturn(false);
         when(adminService.getAdminEntityById(admin.getId())).thenReturn(admin);
-        when(eventService.getEventEntityById(event.getId())).thenReturn(event);
+        when(eventService.getEventsByIds(List.of(event.getId()))).thenReturn(List.of(event));
         when(tagService.getTagsByIds(List.of(tag.getId()))).thenReturn(List.of(tag));
         when(postRepository.save(any(Post.class))).thenAnswer(invocation -> {
             Post saved = invocation.getArgument(0);
@@ -85,7 +85,8 @@ class PostServiceImplTest {
         assertEquals(PostStatus.PUBLISHED, response.status());
         assertNotNull(response.publishedAt());
         assertEquals(admin.getId(), response.author().id());
-        assertEquals(event.getId(), response.event().id());
+        assertEquals(1, response.events().size());
+        assertEquals(event.getId(), response.events().get(0).id());
         assertEquals(1, response.tags().size());
     }
 
@@ -118,7 +119,7 @@ class PostServiceImplTest {
     @Test
     @DisplayName("Should update post and keep requested publishedAt")
     void update_existingPost_returnsUpdatedPostResponse() {
-        Post post = post(10L, admin(1L), null, List.of());
+        Post post = post(10L, admin(1L), List.of(), List.of());
         Instant publishedAt = Instant.parse("2026-06-16T00:00:00Z");
         UpdatePostRequest request = updateRequest(post.getId(), "cap-nhat", PostStatus.PUBLISHED, publishedAt, null, List.of());
 
@@ -146,7 +147,7 @@ class PostServiceImplTest {
     @Test
     @DisplayName("Should return post detail by id")
     void getById_existingPost_returnsPostResponse() {
-        Post post = post(10L, admin(1L), event(2L), List.of(tag(3L)));
+        Post post = post(10L, admin(1L), List.of(event(2L)), List.of(tag(3L)));
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
 
         PostResponse response = postService.getById(post.getId());
@@ -161,7 +162,7 @@ class PostServiceImplTest {
     @SuppressWarnings({"unchecked", "rawtypes"})
     void filter_existingPosts_returnsPaginationDTO() {
         PageRequest pageable = PageRequest.of(0, 10);
-        Post post = post(10L, admin(1L), null, List.of());
+        Post post = post(10L, admin(1L), List.of(), List.of());
         PageImpl<Post> page = new PageImpl<>(List.of(post), pageable, 1);
         when(postRepository.findBy(any(PredicateSpecification.class), any(Function.class))).thenReturn(page);
 
@@ -197,9 +198,9 @@ class PostServiceImplTest {
         Admin admin = admin(1L);
         Event event = event(2L);
         Tag tag = tag(3L);
-        CreatePostRequest request = createRequest(PostStatus.DRAFT, null, event.getId(), List.of(tag.getId()));
+        CreatePostRequest request = createRequest(PostStatus.DRAFT, null, List.of(event.getId()), List.of(tag.getId()));
         when(adminService.getAdminEntityById(admin.getId())).thenReturn(admin);
-        when(eventService.getEventEntityById(event.getId())).thenReturn(event);
+        when(eventService.getEventsByIds(List.of(event.getId()))).thenReturn(List.of(event));
         when(tagService.getTagsByIds(List.of(tag.getId()))).thenReturn(List.of(tag));
         when(postRepository.save(any(Post.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -207,11 +208,11 @@ class PostServiceImplTest {
 
         ArgumentCaptor<Post> captor = ArgumentCaptor.forClass(Post.class);
         verify(postRepository).save(captor.capture());
-        assertEquals(event, captor.getValue().getEvent());
+        assertEquals(List.of(event), captor.getValue().getEvents());
         assertEquals(List.of(tag), captor.getValue().getTags());
     }
 
-    private CreatePostRequest createRequest(PostStatus status, Instant publishedAt, Long eventId, List<Long> tagIds) {
+    private CreatePostRequest createRequest(PostStatus status, Instant publishedAt, List<Long> eventIds, List<Long> tagIds) {
         return new CreatePostRequest(
                 "Chiến thắng Bạch Đằng",
                 "chien-thang-bach-dang",
@@ -220,12 +221,12 @@ class PostServiceImplTest {
                 "/uploads/posts/bach-dang.jpg",
                 status,
                 publishedAt,
-                eventId,
+                eventIds,
                 tagIds
         );
     }
 
-    private UpdatePostRequest updateRequest(Long id, String slug, PostStatus status, Instant publishedAt, Long eventId, List<Long> tagIds) {
+    private UpdatePostRequest updateRequest(Long id, String slug, PostStatus status, Instant publishedAt, List<Long> eventIds, List<Long> tagIds) {
         return new UpdatePostRequest(
                 id,
                 "Tiêu đề cập nhật",
@@ -235,16 +236,16 @@ class PostServiceImplTest {
                 "/uploads/posts/new.jpg",
                 status,
                 publishedAt,
-                eventId,
+                eventIds,
                 tagIds
         );
     }
 
-    private Post post(Long id, Admin admin, Event event, List<Tag> tags) {
+    private Post post(Long id, Admin admin, List<Event> events, List<Tag> tags) {
         Post post = new Post();
         post.setId(id);
         post.setAdmin(admin);
-        post.setEvent(event);
+        post.setEvents(new ArrayList<>(events));
         post.setTitle("Chiến thắng Bạch Đằng");
         post.setSlug("chien-thang-bach-dang");
         post.setSummary("Tóm tắt");

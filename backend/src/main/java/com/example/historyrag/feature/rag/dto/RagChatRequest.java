@@ -40,12 +40,27 @@ public record RagChatRequest(
         @Schema(example = "0.2", defaultValue = "0.2", description = "Độ sáng tạo của câu trả lời (0.0 - 1.0)")
         @DecimalMin(value = "0.0", message = "temperature must be at least 0")
         @DecimalMax(value = "1.0", message = "temperature must be at most 1")
-        Double temperature
+        Double temperature,
+
+        @Schema(example = "gemini-2.0-flash", description = "Model AI override từ system_settings")
+        @Size(max = 100, message = "model must be at most 100 characters")
+        String model
 ) {
+    public RagChatRequest(
+            String question,
+            Integer topK,
+            Boolean useGraph,
+            List<Long> sourceIds,
+            List<Long> tagIds,
+            Double temperature) {
+        this(question, topK, useGraph, sourceIds, tagIds, temperature, null);
+    }
+
     public RagChatRequest {
         useGraph = useGraph != null && useGraph;
         sourceIds = sourceIds == null ? Collections.emptyList() : List.copyOf(sourceIds);
         tagIds = tagIds == null ? Collections.emptyList() : List.copyOf(tagIds);
         temperature = temperature == null ? 0.2 : temperature;
+        model = model == null || model.isBlank() ? null : model.trim();
     }
 }

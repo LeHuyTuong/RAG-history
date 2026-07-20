@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import com.example.historyrag.feature.post.PostStatus;
 
 @Getter
 @Setter
@@ -49,4 +50,14 @@ public class Location extends BaseEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20)
+    private PostStatus status = PostStatus.PUBLISHED;
+
+    @Column(name = "dynasty", length = 500)
+    private String dynasty;
+
+    @Lob
+    @Column(name = "image_url", columnDefinition = "LONGTEXT")
+    private String imageUrl;
 }

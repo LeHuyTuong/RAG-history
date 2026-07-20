@@ -2,7 +2,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "5174:80"
+      - "5173:80"
     environment:
       - VITE_API_BASE_URL=${VITE_API_BASE_URL}
     depends_on:
@@ -59,12 +59,22 @@ services:
       - LLM_API_KEY=${LLM_API_KEY}
       - LLM_MODEL=${LLM_MODEL}
       - LLM_FALLBACK_MODEL=${LLM_FALLBACK_MODEL}
+      - GROQ_API_KEY=${GROQ_API_KEY}
       - EMBEDDING_MODEL=${EMBEDDING_MODEL}
       - EMBEDDING_DIM=${EMBEDDING_DIM:-768}
-      - DEFAULT_CHUNK_SIZE=${DEFAULT_CHUNK_SIZE:-800}
-      - DEFAULT_CHUNK_OVERLAP=${DEFAULT_CHUNK_OVERLAP:-120}
-      - DEFAULT_TOP_K=${DEFAULT_TOP_K:-5}
-      - SCORE_THRESHOLD=${SCORE_THRESHOLD:-0.5}
+      - DEFAULT_CHUNK_SIZE=${CHUNK_SIZE:-800}
+      - DEFAULT_CHUNK_OVERLAP=${CHUNK_OVERLAP:-120}
+      - DEFAULT_TOP_K=${TOP_K:-5}
+      - SCORE_THRESHOLD=${MIN_SCORE:-0.5}
+      - WEB_FALLBACK_ENABLED=${WEB_FALLBACK_ENABLED:-true}
+      - WEB_FALLBACK_MAX_CHARS=${WEB_FALLBACK_MAX_CHARS:-2000}
+      - WIKI_LOCAL_ENABLED=${WIKI_LOCAL_ENABLED:-false}
+      - FASTEMBED_CACHE_DIR=/root/.cache/fastembed
+      - MONGO_URL=${MONGO_URL}
+    volumes:
+      - /Volumes/SSD/RAG-history-pdfs:/data/pdfs:ro
+      # Cache model fastembed e5-large (~2.2GB) để không tải lại mỗi lần restart
+      - rag-model-cache:/root/.cache
     depends_on:
       - qdrant
       - neo4j
@@ -109,3 +119,4 @@ volumes:
   qdrant_data:
   neo4j_data:
   uploaded_files:
+  rag-model-cache:

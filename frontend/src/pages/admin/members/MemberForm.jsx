@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { memberService, extractErrorMessage } from '../../../services';
+import toast from 'react-hot-toast';
+import { FormHeader } from '../../../components/admin';
 
 const MemberForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const isEdit = !!id;
 
   const [form, setForm] = useState({
@@ -12,6 +15,7 @@ const MemberForm = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     if (isEdit) {
@@ -41,6 +45,25 @@ const MemberForm = () => {
   const handleChange = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
 
   const handleSave = async () => {
+    const newErrors = {};
+    if (!form.username?.trim()) newErrors.username = 'Vui lòng nhập tên đăng nhập.';
+    if (!form.fullName?.trim()) newErrors.fullName = 'Vui lòng nhập họ và tên.';
+
+    if (!isEdit && !form.password) {
+      newErrors.password = 'Vui lòng nhập mật khẩu cho tài khoản mới.';
+    }
+    if (form.password) {
+      if (form.password.length < 6) newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự.';
+      if (form.password !== form.confirmPassword) newErrors.confirmPassword = 'Mật khẩu và Xác nhận mật khẩu không khớp.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setFormErrors(newErrors);
+      toast.error('Vui lòng kiểm tra lại thông tin nhập bị lỗi.');
+      return;
+    }
+    setFormErrors({});
+
     try {
       const payload = {
         username: form.username.trim(),
@@ -57,12 +80,12 @@ const MemberForm = () => {
         await memberService.create(payload);
       }
 
-      alert("Đã lưu hồ sơ thành viên!");
+      toast.success("Đã lưu hồ sơ thành viên!");
       navigate('/admin/members');
     } catch (error) {
       console.error('Lỗi khi lưu hồ sơ thành viên:', error);
       const errMsg = extractErrorMessage(error, 'Có lỗi xảy ra khi lưu hồ sơ thành viên!');
-      alert(errMsg);
+      toast.error(errMsg);
     }
   };
 
@@ -74,32 +97,17 @@ const MemberForm = () => {
     <div className="p-8 max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500 font-body">
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-end border-b border-outline-variant/40 pb-6 mb-8 gap-4">
-        <div>
-          <h2 className="font-headline text-4xl font-black tracking-tight bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
-            {isEdit ? 'Chỉnh sửa Hồ sơ' : 'Thiết lập Tài khoản Mới'}
-          </h2>
-          <p className="font-body text-sm text-on-surface-variant mt-3 italic flex items-center gap-2">
-            <span className="material-symbols-outlined text-[16px] text-primary">badge</span>
-            {isEdit ? 'Cập nhật thông tin thành viên trong hệ thống.' : 'Thiết lập tài khoản thành viên mới cho Cộng đồng Sử Việt.'}
-          </p>
-        </div>
-        <div className="flex gap-3 font-body text-xs font-bold tracking-widest">
-          <button
-            onClick={() => navigate('/admin/members')}
-            className="px-6 py-2.5 rounded-xl border-2 border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/40 transition-all uppercase"
-          >
-            Hủy bỏ
-          </button>
-          <button
-            onClick={handleSave}
-            className="px-8 py-2.5 rounded-xl bg-gradient-to-r from-primary to-indigo-600 text-white shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5 flex items-center gap-2 transition-all active:scale-95 uppercase"
-          >
-            <span className="material-symbols-outlined text-sm">save</span>
-            LƯU HỒ SƠ
-          </button>
-        </div>
-      </div>
+      <FormHeader
+        loading={loading}
+        title={isEdit ? 'Chỉnh sửa Hồ sơ' : 'Thiết lập Tài khoản Mới'}
+        subtitle={isEdit ? 'Cập nhật thông tin thành viên trong hệ thống.' : 'Thiết lập tài khoản thành viên mới cho Cộng đồng Sử Việt.'}
+        icon="badge"
+        isEdit={isEdit}
+        onCancel={() => navigate('/admin/members')}
+        onSave={handleSave}
+        status={form.status === 'Active' ? 'published' : 'hidden'}
+        contentType="member"
+      />
 
       <div className="grid grid-cols-12 gap-8 items-start">
         {/* Left Column: Basic Info */}
@@ -120,10 +128,11 @@ const MemberForm = () => {
                 <input
                   type="text"
                   value={form.fullName}
-                  onChange={(e) => handleChange('fullName', e.target.value)}
-                  className="w-full bg-transparent border-0 border-b border-outline-variant/60 focus:border-primary py-3 font-headline text-2xl text-on-surface font-bold outline-none transition-all placeholder:text-outline-variant/60"
+                  onChange={(e) => { handleChange('fullName', e.target.value); if(formErrors.fullName) setFormErrors(prev => ({ ...prev, fullName: null })); }}
+                  className={`w-full bg-transparent border-0 border-b py-3 font-headline text-2xl text-on-surface font-bold outline-none transition-all placeholder:text-outline-variant/60 ${formErrors.fullName ? 'border-red-500 focus:border-red-600' : 'border-outline-variant/60 focus:border-primary'}`}
                   placeholder="Vd: Nguyễn Văn A..."
                 />
+                {formErrors.fullName && <p className="text-red-500 text-[11px] font-bold mt-1 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">error</span> {formErrors.fullName}</p>}
               </div>
 
               <div className="md:col-span-2 space-y-2">
@@ -131,10 +140,11 @@ const MemberForm = () => {
                 <input
                   type="text"
                   value={form.username}
-                  onChange={(e) => handleChange('username', e.target.value)}
-                  className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 text-sm font-bold text-on-surface outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:font-normal"
+                  onChange={(e) => { handleChange('username', e.target.value); if(formErrors.username) setFormErrors(prev => ({ ...prev, username: null })); }}
+                  className={`w-full bg-surface-low/50 border rounded-xl p-3 text-sm font-bold text-on-surface outline-none focus:ring-2 transition-all placeholder:font-normal ${formErrors.username ? 'border-red-500 hover:border-red-600 focus:border-red-500 focus:ring-red-500/20' : 'border-outline-variant/60 hover:border-primary focus:border-primary focus:ring-primary/20'}`}
                   placeholder="nva_scholar"
                 />
+                {formErrors.username && <p className="text-red-500 text-[11px] font-bold mt-1 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">error</span> {formErrors.username}</p>}
               </div>
 
               <div className="space-y-2">
@@ -145,9 +155,9 @@ const MemberForm = () => {
                   <input
                     type={showPassword ? "text" : "password"}
                     value={form.password}
-                    onChange={(e) => handleChange('password', e.target.value)}
+                    onChange={(e) => { handleChange('password', e.target.value); if(formErrors.password) setFormErrors(prev => ({ ...prev, password: null })); }}
                     placeholder="••••••••"
-                    className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 pr-12 text-sm font-bold text-on-surface outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:font-normal"
+                    className={`w-full bg-surface-low/50 border rounded-xl p-3 pr-12 text-sm font-bold text-on-surface outline-none focus:ring-2 transition-all placeholder:font-normal ${formErrors.password ? 'border-red-500 hover:border-red-600 focus:border-red-500 focus:ring-red-500/20' : 'border-outline-variant/60 hover:border-primary focus:border-primary focus:ring-primary/20'}`}
                   />
                   <button
                     type="button"
@@ -157,6 +167,7 @@ const MemberForm = () => {
                     <span className="material-symbols-outlined text-[20px]">{showPassword ? 'visibility_off' : 'visibility'}</span>
                   </button>
                 </div>
+                {formErrors.password && <p className="text-red-500 text-[11px] font-bold mt-1 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">error</span> {formErrors.password}</p>}
               </div>
 
               <div className="space-y-2">
@@ -167,9 +178,9 @@ const MemberForm = () => {
                   <input
                     type={showConfirmPassword ? "text" : "password"}
                     value={form.confirmPassword}
-                    onChange={(e) => handleChange('confirmPassword', e.target.value)}
+                    onChange={(e) => { handleChange('confirmPassword', e.target.value); if(formErrors.confirmPassword) setFormErrors(prev => ({ ...prev, confirmPassword: null })); }}
                     placeholder="••••••••"
-                    className="w-full bg-surface-low/50 border border-outline-variant/60 rounded-xl p-3 pr-12 text-sm font-bold text-on-surface outline-none hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:font-normal"
+                    className={`w-full bg-surface-low/50 border rounded-xl p-3 pr-12 text-sm font-bold text-on-surface outline-none focus:ring-2 transition-all placeholder:font-normal ${formErrors.confirmPassword ? 'border-red-500 hover:border-red-600 focus:border-red-500 focus:ring-red-500/20' : 'border-outline-variant/60 hover:border-primary focus:border-primary focus:ring-primary/20'}`}
                   />
                   <button
                     type="button"
@@ -179,6 +190,7 @@ const MemberForm = () => {
                     <span className="material-symbols-outlined text-[20px]">{showConfirmPassword ? 'visibility_off' : 'visibility'}</span>
                   </button>
                 </div>
+                {formErrors.confirmPassword && <p className="text-red-500 text-[11px] font-bold mt-1 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">error</span> {formErrors.confirmPassword}</p>}
               </div>
 
               <div className="md:col-span-2 space-y-2">

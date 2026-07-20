@@ -11,3 +11,5 @@ Current MVP exposes Spring Boot gateway endpoints under `/api/v1/rag`:
 - `DELETE /sources/{sourceId}` -> FastAPI `/rag/delete?sourceId=...`
 
 These endpoints do not persist chat sessions/messages yet. They are gateway adapters so frontend and backend modules can connect through Spring Boot without calling FastAPI directly.
+
+`RagChatRequest.model` is optional. The frontend fills it from admin setting `rag.llm_model`; if absent, the RAG service uses its default configured model.

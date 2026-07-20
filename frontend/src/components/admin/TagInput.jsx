@@ -1,7 +1,7 @@
 import {  useState  } from 'react';
 import { getTagStyle } from '../../utils/tagUtils';
 
-const TagInput = ({ tags, availableTags, onAddTag, onRemoveTag, label = "Triều đại" }) => {
+const TagInput = ({ tags, availableTags, onAddTag, onRemoveTag, label = "Thẻ (Tags)" }) => {
   const [tagInput, setTagInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
 
@@ -28,11 +28,11 @@ const TagInput = ({ tags, availableTags, onAddTag, onRemoveTag, label = "Triều
   };
 
   return (
-    <div className="space-y-4 pt-4 border-t border-outline-variant/40 relative z-20">
+    <div className="space-y-4">
       <p className="font-body text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
         <span className="material-symbols-outlined text-[14px]">label</span> {label}
       </p>
-      
+
       <div className="flex flex-wrap gap-2">
         {safeTags.map(t => {
           const style = getTagStyle(t);
@@ -75,9 +75,9 @@ const TagInput = ({ tags, availableTags, onAddTag, onRemoveTag, label = "Triều
             }}
           />
         </div>
-        
+
         {showSuggestions && filteredTags.length > 0 && (
-          <div className="absolute z-20 top-full left-0 right-0 mt-2 bg-white border border-outline-variant/60 shadow-xl max-h-60 overflow-y-auto rounded-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
+          <div className="absolute z-50 top-full left-0 right-0 mt-2 bg-white border border-outline-variant/60 shadow-xl max-h-60 overflow-y-auto rounded-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
             {filteredTags.map((t, i) => (
               <div
                 key={typeof t === 'string' ? t + i : t.id || i}

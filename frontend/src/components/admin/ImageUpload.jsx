@@ -1,4 +1,5 @@
-import {  useRef  } from 'react';
+import { useRef } from 'react';
+import { resolveImageUrl } from '../../utils/imageUtils';
 
 const ImageUpload = ({ previewUrl, onImageChange, onRemove, label = 'Ảnh bìa', hint = 'Tải lên' }) => {
   const fileInputRef = useRef(null);
@@ -10,13 +11,10 @@ const ImageUpload = ({ previewUrl, onImageChange, onRemove, label = 'Ảnh bìa'
   };
 
   return (
-    <div className="space-y-4 pt-4 border-t border-outline-variant/40 relative z-10">
-      <p className="font-body text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
-        <span className="material-symbols-outlined text-[14px]">image</span> {label}
-      </p>
+    <div className="relative z-10">
       <input
         type="file"
-        accept="image/*"
+        accept=".jpg,.jpeg,.png,.webp"
         className="hidden"
         ref={fileInputRef}
         onChange={onImageChange}
@@ -27,7 +25,7 @@ const ImageUpload = ({ previewUrl, onImageChange, onRemove, label = 'Ảnh bìa'
       >
         {previewUrl ? (
           <>
-            <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+            <img src={resolveImageUrl(previewUrl)} alt="Preview" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4 backdrop-blur-sm">
               <span className="text-white font-body text-[11px] font-bold uppercase tracking-widest">Thay đổi</span>
               <button

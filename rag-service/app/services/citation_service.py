@@ -35,6 +35,7 @@ def to_citations(hits: list[ScoredPoint]) -> list[Citation]:
             pageNumber=_to_int(payload.get("pageNumber")),
             chunkIndex=_to_int(payload.get("chunkIndex")),
             score=float(hit.score) if hit.score is not None else None,
+            sourceUrl=payload.get("sourceUrl"),
         )
         key = (citation.sourceType, citation.sourceId, citation.chunkIndex)
         if key not in seen:

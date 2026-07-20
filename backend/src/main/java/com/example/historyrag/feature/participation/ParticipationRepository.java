@@ -8,4 +8,5 @@ public interface ParticipationRepository extends JpaRepository<Participation, Lo
     boolean existsByEvent_IdAndPerson_IdAndRole(Long eventId, Long personId, ParticipationRole role);
 
     boolean existsByEvent_IdAndPerson_IdAndRoleAndIdNot(Long eventId, Long personId, ParticipationRole role, Long id);
+    java.util.List<Participation> findByEvent_EventLocations_Location_Id(Long locationId);
 }

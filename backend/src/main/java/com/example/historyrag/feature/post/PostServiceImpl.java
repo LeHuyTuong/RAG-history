@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.PredicateSpecification;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -152,8 +153,12 @@ public class PostServiceImpl implements PostService {
         post.setThumbnailUrl(request.thumbnailUrl());
         post.setStatus(status);
         post.setPublishedAt(resolvePublishedAt(status, request.publishedAt()));
-        post.setEvent(resolveEvent(request.eventId()));
-        post.setTags(resolveTags(request.tagIds()));
+        post.setStartYear(request.startYear());
+        post.setEndYear(request.endYear());
+        post.getEvents().clear();
+        post.getEvents().addAll(resolveEvents(request.eventIds()));
+        post.getTags().clear();
+        post.getTags().addAll(resolveTags(request.tagIds()));
     }
 
     private void applyUpdateRequest(Post post, UpdatePostRequest request) {
@@ -164,8 +169,12 @@ public class PostServiceImpl implements PostService {
         post.setThumbnailUrl(request.thumbnailUrl());
         post.setStatus(request.status());
         post.setPublishedAt(resolvePublishedAt(request.status(), request.publishedAt()));
-        post.setEvent(resolveEvent(request.eventId()));
-        post.setTags(resolveTags(request.tagIds()));
+        post.setStartYear(request.startYear());
+        post.setEndYear(request.endYear());
+        post.getEvents().clear();
+        post.getEvents().addAll(resolveEvents(request.eventIds()));
+        post.getTags().clear();
+        post.getTags().addAll(resolveTags(request.tagIds()));
     }
 
     private Instant resolvePublishedAt(PostStatus status, Instant requestedPublishedAt) {
@@ -175,11 +184,11 @@ public class PostServiceImpl implements PostService {
         return requestedPublishedAt;
     }
 
-    private Event resolveEvent(Long eventId) {
-        if (eventId == null) {
-            return null;
+    private List<Event> resolveEvents(List<Long> eventIds) {
+        if (eventIds == null || eventIds.isEmpty()) {
+            return new ArrayList<>();
         }
-        return eventService.getEventEntityById(eventId);
+        return eventService.getEventsByIds(eventIds);
     }
 
     private void tryIngest(Post post) {
@@ -188,8 +197,8 @@ public class PostServiceImpl implements PostService {
             if (rawContent.isBlank()) return;
 
             List<Long> tagIds = post.getTags().stream().map(Tag::getId).toList();
-            List<Long> eventIds = post.getEvent() != null
-                    ? List.of(post.getEvent().getId()) : List.of();
+            List<Long> eventIds = post.getEvents() != null
+                    ? post.getEvents().stream().map(Event::getId).toList() : List.of();
 
             RagIngestMetadata meta = new RagIngestMetadata(
                     null, null, post.getSlug(), tagIds, eventIds, List.of());

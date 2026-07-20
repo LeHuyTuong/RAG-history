@@ -8,6 +8,8 @@ import com.example.historyrag.feature.rag.dto.RagIngestRequest;
 import com.example.historyrag.feature.rag.dto.RagIngestResponse;
 import com.example.historyrag.feature.rag.dto.RagRetrieveRequest;
 import com.example.historyrag.feature.rag.dto.RagRetrieveResponse;
+import com.example.historyrag.feature.rag.dto.RagSuggestRequest;
+import com.example.historyrag.feature.rag.dto.RagSuggestResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -63,6 +65,16 @@ public class RagFeignClientAdapter implements RagClientService {
                 TraceparentInterceptor.clear();
             }
         });
+    }
+
+    @Override
+    public RagSuggestResponse suggestQuestions(RagSuggestRequest request, String traceparent) {
+        TraceparentInterceptor.set(traceparent);
+        try {
+            return feignClient.suggestQuestions(request);
+        } finally {
+            TraceparentInterceptor.clear();
+        }
     }
 
     @Override

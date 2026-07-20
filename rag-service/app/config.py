@@ -70,18 +70,64 @@ class Settings(BaseSettings):
     neo4j_database: str = Field(default="neo4j", validation_alias=AliasChoices("NEO4J_DATABASE"))
 
     # Giá trị mặc định cho pipeline — request có thể override
-    default_chunk_size: int = 800
-    default_chunk_overlap: int = 120
-    default_top_k: int = 5
+    # Alias thêm CHUNK_SIZE/CHUNK_OVERLAP/TOP_K vì .env đặt tên ngắn này —
+    # trước đây thiếu alias nên các giá trị trong .env bị bỏ qua hoàn toàn,
+    # luôn rơi về default cứng dù .env có set giá trị khác.
+    default_chunk_size: int = Field(default=800, validation_alias=AliasChoices("CHUNK_SIZE", "DEFAULT_CHUNK_SIZE"))
+    default_chunk_overlap: int = Field(default=120, validation_alias=AliasChoices("CHUNK_OVERLAP", "DEFAULT_CHUNK_OVERLAP"))
+    default_top_k: int = Field(default=5, validation_alias=AliasChoices("TOP_K", "DEFAULT_TOP_K"))
     score_threshold: float = Field(default=0.55, validation_alias=AliasChoices("MIN_SCORE", "SCORE_THRESHOLD"))
 
     # API key bảo vệ các endpoint ghi (ingest, delete) — chỉ backend mới biết key này.
     # Nếu không set thì các endpoint này mở (chỉ dùng trong môi trường dev nội bộ).
     rag_api_key: str | None = Field(default=None, validation_alias=AliasChoices("RAG_API_KEY", "RAG_INTERNAL_API_KEY"))
 
+    # MongoDB — log lượt hỏi-đáp RAG để phục vụ evaluation/debug (docs/18).
+    # mongo_url None = tắt log, không ném lỗi (chưa cấu hình = dev/test bình thường).
+    mongo_url: str | None = Field(default=None, validation_alias=AliasChoices("MONGO_URL"))
+    mongo_db: str = "rag_history"
+    query_log_collection: str = "rag_query_logs"
+    query_log_enabled: bool = True
+
     # Namespace sourceId — bảo vệ data sách khỏi bị article ghi đè
     doc_source_id_max: int = 999          # sách PDF dùng sourceId 1–999
     article_source_id_min: int = 1_000_000  # bài viết dùng sourceId 1_000_000+
+
+    # FAQ answer cache — short‑circuit trước pipeline nếu câu hỏi khớp dataset FAQ
+    faq_cache_enabled: bool = True
+    faq_cache_threshold: float = 90.0         # rapidfuzz WRatio score (0–100)
+    faq_cache_path: str = "data/faq_cache.json"
+
+    # Web fallback — tra Wikipedia tiếng Việt khi RAG không đủ dữ liệu
+    web_fallback_enabled: bool = True          # env WEB_FALLBACK_ENABLED
+    web_fallback_max_chars: int = 2000         # env WEB_FALLBACK_MAX_CHARS
+
+    # Wiki-local RRF — nhánh retrieval phụ dùng model fastembed e5-large trên
+    # collection wiki_chunks_local. Model ~2.2GB nên nạp lazy tốn RAM lớn; tắt
+    # (mặc định) khi máy ít RAM hoặc chưa import wiki để tránh OOM. Bật lại chỉ
+    # khi (a) đã chạy scripts/import_wiki.py và (b) Docker có ≥6GB RAM.
+    wiki_local_enabled: bool = False           # env WIKI_LOCAL_ENABLED
+
+    # Nguồn token cho streaming (SSE/WS) — CHỈ dùng cho benchmark transport.
+    # "gemma" (mặc định) = pipeline RAG thật (retrieval + Gemma). "mock" = bỏ
+    # qua retrieval + LLM, phát token local nhịp cố định → benchmark SSE vs WS
+    # không tốn quota, không phụ thuộc Gemma, cả hai transport nhận input giống
+    # hệt nhau (xem benchmarks/README.md). KHÔNG bật "mock" ở production.
+    stream_source: str = "gemma"               # env STREAM_SOURCE: gemma | mock | ollama
+    stream_mock_tokens: int = 60               # env STREAM_MOCK_TOKENS: số token phát ra
+    stream_mock_delay_ms: int = 20             # env STREAM_MOCK_DELAY_MS: nhịp giữa 2 token (0 = stress)
+
+    # Full-local AI cho benchmark: token thật từ LLM local qua Ollama (dùng khi
+    # STREAM_SOURCE=ollama). Không tốn quota Gemma. Không dùng ở production.
+    ollama_url: str = "http://localhost:11434"  # env OLLAMA_URL
+    ollama_model: str = "llama3.2:3b"           # env OLLAMA_MODEL
+
+    # Groq — multi-provider LLM routing. Key đọc từ .env (GROQ_API_KEY),
+    # do Docker Compose truyền vào, KHÔNG phải file benchmark riêng.
+    groq_api_key: str | None = Field(
+        default=None, validation_alias=AliasChoices("GROQ_API_KEY")
+    )
+    groq_base_url: str = "https://api.groq.com/openai/v1"
 
 
 settings = Settings()

@@ -1,8 +1,11 @@
+import { API_ENDPOINTS, apiClient } from '../../../services';
+import { mapPost } from '../../../services/responseMappers';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { API_ENDPOINTS } from '../../../services/api';
-import apiClient, { mockClient } from '../../../services/apiClient';
+import { stripHtml } from '../../../utils/stringUtils';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
+import DOMPurify from 'dompurify';
+import { IMAGES } from '../../../config/constants';
 
 const ArticleDetail = () => {
   const { getPeriodStyle } = usePeriodColors();
@@ -26,6 +29,8 @@ const ArticleDetail = () => {
 
   useEffect(() => {
     const fetchArticle = async () => {
+      setLoading(true);
+      setArticle(null); // Clear previous article state
       try {
         let dbPost = null;
         const isNumeric = /^\d+$/.test(slug);
@@ -42,7 +47,7 @@ const ArticleDetail = () => {
 
         if (!dbPost) {
           try {
-            const response = await apiClient.get(`${API_ENDPOINTS.USER_ARTICLES}?size=100`);
+            const response = await apiClient.get(`${API_ENDPOINTS.USER_ARTICLES}?size=100&status=PUBLISHED`);
             const posts = response.data?.data?.result || response.data?.data?.content || response.data?.data || [];
             dbPost = posts.find(a => (a.id && a.id.toString() === slug) || a.slug === slug);
           } catch (err) {
@@ -50,21 +55,28 @@ const ArticleDetail = () => {
           }
         }
 
-        let mockItem = null;
-        try {
-          const mockRes = await mockClient.get('/api/user_articles.json');
-          const mockPosts = mockRes.data || [];
-          mockItem = mockPosts.find(m => (m.slug && m.slug === slug) || (m.id && m.id.toString() === slug) || (m.post_id && m.post_id.toString() === slug));
-        } catch (err) {
-          console.error('Error fetching mock articles:', err);
-        }
-        if (dbPost || mockItem) {
+        if (dbPost) {
+          // Normalize/mapping helper: provide fallbacks for fields frontend expects
+          try {
+            dbPost = mapPost(dbPost);
+          } catch (e) {
+            console.warn('mapPost failed, using raw dbPost', e);
+          }
           const validThumbnail = dbPost?.thumbnailUrl && dbPost.thumbnailUrl.trim() !== '' && dbPost.thumbnailUrl !== 'null';
           const relatedEntities = [];
-          if (dbPost?.event) {
+          if (dbPost?.events && dbPost.events.length > 0) {
+            dbPost.events.forEach(ev => {
+              relatedEntities.push({
+                icon: "event",
+                title: ev.name || ev.title,
+                type: "Sự kiện",
+                link: `/events/${ev.slug || ev.id}`
+              });
+            });
+          } else if (dbPost?.event) {
             relatedEntities.push({
               icon: "event",
-              title: dbPost.event.name,
+              title: dbPost.event.name || dbPost.event.title,
               type: "Sự kiện",
               link: `/events/${dbPost.event.slug || dbPost.event.id}`
             });
@@ -79,23 +91,69 @@ const ArticleDetail = () => {
               });
             });
           }
+
+          // Load from cache since these are not in DB schema yet
+          const cached = localStorage.getItem(`local_post_relations_${dbPost?.id || slug}`) || localStorage.getItem(`local_post_relations_${dbPost?.slug || slug}`);
+          if (cached) {
+            try {
+              const parsed = JSON.parse(cached);
+              const makeSlug = (str) => typeof str === 'string' ? str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "") : str;
+
+              if (parsed.relatedLocations && parsed.relatedLocations.length > 0) {
+                parsed.relatedLocations.forEach(loc => {
+                  const locSlug = loc.slug || loc.id || makeSlug(loc);
+                  relatedEntities.push({
+                    icon: "explore",
+                    title: loc.name || loc,
+                    type: "Địa danh",
+                    link: `/locations/${locSlug}`
+                  });
+                });
+              }
+              if (parsed.relatedCharacters && parsed.relatedCharacters.length > 0) {
+                parsed.relatedCharacters.forEach(char => {
+                  const charSlug = char.slug || char.id || makeSlug(char);
+                  relatedEntities.push({
+                    icon: "person",
+                    title: char.name || char,
+                    type: "Nhân vật",
+                    link: `/characters/${charSlug}`
+                  });
+                });
+              }
+              if (parsed.sources && parsed.sources.length > 0) {
+                parsed.sources.forEach(source => {
+                  relatedEntities.push({
+                    icon: "menu_book",
+                    title: source.title || source.name || source,
+                    type: "Nguồn tham khảo",
+                    link: source.link || "#"
+                  });
+                });
+              }
+            } catch (e) {
+              console.error("Failed to parse cached relations for ArticleDetail:", e);
+            }
+          }
           const merged = {
             ...dbPost,
-            thumbnail_url: validThumbnail ? dbPost.thumbnailUrl : (mockItem?.thumbnail_url || "https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg"),
-            dynasty: dbPost?.tags?.[0]?.name || mockItem?.dynasty || 'Lịch sử',
+            article_id: dbPost.id,
+            title: dbPost?.title || '',
+            thumbnail_url: dbPost.imageUrl || dbPost.thumbnailUrl || IMAGES.DEFAULT_COVER,
+            dynasty: dbPost?.tags?.[0]?.name || 'Lịch sử',
             dynasties: dbPost?.tags && dbPost.tags.length > 0
               ? dbPost.tags.map(t => typeof t === 'object' ? t.name : t)
-              : (mockItem?.tags || [mockItem?.dynasty || 'Lịch sử']),
-            content: dbPost?.content || mockItem?.content || '',
-            summary: dbPost?.summary || mockItem?.summary || '',
-            author: dbPost?.author?.fullName || dbPost?.admin?.name || mockItem?.author || 'Admin',
-            published_at: dbPost?.publishedAt ? new Date(dbPost.publishedAt).toLocaleDateString('vi-VN') : (mockItem?.published_at || ''),
+              : ['Lịch sử'],
+            content: dbPost?.content || '',
+            summary: dbPost?.summary || '',
+            author: dbPost?.author?.fullName || 'Tác giả',
+            published_at: dbPost?.publishedAt ? new Date(dbPost.publishedAt).toLocaleDateString('vi-VN') : '',
             likes: 0,
             relatedEntities: relatedEntities
           };
 
           setArticle(merged);
-          
+
           // Nạp lại likes từ localStorage cho bài viết này
           const savedLikes = localStorage.getItem(`likesCount_${merged.slug || slug}`);
           if (savedLikes !== null) {
@@ -104,12 +162,24 @@ const ArticleDetail = () => {
             setLikes(merged.likes || 0);
           }
           setIsLiked(localStorage.getItem(`liked_${merged.slug || slug}`) === 'true');
-          
+
           // Gọi API thật lấy comment
           if (dbPost.id) {
             try {
               const commRes = await apiClient.get(`${API_ENDPOINTS.PUBLIC_ENGAGEMENTS}?postId=${dbPost.id}`);
-              const fetchedComments = commRes.data?.data || [];
+              let fetchedComments = commRes.data?.data || [];
+
+              // Merge local comments that haven't been synced
+              const savedComments = localStorage.getItem(`comments_${merged.slug || slug}`);
+              if (savedComments) {
+                try {
+                  const localC = JSON.parse(savedComments);
+                  const combined = [...localC, ...fetchedComments];
+                  const unique = Array.from(new Map(combined.map(c => [c.id || c.engagement_id || c.commentContent, c])).values());
+                  fetchedComments = unique;
+                } catch(e) {}
+              }
+
               setComments(fetchedComments);
             } catch (err) {
               console.error('Failed to fetch comments', err);
@@ -140,7 +210,7 @@ const ArticleDetail = () => {
           }
 
           // Fetch event details to get locations and characters
-          const eventId = dbPost?.event?.id || mockItem?.event?.id || mockItem?.eventId;
+          const eventId = dbPost?.events?.[0]?.id || dbPost?.event?.id || mockItem?.event?.id || mockItem?.eventId;
           if (eventId) {
             try {
               const eventRes = await apiClient.get(`${API_ENDPOINTS.USER_EVENT_DETAIL}/${eventId}`);
@@ -150,12 +220,6 @@ const ArticleDetail = () => {
               const rawParts = partsRes.data?.data?.result || partsRes.data?.data || [];
 
               const dynamicEntities = [];
-              dynamicEntities.push({
-                title: fullEvent.name || fullEvent.title || 'Sự kiện',
-                type: 'Sự kiện',
-                icon: 'event',
-                link: `/events/${eventId}`
-              });
 
               if (fullEvent.locationRelations) {
                 fullEvent.locationRelations.forEach(loc => {
@@ -179,10 +243,20 @@ const ArticleDetail = () => {
                 }
               });
 
-              setArticle(prev => ({
-                ...prev,
-                relatedEntities: dynamicEntities
-              }));
+              setArticle(prev => {
+                const mergedEntities = [...(prev.relatedEntities || [])];
+                dynamicEntities.forEach(dyn => {
+                  if (!mergedEntities.some(e => e.title === dyn.title && e.type === dyn.type)) {
+                    mergedEntities.push(dyn);
+                  }
+                });
+                return {
+                  ...prev,
+                  relatedEntities: mergedEntities,
+                  eventStartYear: fullEvent.startYear || (fullEvent.startDate ? new Date(fullEvent.startDate).getFullYear() : null),
+                  eventEndYear: fullEvent.endYear || (fullEvent.endDate ? new Date(fullEvent.endDate).getFullYear() : null)
+                };
+              });
             } catch (err) {
               console.error('Lỗi khi tải thông tin liên kết của bài viết:', err);
             }
@@ -197,37 +271,51 @@ const ArticleDetail = () => {
     fetchArticle();
   }, [slug]);
 
-  if (loading) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Đang tải bài viết...</div>;
+  if (loading) return <div className="w-full min-h-[60vh] bg-transparent flex items-center justify-center font-body text-[#6b0f0d]">Đang tải bài viết...</div>;
   if (!article) return <div className="min-h-screen bg-[#fbf6e8] flex items-center justify-center font-body text-[#6b0f0d]">Không tìm thấy bài viết.</div>;
 
   const handleLike = () => {
     const newIsLiked = !isLiked;
     const newLikes = newIsLiked ? likes + 1 : likes - 1;
-    
+
     setLikes(newLikes);
     setIsLiked(newIsLiked);
-    
+
     localStorage.setItem(`liked_${slug}`, String(newIsLiked));
     localStorage.setItem(`likesCount_${slug}`, String(newLikes));
+
+    // Thêm vào lịch sử tương tác local
+    let history = [];
+    try {
+       history = JSON.parse(localStorage.getItem('user_local_history') || '[]');
+    } catch(e) {}
+
+    if (newIsLiked) {
+       history = [{
+         id: slug,
+         link: `/articles/${slug}`,
+         img: article.thumbnail_url || article.heroImage,
+         title: article.title,
+         interaction: 'Đã thích',
+         type: 'Sử liệu',
+         date: new Date().toLocaleDateString('vi-VN')
+       }, ...history.filter(h => h.id !== slug || h.interaction !== 'Đã thích')];
+    } else {
+       history = history.filter(h => h.id !== slug || h.interaction !== 'Đã thích');
+    }
+    localStorage.setItem('user_local_history', JSON.stringify(history));
   };
 
   return (
-    <div className="bg-[#fbf6e8] parchment-texture min-h-screen font-body selection:bg-[#d99b4a]/20">
+    <div className="w-full relative font-body selection:bg-[#d99b4a]/20">
       {/* Background Pattern Overlay */}
       <div className="dong-son-pattern pointer-events-none fixed inset-0 z-0 opacity-5 mix-blend-overlay"></div>
 
-      <main className="max-w-[1280px] mx-auto px-6 md:px-16 py-12 flex flex-col lg:flex-row gap-16 relative z-10">
+      <main className="max-w-[1280px] w-full mx-auto px-6 md:px-12 lg:px-16 py-12 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 relative z-10">
 
         {/* --- CỘT TRÁI: NỘI DUNG BÀI VIẾT --- */}
-        <article className="flex-1 max-w-4xl">
-          {/* Breadcrumbs */}
-          <nav className="flex items-center gap-2 mb-10 text-[#2b1a16]/60 font-body text-[10px] uppercase tracking-widest">
-            <Link to="/" className="hover:text-[#6b0f0d] transition-colors">Trang chủ</Link>
-            <span className="material-symbols-outlined text-xs opacity-40">chevron_right</span>
-            <Link to="/periods" className="hover:text-[#6b0f0d] transition-colors">Thời kỳ</Link>
-            <span className="material-symbols-outlined text-xs opacity-40">chevron_right</span>
-            <span className="text-[#6b0f0d] font-bold">Kiến trúc Thăng Long</span>
-          </nav>
+        <article className="lg:col-span-8 min-w-0">
+
 
           {/* Header Section */}
           <header className="mb-12">
@@ -245,34 +333,41 @@ const ArticleDetail = () => {
               </div>
             )}
 
-            <h1 className="font-headline text-5xl md:text-6xl text-[#6b0f0d] font-semibold leading-tight mb-8 tracking-tight">
+            <h1 className="font-headline text-5xl md:text-6xl text-[#6b0f0d] font-semibold leading-tight mb-8 tracking-tight break-words">
               {article.title}
             </h1>
 
             <div className="flex flex-wrap items-center gap-8 py-6 border-y border-[#d99b4a]/40">
-              <div className="flex items-center gap-4">
-                <img src={article.authorImg || 'https://via.placeholder.com/150'} alt="Author" className="w-12 h-12 rounded-full object-cover border border-[#d99b4a]/40 p-0.5 bg-[#fcf9ee] grayscale-[0.4]" />
-                <div>
-                  <p className="font-headline font-semibold text-[#6b0f0d] text-[15px] leading-none">{article.author || 'Admin'}</p>
-                  <p className="text-[9px] font-body uppercase tracking-widest text-[#2b1a16]/60 mt-1">{article.authorRole || 'Tác giả'}</p>
-                </div>
-              </div>
-              <div className="hidden md:block h-8 w-px bg-[#d99b4a]/30"></div>
               <div className="flex flex-col">
                 <span className="text-[#2b1a16]/60 font-body text-[9px] uppercase tracking-widest">Ngày xuất bản</span>
                 <time className="font-bold text-[12px] text-[#2b0504]">{article.published_at || article.publishedAt}</time>
               </div>
-              <div className="hidden md:block h-8 w-px bg-[#d99b4a]/30"></div>
-              <div className="flex flex-col">
-                <span className="text-[#2b1a16]/60 font-body text-[9px] uppercase tracking-widest">Thời lượng</span>
-                <span className="font-bold text-[12px] text-[#2b0504]">{article.readingTime || '10 phút đọc'}</span>
-              </div>
+
+              {(() => {
+                const start = article.startYear ?? article.start_year ?? article.eventStartYear;
+                const end = article.endYear ?? article.end_year ?? article.eventEndYear;
+                if (!start && !end) return null;
+                return (
+                  <>
+                    <div className="hidden md:block h-8 w-px bg-[#d99b4a]/30"></div>
+                    <div className="flex flex-col">
+                      <span className="text-[#2b1a16]/60 font-body text-[9px] uppercase tracking-widest">Năm diễn ra</span>
+                      <span className="font-bold text-[12px] text-[#2b0504]">
+                        {start === end || !end
+                          ? start
+                          : !start ? end : `${start} - ${end}`}
+                      </span>
+                    </div>
+                  </>
+                );
+              })()}
+
             </div>
           </header>
           {/* Summary Lead section with Gold Border */}
           {article.summary && (
-            <p className="font-body text-[18px] text-[#2b1a16]/90 border-l-4 border-[#d99b4a] pl-6 py-2 leading-relaxed mb-12 italic">
-              {article.summary}
+            <p className="max-w-[720px] mx-auto font-body text-[18px] text-[#2b1a16]/90 border-l-4 border-[#d99b4a] pl-6 py-2 leading-relaxed mb-12 italic break-words whitespace-pre-wrap overflow-hidden">
+              {stripHtml(article.summary)}
             </p>
           )}
 
@@ -286,28 +381,28 @@ const ArticleDetail = () => {
               </div>
             </div>
             {article.imageCaption && (
-              <figcaption className="mt-6 text-center text-[#2b1a16]/70 font-body text-xs leading-relaxed max-w-2xl mx-auto">
+              <figcaption className="mt-6 text-center text-[#2b1a16]/70 font-body text-xs leading-relaxed max-w-2xl mx-auto break-words">
                 {article.imageCaption}
               </figcaption>
             )}
           </figure>
 
-          <div className="prose max-w-none prose-lg prose-p:text-[#2b1a16]/90 prose-headings:text-[#6b0f0d] user-content-container">
+          <div className="prose max-w-[720px] mx-auto prose-lg prose-p:text-[#2b1a16]/90 prose-headings:text-[#6b0f0d] user-content-container overflow-hidden break-words">
             {Array.isArray(article.content) ? (
               article.content.map((block, i) => {
                 if (block.type === 'paragraph' && i === 0) {
                   return (
-                    <p key={i} className="font-body text-[17px] leading-loose text-[#2b1a16]/90 mb-8 drop-cap first-letter:text-7xl first-letter:font-headline first-letter:text-[#6b0f0d] first-letter:mr-4 first-letter:float-left first-letter:leading-none">
+                    <p key={i} className="font-body text-[17px] leading-loose text-[#2b1a16]/90 mb-8 drop-cap first-letter:text-7xl first-letter:font-headline first-letter:text-[#6b0f0d] first-letter:mr-4 first-letter:float-left first-letter:leading-none break-words">
                       {block.text}
                     </p>
                   );
                 }
                 if (block.type === 'paragraph') {
-                  return <p key={i} className="font-body text-[17px] leading-loose text-[#2b1a16]/90 mb-8">{block.text}</p>;
+                  return <p key={i} className="font-body text-[17px] leading-loose text-[#2b1a16]/90 mb-8 break-words">{block.text}</p>;
                 }
                 if (block.type === 'heading') {
                   return (
-                    <h2 key={i} className="font-headline text-3xl text-[#6b0f0d] font-semibold mt-16 mb-8 flex items-center gap-4">
+                    <h2 key={i} className="font-headline text-3xl text-[#6b0f0d] font-semibold mt-16 mb-8 flex items-center gap-4 break-words">
                       <span className="w-8 h-px bg-[#d99b4a]"></span>
                       {block.text}
                     </h2>
@@ -327,7 +422,7 @@ const ArticleDetail = () => {
                 return null;
               })
             ) : typeof article.content === 'string' ? (
-              <div className="font-body text-[17px] leading-loose text-[#2b1a16]/90 space-y-6" dangerouslySetInnerHTML={{ __html: article.content }} />
+              <div className="font-body text-[17px] leading-loose text-[#2b1a16]/90 space-y-6 break-words whitespace-pre-wrap overflow-hidden w-full max-w-full" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content)}} />
             ) : null}
           </div>
 
@@ -403,9 +498,10 @@ const ArticleDetail = () => {
 
                         {/* Collapsible Source Content/Excerpt Excerpt */}
                         {isExcerptOpen && src.content && (
-                          <div className="mt-4 p-4 bg-[#fcf9ee] border-l-2 border-[#6b0f0d] font-body text-sm text-[#2b1a16]/90 leading-relaxed italic animate-in slide-in-from-top-2 duration-300">
-                            "{src.content}"
-                          </div>
+                          <div
+                            className="mt-4 p-4 bg-[#fcf9ee] border-l-2 border-[#6b0f0d] font-body text-sm text-[#2b1a16]/90 leading-relaxed italic animate-in slide-in-from-top-2 duration-300 prose prose-amber max-w-none"
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(src.content)}}
+                          />
                         )}
                       </div>
                     );
@@ -459,8 +555,8 @@ const ArticleDetail = () => {
                           try {
                             const userStr = localStorage.getItem('user');
                             if (userStr) currentUser = JSON.parse(userStr);
-                          } catch (e) {}
-                          
+                          } catch (e) { }
+
                           const newCommentObj = {
                             id: Date.now(),
                             memberId: currentUser?.id || 999,
@@ -473,10 +569,28 @@ const ArticleDetail = () => {
                             createdAt: new Date().toISOString(),
                             memberName: currentUser?.fullName || currentUser?.name || 'Khách'
                           };
-                          
-                          const updatedComments = [...comments, newCommentObj];
+
+                          const updatedComments = [newCommentObj, ...comments];
                           setComments(updatedComments);
                           localStorage.setItem(`comments_${slug}`, JSON.stringify(updatedComments));
+
+                          // Thêm vào lịch sử tương tác local
+                          let history = [];
+                          try {
+                            history = JSON.parse(localStorage.getItem('user_local_history') || '[]');
+                          } catch(e) {}
+
+                          history = [{
+                            id: slug + '_' + Date.now(),
+                            link: `/articles/${slug}`,
+                            img: article.thumbnail_url || article.heroImage,
+                            title: article.title,
+                            interaction: 'Bình luận',
+                            type: 'Sử liệu',
+                            date: new Date().toLocaleDateString('vi-VN')
+                          }, ...history];
+                          localStorage.setItem('user_local_history', JSON.stringify(history));
+
                           setNewComment('');
                         }
                       }}
@@ -514,13 +628,13 @@ const ArticleDetail = () => {
         </article>
 
         {/* --- CỘT PHẢI: SIDEBAR --- */}
-        <aside className="w-full lg:w-[320px] space-y-12">
+        <aside className="w-full lg:col-span-4 space-y-12 lg:sticky lg:top-24 h-fit">
 
           {/* Related Entities Card */}
-          <section className="bg-[#fffdf8] p-8 border border-[#d99b4a]/40 shadow-md relative overflow-hidden">
+          <section className="bg-[#fffdf8] p-8 border border-[#d99b4a]/40 shadow-md relative overflow-hidden flex flex-col max-h-[calc(100vh-8rem)]">
             <div className="absolute -top-6 -right-6 w-24 h-24 bg-[#6b0f0d]/5 rounded-full blur-2xl pointer-events-none"></div>
-            <h4 className="font-body text-[10px] text-[#6b0f0d] uppercase font-bold tracking-[0.2em] border-b border-[#d99b4a]/30 pb-4 mb-8">Thực thể liên quan</h4>
-            <div className="space-y-6">
+            <h4 className="font-body text-[10px] text-[#6b0f0d] uppercase font-bold tracking-[0.2em] border-b border-[#d99b4a]/30 pb-4 mb-8 shrink-0">Thực thể liên quan</h4>
+            <div className="space-y-6 overflow-y-auto pr-2 flex-1" style={{ scrollbarWidth: 'thin', scrollbarColor: '#d99b4a transparent' }}>
               {(article.relatedEntities || []).map((entity, i) => (
                 <EntityLink key={i} icon={entity.icon} title={entity.title} type={entity.type} link={entity.link} />
               ))}
@@ -535,11 +649,11 @@ const ArticleDetail = () => {
 // Component con cho Sidebar Links
 const EntityLink = ({ icon, title, type, link }) => (
   <Link to={link || "#"} className="flex items-center gap-4 group p-2 -mx-2 hover:bg-[#fcf9ee] transition-colors rounded-sm">
-    <div className="w-10 h-10 bg-[#fffdf8] flex items-center justify-center rounded-sm border border-[#d99b4a]/40 group-hover:bg-[#6b0f0d] group-hover:text-[#ffe7b0] group-hover:border-[#6b0f0d] transition-all duration-300 shadow-sm">
+    <div className="w-10 h-10 shrink-0 bg-[#fffdf8] flex items-center justify-center rounded-sm border border-[#d99b4a]/40 group-hover:bg-[#6b0f0d] group-hover:text-[#ffe7b0] group-hover:border-[#6b0f0d] transition-all duration-300 shadow-sm">
       <span className="material-symbols-outlined text-[20px] text-[#6b0f0d] group-hover:text-[#ffe7b0]">{icon}</span>
     </div>
-    <div>
-      <p className="font-headline font-semibold text-[#2b0504] text-sm group-hover:text-[#6b0f0d] transition-colors">{title}</p>
+    <div className="min-w-0 flex-1">
+      <p className="font-headline font-semibold text-[#2b0504] text-sm group-hover:text-[#6b0f0d] transition-colors break-words">{title}</p>
       <p className="font-body text-[9px] uppercase opacity-60 tracking-widest text-[#2b1a16] mt-0.5">{type}</p>
     </div>
   </Link>

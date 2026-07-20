@@ -5,7 +5,9 @@ export { hubService };
 export const ENTITY_GROUPS = {
   character: { label: 'Nhân vật', icon: 'person' },
   event: { label: 'Sự kiện', icon: 'event' },
-  location: { label: 'Địa danh', icon: 'location_on' },
+  location: { label: 'Di tích', icon: 'location_on' },
+  article: { label: 'Bài viết', icon: 'article' },
+  record: { label: 'Sử liệu', icon: 'menu_book' },
 };
 
 export const RELATION_TYPE_META = {
@@ -14,7 +16,7 @@ export const RELATION_TYPE_META = {
     badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200',
   },
   event_location: {
-    label: 'Sự kiện – Địa danh',
+    label: 'Sự kiện – Di tích',
     badgeClass: 'bg-amber-50 text-amber-700 border-amber-200',
   },
   custom: {
@@ -55,11 +57,7 @@ export const linksToRelations = (links, nodes) =>
     })
     .filter(Boolean);
 
-export async function fetchHubEntitiesAndRelations(
-  _apiClient,
-  _mockClient,
-  _API_ENDPOINTS
-) {
+export async function fetchHubEntitiesAndRelations() {
   const { nodes, links } = await hubService.fetchGraph();
   const relations = linksToRelations(links, nodes);
   return { nodes, links, relations };
