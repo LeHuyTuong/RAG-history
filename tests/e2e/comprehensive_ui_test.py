@@ -56,8 +56,7 @@ async def run():
 
         # Test 4: AI Chat — input is <input> not <textarea>, submit via send button
         try:
-            await page.goto(f"{BASE}/ai")
-            await page.wait_for_load_state("networkidle")
+            await page.goto(f"{BASE}/ai-chat")
             chat_input = 'input[placeholder*="Hỏi về nhân vật"]'
             await page.wait_for_selector(chat_input, timeout=8000)
             await page.fill(chat_input, 'Trận Bạch Đằng?')

@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 
 // --- LAYOUTS ---
 import AdminLayout from './components/AdminLayout';
@@ -72,6 +73,7 @@ import ParamForm from './pages/admin/settings/ParamForm';
 function App() {
   return (
     <Router>
+      <Toaster position="top-right" />
       <Routes>
         {/* 1. Tuyến đường công khai không cần Layout */}
         <Route path="/login" element={<Login />} />

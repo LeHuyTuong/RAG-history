@@ -256,7 +256,7 @@ const MemberManagement = () => {
 
 // --- SUB-COMPONENTS & MODALS ---
 
-// MODAL 1: XEM NHANH HỒ S�
+// MODAL 1: XEM NHANH HỒ SƠ
 const QuickViewModal = ({ data, onClose }) => (
   <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
     <div className="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row animate-in fade-in zoom-in duration-300">
