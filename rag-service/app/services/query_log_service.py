@@ -12,7 +12,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-_client = None  # module-level lazy-init, cache lại sau lần đầu
+_client = None  # module-level lazy-init
+_in_memory_logs: list[dict] = []
 
 
 def _collection():
@@ -22,12 +23,27 @@ def _collection():
 
     if _client is None:
         from pymongo import MongoClient
-        _client = MongoClient(settings.mongo_url, serverSelectionTimeoutMS=2000)
+        _client = MongoClient(
+            settings.mongo_url,
+            serverSelectionTimeoutMS=2000,
+            tlsAllowInvalidCertificates=True,
+        )
     return _client[settings.mongo_db][settings.query_log_collection]
 
 
 def log_query(doc: dict) -> None:
-    """Ghi 1 document log. No-op nếu chưa cấu hình; nuốt mọi lỗi khác."""
+    """Ghi 1 document log. Nuốt mọi lỗi Mongo, fallback lưu memory."""
+    import uuid
+    from datetime import datetime, timezone
+
+    log_item = dict(doc)
+    if "id" not in log_item:
+        log_item["id"] = f"log-{uuid.uuid4().hex[:8]}"
+    if "createdAt" not in log_item:
+        log_item["createdAt"] = datetime.now(timezone.utc).isoformat()
+
+    _in_memory_logs.insert(0, log_item)
+
     from app.config import settings
 
     if not settings.query_log_enabled or not settings.mongo_url:
@@ -47,33 +63,47 @@ def list_logs(
     used_web: bool | None = None,
     transport: str | None = None,
 ) -> list[dict]:
-    """Đọc log gần nhất (mới nhất trước), có filter cơ bản. Trả [] nếu chưa
-    cấu hình Mongo hoặc query lỗi — không raise (endpoint /rag/logs chỉ để
-    xem/evaluation, không được làm hỏng service)."""
+    """Đọc log gần nhất (mới nhất trước). Thử đọc từ Mongo; nếu không có hoặc
+    lỗi kết nối thì dùng mảng fallback để không bị trống dữ liệu."""
     from app.config import settings
 
-    if not settings.mongo_url:
-        return []
+    if settings.mongo_url:
+        try:
+            query: dict = {}
+            if question:
+                import re
+                query["question"] = {"$regex": re.escape(question), "$options": "i"}
+            if used_vector is not None:
+                query["usedVector"] = used_vector
+            if used_graph is not None:
+                query["usedGraph"] = used_graph
+            if used_web is not None:
+                query["usedWeb"] = used_web
+            if transport:
+                query["transport"] = transport
 
-    query: dict = {}
+            cursor = _collection().find(query).sort("createdAt", -1).limit(limit)
+            results = [_serialize(doc) for doc in cursor]
+            if results:
+                return results
+        except Exception as exc:
+            logger.warning("query log list Mongo failed, using local fallback: %s", exc)
+
+    filtered = list(_in_memory_logs)
     if question:
-        import re
-        query["question"] = {"$regex": re.escape(question), "$options": "i"}
+        q_lower = question.lower()
+        filtered = [item for item in filtered if q_lower in (item.get("question") or "").lower()]
     if used_vector is not None:
-        query["usedVector"] = used_vector
+        filtered = [item for item in filtered if item.get("usedVector") == used_vector]
     if used_graph is not None:
-        query["usedGraph"] = used_graph
+        filtered = [item for item in filtered if item.get("usedGraph") == used_graph]
     if used_web is not None:
-        query["usedWeb"] = used_web
+        filtered = [item for item in filtered if item.get("usedWeb") == used_web]
     if transport:
-        query["transport"] = transport
+        t_lower = transport.lower()
+        filtered = [item for item in filtered if (item.get("transport") or "").lower() == t_lower]
 
-    try:
-        cursor = _collection().find(query).sort("createdAt", -1).limit(limit)
-        return [_serialize(doc) for doc in cursor]
-    except Exception as exc:
-        logger.warning("query log list failed: %s", exc)
-        return []
+    return filtered[:limit]
 
 
 def _serialize(doc: dict) -> dict:

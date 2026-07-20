@@ -10,15 +10,22 @@ import com.example.historyrag.feature.rag.dto.RagRetrieveRequest;
 import com.example.historyrag.feature.rag.dto.RagRetrieveResponse;
 import com.example.historyrag.feature.rag.dto.RagSuggestRequest;
 import com.example.historyrag.feature.rag.dto.RagSuggestResponse;
+import com.example.historyrag.feature.rag.dto.RagQueryLogResponse;
 import feign.Headers;
-import feign.RequestLine;
 import feign.Param;
+import feign.QueryMap;
+import feign.RequestLine;
+import java.util.List;
+import java.util.Map;
 
 public interface RagFeignClient {
 
     @RequestLine("GET /rag/health")
     @Headers("Content-Type: application/json")
     RagHealthResponse getHealth();
+
+    @RequestLine("GET /rag/logs")
+    List<RagQueryLogResponse> getLogs(@QueryMap Map<String, Object> params);
 
     @RequestLine("POST /rag/chat")
     @Headers("Content-Type: application/json")

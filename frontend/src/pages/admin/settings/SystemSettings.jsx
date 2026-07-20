@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { PageHeader, AdminLayout } from '../../../components/admin';
+import { useEffect, useMemo, useState, useCallback } from 'react';
+import { PageHeader, DataTable, FilterBar, FilterSelect, FilterInput, Pagination, AdminLayout } from '../../../components/admin';
 import { settingsService } from '../../../services';
 
 const AI_MODEL_OPTIONS = [
@@ -176,10 +176,163 @@ const SystemSettings = () => {
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // RAG query logs state
+  const [logs, setLogs] = useState([]);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [questionInput, setQuestionInput] = useState('');
+  const [logPage, setLogPage] = useState(1);
+  const [logItemsPerPage, setLogItemsPerPage] = useState(10);
+  const [logFilters, setLogFilters] = useState({
+    question: '',
+    usedVector: '',
+    usedGraph: '',
+    usedWeb: '',
+    transport: '',
+    limit: 200,
+  });
+
+  const paginatedLogs = useMemo(() => {
+    const start = (logPage - 1) * logItemsPerPage;
+    return logs.slice(start, start + logItemsPerPage);
+  }, [logs, logPage, logItemsPerPage]);
+
+  useEffect(() => {
+    setLogPage(1);
+  }, [logs]);
+
   const selectedModel = useMemo(
     () => AI_MODEL_OPTIONS.find(option => option.value === settings['rag.llm_model']),
     [settings]
   );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLogFilters(prev => ({ ...prev, question: questionInput }));
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [questionInput]);
+
+  const loadLogs = useCallback(async () => {
+    setLogsLoading(true);
+    try {
+      const params = {
+        limit: Number(logFilters.limit) || 20,
+        question: logFilters.question || undefined,
+        usedVector: logFilters.usedVector === '' ? undefined : logFilters.usedVector === 'true',
+        usedGraph: logFilters.usedGraph === '' ? undefined : logFilters.usedGraph === 'true',
+        usedWeb: logFilters.usedWeb === '' ? undefined : logFilters.usedWeb === 'true',
+        transport: logFilters.transport || undefined,
+      };
+      const data = await settingsService.getRagLogs(params);
+      setLogs(data);
+    } catch (error) {
+      console.error('Error loading RAG logs:', error);
+      setLogs([]);
+    } finally {
+      setLogsLoading(false);
+    }
+  }, [logFilters]);
+
+  useEffect(() => {
+    loadLogs();
+  }, [loadLogs]);
+
+  const formatDateTime = (dateStr) => {
+    if (!dateStr) return '–';
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const renderBoolBadge = (val) => {
+    if (val) {
+      return (
+        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 font-bold text-xs">
+          ✓
+        </span>
+      );
+    }
+    return <span className="text-on-surface-variant/40 font-mono text-xs">–</span>;
+  };
+
+  const logColumns = useMemo(() => [
+    {
+      header: 'Thời gian',
+      key: 'createdAt',
+      render: (row) => (
+        <span className="font-mono text-xs text-on-surface-variant whitespace-nowrap">
+          {formatDateTime(row.createdAt)}
+        </span>
+      ),
+    },
+    {
+      header: 'Câu hỏi',
+      key: 'question',
+      render: (row) => (
+        <div className="max-w-xs md:max-w-sm truncate font-medium text-on-surface" title={row.question}>
+          {row.question || '–'}
+        </div>
+      ),
+    },
+    {
+      header: 'Model',
+      key: 'model',
+      render: (row) => (
+        <span className="inline-flex px-2.5 py-1 rounded-lg bg-surface-low border border-outline-variant/60 font-mono text-xs text-on-surface-variant font-medium">
+          {row.model || '–'}
+        </span>
+      ),
+    },
+    {
+      header: 'Vector',
+      key: 'usedVector',
+      align: 'center',
+      render: (row) => renderBoolBadge(row.usedVector),
+    },
+    {
+      header: 'Graph',
+      key: 'usedGraph',
+      align: 'center',
+      render: (row) => renderBoolBadge(row.usedGraph),
+    },
+    {
+      header: 'Web',
+      key: 'usedWeb',
+      align: 'center',
+      render: (row) => renderBoolBadge(row.usedWeb),
+    },
+    {
+      header: 'Transport',
+      key: 'transport',
+      align: 'center',
+      render: (row) => (
+        <span className="uppercase font-mono text-[11px] font-bold tracking-wider text-on-surface-variant">
+          {row.transport || '–'}
+        </span>
+      ),
+    },
+    {
+      header: 'Latency',
+      key: 'latencyMs',
+      align: 'right',
+      render: (row) => (
+        <span className="font-mono text-xs text-on-surface font-semibold">
+          {row.latencyMs != null ? `${row.latencyMs} ms` : '–'}
+        </span>
+      ),
+    },
+  ], []);
 
   const loadSettings = async () => {
     setLoading(true);
@@ -331,6 +484,116 @@ const SystemSettings = () => {
           onApply={value => applyImageSetting('ui.background_url', value, { backgroundUrl: value })}
           previewMode="cover"
         />
+
+        <section className="bg-white rounded-2xl border border-outline-variant/60 shadow-sm overflow-hidden space-y-0">
+          <div className="p-6 border-b border-outline-variant/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <span className="material-symbols-outlined text-[#0f9f6e] text-[22px] mt-0.5">history_edu</span>
+              <div>
+                <h3 className="font-headline text-lg text-on-surface font-bold">Nhật ký truy vấn RAG</h3>
+                <p className="font-body text-xs text-on-surface-variant mt-1">
+                  Xem lịch sử các lượt hỏi-đáp RAG, bộ lọc thông số vector, graph, web search và thời gian phản hồi.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={loadLogs}
+              disabled={logsLoading}
+              className="h-9 px-3.5 rounded-xl border border-outline-variant/70 text-on-surface text-xs font-bold uppercase tracking-widest hover:border-[#0f9f6e] hover:text-[#0f9f6e] transition-colors flex items-center gap-1.5 shrink-0 self-start sm:self-auto"
+            >
+              <span className={`material-symbols-outlined text-[16px] ${logsLoading ? 'animate-spin' : ''}`}>
+                refresh
+              </span>
+              Tải lại
+            </button>
+          </div>
+
+          <div className="p-6 space-y-4">
+            <FilterBar className="rounded-xl border-b">
+              <FilterInput
+                label="Tìm câu hỏi:"
+                placeholder="Nhập từ khóa..."
+                value={questionInput}
+                onChange={(e) => setQuestionInput(e.target.value)}
+                className="w-full sm:w-64"
+              />
+              <FilterSelect
+                label="Vector:"
+                value={logFilters.usedVector}
+                onChange={(e) => setLogFilters(prev => ({ ...prev, usedVector: e.target.value }))}
+                options={[
+                  { value: '', label: 'Tất cả' },
+                  { value: 'true', label: 'Có (✓)' },
+                  { value: 'false', label: 'Không (–)' },
+                ]}
+              />
+              <FilterSelect
+                label="Graph:"
+                value={logFilters.usedGraph}
+                onChange={(e) => setLogFilters(prev => ({ ...prev, usedGraph: e.target.value }))}
+                options={[
+                  { value: '', label: 'Tất cả' },
+                  { value: 'true', label: 'Có (✓)' },
+                  { value: 'false', label: 'Không (–)' },
+                ]}
+              />
+              <FilterSelect
+                label="Web:"
+                value={logFilters.usedWeb}
+                onChange={(e) => setLogFilters(prev => ({ ...prev, usedWeb: e.target.value }))}
+                options={[
+                  { value: '', label: 'Tất cả' },
+                  { value: 'true', label: 'Có (✓)' },
+                  { value: 'false', label: 'Không (–)' },
+                ]}
+              />
+              <FilterSelect
+                label="Transport:"
+                value={logFilters.transport}
+                onChange={(e) => setLogFilters(prev => ({ ...prev, transport: e.target.value }))}
+                options={[
+                  { value: '', label: 'Tất cả' },
+                  { value: 'rest', label: 'REST' },
+                  { value: 'sse', label: 'SSE' },
+                  { value: 'ws', label: 'WebSocket (WS)' },
+                ]}
+              />
+              <FilterSelect
+                label="Số lượng:"
+                value={logFilters.limit}
+                onChange={(e) => setLogFilters(prev => ({ ...prev, limit: e.target.value }))}
+                options={[
+                  { value: '20', label: '20 dòng' },
+                  { value: '50', label: '50 dòng' },
+                  { value: '100', label: '100 dòng' },
+                  { value: '200', label: '200 dòng' },
+                ]}
+              />
+            </FilterBar>
+
+            <DataTable
+              columns={logColumns}
+              data={paginatedLogs}
+              loading={logsLoading}
+              emptyMessage="Không có nhật ký truy vấn RAG nào"
+              rowKey="id"
+            />
+            {logs.length > 0 && (
+              <Pagination
+                currentPage={logPage}
+                totalPages={Math.ceil(logs.length / logItemsPerPage)}
+                totalItems={logs.length}
+                itemsPerPage={logItemsPerPage}
+                onPageChange={(p) => setLogPage(p)}
+                onItemsPerPageChange={(num) => {
+                  setLogItemsPerPage(num);
+                  setLogPage(1);
+                }}
+              />
+            )}
+          </div>
+        </section>
 
         <div className="sticky bottom-6 z-30 flex justify-end">
           <button

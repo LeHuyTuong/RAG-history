@@ -10,10 +10,14 @@ import com.example.historyrag.feature.rag.dto.RagRetrieveRequest;
 import com.example.historyrag.feature.rag.dto.RagRetrieveResponse;
 import com.example.historyrag.feature.rag.dto.RagSuggestRequest;
 import com.example.historyrag.feature.rag.dto.RagSuggestResponse;
+import com.example.historyrag.feature.rag.dto.RagQueryLogResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -32,6 +36,42 @@ public class RagFeignClientAdapter implements RagClientService {
         TraceparentInterceptor.set(traceparent);
         try {
             return feignClient.getHealth();
+        } finally {
+            TraceparentInterceptor.clear();
+        }
+    }
+
+    @Override
+    public List<RagQueryLogResponse> getLogs(
+            Integer limit,
+            String question,
+            Boolean usedVector,
+            Boolean usedGraph,
+            Boolean usedWeb,
+            String transport,
+            String traceparent) {
+        TraceparentInterceptor.set(traceparent);
+        try {
+            Map<String, Object> params = new LinkedHashMap<>();
+            if (limit != null) {
+                params.put("limit", limit);
+            }
+            if (question != null && !question.isBlank()) {
+                params.put("question", question);
+            }
+            if (usedVector != null) {
+                params.put("usedVector", usedVector);
+            }
+            if (usedGraph != null) {
+                params.put("usedGraph", usedGraph);
+            }
+            if (usedWeb != null) {
+                params.put("usedWeb", usedWeb);
+            }
+            if (transport != null && !transport.isBlank()) {
+                params.put("transport", transport);
+            }
+            return feignClient.getLogs(params);
         } finally {
             TraceparentInterceptor.clear();
         }

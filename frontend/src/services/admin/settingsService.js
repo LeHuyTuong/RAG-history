@@ -35,7 +35,17 @@ const settingsService = {
             console.error('Failed to delete setting from API:', e);
             return { success: false };
         }
-    }
+    },
+
+    async getRagLogs(params = {}) {
+        try {
+            const res = await apiClient.get('/api/v1/admin/settings/rag-logs', { params });
+            return res.data?.data || [];
+        } catch (e) {
+            console.error('Failed to load RAG query logs from API:', e);
+            return [];
+        }
+    },
 };
 
 export default settingsService;

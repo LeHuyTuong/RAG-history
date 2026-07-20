@@ -10,11 +10,22 @@ import com.example.historyrag.feature.rag.dto.RagRetrieveRequest;
 import com.example.historyrag.feature.rag.dto.RagRetrieveResponse;
 import com.example.historyrag.feature.rag.dto.RagSuggestRequest;
 import com.example.historyrag.feature.rag.dto.RagSuggestResponse;
+import com.example.historyrag.feature.rag.dto.RagQueryLogResponse;
+import java.util.List;
 import java.util.function.Consumer;
 
 public interface RagClientService {
 
     RagHealthResponse getHealth(String traceparent);
+
+    List<RagQueryLogResponse> getLogs(
+            Integer limit,
+            String question,
+            Boolean usedVector,
+            Boolean usedGraph,
+            Boolean usedWeb,
+            String transport,
+            String traceparent);
 
     RagChatResponse chat(RagChatRequest request, String traceparent);
 

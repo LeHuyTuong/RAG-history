@@ -4,6 +4,8 @@ import com.example.historyrag.exception.GlobalExceptionHandler;
 import com.example.historyrag.exception.ResourceNotFoundException;
 import com.example.historyrag.feature.admin.dto.SystemSettingRequest;
 import com.example.historyrag.feature.admin.dto.SystemSettingResponse;
+import com.example.historyrag.feature.rag.dto.RagQueryLogResponse;
+import com.example.historyrag.infrastructure.feign.RagClientService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,11 +37,14 @@ class SystemSettingControllerTest {
     @Mock
     private SystemSettingService systemSettingService;
 
+    @Mock
+    private RagClientService ragClientService;
+
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
-        SystemSettingController controller = new SystemSettingController(systemSettingService);
+        SystemSettingController controller = new SystemSettingController(systemSettingService, ragClientService);
         LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
 
@@ -113,6 +118,32 @@ class SystemSettingControllerTest {
                 .andExpect(jsonPath("$.details", hasItem(containsString("key"))));
 
         verify(systemSettingService, never()).upsert(any());
+    }
+
+    @Test
+    @DisplayName("Should return RAG query logs")
+    void getRagLogs_returnsLogList() throws Exception {
+        RagQueryLogResponse log = RagQueryLogResponse.builder()
+                .id("60f71b2e")
+                .question("Vua Hùng là ai?")
+                .answer("Vua Hùng là...")
+                .model("gpt-oss-120b")
+                .usedVector(true)
+                .usedGraph(false)
+                .usedWeb(false)
+                .transport("rest")
+                .latencyMs(120L)
+                .createdAt("2026-07-20T10:00:00Z")
+                .build();
+
+        when(ragClientService.getLogs(20, null, null, null, null, null, null))
+                .thenReturn(List.of(log));
+
+        mockMvc.perform(get("/api/v1/admin/settings/rag-logs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCode").value(200))
+                .andExpect(jsonPath("$.data[0].id").value("60f71b2e"))
+                .andExpect(jsonPath("$.data[0].question").value("Vua Hùng là ai?"));
     }
 
     private SystemSettingResponse response() {
