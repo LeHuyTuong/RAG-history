@@ -128,7 +128,8 @@ const PeriodDetail = () => {
   const pName = period.name || '';
 
   // 1. Dùng dữ liệu từ Backend (Admin đã nhập)
-  const computedEmperors = (period.emperors || []).map(name => {
+  const computedEmperors = (period.emperors || []).map(empObj => {
+    const name = typeof empObj === 'object' ? empObj.name : empObj;
     const matched = personsData.find(p => p.name === name || p.title === name);
     return matched || { id: null, name };
   });
@@ -194,7 +195,21 @@ const PeriodDetail = () => {
           <div className="lg:col-span-6 relative group">
             <div className="aspect-[4/5] overflow-hidden border-2 border-[#d99b4a]/40 shadow-2xl relative bg-[#fcf9ee] p-2 transform rotate-2 group-hover:rotate-0 transition-transform duration-700">
               <div className="w-full h-full border border-[#d99b4a]/30 relative overflow-hidden">
-                <img src={getHeroImage(period)} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 grayscale-[0.3] sepia-[0.3]" alt={period.name} />
+                <img 
+                  src={getHeroImage(period)} 
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 grayscale-[0.3] sepia-[0.3]" 
+                  alt={period.name} 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    const periodName = period?.name || '';
+                    const name = periodName.toLowerCase();
+                    if (name.includes('hùng vương') || name.includes('hồng bàng')) e.target.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuCVTT2QqvD6K9-wucC1WkR7VZnFnP0rjHn6TrcyVqbMkCLEt-GrSb7RFMcwfuFYl9579qyI-CbhlttwgMYFgZtqaEK6hcj7gIzEvC-x8r1WJkxShSTdvgJAiGZim3mnjYlIdJsvmeUw2bip5ou99uGqVBVApXptp6Lpy5LmjEOMY2yZYFGSQzjZdZ5ZBKHO-vZMXFRcwX7gOF6f0s6dB3ZlO7K3KuUYQcdtVpUeP-fDnTut1_okhKeJqvG2OJTJ0xZCroTJlNoWryp1";
+                    else if (name.includes('lý')) e.target.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuB-vfyWu8AZJ8zXJcGYqxgtuwF8kgnNnxqHfqVCWu6IexNxd58MLyYryN2Pd4GPPIwQcgir92iGx39PPcocu5YwY0dKB88RM80ItVGkDs80nIlov0g4PRkKkWZqNqeAX2cgwfngoBoFqIt07Pir--2qzfNsUbTW8P_bXbYNjOL9IKt34YPVLuKa93Sk3GhQCaHLTecwGQGCZuSq0bnrOOq6oXKKmx5RiNGxRXHOQb6CiTjXlTeHajpZq_8iG4JClpUY9GWZsiRXvkTh";
+                    else if (name.includes('trần')) e.target.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBArlscw3wc_0llom4YXbNv7OUtmTW1u8adGJtB0r_R9ouLWRlOhBtwANhi8h-y-oKCXyjtcMAw-fv_DqJa8j9I0UYbf6VIaYfgHL50aCXOYoKCdQKYmjZdoMl1JYnzrRbkzkf79To66-2d-f1XfB1xrJTtxZoVqJiuNrqbgJSqttpHAF3wZGHnereJFQmlr7zvRv_OYZP3ifnXN8WYT8_1w8_n43OLOx1lJp01FpEjYuFGNSEqolT22CJMX1LelRwU2FVHe3Qq_fbP";
+                    else if (name.includes('lê')) e.target.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuDDTXt3tOmQLzCboBJbQ63U5COKxdxaq5GrOn1775TXtXg3zq28AuTTb3mfVjKs6uj5Nkhc7auEFnCrMuCs6G4YIcZmzBgEE4ZdY3awqlP12VklH3BWkRe6Q83fhxNWatx1MbYcLIq7RztTsqI3HQRxPVW7T-TPQdwD7HM2eOSpwVHwup9Hp3K7KuNRjtoiaNSNbwvYXV_yv4pvRx5WIpTl05zH0YYusegbAB7v9qKEqrHI9SzL2DI2Hb0snIW35b9H7yKKrRRXIf79";
+                    else e.target.src = "/images/home.png";
+                  }}
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201]/50 to-transparent pointer-events-none mix-blend-overlay"></div>
                 <div className="absolute inset-0 border-[12px] border-[#fcf9ee]/20 pointer-events-none"></div>
               </div>

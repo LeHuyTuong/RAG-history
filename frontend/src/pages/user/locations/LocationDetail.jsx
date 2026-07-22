@@ -6,6 +6,8 @@ import VietnamMap from '../../../components/VietnamMap';
 import { getXPercent, getYPercent } from '../../../utils/mapCoordinates';
 import { IMAGES } from '../../../config/constants';
 
+import { resolveImageUrl } from '../../../utils/imageUtils';
+
 const LocationDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -56,7 +58,7 @@ const LocationDetail = () => {
 
           setLocation({
             ...dbLocation,
-            heroImg: dbLocation.imageUrl || dbLocation.image || IMAGES.PLACEHOLDER_800x400,
+            heroImg: resolveImageUrl(dbLocation.imageUrl || dbLocation.image || IMAGES.DEFAULT_LOCATION) + '?v=2',
             location_id: dbLocation.id,
             location_type: dbLocation.locationType || 'REGION',
             description: dbLocation.description || '',

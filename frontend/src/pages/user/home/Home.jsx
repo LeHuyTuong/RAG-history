@@ -8,7 +8,7 @@ import {
 } from '../../../services';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { stripHtml } from '../../../utils/stringUtils';
-import characterImages from '../../../data/characterImages.json';
+
 import { IMAGES, MISC_IMAGES } from '../../../config/constants';
 
 const DEFAULT_PERIOD_ICONS = ['hourglass_empty', 'history', 'person', 'account_balance', 'map', 'auto_stories'];
@@ -94,7 +94,7 @@ const Home = () => {
                         ? `${c.birthDate ? c.birthDate : '?'} - ${c.deathDate ? c.deathDate : '?'}`
                         : '',
                     desc: stripHtml(c.biography || c.description || ''),
-                    image: characterImages[c.slug] || c.imageUrl || c.avatar || DEFAULT_CHAR_IMAGE,
+                    image: c.imageUrl || c.avatar || DEFAULT_CHAR_IMAGE,
                 }));
 
                 let mergedEvents = dbEvents.slice(0, 4).map(e => {

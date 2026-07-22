@@ -46,7 +46,7 @@ const EntityRelationInput = ({
   };
 
   return (
-    <div className="space-y-3 pt-4 border-t border-outline-variant/40 first:border-0 first:pt-0">
+    <div className="space-y-3 relative z-10 pt-4 border-t border-outline-variant/40 first:border-0 first:pt-0">
       <p className="font-body text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
         <span className="material-symbols-outlined text-[14px]">{icon}</span> {label}
       </p>

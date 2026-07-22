@@ -6,6 +6,16 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchMetadataOverview, deletePeriod, reorderPeriodsLocal } from '../../../store/redux/slices/metadataSlice';
 import toast from 'react-hot-toast';
 
+const getFallbackImage = (periodName) => {
+  if (!periodName) return "/images/dong_son_drum.png";
+  const name = periodName.toLowerCase();
+  if (name.includes('hùng vương') || name.includes('hồng bàng') || name.includes('âu lạc') || name.includes('văn lang')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuCVTT2QqvD6K9-wucC1WkR7VZnFnP0rjHn6TrcyVqbMkCLEt-GrSb7RFMcwfuFYl9579qyI-CbhlttwgMYFgZtqaEK6hcj7gIzEvC-x8r1WJkxShSTdvgJAiGZim3mnjYlIdJsvmeUw2bip5ou99uGqVBVApXptp6Lpy5LmjEOMY2yZYFGSQzjZdZ5ZBKHO-vZMXFRcwX7gOF6f0s6dB3ZlO7K3KuUYQcdtVpUeP-fDnTut1_okhKeJqvG2OJTJ0xZCroTJlNoWryp1";
+  if (name.includes('lý') || name.includes('ngô') || name.includes('đinh') || name.includes('tiền lê')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuB-vfyWu8AZJ8zXJcGYqxgtuwF8kgnNnxqHfqVCWu6IexNxd58MLyYryN2Pd4GPPIwQcgir92iGx39PPcocu5YwY0dKB88RM80ItVGkDs80nIlov0g4PRkKkWZqNqeAX2cgwfngoBoFqIt07Pir--2qzfNsUbTW8P_bXbYNjOL9IKt34YPVLuKa93Sk3GhQCaHLTecwGQGCZuSq0bnrOOq6oXKKmx5RiNGxRXHOQb6CiTjXlTeHajpZq_8iG4JClpUY9GWZsiRXvkTh";
+  if (name.includes('trần') || name.includes('hồ') || name.includes('khúc') || name.includes('dương')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuBArlscw3wc_0llom4YXbNv7OUtmTW1u8adGJtB0r_R9ouLWRlOhBtwANhi8h-y-oKCXyjtcMAw-fv_DqJa8j9I0UYbf6VIaYfgHL50aCXOYoKCdQKYmjZdoMl1JYnzrRbkzkf79To66-2d-f1XfB1xrJTtxZoVqJiuNrqbgJSqttpHAF3wZGHnereJFQmlr7zvRv_OYZP3ifnXN8WYT8_1w8_n43OLOx1lJp01FpEjYuFGNSEqolT22CJMX1LelRwU2FVHe3Qq_fbP";
+  if (name.includes('lê') || name.includes('mạc') || name.includes('trịnh') || name.includes('nguyễn') || name.includes('tây sơn')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuDDTXt3tOmQLzCboBJbQ63U5COKxdxaq5GrOn1775TXtXg3zq28AuTTb3mfVjKs6uj5Nkhc7auEFnCrMuCs6G4YIcZmzBgEE4ZdY3awqlP12VklH3BWkRe6Q83fhxNWatx1MbYcLIq7RztTsqI3HQRxPVW7T-TPQdwD7HM2eOSpwVHwup9Hp3K7KuNRjtoiaNSNbwvYXV_yv4pvRx5WIpTl05zH0YYusegbAB7v9qKEqrHI9SzL2DI2Hb0snIW35b9H7yKKrRRXIf79";
+  return "/images/dong_son_drum.png";
+};
+
 const PeriodManagement = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -103,7 +113,7 @@ const PeriodManagement = () => {
     }
   };
 
-  const filteredPeriods = data?.periods?.filter(p => 
+  const filteredPeriods = data?.periods?.filter(p =>
     (p.name || '').toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
 
@@ -134,11 +144,11 @@ const PeriodManagement = () => {
             <div className="p-4 border-b border-[#d99b4a]/30">
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50">search</span>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Tìm kiếm thời kỳ..." 
+                  placeholder="Tìm kiếm thời kỳ..."
                   className="w-full bg-white border border-[#d99b4a]/40 pl-10 pr-4 py-2 rounded-full font-body text-sm outline-none focus:border-[#d99b4a] focus:ring-2 focus:ring-[#d99b4a]/20 transition-all text-[#2b1a16] placeholder:text-on-surface-variant/50"
                 />
               </div>
@@ -197,8 +207,8 @@ const PeriodManagement = () => {
 
                     <div
                       className={`shadow-lg hover:shadow-[0_20px_50px_rgba(43,5,4,0.08)] transition-all duration-500 relative group/card border-2 p-8 lg:p-12 flex flex-col xl:flex-row gap-10 items-start ${Number(activePeriod) === Number(p.id)
-                          ? 'bg-[#fffcf3] border-[#6b0f0d] shadow-2xl scale-[1.01]'
-                          : 'bg-[#fffdf8] border-[#d99b4a]/40 hover:border-[#6b0f0d]/50'
+                        ? 'bg-[#fffcf3] border-[#6b0f0d] shadow-2xl scale-[1.01]'
+                        : 'bg-[#fffdf8] border-[#d99b4a]/40 hover:border-[#6b0f0d]/50'
                         }`}
                     >
                       {/* Decorative Corners */}
@@ -245,18 +255,19 @@ const PeriodManagement = () => {
                                 Nhân vật then chốt:
                               </span>
                               <div className="flex flex-col gap-1">
-                                {p.emperors.slice(0, 3).map((emp, i) => {
-                                  const matched = (data.allCharacters || []).find(c => c.name === emp || c.title === emp);
+                                {p.emperors.slice(0, 3).map((empObj, i) => {
+                                  const empName = typeof empObj === 'object' ? empObj.name : empObj;
+                                  const matched = (data.allCharacters || []).find(c => c.name === empName || c.title === empName);
                                   return matched ? (
                                     <Link key={i} to={`/admin/characters/edit/${matched.id}`} className="flex items-center gap-2 group/link hover:bg-[#d99b4a]/10 px-2 py-1 -ml-2 rounded-lg transition-colors w-fit">
                                       <div className="w-1.5 h-1.5 rotate-45 bg-[#d99b4a] group-hover/link:bg-[#6b0f0d] shrink-0 transition-colors"></div>
-                                      <span className="font-body text-[14px] text-[#4a2a22] font-semibold italic group-hover/link:text-[#6b0f0d] transition-colors">{emp}</span>
+                                      <span className="font-body text-[14px] text-[#4a2a22] font-semibold italic group-hover/link:text-[#6b0f0d] transition-colors">{empName}</span>
                                       <span className="material-symbols-outlined text-[14px] opacity-0 group-hover/link:opacity-100 text-[#6b0f0d] transition-opacity">edit_square</span>
                                     </Link>
                                   ) : (
                                     <div key={i} className="flex items-center gap-2 px-0 py-1">
                                       <div className="w-1.5 h-1.5 rotate-45 bg-[#d99b4a] shrink-0"></div>
-                                      <span className="font-body text-[14px] text-[#4a2a22] italic">{emp}</span>
+                                      <span className="font-body text-[14px] text-[#4a2a22] italic">{empName}</span>
                                     </div>
                                   );
                                 })}
@@ -374,6 +385,10 @@ const PeriodManagement = () => {
                           src={p.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/4/48/Ngoc_Lu.jpg'}
                           alt={p.name}
                           className="w-full h-full object-cover grayscale-[0.3] sepia-[0.2] group-hover/card:grayscale-0 group-hover/card:sepia-0 group-hover/card:scale-110 transition-all duration-1000"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = getFallbackImage(p.name);
+                          }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#2b0504]/50 to-transparent pointer-events-none opacity-60 group-hover/card:opacity-30 transition-opacity"></div>
                       </div>

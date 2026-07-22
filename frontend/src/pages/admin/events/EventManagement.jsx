@@ -17,7 +17,8 @@ import {
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { getDynastyLabel } from '../../../utils/dynastyUtils';
 import { stripHtml } from '../../../utils/stringUtils';
-import eventImages from '../../../data/eventImages.json';
+import { resolveImageUrl } from '../../../utils/imageUtils';
+
 
 const EventManagement = () => {
   const navigate = useNavigate();
@@ -93,8 +94,8 @@ const EventManagement = () => {
       key: 'name', header: 'Tên sự kiện', render: (row) => (
         <div className="flex items-center gap-4 py-2">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-indigo-500/5 flex items-center justify-center border border-indigo-500/10 shadow-sm shrink-0 overflow-hidden">
-            {(eventImages[row.slug] || row.imageUrl || row.image) ? (
-              <img src={eventImages[row.slug] || row.imageUrl || row.image} alt={row.name} className="w-full h-full object-cover" />
+            {(row.imageUrl || row.image) ? (
+              <img src={resolveImageUrl(row.imageUrl || row.image) + '?v=2'} alt={row.name} className="w-full h-full object-cover" />
             ) : (
               <span className="material-symbols-outlined text-indigo-600 text-lg">event</span>
             )}

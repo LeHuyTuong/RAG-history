@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_ENDPOINTS, apiClient } from '../../services';
-import characterImages from '../../data/characterImages.json';
+
 import toast from 'react-hot-toast';
 import { IMAGES } from '../../config/constants';
 
@@ -359,7 +359,7 @@ const CharacterFamilyTree = ({
       return {
         id: match.id,
         slug: match.slug,
-        portrait: characterImages[match.slug] || match.image || match.portrait || IMAGES.DEFAULT_AVATAR,
+        portrait: match.image || match.portrait || IMAGES.DEFAULT_AVATAR,
         years: match.years || (match.birthDate ? `${new Date(match.birthDate).getFullYear()} - ${match.deathDate ? new Date(match.deathDate).getFullYear() : '?'}` : ''),
         clickable: true
       };

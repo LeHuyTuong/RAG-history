@@ -1,0 +1,21 @@
+-- Cập nhật hình ảnh (image_url) cho các thời kỳ lịch sử
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Trong_dong_Dong_Son.jpg/960px-Trong_dong_Dong_Son.jpg' WHERE period_id = 1;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/An_Duong_Vuong_Temple_Gate_Co_Loa.jpg/960px-An_Duong_Vuong_Temple_Gate_Co_Loa.jpg' WHERE period_id = 2;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/%E6%B1%89%E6%9C%9D%E8%A1%8C%E6%94%BF%E5%8C%BA%E5%88%92%28%E7%B9%81%29.png/960px-%E6%B1%89%E6%9C%9D%E8%A1%8C%E6%94%BF%E5%8C%BA%E5%88%92%28%E7%B9%81%29.png' WHERE period_id = 3;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/a/a3/Hai_B%C3%A0_Tr%C6%B0ng_%28tranh_%C4%90%C3%B4ng_H%E1%BB%93%29.jpeg' WHERE period_id = 4;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Ch%C3%B9a_Tr%E1%BA%A5n_Qu%E1%BB%91c%2C_H%C3%A0_N%E1%BB%99i.jpg/960px-Ch%C3%B9a_Tr%E1%BA%A5n_Qu%E1%BB%91c%2C_H%C3%A0_N%E1%BB%99i.jpg' WHERE period_id = 5;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Ngoc_Lu.jpg/800px-Ngoc_Lu.jpg' WHERE period_id = 6;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Ng%C3%B4_Quy%E1%BB%81n_%C4%91%E1%BA%A1i_ph%C3%A1_qu%C3%A2n_Nam_H%C3%A1n_tr%C3%AAn_s%C3%B4ng_B%E1%BA%A1ch_%C4%90%E1%BA%B1ng.jpg/960px-Ng%C3%B4_Quy%E1%BB%81n_%C4%91%E1%BA%A1i_ph%C3%A1_qu%C3%A2n_Nam_H%C3%A1n_tr%C3%AAn_s%C3%B4ng_B%E1%BA%A1ch_%C4%90%E1%BA%B1ng.jpg' WHERE period_id = 7;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Codohoalu1-Model.jpg/960px-Codohoalu1-Model.jpg' WHERE period_id = 8;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Ngoc_Lu.jpg/800px-Ngoc_Lu.jpg' WHERE period_id = 9;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Ngoc_Lu.jpg/800px-Ngoc_Lu.jpg' WHERE period_id = 10;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Ngoc_Lu.jpg/800px-Ngoc_Lu.jpg' WHERE period_id = 11;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Ngoc_Lu.jpg/800px-Ngoc_Lu.jpg' WHERE period_id = 12;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Ngoc_Lu.jpg/800px-Ngoc_Lu.jpg' WHERE period_id = 13;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Ngoc_Lu.jpg/800px-Ngoc_Lu.jpg' WHERE period_id = 14;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Ngoc_Lu.jpg/800px-Ngoc_Lu.jpg' WHERE period_id = 15;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Ngoc_Lu.jpg/800px-Ngoc_Lu.jpg' WHERE period_id = 16;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Ngoc_Lu.jpg/800px-Ngoc_Lu.jpg' WHERE period_id = 17;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Ngoc_Lu.jpg/800px-Ngoc_Lu.jpg' WHERE period_id = 18;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Ngoc_Lu.jpg/800px-Ngoc_Lu.jpg' WHERE period_id = 19;
+UPDATE period SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Ngoc_Lu.jpg/800px-Ngoc_Lu.jpg' WHERE period_id = 20;

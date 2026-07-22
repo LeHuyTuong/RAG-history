@@ -15,6 +15,7 @@ import {
 import UserVietnamMap from '../../../components/VietnamMap';
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { getLocationLabel, getLocationStyle, getLocationIcon } from '../../../utils/locationTypeUtils';
+import { resolveImageUrl } from '../../../utils/imageUtils';
 import { getDynastyLabel } from '../../../utils/dynastyUtils';
 import { getXPercent, getYPercent } from '../../../utils/mapCoordinates';
 import { TEXTURES } from '../../../config/constants';
@@ -80,7 +81,7 @@ const LocationManagement = () => {
         <div className="flex items-center gap-4 py-2">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center border border-emerald-500/10 shadow-sm shrink-0 overflow-hidden">
             {(row.imageUrl || row.image) ? (
-              <img src={row.imageUrl || row.image} alt={row.name} className="w-full h-full object-cover" />
+              <img src={resolveImageUrl(row.imageUrl || row.image) + '?v=2'} alt={row.name} className="w-full h-full object-cover" />
             ) : (
               <span className="material-symbols-outlined text-emerald-600 text-xl">location_on</span>
             )}

@@ -4,7 +4,7 @@ import { generateSlug } from '../../../utils/stringUtils';
 import { validateSlug, validateYearRange } from '../../../utils/validation';
 import { RichTextEditor, TagInput, EntityRelationInput, FormHeader } from '../../../components/admin';
 import { apiClient, extractErrorMessage, API_ENDPOINTS, postService, sourceService } from '../../../services';
-import characterImages from '../../../data/characterImages.json';
+
 import CharacterFamilyTree, { HISTORICAL_MOCK_RELATIONS, normalizeKey } from '../../../components/character/CharacterFamilyTree';
 import toast from 'react-hot-toast';
 import { IMAGES } from '../../../config/constants';
@@ -226,7 +226,7 @@ const CharacterForm = () => {
               deathMonth: dParts.m,
               deathYear: dParts.y,
               deathYearEra: dParts.era,
-              avatar: cachedAvatar || foundChar.imageUrl || foundChar.avatar || foundChar.image || characterImages[foundChar.slug] || characterImages[generateSlug(foundChar.name || '')] || null,
+              avatar: cachedAvatar || foundChar.imageUrl || foundChar.avatar || foundChar.image || null,
               biography: foundChar.biography || foundChar.content || '',
               gender: cachedGender || foundChar.gender || 'Nam',
               dynasties: cachedDynasties.length > 0 ? cachedDynasties : computedDynasties,
@@ -712,7 +712,7 @@ const CharacterForm = () => {
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <img
-                    src={form.avatar || characterImages[form.slug] || IMAGES.DEFAULT_AVATAR}
+                    src={form.avatar || IMAGES.DEFAULT_AVATAR}
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-500"
                     alt="Character Avatar"
                   />

@@ -17,7 +17,7 @@ import {
 import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import { getDynastyLabel } from '../../../utils/dynastyUtils';
 import { generateSlug } from '../../../utils/stringUtils';
-import characterImages from '../../../data/characterImages.json';
+
 
 const CharacterManagement = () => {
   const navigate = useNavigate();
@@ -80,8 +80,8 @@ const CharacterManagement = () => {
       key: 'name', header: 'HỌ VÀ TÊN', render: (row) => (
         <div className="flex items-center gap-4 py-2">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center border border-amber-500/10 shadow-sm shrink-0 overflow-hidden">
-            {(characterImages[row.slug] || characterImages[generateSlug(row.name || '')] || row.avatarUrl || row.avatar || row.imageUrl || row.image) ? (
-              <img src={characterImages[row.slug] || characterImages[generateSlug(row.name || '')] || row.avatarUrl || row.avatar || row.imageUrl || row.image} alt={row.name} className="w-full h-full object-cover" />
+            {(row.avatarUrl || row.avatar || row.imageUrl || row.image) ? (
+              <img src={row.avatarUrl || row.avatar || row.imageUrl || row.image} alt={row.name} className="w-full h-full object-cover" />
             ) : (
               <span className="material-symbols-outlined text-amber-600 text-xl">person</span>
             )}

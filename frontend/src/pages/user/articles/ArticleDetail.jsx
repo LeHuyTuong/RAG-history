@@ -7,6 +7,22 @@ import { usePeriodColors } from '../../../hooks/usePeriodColors';
 import DOMPurify from 'dompurify';
 import { IMAGES } from '../../../config/constants';
 
+const getFallbackImage = (period) => {
+  if (!period) return "/images/dong_son_drum.png";
+  const periodName = typeof period === 'object' ? (period.name || period.title || '') : period;
+  if (!periodName || typeof periodName !== 'string') return "/images/dong_son_drum.png";
+  const name = periodName.toLowerCase();
+  if (name.includes('hùng vương') || name.includes('hồng bàng') || name.includes('âu lạc') || name.includes('văn lang')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuCVTT2QqvD6K9-wucC1WkR7VZnFnP0rjHn6TrcyVqbMkCLEt-GrSb7RFMcwfuFYl9579qyI-CbhlttwgMYFgZtqaEK6hcj7gIzEvC-x8r1WJkxShSTdvgJAiGZim3mnjYlIdJsvmeUw2bip5ou99uGqVBVApXptp6Lpy5LmjEOMY2yZYFGSQzjZdZ5ZBKHO-vZMXFRcwX7gOF6f0s6dB3ZlO7K3KuUYQcdtVpUeP-fDnTut1_okhKeJqvG2OJTJ0xZCroTJlNoWryp1";
+  if (name.includes('lý') || name.includes('ngô') || name.includes('đinh') || name.includes('tiền lê')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuB-vfyWu8AZJ8zXJcGYqxgtuwF8kgnNnxqHfqVCWu6IexNxd58MLyYryN2Pd4GPPIwQcgir92iGx39PPcocu5YwY0dKB88RM80ItVGkDs80nIlov0g4PRkKkWZqNqeAX2cgwfngoBoFqIt07Pir--2qzfNsUbTW8P_bXbYNjOL9IKt34YPVLuKa93Sk3GhQCaHLTecwGQGCZuSq0bnrOOq6oXKKmx5RiNGxRXHOQb6CiTjXlTeHajpZq_8iG4JClpUY9GWZsiRXvkTh";
+  if (name.includes('trần') || name.includes('hồ') || name.includes('khúc') || name.includes('dương')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuBArlscw3wc_0llom4YXbNv7OUtmTW1u8adGJtB0r_R9ouLWRlOhBtwANhi8h-y-oKCXyjtcMAw-fv_DqJa8j9I0UYbf6VIaYfgHL50aCXOYoKCdQKYmjZdoMl1JYnzrRbkzkf79To66-2d-f1XfB1xrJTtxZoVqJiuNrqbgJSqttpHAF3wZGHnereJFQmlr7zvRv_OYZP3ifnXN8WYT8_1w8_n43OLOx1lJp01FpEjYuFGNSEqolT22CJMX1LelRwU2FVHe3Qq_fbP";
+  if (name.includes('lê') || name.includes('mạc') || name.includes('trịnh') || name.includes('nguyễn') || name.includes('tây sơn')) return "https://lh3.googleusercontent.com/aida-public/AB6AXuDDTXt3tOmQLzCboBJbQ63U5COKxdxaq5GrOn1775TXtXg3zq28AuTTb3mfVjKs6uj5Nkhc7auEFnCrMuCs6G4YIcZmzBgEE4ZdY3awqlP12VklH3BWkRe6Q83fhxNWatx1MbYcLIq7RztTsqI3HQRxPVW7T-TPQdwD7HM2eOSpwVHwup9Hp3K7KuNRjtoiaNSNbwvYXV_yv4pvRx5WIpTl05zH0YYusegbAB7v9qKEqrHI9SzL2DI2Hb0snIW35b9H7yKKrRRXIf79";
+  
+  if (name.includes('quân sự') || name.includes('chiến thắng') || name.includes('khởi nghĩa') || name.includes('kháng chiến') || name.includes('trận') || name.includes('điện biên phủ') || name.includes('độc lập')) return "/images/post_war.png";
+  if (name.includes('văn hóa') || name.includes('xã hội') || name.includes('kinh tế') || name.includes('văn học') || name.includes('cải cách')) return "/images/post_culture.png";
+  if (name.includes('lịch sử') || name.includes('tổng hợp') || name.includes('chính trị') || name.includes('cổ đại') || name.includes('cận đại') || name.includes('triều đại') || name.includes('bắc thuộc') || name.includes('địa danh')) return "/images/post_history.png";
+  return "/images/dong_son_drum.png";
+};
+
 const ArticleDetail = () => {
   const { getPeriodStyle } = usePeriodColors();
   const { slug } = useParams();
@@ -376,7 +392,16 @@ const ArticleDetail = () => {
             <div className="absolute -inset-4 border border-[#d99b4a]/40 pointer-events-none dong-son-border"></div>
             <div className="aspect-[16/9] w-full overflow-hidden border border-[#d99b4a]/50 relative bg-[#fffdf8] p-2 shadow-xl">
               <div className="w-full h-full relative border border-[#d99b4a]/30 overflow-hidden">
-                <img src={article.thumbnail_url || article.heroImage} alt="Cover" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 grayscale-[0.4] sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0" />
+                <img 
+                  src={(article.thumbnail_url || article.heroImage) ? (article.thumbnail_url || article.heroImage) + '?v=2' : undefined} 
+                  alt="Cover" 
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 grayscale-[0.4] sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0" 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    const dynasty = (article.dynasties || [article.dynasty])[0] || '';
+                    e.target.src = getFallbackImage(dynasty);
+                  }}
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1a0201]/40 to-transparent opacity-60 mix-blend-overlay"></div>
               </div>
             </div>

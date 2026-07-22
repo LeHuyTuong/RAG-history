@@ -58,6 +58,19 @@ const PeriodForm = () => {
                 const eraStart = data.startYear !== undefined && data.startYear !== null ? (data.startYear < 0 ? 'TCN' : 'SCN') : (timeParts[0]?.includes('TCN') ? 'TCN' : 'SCN');
                 const eraEnd = data.endYear !== undefined && data.endYear !== null ? (data.endYear < 0 ? 'TCN' : 'SCN') : (timeParts[1]?.includes('TCN') ? 'TCN' : 'SCN');
 
+                const safeParseArray = (val) => {
+                  if (Array.isArray(val)) return val;
+                  if (typeof val === 'string') {
+                    try {
+                      const parsed = JSON.parse(val);
+                      return Array.isArray(parsed) ? parsed : [];
+                    } catch(e) {
+                      return val.split(',').map(s => s.trim()).filter(Boolean);
+                    }
+                  }
+                  return [];
+                };
+
                 setForm(prev => ({
                   ...prev,
                   name: data.name || '',
@@ -68,10 +81,10 @@ const PeriodForm = () => {
                   philosophy: data.philosophy || '',
                   description: data.description || data.desc || '',
                   avatar: data.imageUrl || data.avatar || '',
-                  emperors: typeof data.emperors === 'string' ? data.emperors.split(',').filter(Boolean) : (data.emperors || []),
-                  relatedLocations: typeof data.relatedLocations === 'string' ? data.relatedLocations.split(',').filter(Boolean) : (data.relatedLocations || []),
-                  relatedEvents: typeof data.relatedEvents === 'string' ? data.relatedEvents.split(',').filter(Boolean) : (data.relatedEvents || []),
-                  relatedArticles: typeof data.relatedArticles === 'string' ? data.relatedArticles.split(',').filter(Boolean) : (data.relatedArticles || []),
+                  emperors: safeParseArray(data.emperors),
+                  relatedLocations: safeParseArray(data.relatedLocations),
+                  relatedEvents: safeParseArray(data.relatedEvents),
+                  relatedArticles: safeParseArray(data.relatedArticles),
                   status: (data.status === 'PUBLISHED' || data.status === 'published' || !data.status) ? 'published' : 'draft'
                 }));
                 return;
@@ -215,10 +228,10 @@ const PeriodForm = () => {
         philosophy: form.philosophy || '',
         description: form.description,
         imageUrl: form.avatar || null,
-        emperors: Array.isArray(form.emperors) ? form.emperors.join(',') : form.emperors || '',
-        relatedLocations: Array.isArray(form.relatedLocations) ? form.relatedLocations.join(',') : form.relatedLocations || '',
-        relatedEvents: Array.isArray(form.relatedEvents) ? form.relatedEvents.join(',') : form.relatedEvents || '',
-        relatedArticles: Array.isArray(form.relatedArticles) ? form.relatedArticles.join(',') : form.relatedArticles || '',
+        emperors: Array.isArray(form.emperors) ? JSON.stringify(form.emperors) : form.emperors || '',
+        relatedLocations: Array.isArray(form.relatedLocations) ? JSON.stringify(form.relatedLocations) : form.relatedLocations || '',
+        relatedEvents: Array.isArray(form.relatedEvents) ? JSON.stringify(form.relatedEvents) : form.relatedEvents || '',
+        relatedArticles: Array.isArray(form.relatedArticles) ? JSON.stringify(form.relatedArticles) : form.relatedArticles || '',
         status: (form.status === 'published' || form.status === 'Công khai' || form.status === 'PUBLISHED') ? 'PUBLISHED' : 'DRAFT'
       };
 
@@ -518,7 +531,16 @@ const PeriodForm = () => {
                     itemIcon="person"
                     entities={form.emperors}
                     availableEntities={availableCharacters}
-                    onAdd={(val) => setForm(prev => ({ ...prev, emperors: [...new Set([...(prev.emperors || []), val])] }))}
+                    onAdd={(val, isUpdate) => {
+                      if (isUpdate) {
+                        setForm(prev => ({
+                           ...prev,
+                           emperors: (prev.emperors || []).map(e => (typeof e === 'object' ? e.name : e) === val.name ? val : e)
+                        }));
+                      } else {
+                        setForm(prev => ({ ...prev, emperors: [...new Set([...(prev.emperors || []), val])] }));
+                      }
+                    }}
                     onRemove={(val) => setForm(prev => ({ ...prev, emperors: (prev.emperors || []).filter(c => (typeof c === 'object' ? c.name : c) !== val) }))}
                   />
                 </div>
