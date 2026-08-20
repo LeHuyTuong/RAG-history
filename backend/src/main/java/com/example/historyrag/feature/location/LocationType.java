@@ -10,5 +10,7 @@ public enum LocationType {
     CITADEL,
     MOUNTAIN,
     PALACE,
-    BASE
+    BASE,
+    HISTORICAL_SITE,
+    ADMIN_CENTER
 }

@@ -3,6 +3,7 @@ package com.example.historyrag.feature.event.dto;
 
 import lombok.Builder;
 import com.example.historyrag.feature.event.EventCertaintyLevel;
+import com.example.historyrag.feature.post.PostStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -36,6 +37,11 @@ public record UpdateEventRequest(
         LocalDate endDate,
 
         EventCertaintyLevel certaintyLevel,
+
+        @Size(max = 1000, message = "Image URL must not exceed 1000 characters")
+        String imageUrl,
+
+        PostStatus status,
 
         List<@Valid EventLocationRelationRequest> locationRelations
 ) {}

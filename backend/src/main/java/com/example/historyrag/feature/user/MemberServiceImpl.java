@@ -1,7 +1,7 @@
 package com.example.historyrag.feature.user;
 
 import com.example.historyrag.dto.ResultPaginationDTO;
-import com.example.historyrag.dto.Meta;
+import com.example.historyrag.dto.ResultPaginationDTO.Meta;
 import com.example.historyrag.exception.DuplicateResourceException;
 import com.example.historyrag.exception.InvalidRequestException;
 import com.example.historyrag.exception.ResourceNotFoundException;
@@ -90,21 +90,17 @@ public class MemberServiceImpl implements MemberService {
 
         // Apply status filter in memory if necessary (or in DB if added to query)
         List<MemberResponse> items = memberPage.getContent().stream()
-                .filter(m -> status == null || status.isBlank() || status.equalsIgnoreCase(m.getStatus()))
+                .filter(m -> status == null || status.isBlank() || status.equalsIgnoreCase(m.getStatus().name()))
                 .map(MemberResponse::fromEntity)
                 .collect(Collectors.toList());
 
-        Meta meta = Meta.builder()
-                .page(pageable.getPageNumber() + 1)
-                .pageSize(pageable.getPageSize())
-                .pages(memberPage.getTotalPages())
-                .total(memberPage.getTotalElements())
-                .build();
+        Meta meta = new Meta(
+                pageable.getPageNumber() + 1,
+                pageable.getPageSize(),
+                memberPage.getTotalPages(),
+                memberPage.getTotalElements());
 
-        ResultPaginationDTO dto = new ResultPaginationDTO();
-        dto.setMeta(meta);
-        dto.setItems(items);
-        return dto;
+        return new ResultPaginationDTO(meta, items);
     }
 
     @Override

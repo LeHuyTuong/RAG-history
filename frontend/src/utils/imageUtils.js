@@ -4,7 +4,7 @@ export const resolveImageUrl = (url, fallback = '/images/home.png') => {
     return url;
   }
   if (url.startsWith('/uploads')) {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
     return `${baseUrl}${url}`;
   }
   return url;
