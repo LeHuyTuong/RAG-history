@@ -37,6 +37,10 @@ public record UpdatePostRequest(
 
         Instant publishedAt,
 
+        Integer startYear,
+
+        Integer endYear,
+
         List<Long> eventIds,
 
         List<Long> tagIds

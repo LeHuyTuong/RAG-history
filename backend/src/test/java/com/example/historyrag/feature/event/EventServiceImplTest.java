@@ -154,7 +154,7 @@ class EventServiceImplTest {
         when(eventRepository.findBy(any(PredicateSpecification.class), any(Function.class))).thenReturn(page);
 
         ResultPaginationDTO result = eventService.filter(
-                new EventFilterRequest("bach dang", 1L, 2L, EventCertaintyLevel.CERTAIN, 1200, 1300),
+                new EventFilterRequest("bach dang", 1L, 2L, EventCertaintyLevel.CERTAIN, 1200, 1300, null),
                 pageable);
 
         assertEquals(1, result.meta().page());
@@ -217,6 +217,8 @@ class EventServiceImplTest {
                 LocalDate.parse("1288-01-01"),
                 LocalDate.parse("1288-12-31"),
                 EventCertaintyLevel.CERTAIN,
+                null,
+                null,
                 List.of(new EventLocationRelationRequest(2L, "BATTLEFIELD"))
         );
     }
@@ -232,6 +234,8 @@ class EventServiceImplTest {
                 LocalDate.parse("1288-01-01"),
                 LocalDate.parse("1288-12-31"),
                 EventCertaintyLevel.CERTAIN,
+                null,
+                null,
                 List.of(new EventLocationRelationRequest(2L, "BATTLEFIELD"))
         );
     }

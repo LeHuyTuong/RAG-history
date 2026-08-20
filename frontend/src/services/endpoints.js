@@ -75,6 +75,7 @@ export const ENDPOINTS = {
     SETTINGS: {
         BASE: `${API_V1}/admin/settings`,
         BY_KEY: (key) => `${API_V1}/admin/settings/${encodeURIComponent(key)}`,
+        RAG_LOGS: `${API_V1}/admin/settings/rag-logs`,
     },
 
 };

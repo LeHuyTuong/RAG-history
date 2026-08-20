@@ -249,7 +249,27 @@ A minimal Java/Spring~Boot prototype instruments REST (Filter/Interceptor), JDBC
 
 \subsection{Experimental Validation}
 \label{sec:experiment}
-This section tests H1--H3 (\S~\ref{sec:hypotheses}) on the prototype whose design was derived in \S~\ref{sec:rationale}. We instantiate the prototype as a small, standalone Spring~Boot service exposing an SSE endpoint (\texttt{/ai/sse}) and a WebSocket endpoint (\texttt{/ws/ai}). A pure-JDK client (\texttt{java.net.http.HttpClient} for SSE, \texttt{java.net.http.WebSocket} for WS) measures TTFT and ITL at the client (measurement note 1), single machine, localhost, comparing the library disabled (\emph{baseline}) against enabled (\emph{lib}). This service is a synthetic prototype built to isolate protocol and instrumentation overhead, not a production RAG deployment.
+This section tests H1--H3 (\S~\ref{sec:hypotheses}) on the prototype whose design was derived in \S~\ref{sec:rationale}. We instantiate the prototype as a small, standalone Spring~Boot service exposing an SSE endpoint (\texttt{/ai/sse}) and a WebSocket endpoint (\texttt{/ws/ai}). A pure-JDK client (\texttt{java.net.http.HttpClient} for SSE, \texttt{java.net.http.WebSocket} for WS) measures TTFT and ITL at the client (measurement note 1), single machine, localhost (hardware and network configuration in Table~\ref{tab:hw-net}), comparing the library disabled (\emph{baseline}) against enabled (\emph{lib}). This service is a synthetic prototype built to isolate protocol and instrumentation overhead, not a production RAG deployment.
+
+\begin{table}[H]
+\centering\small
+\caption{Hardware and network configuration for the experimental validation.}
+\label{tab:hw-net}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Item & Value \\
+\midrule
+Machine & MacBook, Apple M4, 16\,GB RAM \\
+OS / JDK & macOS 15.6 / OpenJDK 21.0.11 \\
+Topology (mock, Ollama scenarios) & Client and server co-located on the same machine, localhost --- no physical network hop \\
+Topology (Groq cross-check only) & Client/server local; token generation runs on Groq's cloud LPU infrastructure over a real internet path \\
+Network-condition simulator & Application-layer decorator (\S~\ref{sec:rationale}), wraps the send point identically for SSE and WebSocket \\
+Healthy condition & delay 0\,ms, jitter 0\,ms, loss 0\% \\
+Weak condition & delay 30\,ms, jitter $\pm$20\,ms, loss 1\% per token \\
+Thermal-throttling exposure & Local Ollama inference only, 40 runs vs.\ 80 for mock (\S~\ref{sec:limitations}); Groq's compute is remote and unaffected, its 20-run cap instead reflects the provider's free-tier rate limit \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \paragraph{Statistical analysis.} Beyond the p50 summaries in Tables~\ref{tab:stream-stress}--\ref{tab:groq}, every cross-transport comparison (H3: baseline SSE vs.\ WebSocket) and every overhead comparison (H1/H2: lib vs.\ baseline, per transport) is additionally tested with a two-sided Mann--Whitney $U$ test on the full set of per-run values (continuity- and tie-corrected normal approximation, appropriate at the sample sizes used here, $n\ge20$ per group), since it makes no normality assumption and is the standard choice for comparing two independent, possibly non-Gaussian samples; we report exact $p$-values rather than only accept/reject at $\alpha=0.05$. We additionally report the 95\% confidence interval on the per-run mean (normal approximation, justified by the central limit theorem at these sample sizes). Because several scenarios use $n=80$ (mock) or $n=40$ (Ollama) runs, the test has high power to detect even small (sub-1\%) differences as statistically significant; \S~\ref{sec:experiment} therefore reports both the $p$-value and the \% magnitude side by side, and a small $p$-value alongside a small \% difference should be read as ``real but practically negligible,'' not as evidence against H1/H3.
 

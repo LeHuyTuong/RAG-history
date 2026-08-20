@@ -120,6 +120,8 @@ async def chat_ws(ws: WebSocket):
 
 
 async def _chat(req: RagChatRequest) -> RagChatResponse:
+    import time
+    started = time.perf_counter()
     from app.config import settings
     from app.services.retrieval_service import retrieve
     from app.services.prompt_service import load_system_prompt, build_user_message
@@ -209,13 +211,27 @@ async def _chat(req: RagChatRequest) -> RagChatResponse:
         )
 
     suggestions = suggest_questions(req.question, answer, req.model)
-    return RagChatResponse(
+    res = RagChatResponse(
         answer=answer,
         citations=to_citations(hits),
         usedVector=True,
         usedGraph=bool(graph_facts),
         suggestions=suggestions,
     )
+    from app.services import query_log_service
+    from datetime import datetime, timezone
+    query_log_service.log_query({
+        "question": req.question,
+        "answer": answer,
+        "model": req.model or settings.llm_model,
+        "usedVector": True,
+        "usedGraph": bool(graph_facts),
+        "usedWeb": False,
+        "transport": "rest",
+        "latencyMs": int((time.perf_counter() - started) * 1000) if 'started' in locals() else 0,
+        "createdAt": datetime.now(timezone.utc).isoformat(),
+    })
+    return res
 
 
 def _stream_with_log(req: RagChatRequest, transport: str):
