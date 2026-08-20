@@ -129,7 +129,7 @@ class PersonServiceImplTest {
         PageImpl<Person> page = new PageImpl<>(List.of(person), pageable, 1);
         when(personRepository.findByNameContainingIgnoreCase("ngo", pageable)).thenReturn(page);
 
-        ResultPaginationDTO result = personService.getAllPersons("ngo", pageable);
+        ResultPaginationDTO result = personService.getAllPersons("ngo", null, pageable);
 
         assertEquals(1, result.meta().page());
         assertEquals(10, result.meta().pageSize());
@@ -145,7 +145,7 @@ class PersonServiceImplTest {
         PageImpl<Person> page = new PageImpl<>(List.of(person), pageable, 1);
         when(personRepository.findAll(pageable)).thenReturn(page);
 
-        ResultPaginationDTO result = personService.getAllPersons(" ", pageable);
+        ResultPaginationDTO result = personService.getAllPersons(" ", null, pageable);
 
         assertEquals(1, result.meta().total());
         assertEquals(1, result.result().size());
@@ -176,7 +176,8 @@ class PersonServiceImplTest {
                 "Tiền Ngô Vương",
                 LocalDate.of(898, 1, 1),
                 LocalDate.of(944, 1, 1),
-                "Vị vua đặt nền móng cho nền độc lập lâu dài"
+                "Vị vua đặt nền móng cho nền độc lập lâu dài",
+                null
         );
     }
 
@@ -187,7 +188,8 @@ class PersonServiceImplTest {
                 "Tiền Ngô Vương",
                 LocalDate.of(898, 1, 1),
                 LocalDate.of(944, 1, 1),
-                "Vua mở đầu thời kỳ độc lập tự chủ"
+                "Vua mở đầu thời kỳ độc lập tự chủ",
+                null
         );
     }
 

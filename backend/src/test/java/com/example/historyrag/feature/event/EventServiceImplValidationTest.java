@@ -90,6 +90,8 @@ class EventServiceImplValidationTest {
                 LocalDate.parse("1288-01-01"),
                 LocalDate.parse("1288-12-31"),
                 EventCertaintyLevel.CERTAIN,
+                null,
+                null,
                 List.of(
                         new EventLocationRelationRequest(2L, "BATTLEFIELD"),
                         new EventLocationRelationRequest(2L, "RELATED_TO")
@@ -114,6 +116,8 @@ class EventServiceImplValidationTest {
                 LocalDate.parse("1288-01-01"),
                 LocalDate.parse("1288-12-31"),
                 EventCertaintyLevel.CERTAIN,
+                null,
+                null,
                 List.of()
         );
         when(eventRepository.existsBySlug(request.slug())).thenReturn(false);
@@ -132,6 +136,8 @@ class EventServiceImplValidationTest {
                 LocalDate.parse("1288-01-01"),
                 LocalDate.parse("1288-12-31"),
                 EventCertaintyLevel.CERTAIN,
+                null,
+                null,
                 List.of(new EventLocationRelationRequest(2L, "BATTLEFIELD"))
         );
     }

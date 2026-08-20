@@ -221,6 +221,8 @@ class PostServiceImplTest {
                 "/uploads/posts/bach-dang.jpg",
                 status,
                 publishedAt,
+                null,
+                null,
                 eventIds,
                 tagIds
         );
@@ -236,6 +238,8 @@ class PostServiceImplTest {
                 "/uploads/posts/new.jpg",
                 status,
                 publishedAt,
+                null,
+                null,
                 eventIds,
                 tagIds
         );

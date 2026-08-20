@@ -121,6 +121,8 @@ def test_close_noop_when_no_client(monkeypatch):
 
 def test_list_logs_noop_when_mongo_url_missing(monkeypatch):
     monkeypatch.setattr("app.config.settings.mongo_url", None)
+    # Buffer fallback là global module — cô lập để không ăn log của test khác.
+    monkeypatch.setattr(query_log_service, "_in_memory_logs", [])
 
     called = []
     monkeypatch.setattr(query_log_service, "_collection", lambda: called.append(True))
@@ -151,6 +153,8 @@ def test_list_logs_builds_filter_query_and_serializes_id(monkeypatch):
 
 def test_list_logs_swallows_find_exception(monkeypatch):
     monkeypatch.setattr("app.config.settings.mongo_url", "mongodb://fake")
+    # Buffer fallback là global module — cô lập để không ăn log của test khác.
+    monkeypatch.setattr(query_log_service, "_in_memory_logs", [])
 
     fake = FakeFindCollection(docs=[], raise_on_find=True)
     monkeypatch.setattr(query_log_service, "_collection", lambda: fake)

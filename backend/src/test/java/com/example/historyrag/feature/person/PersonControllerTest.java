@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,7 +67,7 @@ class PersonControllerTest {
                 new ResultPaginationDTO.Meta(1, 10, 1, 1),
                 List.of(personResponse())
         );
-        when(personService.getAllPersons(eq("ngo"), any(Pageable.class))).thenReturn(result);
+        when(personService.getAllPersons(eq("ngo"), isNull(), any(Pageable.class))).thenReturn(result);
 
         mockMvc.perform(get("/api/v1/admin/persons")
                         .param("keyword", "ngo")
@@ -201,7 +202,8 @@ class PersonControllerTest {
                 LocalDate.of(944, 1, 1),
                 "Vị vua đặt nền móng cho nền độc lập lâu dài",
                 Instant.parse("2026-06-16T00:00:00Z"),
-                Instant.parse("2026-06-16T01:00:00Z")
+                Instant.parse("2026-06-16T01:00:00Z"),
+                null
         );
     }
 }

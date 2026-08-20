@@ -203,8 +203,14 @@ class LocationControllerTest {
                 new BigDecimal("21.116667"),
                 new BigDecimal("105.866667"),
                 "Kinh đô cổ",
+                null,
+                List.of(),
+                null,
                 Instant.parse("2026-06-16T00:00:00Z"),
-                Instant.parse("2026-06-16T01:00:00Z")
+                Instant.parse("2026-06-16T01:00:00Z"),
+                List.of(),
+                List.of(),
+                List.of()
         );
     }
 }

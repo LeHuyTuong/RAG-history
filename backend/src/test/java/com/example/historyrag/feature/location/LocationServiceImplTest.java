@@ -135,7 +135,7 @@ class LocationServiceImplTest {
         when(locationRepository.findBy(any(PredicateSpecification.class), any(Function.class))).thenReturn(page);
 
         ResultPaginationDTO result = locationService.filter(
-                new LocationFilterRequest("co loa", LocationType.CAPITAL),
+                new LocationFilterRequest("co loa", LocationType.CAPITAL, null),
                 pageable);
 
         assertEquals(1, result.meta().page());
@@ -169,7 +169,10 @@ class LocationServiceImplTest {
                 LocationType.CAPITAL,
                 new BigDecimal("21.116667"),
                 new BigDecimal("105.866667"),
-                "Kinh đô cổ"
+                "Kinh đô cổ",
+                null,
+                List.of(),
+                null
         );
     }
 
@@ -180,7 +183,10 @@ class LocationServiceImplTest {
                 LocationType.TEMPLE,
                 new BigDecimal("21.116000"),
                 new BigDecimal("105.866000"),
-                "Di tích lịch sử"
+                "Di tích lịch sử",
+                null,
+                List.of(),
+                null
         );
     }
 
